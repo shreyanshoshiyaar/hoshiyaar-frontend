@@ -1,0 +1,8 @@
+# Redirect all routes to index.html for SPA routing
+/*    /index.html   200
+
+# Alternative syntax for Render
+/learn    /index.html    200
+/learn/*  /index.html    200
+/profile  /index.html    200
+/revision /index.html    200
