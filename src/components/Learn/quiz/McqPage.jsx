@@ -109,7 +109,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         if (user?._id) {
           const params = new URLSearchParams(window.location.search);
           const title = params.get('title') || item?.title || `Module ${moduleNumber}`;
-          await authService.updateProgress({ userId: user._id, chapter: Number(moduleNumber), subject: user.subject || 'Science', lessonTitle: title, isCorrect: true, deltaScore: 0, resetLesson: true });
+          await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: title, isCorrect: true, deltaScore: 0, resetLesson: true });
         }
       } catch (_) {}
     })();
@@ -186,7 +186,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         const qid = `${moduleNumber}_${index}_mcq`;
         const pts = 5; // both standard and revision award +5 on first correct
         if (pts !== 0) awardCorrect(String(moduleNumber), qid, pts);
-        try { if (user?._id) await authService.updateProgress({ userId: user._id, chapter: Number(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: pts }); } catch (_) {}
+        try { if (user?._id) await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: pts }); } catch (_) {}
       }
       
       // If in review mode, notify and go back to module
@@ -202,7 +202,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       if (isFirstAttempt && !actualReviewMode) {
         const qid = `${moduleNumber}_${index}_mcq`;
         awardWrong(String(moduleNumber), qid, -2, { isRetry: false });
-        try { if (user?._id) await authService.updateProgress({ userId: user._id, chapter: Number(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: false, deltaScore: -2 }); } catch (_) {}
+        try { if (user?._id) await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: false, deltaScore: -2 }); } catch (_) {}
       }
       const questionId = `${moduleNumber}_${index}_multiple-choice`;
       if (!actualReviewMode) {
@@ -262,7 +262,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
           console.log('[MCQ] Saving module completion to database:', moduleNumber);
           const response = await authService.updateProgress({ 
             userId: user._id, 
-            chapter: Number(moduleNumber), 
+            moduleId: String(moduleNumber), 
             subject: user.subject || 'Science', // CRITICAL FIX: Include subject
             conceptCompleted: true 
           });

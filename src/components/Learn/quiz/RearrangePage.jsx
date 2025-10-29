@@ -281,7 +281,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
         const qid = `${moduleNumber}_${index}_rearrange`;
         const pts = 5; // both standard and revision award +5 on first correct
         if (pts !== 0) awardCorrect(String(moduleNumber), qid, pts);
-        try { if (user?._id) await authService.updateProgress({ userId: user._id, chapter: Number(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: pts }); } catch (_) {}
+        try { if (user?._id) await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: pts }); } catch (_) {}
       }
       
       if (actualReviewMode) {
@@ -344,7 +344,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
     if (nextIndex >= items.length) {
       // Count only when module completes
       try { 
-        if (user?._id) await authService.updateProgress({ userId: user._id, chapter: Number(moduleNumber), subject: user.subject || 'Science', conceptCompleted: true }); 
+        if (user?._id) await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', conceptCompleted: true }); 
       } catch (_) {}
       // Update local caches so dashboard updates without refresh
       try {
@@ -441,7 +441,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
       </div>
 
       {/* Main Content - optimized for mobile with reduced spacing */}
-      <div className="flex-1 w-full px-2 sm:px-4 md:px-6 max-w-6xl mx-auto overflow-y-auto" style={{ maxHeight: 'calc(100vh - 80px)' }}>
+      <div className="flex-1 w-full px-2 sm:px-4 md:px-6 max-w-6xl mx-auto overflow-y-auto pb-20 sm:pb-24" style={{ maxHeight: 'calc(100vh - 80px)' }}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 items-start mt-2 sm:mt-4 md:mt-6">
           {/* Image (Left) - render uploaded images if available */}
           {(() => {
@@ -535,19 +535,23 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
               )}
             </div>
 
-            <div className="w-full max-w-md mt-4 sm:mt-6 self-start">
-              {!showResult && (
-                <button
-                  onClick={handleSubmit}
-                  className="w-full py-3 sm:py-4 rounded-xl sm:rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-lg sm:text-xl"
-                >
-                  Check
-                </button>
-              )}
-            </div>
           </div>
         </div>
       </div>
+
+      {/* Sticky Check Button - Always visible at bottom when not showing result */}
+      {!showResult && (
+        <div className="fixed left-0 right-0 bottom-0 z-50 bg-white border-t-2 border-gray-200 shadow-lg">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+            <button
+              onClick={handleSubmit}
+              className="w-full py-3 sm:py-4 rounded-xl sm:rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-lg sm:text-xl"
+            >
+              Check
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Inline Duolingo-style feedback bar - show for both correct and incorrect answers */}
       {showResult && !actualReviewMode && (

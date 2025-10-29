@@ -890,11 +890,12 @@ const LearnDashboard = ({ onboardingData }) => {
   }, [user, selectedBoard, subjectName, preferredChapterId, authLoading, onboardingData]);
 
   // When opening chapters grid, load per-chapter module counts and compute simple completion
+  // Debounced and not tied to rapid progress changes to avoid flicker
   useEffect(() => {
     if (!showChapters || chaptersList.length === 0) return;
     let cancelled = false;
     setStatsLoading(true);
-    (async () => {
+    const timer = setTimeout(async () => {
       try {
         const cur = (await import("../../../services/curriculumService.js"))
           .default;
@@ -917,12 +918,13 @@ const LearnDashboard = ({ onboardingData }) => {
         if (!cancelled) setChapterStats(nextStats);
       } catch (_) {}
       if (!cancelled) setStatsLoading(false);
-    })();
+    }, 300);
     return () => {
       cancelled = true;
       setStatsLoading(false);
+      clearTimeout(timer);
     };
-  }, [showChapters, chaptersList, progress]);
+  }, [showChapters, chaptersList]);
 
   // Rotate tips every 5 seconds
   useEffect(() => {
@@ -1129,33 +1131,42 @@ const LearnDashboard = ({ onboardingData }) => {
     }
   }, [user?._id]);
 
-  // Refresh progress from database when user changes
+  // Fetch completed module IDs; apply monotonic union (never remove) and debounce to avoid flicker
   useEffect(() => {
-    if (user?._id) {
-      const refreshProgress = async () => {
-        try {
-          console.log('[Dashboard] Refreshing progress from database for user:', user._id);
-          const response = await authService.getProgress(user._id);
-          if (response?.data) {
-            // CRITICAL FIX: Filter progress by current subject to prevent collision
-            const subjectProgress = response.data.filter(p => p.subject === subjectName);
-            setProgress(subjectProgress);
-            console.log('[Dashboard] Progress refreshed from database for subject:', subjectName, subjectProgress);
-            
-            // Clear false completions after refreshing from database
-            setTimeout(() => {
-              clearFalseCompletions();
-            }, 500);
-          }
-        } catch (error) {
-          console.error('[Dashboard] Failed to refresh progress from database:', error);
+    if (!user?._id) return;
+    const debounce = setTimeout(async () => {
+      try {
+        const resp = await authService.getCompletedModuleIds(user._id, { subject: subjectName });
+        const ids = Array.isArray(resp?.data?.completedModuleIds) ? resp.data.completedModuleIds : [];
+        const current = loadCompletedIds();
+        ids.forEach((id) => current.add(String(id)));
+        localStorage.setItem(LS_IDS_KEY, JSON.stringify(Array.from(current)));
+        setProgressUpdateTrigger((prev) => prev + 1);
+        console.log('[Progress Sync] Completed IDs from server:', ids);
+      } catch (e) {
+        console.warn('[Progress Sync] Failed to fetch completed IDs:', e);
+      }
+    }, 500);
+    return () => clearTimeout(debounce);
+  }, [user?._id, subjectName, modulesList.length]);
+
+  // Refresh progress; do not clear local completions to avoid flicker
+  useEffect(() => {
+    if (!user?._id) return;
+    const timeoutId = setTimeout(async () => {
+      try {
+        console.log('[Dashboard] Refreshing progress from database for user:', user._id);
+        const response = await authService.getProgress(user._id);
+        if (response?.data) {
+          const subjectProgress = response.data.filter(p => p.subject === subjectName);
+          setProgress(subjectProgress);
+          console.log('[Dashboard] Progress refreshed for subject:', subjectName, subjectProgress);
         }
-      };
-      
-      // Small delay to ensure user data is fully loaded
-      const timeoutId = setTimeout(refreshProgress, 1000);
-      return () => clearTimeout(timeoutId);
-    }
+      } catch (error) {
+        console.error('[Dashboard] Failed to refresh progress from database:', error);
+      }
+    }, 800);
+    return () => clearTimeout(timeoutId);
   }, [user?._id]);
 
   // Note: firstIncompleteIndex will be computed per unit to reflect local/module-id completion

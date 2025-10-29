@@ -107,7 +107,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
         if (user?._id) {
           const params = new URLSearchParams(window.location.search);
           const title = params.get('title') || item?.title || `Module ${moduleNumber}`;
-          await authService.updateProgress({ userId: user._id, chapter: Number(moduleNumber), subject: user.subject || 'Science', lessonTitle: title, isCorrect: true, deltaScore: 0, resetLesson: true });
+          await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: title, isCorrect: true, deltaScore: 0, resetLesson: true });
         }
       } catch (_) {}
     })();
@@ -178,7 +178,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
         const qid = `${moduleNumber}_${index}_fillups`;
         const pts = 5;
         if (pts !== 0) awardCorrect(String(moduleNumber), qid, pts);
-        try { if (user?._id) await authService.updateProgress({ userId: user._id, chapter: Number(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: pts }); } catch (_) {}
+        try { if (user?._id) await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: pts }); } catch (_) {}
       }
       
       if (actualReviewMode) {
@@ -192,7 +192,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
       if (isFirstAttempt && !actualReviewMode) {
         const qid = `${moduleNumber}_${index}_fillups`;
         awardWrong(String(moduleNumber), qid, -2, { isRetry: false });
-        try { if (user?._id) await authService.updateProgress({ userId: user._id, chapter: Number(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: false, deltaScore: -2 }); } catch (_) {}
+        try { if (user?._id) await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: false, deltaScore: -2 }); } catch (_) {}
       }
       const questionId = `${moduleNumber}_${index}_fill-in-the-blank`;
       if (!actualReviewMode) {
@@ -245,7 +245,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
     if (nextIndex >= items.length) {
       // Count progress only when module completes
       try { 
-        if (user?._id) await authService.updateProgress({ userId: user._id, chapter: Number(moduleNumber), subject: user.subject || 'Science', conceptCompleted: true }); 
+        if (user?._id) await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', conceptCompleted: true }); 
       } catch (_) {}
       // Update local caches so dashboard updates without refresh
       try {

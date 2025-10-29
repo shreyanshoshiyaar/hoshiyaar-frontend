@@ -59,6 +59,7 @@ const getUser = (userId, opts) => {
 // Progress APIs
 const getProgress = (userId, opts) => http.get('progress/' + userId, opts);
 const updateProgress = (data, opts) => http.put('progress', data, opts);
+const getCompletedModuleIds = (userId, { subject } = {}, opts) => http.get('completed-modules/' + userId, { params: { subject }, ...(opts || {}) });
 
 // Username availability
 const checkUsername = (username, opts) => http.get('check-username', { params: { username }, ...(opts || {}) });
@@ -72,6 +73,7 @@ const authService = {
   getUser,
   getProgress,
   updateProgress,
+  getCompletedModuleIds,
   checkUsername,
 };
 
