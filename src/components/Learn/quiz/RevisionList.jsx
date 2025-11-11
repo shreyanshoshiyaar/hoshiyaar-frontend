@@ -128,10 +128,87 @@ export default function RevisionList() {
             setIncorrectCountByModule(counts);
           } catch (_) { setIncorrectCountByModule({}); }
           // Fetch default revision items for this unit (keep separate for special box)
+          let defaultEntriesLocal = [];
           try {
-            const defaults = await reviewService.listDefaults({ unitId });
-            setDefaultEntries((defaults || []).filter(d => !d.moduleId || allowed.has(d.moduleId)));
-          } catch (_) { setDefaultEntries([]); }
+            const defaults = await reviewService.listDefaults({ unitId, page: 1, pageSize: 1000 });
+            // Sort by order to maintain revision sequence
+            const filtered = (defaults || [])
+              .filter(d => !d.moduleId || allowed.has(d.moduleId))
+              .sort((a, b) => {
+                const ao = Number(a.order || 0);
+                const bo = Number(b.order || 0);
+                if (ao !== bo) return ao - bo;
+                const ac = new Date(a.createdAt || 0).getTime();
+                const bc = new Date(b.createdAt || 0).getTime();
+                return ac - bc;
+              });
+            defaultEntriesLocal = filtered;
+            setDefaultEntries(filtered);
+          } catch (_) { 
+            setDefaultEntries([]);
+            defaultEntriesLocal = [];
+          }
+          
+          // If defaultOnly view at unit level, map defaults to items list (questionId resolvable)
+          if (defaultOnly && unitId && defaultEntriesLocal.length > 0) {
+            try {
+              // Map defaults to items with proper lessonIndex and revision data
+              const byModule = new Map();
+              const ensureItems = async (mid) => {
+                if (!mid) return [];
+                if (byModule.has(mid)) return byModule.get(mid);
+                try {
+                  const res = await curriculumService.listItems(mid);
+                  const arr = res?.data || [];
+                  byModule.set(mid, arr);
+                  return arr;
+                } catch (_) { byModule.set(mid, []); return []; }
+              };
+              
+              const mapped = [];
+              for (const d of defaultEntriesLocal) {
+                const mid = String(d.moduleId || '');
+                const foundIdx = Number.isInteger(d.lessonIndex) ? Number(d.lessonIndex) : -1;
+                if (foundIdx >= 0 && mid) {
+                  // Get revision type and map to route type
+                  const revisionType = String(d.type || 'statement');
+                  const routeType = revisionType === 'concept' ? 'statement' : 
+                                   revisionType === 'fill-in-the-blank' ? 'fill-in-the-blank' :
+                                   revisionType === 'multiple-choice' ? 'multiple-choice' :
+                                   revisionType === 'rearrange' ? 'rearrange' : 'statement';
+                  
+                  const revisionOrder = Number(d.order || 0);
+                  mapped.push({
+                    questionId: `${mid}_${String(foundIdx)}_${routeType}`,
+                    moduleId: mid,
+                    label: d.question || d.text || `Default`,
+                    count: 0,
+                    lastSeenAt: null,
+                    _source: 'default',
+                    _order: revisionOrder,
+                    _lessonIndex: foundIdx,
+                    _revisionData: {
+                      type: d.type,
+                      question: d.question,
+                      text: d.text,
+                      answer: d.answer,
+                      options: d.options || [],
+                      words: d.words || [],
+                      images: d.images || []
+                    }
+                  });
+                }
+              }
+              // Sort by order to maintain revision sequence
+              mapped.sort((a, b) => Number(a._order || 0) - Number(b._order || 0));
+              setItems(mapped);
+            } catch (_) {
+              setItems([]);
+            }
+          } else if (defaultOnly && unitId && defaultEntriesLocal.length === 0) {
+            // No defaults found, set empty items
+            setItems([]);
+          }
         } catch (_) { list = []; }
       } else {
         list = await reviewService.listIncorrect(user._id, moduleId || undefined, chapterId || undefined);
@@ -154,24 +231,8 @@ export default function RevisionList() {
           } catch (_) {}
         }
       }
-      // If defaultOnly view at unit level, map defaults to items list (questionId resolvable)
-      if (defaultOnly && unitId) {
-        try {
-          // Show ALL defaults as-is, without mapping to module items
-          const mappedAll = (defaultEntries || []).map((d, i) => ({
-            questionId: `${String(d.moduleId || 'unknown')}_${String(i)}_${String(d.type || 'statement')}`,
-            moduleId: String(d.moduleId || ''),
-            label: d.question || d.text || `Default ${i + 1}`,
-            count: 0,
-            lastSeenAt: null,
-            _source: 'default'
-          }));
-          setItems(mappedAll);
-        } catch (_) {
-          setItems([]);
-        }
-      } else {
-      setItems(list);
+      if (!defaultOnly || !unitId) {
+        setItems(list);
       }
       // If a module is specified, fetch its items to show titles/questions
       if (moduleId) {
@@ -230,23 +291,67 @@ export default function RevisionList() {
   const startReview = () => {
     // Build queue synchronously and then navigate with a brief tick to let context update
     reset();
-    const unique = items.filter(it => !!it?.questionId);
-    unique.forEach(({ questionId }) => {
-      const [mod, idx, type] = String(questionId).split('_');
-      add({ questionId, moduleNumber: mod, index: idx, type: type || 'multiple-choice' });
+    // Sort items by order to maintain revision sequence
+    const sortedItems = [...items]
+      .filter(it => !!it?.questionId)
+      .sort((a, b) => Number(a._order || 0) - Number(b._order || 0));
+    
+    // Build queue in correct order
+    sortedItems.forEach((item) => {
+      const { questionId, _order, _source, _lessonIndex, moduleId, _revisionData } = item;
+      if (!questionId) return;
+      const parts = String(questionId).split('_');
+      
+      // For revision items with _lessonIndex, use revision data type directly (preserve original type)
+      if (typeof _lessonIndex === 'number' && _lessonIndex >= 0 && moduleId) {
+        const mod = String(moduleId);
+        const idx = String(_lessonIndex);
+        // Use revision data type if available (preserves original type), otherwise extract from questionId
+        let routeType = 'statement';
+        if (_revisionData?.type) {
+          const revType = String(_revisionData.type);
+          // Map only 'concept' to 'statement' for routing, preserve all other types exactly
+          routeType = revType === 'concept' ? 'statement' : 
+                     revType === 'fill-in-the-blank' ? 'fill-in-the-blank' :
+                     revType === 'multiple-choice' ? 'multiple-choice' :
+                     revType === 'rearrange' ? 'rearrange' :
+                     revType === 'statement' ? 'statement' : 'statement';
+        } else {
+          // Fallback to extracting from questionId if no revision data
+          routeType = parts.length >= 3 ? parts[2] : 'statement';
+        }
+        
+        add({ 
+          questionId, 
+          moduleNumber: mod, 
+          index: idx, 
+          type: routeType,
+          _order: Number(_order || 0),
+          _source: _source || 'default',
+          _lessonIndex: Number(_lessonIndex),
+          _revisionData: _revisionData
+        });
+      } else {
+        // Fallback for items without _lessonIndex
+        if (parts.length >= 3) {
+          const [mod, idx, type] = parts;
+          add({ 
+            questionId, 
+            moduleNumber: mod, 
+            index: idx, 
+            type: type || 'statement',
+            _order: Number(_order || 0),
+            _source: _source || 'default',
+            _revisionData: _revisionData
+          });
+        }
+      }
     });
-    if (unique.length > 0) {
-      const [mod, idx, type] = String(unique[0].questionId).split('_');
-      let path = `/learn/module/${mod}`;
-      if (type === 'multiple-choice') path += `/mcq/${idx}`;
-      else if (type === 'fill-in-the-blank') path += `/fillups/${idx}`;
-      else if (type === 'rearrange') path += `/rearrange/${idx}`;
-      else path += `/concept/${idx}`;
-      // Use /review-round as a fallback if direct navigation fails; try both sequentially
-      setTimeout(() => {
-        try { navigate(`${path}?review=true`); } catch (_) { navigate('/review-round'); }
-      }, 0);
-    }
+    
+    // Navigate through ReviewRound for proper queue management
+    setTimeout(() => {
+      navigate('/review-round', { replace: false });
+    }, 50);
   };
 
   const subjectName = user?.subject || 'Science';
@@ -448,7 +553,10 @@ export default function RevisionList() {
             {paginate(items).map((it, i) => (
               <li key={i} className="p-6 rounded-3xl bg-white border-4 border-blue-300 shadow-[0_10px_0_0_rgba(59,130,246,0.22)] flex items-center justify-between">
                 <div className="flex flex-col pr-4">
-                  <span className="text-xl font-extrabold text-blue-800">{it.label || it.questionId}</span>
+                  <span
+                    className="text-xl font-extrabold text-blue-800"
+                    dangerouslySetInnerHTML={{ __html: it.label || it.questionId }}
+                  />
                   <span className="text-xs text-gray-500">Last seen: {it.lastSeenAt ? new Date(it.lastSeenAt).toLocaleString() : '—'}</span>
                 </div>
                 <span className="text-sm text-gray-700 inline-flex items-center gap-2">Attempted {it.count}</span>

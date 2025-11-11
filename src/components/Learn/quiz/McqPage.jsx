@@ -12,25 +12,55 @@ import authService from '../../../services/authService.js';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import { useReview } from '../../../context/ReviewContext.jsx';
 import { useStars, StarCounter } from '../../../context/StarsContext.jsx';
+import pointsService from '../../../services/pointsService.js';
+import curriculumService from '../../../services/curriculumService.js';
+import { progressKey } from '../../../utils/progressKey.js';
 // Inline feedback bar instead of modal
 
 export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
-  // Local storage helpers for dashboard progress sync
-  const LS_KEY = 'lesson_progress_v1';
-  const markCompletedLocal = (chapterZeroIdx) => {
+  const navigate = useNavigate();
+  const { moduleNumber, index: indexParam } = useParams();
+  const index = Number(indexParam || 0);
+  const { items, loading, error } = useModuleItems(moduleNumber);
+  // Check if we're in review or revision mode from URL params
+  const urlParams = new URLSearchParams(window.location.search);
+  const isReviewModeFromUrl = urlParams.get('review') === 'true';
+  const isRevisionModeFromUrl = urlParams.get('revision') === 'true';
+  const actualReviewMode = isReviewMode || isReviewModeFromUrl || isRevisionModeFromUrl;
+  const { user } = useAuth();
+  
+  // Local storage helpers for dashboard progress sync - NOW USING COMPOSITE KEYS
+  // Moved after useAuth() to ensure user is available
+  const LS_KEY_BASE = 'lesson_progress_v2'; // v2 for composite key support
+  
+  // Helper function to get user-scoped key (recalculate each time to ensure user is available)
+  const getUserScopedKey = (base) => `${base}__${user?._id || 'anon'}__${user?.subject || 'Science'}`;
+  
+  // Mark lesson as completed using composite key (chapterId:unitId:lessonId)
+  const markCompletedLocal = (chapterId, unitId, lessonId) => {
     try {
+      const key = progressKey(chapterId, unitId, lessonId);
+      const LS_KEY = getUserScopedKey(LS_KEY_BASE);
       const raw = localStorage.getItem(LS_KEY);
       const store = raw ? JSON.parse(raw) : {};
-      const key = 'default';
-      const set = new Set(store[key] || []);
-      if (Number.isInteger(chapterZeroIdx) && chapterZeroIdx >= 0) set.add(chapterZeroIdx);
-      store[key] = Array.from(set);
+      const completedSet = new Set(store.completedKeys || []);
+      completedSet.add(key);
+      store.completedKeys = Array.from(completedSet);
       localStorage.setItem(LS_KEY, JSON.stringify(store));
-    } catch (_) {}
+      console.log('[MCQ] Marked completed with composite key:', key, 'stored in', LS_KEY);
+      // Dispatch custom event to notify dashboard of progress update
+      try {
+        window.dispatchEvent(new CustomEvent('progressUpdated', { detail: { key: LS_KEY } }));
+      } catch (_) {}
+    } catch (error) {
+      console.error('[MCQ] Failed to mark completed locally:', error);
+    }
   };
-  const IDS_KEY = 'lesson_completed_ids_v1';
+  
+  const IDS_KEY_BASE = 'lesson_completed_ids_v1';
   const recordCompletedId = (moduleId) => {
     try {
+      const IDS_KEY = getUserScopedKey(IDS_KEY_BASE);
       const raw = localStorage.getItem(IDS_KEY);
       const arr = raw ? JSON.parse(raw) : [];
       const set = new Set(arr);
@@ -38,18 +68,54 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       localStorage.setItem(IDS_KEY, JSON.stringify(Array.from(set)));
     } catch (_) {}
   };
-  const navigate = useNavigate();
-  const { moduleNumber, index: indexParam } = useParams();
-  const index = Number(indexParam || 0);
-  const { items, loading, error } = useModuleItems(moduleNumber);
-  const item = useMemo(() => items[index] || null, [items, index]);
-  
-  // Check if we're in review mode from URL params
-  const urlParams = new URLSearchParams(window.location.search);
-  const isReviewModeFromUrl = urlParams.get('review') === 'true';
-  const actualReviewMode = isReviewMode || isReviewModeFromUrl;
-  const { user } = useAuth();
-  const { add: addToReview, removeActive, requeueActive } = useReview();
+  const { add: addToReview, removeActive, requeueActive, stageIncorrect, clearStagedForModule, active: activeReviewItem, queue } = useReview();
+  // Use revision data if in revision mode and available, otherwise use curriculum item
+  // IMPORTANT: Only use activeReviewItem if it matches the current URL params
+  const revisionItem = useMemo(() => {
+    if (isRevisionModeFromUrl) {
+      // First check if activeReviewItem matches current URL params
+      if (activeReviewItem && 
+          String(activeReviewItem.moduleNumber) === String(moduleNumber) &&
+          String(activeReviewItem.index) === String(index) &&
+          activeReviewItem._revisionData) {
+        return activeReviewItem._revisionData;
+      }
+      // If not, search queue for matching item
+      if (queue && queue.length > 0) {
+        const matchingItem = queue.find(q => 
+          String(q.moduleNumber) === String(moduleNumber) &&
+          String(q.index) === String(index) &&
+          q._revisionData
+        );
+        if (matchingItem && matchingItem._revisionData) {
+          return matchingItem._revisionData;
+        }
+      }
+    }
+    return null;
+  }, [isRevisionModeFromUrl, activeReviewItem, queue, moduleNumber, index]);
+  const curriculumItem = useMemo(() => items[index] || null, [items, index]);
+  // Prefer revision data over curriculum item when in revision mode
+  // Merge revision data with curriculum item structure to ensure all fields are available
+  const item = useMemo(() => {
+    if (isRevisionModeFromUrl && revisionItem) {
+      // Use revision data but merge with curriculum item for missing fields (like images)
+      // Revision questions might have 'question' or 'text' field - prioritize 'question'
+      // IMPORTANT: Preserve revisionItem.type exactly (don't override with curriculum type)
+      const revisionQuestion = revisionItem.question || revisionItem.text || '';
+      return {
+        ...(curriculumItem || {}),
+        ...revisionItem,
+        type: String(revisionItem.type || ''), // Preserve revision type exactly
+        question: revisionQuestion || curriculumItem?.question || '',
+        text: revisionItem.text || revisionItem.question || curriculumItem?.text || '',
+        options: Array.isArray(revisionItem.options) ? revisionItem.options : (curriculumItem?.options || []),
+        answer: revisionItem.answer || curriculumItem?.answer || '',
+        images: Array.isArray(revisionItem.images) ? revisionItem.images : (curriculumItem?.images || [])
+      };
+    }
+    return curriculumItem;
+  }, [isRevisionModeFromUrl, revisionItem, curriculumItem]);
   const { awardCorrect, awardWrong } = useStars();
   const [feedback, setFeedback] = useState({ open: false, correct: false, expected: '' });
   const [selectedIndex, setSelectedIndex] = useState(null);
@@ -99,8 +165,40 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
     setHasAttempted(false);
   }, [item, moduleNumber, index]);
 
-  // Allow native browser back (no intercept)
-  useEffect(() => {}, []);
+  // Show exit confirmation on browser back button in revision/review mode
+  useEffect(() => {
+    if (!actualReviewMode) return;
+
+    const handlePop = () => {
+      // Show confirmation dialog
+      setShowExitConfirm(true);
+      // Prevent navigation by pushing current state back
+      try {
+        window.history.pushState(null, '', window.location.href);
+      } catch (_) {}
+    };
+
+    const handleKey = (e) => {
+      // Show confirmation on Alt+Left (common back navigation shortcut)
+      if (e.altKey && e.key === 'ArrowLeft') {
+        e.preventDefault();
+        setShowExitConfirm(true);
+      }
+    };
+
+    // Push current state to track back navigation
+    try {
+      window.history.pushState(null, '', window.location.href);
+    } catch (_) {}
+
+    window.addEventListener('popstate', handlePop);
+    window.addEventListener('keydown', handleKey);
+
+    return () => {
+      window.removeEventListener('popstate', handlePop);
+      window.removeEventListener('keydown', handleKey);
+    };
+  }, [actualReviewMode]);
 
   // Reset server-side lesson score at entry
   useEffect(() => {
@@ -184,9 +282,15 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       // Award only on first attempt
       if (isFirstAttempt) {
         const qid = `${moduleNumber}_${index}_mcq`;
-        const pts = 5; // both standard and revision award +5 on first correct
-        if (pts !== 0) awardCorrect(String(moduleNumber), qid, pts);
-        try { if (user?._id) await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: pts }); } catch (_) {}
+        const pts = 5;
+        const type = isRevisionModeFromUrl ? 'revision' : 'curriculum';
+        if (pts !== 0) awardCorrect(String(moduleNumber), qid, pts, { type });
+        try {
+          if (user?._id) {
+            await pointsService.award({ userId: user._id, questionId: qid, moduleId: String(moduleNumber), type, result: 'correct' });
+          }
+          await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: pts });
+        } catch (_) {}
       }
       
       // If in review mode, notify and go back to module
@@ -201,8 +305,14 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       // scoring penalty (first attempt only; none in review/revision)
       if (isFirstAttempt && !actualReviewMode) {
         const qid = `${moduleNumber}_${index}_mcq`;
-        awardWrong(String(moduleNumber), qid, -2, { isRetry: false });
-        try { if (user?._id) await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: false, deltaScore: -2 }); } catch (_) {}
+        const type = isRevisionModeFromUrl ? 'revision' : 'curriculum';
+        awardWrong(String(moduleNumber), qid, -2, { isRetry: false, type });
+        try {
+          if (user?._id) {
+            await pointsService.award({ userId: user._id, questionId: qid, moduleId: String(moduleNumber), type, result: 'incorrect' });
+          }
+          await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: false, deltaScore: -2 });
+        } catch (_) {}
       }
       const questionId = `${moduleNumber}_${index}_multiple-choice`;
       if (!actualReviewMode) {
@@ -237,8 +347,30 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
     // In review mode, on forced advance dispatch completion and return to module
     if (actualReviewMode) {
       if (force) {
-        // Incorrect path: keep item (already requeued), just advance
-        navigate('/review-round');
+        // After requeueActive(), cursor is already at 0, so get the next item
+        // Wait a tick for context to update, then navigate directly to next question
+        setTimeout(() => {
+          // Get the next active item after requeue
+          const nextItem = queue && queue.length > 0 ? queue[0] : null;
+          if (nextItem && nextItem.moduleNumber && nextItem.index != null) {
+            const { moduleNumber: mod, index: idx, type, _source } = nextItem;
+            const modeParam = _source === 'default' ? 'revision=true' : 'review=true';
+            const modStr = String(mod);
+            const idxStr = String(idx);
+            let url = '';
+            switch (type) {
+              case 'multiple-choice': url = `/learn/module/${modStr}/mcq/${idxStr}?${modeParam}`; break;
+              case 'fill-in-the-blank': url = `/learn/module/${modStr}/fillups/${idxStr}?${modeParam}`; break;
+              case 'rearrange': url = `/learn/module/${modStr}/rearrange/${idxStr}?${modeParam}`; break;
+              case 'statement':
+              case 'concept': url = `/learn/module/${modStr}/concept/${idxStr}?${modeParam}`; break;
+              default: url = '/review-round'; break;
+            }
+            if (url) navigate(url);
+          } else {
+            navigate('/review-round');
+          }
+        }, 0);
         return;
       }
       if (isCorrect) {
@@ -273,34 +405,61 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         // Still continue with local storage as fallback
       }
       
-      // Also persist locally so dashboard immediately reflects completion
+      // Also persist locally so dashboard immediately reflects completion - USING COMPOSITE KEYS
       try {
-        const zeroIdx = Number(moduleNumber) - 1;
-        markCompletedLocal(zeroIdx);
-        // Store by module id
-        recordCompletedId(moduleNumber);
-        // Also store in user-scoped keys for dashboard compatibility
+        // Get chapterId and unitId from module to create composite key
+        let chapterIdForStorage = null;
+        let unitIdForStorage = null;
         try {
-          const userScopedKey = (base) => `${base}__${user?._id || 'anon'}`;
-          const userLS_KEY = userScopedKey('lesson_progress_v1');
-          const userIDS_KEY = userScopedKey('lesson_completed_ids_v1');
+          // Try to get from URL first (if navigating from dashboard)
+          const urlParams = new URLSearchParams(window.location.search);
+          chapterIdForStorage = urlParams.get('chapterId');
+          unitIdForStorage = urlParams.get('unitId');
           
-          // Update user-scoped progress
-          const userRaw = localStorage.getItem(userLS_KEY);
-          const userStore = userRaw ? JSON.parse(userRaw) : {};
-          const userSet = new Set(userStore['default'] || []);
-          userSet.add(zeroIdx);
-          userStore['default'] = Array.from(userSet);
-          localStorage.setItem(userLS_KEY, JSON.stringify(userStore));
-          
-          // Update user-scoped completed IDs
-          const userIdsRaw = localStorage.getItem(userIDS_KEY);
-          const userIdsArr = userIdsRaw ? JSON.parse(userIdsRaw) : [];
-          const userIdsSet = new Set(userIdsArr);
-          userIdsSet.add(String(moduleNumber));
-          localStorage.setItem(userIDS_KEY, JSON.stringify(Array.from(userIdsSet)));
-        } catch (_) {}
-      } catch (_) {}
+          // If not in URL, fetch module details to get chapterId and unitId
+          if (!chapterIdForStorage || !unitIdForStorage) {
+            // Try to get from all chapters (fallback method)
+            const chapters = await curriculumService.listChapters(user?.board || 'CBSE', user?.subject || 'Science');
+            for (const ch of (chapters?.data || [])) {
+              // Try chapter-level modules first
+              const modules = await curriculumService.listModules(ch._id);
+              const found = (modules?.data || []).find(m => m._id === moduleNumber);
+              if (found) {
+                chapterIdForStorage = ch._id;
+                unitIdForStorage = found.unitId || null;
+                break;
+              }
+              
+              // If not found, try unit-level modules
+              if (!found) {
+                const units = await curriculumService.listUnits(ch._id);
+                for (const unit of (units?.data || [])) {
+                  const unitModules = await curriculumService.listModulesByUnit(unit._id);
+                  const foundInUnit = (unitModules?.data || []).find(m => m._id === moduleNumber);
+                  if (foundInUnit) {
+                    chapterIdForStorage = ch._id;
+                    unitIdForStorage = unit._id;
+                    break;
+                  }
+                }
+                if (chapterIdForStorage && unitIdForStorage) break;
+              }
+            }
+          }
+        } catch (e) {
+          console.warn('[MCQ] Could not fetch chapterId/unitId:', e);
+        }
+        
+        // Mark completed using composite key (chapterId:unitId:lessonId)
+        if (chapterIdForStorage && moduleNumber) {
+          markCompletedLocal(chapterIdForStorage, unitIdForStorage || '', moduleNumber);
+        }
+        
+        // Also store by module id (globally unique, for backward compatibility)
+        recordCompletedId(moduleNumber);
+      } catch (error) {
+        console.error('[MCQ] Failed to save progress locally:', error);
+      }
       return navigate(`/lesson-complete?chapter=${encodeURIComponent(moduleNumber)}`);
     }
     navigate(`${routeForType(nextItem.type, nextIndex)}${suffix}`);
@@ -334,7 +493,17 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
   if (loading) return <SimpleLoading />;
   if (error) return <div className="p-6 text-red-600">{error}</div>;
   if (!item) return <SimpleLoading />;
-  if (item.type !== 'multiple-choice') return <div className="p-6">No MCQ at this step.</div>;
+  // Check type: In revision mode, use revisionItem.type; in normal mode, use item.type
+  let actualType = String(item?.type || '');
+  if (isRevisionModeFromUrl && revisionItem?.type) {
+    // In revision mode, use revision data type (preserved exactly)
+    actualType = String(revisionItem.type || '');
+  }
+  
+  // Only display if it's actually a multiple-choice type
+  if (actualType !== 'multiple-choice') {
+    return <div className="p-6">No MCQ at this step.</div>;
+  }
 
   return (
     <div className="h-screen bg-white flex flex-col overflow-hidden">
@@ -380,7 +549,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
           if (imgs.length === 0 && item.imageUrl) imgs.push(item.imageUrl); 
           return imgs.length > 0 ? (
             <div className="w-full max-w-xl sm:max-w-2xl md:max-w-3xl mb-1 sm:mb-3 flex justify-center">
-              <div className="flex flex-wrap justify-center gap-1 sm:gap-3 md:gap-5">
+              <div className="flex flex-wrap md:flex-nowrap items-center justify-center gap-1 sm:gap-3 md:gap-5">
                 {((item.images && item.images.filter(Boolean)) || (item.imageUrl ? [item.imageUrl] : [])).slice(0,5).map((src, i) => (
                   <div key={i} className="border border-blue-300 rounded-lg sm:rounded-2xl p-1 sm:p-3 bg-white shadow-sm">
                     <img src={src} alt={'mcq-'+i} className="h-40 w-36 sm:h-32 sm:w-24 md:h-48 md:w-36 lg:h-60 lg:w-44 xl:h-80 xl:w-60 object-contain rounded-md sm:rounded-xl" />
@@ -611,7 +780,17 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
           <div className="w-full max-w-md">
             <ConceptExitConfirm
               progress={Math.round(((index+1)/Math.max(1, items.length))*100)}
-              onQuit={() => navigate('/learn')}
+              onQuit={() => {
+                // Preserve chapterId from URL when navigating back
+                const urlParams = new URLSearchParams(window.location.search);
+                const chapterId = urlParams.get('chapterId');
+                const unitId = urlParams.get('unitId');
+                const params = new URLSearchParams();
+                if (chapterId) params.set('chapterId', chapterId);
+                if (unitId) params.set('unitId', unitId);
+                const query = params.toString();
+                navigate(`/learn${query ? '?' + query : ''}`);
+              }}
               onContinue={() => setShowExitConfirm(false)}
               onClose={() => setShowExitConfirm(false)}
             />

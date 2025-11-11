@@ -8,13 +8,19 @@ export default function ReviewRound() {
 
   const url = useMemo(() => {
 		if (!active) return null;
-    const { moduleNumber, index, type } = active;
+    const { moduleNumber, index, type, _source } = active;
     const mod = String(moduleNumber);
     const idx = String(index);
+    // Use revision=true for default revision queue, review=true for incorrect review queue
+    const modeParam = _source === 'default' ? 'revision=true' : 'review=true';
+    
 		switch (type) {
-			case 'multiple-choice': return `/learn/module/${mod}/mcq/${idx}?review=true`;
-			case 'fill-in-the-blank': return `/learn/module/${mod}/fillups/${idx}?review=true`;
-			case 'rearrange': return `/learn/module/${mod}/rearrange/${idx}?review=true`;
+			case 'multiple-choice': return `/learn/module/${mod}/mcq/${idx}?${modeParam}`;
+			case 'fill-in-the-blank': return `/learn/module/${mod}/fillups/${idx}?${modeParam}`;
+			case 'rearrange': return `/learn/module/${mod}/rearrange/${idx}?${modeParam}`;
+			case 'statement':
+			case 'concept':
+				return `/learn/module/${mod}/concept/${idx}?${modeParam}`;
 			default: return null;
 		}
 	}, [active]);

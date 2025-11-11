@@ -1,16 +1,19 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useModuleItems } from '../../../hooks/useModuleItems';
+import { useReview } from '../../../context/ReviewContext.jsx';
 
 export default function LessonEntryRedirectByTitle() {
   const navigate = useNavigate();
   const { moduleNumber, title } = useParams();
   const decodedTitle = decodeURIComponent(title || '');
   const { items, loading, error } = useModuleItems(moduleNumber);
+  const { reset } = useReview();
   const params = new URLSearchParams(window.location.search);
   const mode = params.get('mode');
 
   useEffect(() => {
+    try { reset(); } catch (_) {}
     if (loading) return;
     if (error) return;
     if (!items || items.length === 0) return;

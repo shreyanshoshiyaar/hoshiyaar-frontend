@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import pointsService from '../services/pointsService.js';
 
 const StarsContext = createContext(null);
 
@@ -13,6 +14,13 @@ const STORAGE_PER_MODULE_KEY = 'hs_stars_per_module_v1';
 const STORAGE_PER_QUESTION_KEY = 'hs_stars_per_question_v1';
 
 export const StarsProvider = ({ children }) => {
+  const getUserId = () => {
+    try {
+      const raw = localStorage.getItem('user');
+      const parsed = raw ? JSON.parse(raw) : null;
+      return parsed?._id || null;
+    } catch (_) { return null; }
+  };
   const [stars, setStars] = useState(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -63,52 +71,55 @@ export const StarsProvider = ({ children }) => {
   };
 
   // Idempotent scoring helpers per question
-  const awardCorrect = (moduleId, questionId, points) => {
+  const awardCorrect = async (moduleId, questionId, points, { type = 'curriculum' } = {}) => {
     if (!moduleId || !questionId || !Number.isFinite(points) || points <= 0) return;
-    console.log('[StarsContext] awardCorrect called:', { moduleId, questionId, points });
+    // Optimistic UI will be applied after server confirms delta
     setQuestionLedger((prev) => {
       const entry = prev[questionId] || { correct: false, penalized: false, pointsAwarded: 0, moduleId };
-      console.log('[StarsContext] Current entry:', entry);
-      
-      if (entry.correct) {
-        console.log('[StarsContext] Question already answered correctly, skipping');
-        return prev; // already counted best result
-      }
-      
-      const deltaPts = Math.max(0, points - (entry.pointsAwarded || 0)); // grant only the improvement
-      console.log('[StarsContext] Delta points to award:', deltaPts);
-      
-      if (deltaPts > 0) {
-        setStars((s) => {
-          const newTotal = s + deltaPts;
-          console.log('[StarsContext] Updating stars:', s, '->', newTotal);
-          return newTotal;
-        });
-        setModuleStars((m) => ({ ...m, [moduleId]: (m[moduleId] || 0) + deltaPts }));
-        setDelta(deltaPts);
-        if (timerRef.current) clearTimeout(timerRef.current);
-        timerRef.current = setTimeout(() => setDelta(0), 1200);
-      }
-      const next = { ...prev, [questionId]: { ...entry, correct: true, pointsAwarded: Math.max(entry.pointsAwarded || 0, points) } };
-      console.log('[StarsContext] Updated ledger entry:', next[questionId]);
-      return next;
+      return { ...prev, [questionId]: { ...entry, correct: true, pointsAwarded: Math.max(entry.pointsAwarded || 0, points) } };
     });
+    try {
+      const uid = getUserId();
+      if (uid) {
+        const { data } = await pointsService.award({ userId: uid, questionId, moduleId: String(moduleId), type, result: 'correct' });
+        const serverDelta = Number(data?.delta || 0);
+        const serverTotal = Number(data?.totalPoints || 0);
+        if (Number.isFinite(serverDelta) && serverDelta !== 0) {
+          setStars((s) => Math.max(0, s + serverDelta));
+          setModuleStars((m) => ({ ...m, [moduleId]: (m[moduleId] || 0) + serverDelta }));
+          setDelta(serverDelta);
+          if (timerRef.current) clearTimeout(timerRef.current);
+          timerRef.current = setTimeout(() => setDelta(0), 1200);
+        } else if (Number.isFinite(serverTotal)) {
+          setStars(serverTotal);
+        }
+      }
+    } catch (_) { /* ignore UI sync errors */ }
   };
 
-  const awardWrong = (moduleId, questionId, penalty, { isRetry = false } = {}) => {
+  const awardWrong = async (moduleId, questionId, penalty, { isRetry = false, type = 'curriculum' } = {}) => {
     if (!moduleId || !questionId || !Number.isFinite(penalty) || penalty >= 0) return;
     setQuestionLedger((prev) => {
       const entry = prev[questionId] || { correct: false, penalized: false, pointsAwarded: 0, moduleId };
       // Do not penalize on retry, and only penalize once on the first wrong attempt
       if (isRetry || entry.penalized || entry.correct) return prev;
-      setStars((s) => Math.max(0, s + penalty));
-      setModuleStars((m) => ({ ...m, [moduleId]: Math.max(0, (m[moduleId] || 0) + penalty) }));
-      setDelta(penalty);
-      if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => setDelta(0), 1200);
       const next = { ...prev, [questionId]: { ...entry, penalized: true } };
       return next;
     });
+    try {
+      const uid = getUserId();
+      if (uid) {
+        const { data } = await pointsService.award({ userId: uid, questionId, moduleId: String(moduleId), type, result: 'incorrect' });
+        const serverDelta = Number(data?.delta || 0);
+        if (Number.isFinite(serverDelta) && serverDelta !== 0) {
+          setStars((s) => Math.max(0, s + serverDelta));
+          setModuleStars((m) => ({ ...m, [moduleId]: Math.max(0, (m[moduleId] || 0) + serverDelta) }));
+          setDelta(serverDelta);
+          if (timerRef.current) clearTimeout(timerRef.current);
+          timerRef.current = setTimeout(() => setDelta(0), 1200);
+        }
+      }
+    } catch (_) { /* ignore UI sync errors */ }
   };
 
   const getModuleStars = (moduleId) => moduleStars[moduleId] || 0;
@@ -139,7 +150,6 @@ export const StarsProvider = ({ children }) => {
       if (Number.isFinite(totalStars) && totalStars >= 0) {
         setStars(totalStars);
         setModuleStars(moduleStarsData);
-        console.log('[StarsContext] Synced from server:', { totalStars, moduleStarsData });
       }
     } catch (error) {
       console.warn('[StarsContext] Failed to sync from server:', error);

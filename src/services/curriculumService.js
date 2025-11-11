@@ -35,6 +35,9 @@ const curriculumService = {
   listBoards(opts) {
     return http.get(`/api/curriculum/boards`, passOpts(opts));
   },
+  listClasses(board = 'CBSE', opts) {
+    return http.get(`/api/curriculum/classes`, { params: { board }, ...passOpts(opts) });
+  },
   listSubjects(board = 'CBSE', opts) {
     return http.get(`/api/curriculum/subjects`, { params: { board }, ...passOpts(opts) });
   },
@@ -53,6 +56,14 @@ const curriculumService = {
   },
   listItems(moduleId, opts) {
     return http.get(`/api/curriculum/items`, { params: { moduleId }, ...passOpts(opts) });
+  },
+  getModule(moduleId, opts) {
+    // Fetch module details by ID - we'll search through chapters if no direct endpoint exists
+    // For now, return a promise that can be resolved by the caller
+    return http.get(`/api/curriculum/module`, { params: { moduleId }, ...passOpts(opts) }).catch(() => {
+      // Fallback: return null if endpoint doesn't exist yet
+      return { data: null };
+    });
   },
 };
 

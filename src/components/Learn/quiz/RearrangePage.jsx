@@ -7,6 +7,8 @@ import authService from '../../../services/authService.js';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import { useReview } from '../../../context/ReviewContext.jsx';
 import { useStars, StarCounter } from '../../../context/StarsContext.jsx';
+import pointsService from '../../../services/pointsService.js';
+import curriculumService from '../../../services/curriculumService.js';
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useModuleItems } from '../../../hooks/useModuleItems';
@@ -20,7 +22,60 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
   const { moduleNumber, index: indexParam } = useParams();
   const index = Number(indexParam || 0);
   const { items, loading, error } = useModuleItems(moduleNumber);
-  const item = useMemo(() => items[index] || null, [items, index]);
+  // Check if we're in review or revision mode from URL params
+  const urlParams = new URLSearchParams(window.location.search);
+  const isReviewModeFromUrl = urlParams.get('review') === 'true';
+  const isRevisionModeFromUrl = urlParams.get('revision') === 'true';
+  const actualReviewMode = isReviewMode || isReviewModeFromUrl || isRevisionModeFromUrl;
+  const { user } = useAuth();
+  const { add: addToReview, removeActive, requeueActive, stageIncorrect, clearStagedForModule, active: activeReviewItem, queue } = useReview();
+  // Use revision data if in revision mode and available, otherwise use curriculum item
+  // IMPORTANT: Only use activeReviewItem if it matches the current URL params
+  const revisionItem = useMemo(() => {
+    if (isRevisionModeFromUrl) {
+      // First check if activeReviewItem matches current URL params
+      if (activeReviewItem && 
+          String(activeReviewItem.moduleNumber) === String(moduleNumber) &&
+          String(activeReviewItem.index) === String(index) &&
+          activeReviewItem._revisionData) {
+        return activeReviewItem._revisionData;
+      }
+      // If not, search queue for matching item
+      if (queue && queue.length > 0) {
+        const matchingItem = queue.find(q => 
+          String(q.moduleNumber) === String(moduleNumber) &&
+          String(q.index) === String(index) &&
+          q._revisionData
+        );
+        if (matchingItem && matchingItem._revisionData) {
+          return matchingItem._revisionData;
+        }
+      }
+    }
+    return null;
+  }, [isRevisionModeFromUrl, activeReviewItem, queue, moduleNumber, index]);
+  const curriculumItem = useMemo(() => items[index] || null, [items, index]);
+  // Prefer revision data over curriculum item when in revision mode
+  // Merge revision data with curriculum item structure to ensure all fields are available
+  const item = useMemo(() => {
+    if (isRevisionModeFromUrl && revisionItem) {
+      // Use revision data but merge with curriculum item for missing fields (like images)
+      // Revision questions might have 'question' or 'text' field - prioritize 'question'
+      // IMPORTANT: Preserve revisionItem.type exactly (don't override with curriculum type)
+      const revisionQuestion = revisionItem.question || revisionItem.text || '';
+      return {
+        ...(curriculumItem || {}),
+        ...revisionItem,
+        type: String(revisionItem.type || ''), // Preserve revision type exactly
+        question: revisionQuestion || curriculumItem?.question || '',
+        text: revisionItem.text || revisionItem.question || curriculumItem?.text || '',
+        words: Array.isArray(revisionItem.words) ? revisionItem.words : (curriculumItem?.words || []),
+        answer: revisionItem.answer || curriculumItem?.answer || '',
+        images: Array.isArray(revisionItem.images) ? revisionItem.images : (curriculumItem?.images || [])
+      };
+    }
+    return curriculumItem;
+  }, [isRevisionModeFromUrl, revisionItem, curriculumItem]);
   // Local cache writers so dashboard star updates immediately on completion
   const LS_KEY = 'lesson_progress_v1';
   const markCompletedLocal = (chapterZeroIdx) => {
@@ -44,13 +99,6 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
       localStorage.setItem(IDS_KEY, JSON.stringify(Array.from(set)));
     } catch (_) {}
   };
-  
-  // Check if we're in review mode from URL params
-  const urlParams = new URLSearchParams(window.location.search);
-  const isReviewModeFromUrl = urlParams.get('review') === 'true';
-  const actualReviewMode = isReviewMode || isReviewModeFromUrl;
-  const { user } = useAuth();
-  const { add: addToReview, removeActive, requeueActive } = useReview();
   const { addStars, awardCorrect } = useStars();
   const [arrangedWords, setArrangedWords] = useState([]);
   const [availableWords, setAvailableWords] = useState([]);
@@ -143,8 +191,40 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
     setAvailableWords(shuffled);
   }, [item, moduleNumber, index]);
 
-  // Allow browser back
-  useEffect(() => {}, []);
+  // Show exit confirmation on browser back button in revision/review mode
+  useEffect(() => {
+    if (!actualReviewMode) return;
+
+    const handlePop = () => {
+      // Show confirmation dialog
+      setShowExitConfirm(true);
+      // Prevent navigation by pushing current state back
+      try {
+        window.history.pushState(null, '', window.location.href);
+      } catch (_) {}
+    };
+
+    const handleKey = (e) => {
+      // Show confirmation on Alt+Left (common back navigation shortcut)
+      if (e.altKey && e.key === 'ArrowLeft') {
+        e.preventDefault();
+        setShowExitConfirm(true);
+      }
+    };
+
+    // Push current state to track back navigation
+    try {
+      window.history.pushState(null, '', window.location.href);
+    } catch (_) {}
+
+    window.addEventListener('popstate', handlePop);
+    window.addEventListener('keydown', handleKey);
+
+    return () => {
+      window.removeEventListener('popstate', handlePop);
+      window.removeEventListener('keydown', handleKey);
+    };
+  }, [actualReviewMode]);
 
   // Enter to submit/continue
   useEffect(() => {
@@ -279,9 +359,15 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
       setShowTryAgainOption(false); // Hide try again when correct
       if (isFirstAttempt) {
         const qid = `${moduleNumber}_${index}_rearrange`;
-        const pts = 5; // both standard and revision award +5 on first correct
-        if (pts !== 0) awardCorrect(String(moduleNumber), qid, pts);
-        try { if (user?._id) await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: pts }); } catch (_) {}
+        const pts = 5;
+        const type = isRevisionModeFromUrl ? 'revision' : 'curriculum';
+        if (pts !== 0) awardCorrect(String(moduleNumber), qid, pts, { type });
+        try {
+          if (user?._id) {
+            await pointsService.award({ userId: user._id, questionId: qid, moduleId: String(moduleNumber), type, result: 'correct' });
+          }
+          await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: pts });
+        } catch (_) {}
       }
       
       if (actualReviewMode) {
@@ -293,7 +379,17 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
       // Immediate feedback and enqueue for review
       setShowTryAgainOption(false);
       setShowIncorrectModal(true);
-      if (isFirstAttempt && !actualReviewMode) addStars(-2);
+      if (isFirstAttempt && !actualReviewMode) {
+        const qid = `${moduleNumber}_${index}_rearrange`;
+        const type = isRevisionModeFromUrl ? 'revision' : 'curriculum';
+        awardWrong(String(moduleNumber), qid, -2, { isRetry: false, type });
+        try {
+          if (user?._id) {
+            await pointsService.award({ userId: user._id, questionId: qid, moduleId: String(moduleNumber), type, result: 'incorrect' });
+          }
+          await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: false, deltaScore: -2 });
+        } catch (_) {}
+      }
       const questionId = `${moduleNumber}_${index}_rearrange`;
       if (!actualReviewMode) {
         addToReview({ questionId, moduleNumber, index, type: 'rearrange' });
@@ -324,7 +420,30 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
 
     if (actualReviewMode) {
       if (force) {
-        navigate('/review-round');
+        // After requeueActive(), cursor is already at 0, so get the next item
+        // Wait a tick for context to update, then navigate directly to next question
+        setTimeout(() => {
+          // Get the next active item after requeue
+          const nextItem = queue && queue.length > 0 ? queue[0] : null;
+          if (nextItem && nextItem.moduleNumber && nextItem.index != null) {
+            const { moduleNumber: mod, index: idx, type, _source } = nextItem;
+            const modeParam = _source === 'default' ? 'revision=true' : 'review=true';
+            const modStr = String(mod);
+            const idxStr = String(idx);
+            let url = '';
+            switch (type) {
+              case 'multiple-choice': url = `/learn/module/${modStr}/mcq/${idxStr}?${modeParam}`; break;
+              case 'fill-in-the-blank': url = `/learn/module/${modStr}/fillups/${idxStr}?${modeParam}`; break;
+              case 'rearrange': url = `/learn/module/${modStr}/rearrange/${idxStr}?${modeParam}`; break;
+              case 'statement':
+              case 'concept': url = `/learn/module/${modStr}/concept/${idxStr}?${modeParam}`; break;
+              default: url = '/review-round'; break;
+            }
+            if (url) navigate(url);
+          } else {
+            navigate('/review-round');
+          }
+        }, 0);
         return;
       }
       if (isCorrect) {
@@ -348,16 +467,49 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
       } catch (_) {}
       // Update local caches so dashboard updates without refresh
       try {
+        // Get chapterId from module to make completion chapter-specific
+        let chapterIdForStorage = null;
+        try {
+          const urlParams = new URLSearchParams(window.location.search);
+          chapterIdForStorage = urlParams.get('chapterId');
+          
+          if (!chapterIdForStorage) {
+            const chapters = await curriculumService.listChapters(user?.board || 'CBSE', user?.subject || 'Science');
+            for (const ch of (chapters?.data || [])) {
+              const modules = await curriculumService.listModules(ch._id);
+              const found = (modules?.data || []).find(m => m._id === moduleNumber);
+              if (found) {
+                chapterIdForStorage = ch._id;
+                break;
+              }
+            }
+          }
+        } catch (e) {
+          console.warn('[Rearrange] Could not fetch chapterId:', e);
+        }
+        
         const zeroIdx = Number(moduleNumber) - 1;
         markCompletedLocal(zeroIdx);
         recordCompletedId(moduleNumber);
-        // Also store in user-scoped keys for dashboard compatibility
+        
+        // Store in chapter-specific keys for dashboard compatibility
         try {
-          const userScopedKey = (base) => `${base}__${user?._id || 'anon'}`;
-          const userLS_KEY = userScopedKey('lesson_progress_v1');
-          const userIDS_KEY = userScopedKey('lesson_completed_ids_v1');
+          const subject = user?.subject || 'Science';
+          const userScopedKey = (base) => `${base}__${user?._id || 'anon'}__${subject}`;
+          const chapterScopedKey = (base, chId) => chId ? `${base}__${user?._id || 'anon'}__${subject}__${chId}` : userScopedKey(base);
           
-          // Update user-scoped progress
+          if (chapterIdForStorage) {
+            const chapterLS_KEY = chapterScopedKey('lesson_progress_v1', chapterIdForStorage);
+            const userRaw = localStorage.getItem(chapterLS_KEY);
+            const userStore = userRaw ? JSON.parse(userRaw) : {};
+            const chapterKey = `chapter_${chapterIdForStorage}`;
+            const userSet = new Set(userStore[chapterKey] || []);
+            userSet.add(zeroIdx);
+            userStore[chapterKey] = Array.from(userSet);
+            localStorage.setItem(chapterLS_KEY, JSON.stringify(userStore));
+          }
+          
+          const userLS_KEY = userScopedKey('lesson_progress_v1');
           const userRaw = localStorage.getItem(userLS_KEY);
           const userStore = userRaw ? JSON.parse(userRaw) : {};
           const userSet = new Set(userStore['default'] || []);
@@ -365,7 +517,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
           userStore['default'] = Array.from(userSet);
           localStorage.setItem(userLS_KEY, JSON.stringify(userStore));
           
-          // Update user-scoped completed IDs
+          const userIDS_KEY = userScopedKey('lesson_completed_ids_v1');
           const userIdsRaw = localStorage.getItem(userIDS_KEY);
           const userIdsArr = userIdsRaw ? JSON.parse(userIdsRaw) : [];
           const userIdsSet = new Set(userIdsArr);
@@ -409,7 +561,17 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
   if (loading) return <SimpleLoading />;
   if (error) return <div className="p-6 text-red-600">{error}</div>;
   if (!item) return <SimpleLoading />;
-  if (item.type !== 'rearrange') return <div className="p-6">No rearrange at this step.</div>;
+  // Check type: In revision mode, use revisionItem.type; in normal mode, use item.type
+  let actualType = String(item?.type || '');
+  if (isRevisionModeFromUrl && revisionItem?.type) {
+    // In revision mode, use revision data type (preserved exactly)
+    actualType = String(revisionItem.type || '');
+  }
+  
+  // Only display if it's actually a rearrange type
+  if (actualType !== 'rearrange') {
+    return <div className="p-6">No rearrange at this step.</div>;
+  }
 
   return (
     <div className="h-screen bg-white flex flex-col overflow-hidden">
@@ -620,7 +782,17 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
           <div className="w-full max-w-md">
             <ConceptExitConfirm
               progress={Math.round(((index+1)/Math.max(1, items.length))*100)}
-              onQuit={() => navigate('/learn')}
+              onQuit={() => {
+                // Preserve chapterId from URL when navigating back
+                const urlParams = new URLSearchParams(window.location.search);
+                const chapterId = urlParams.get('chapterId');
+                const unitId = urlParams.get('unitId');
+                const params = new URLSearchParams();
+                if (chapterId) params.set('chapterId', chapterId);
+                if (unitId) params.set('unitId', unitId);
+                const query = params.toString();
+                navigate(`/learn${query ? '?' + query : ''}`);
+              }}
               onContinue={() => setShowExitConfirm(false)}
               onClose={() => setShowExitConfirm(false)}
             />

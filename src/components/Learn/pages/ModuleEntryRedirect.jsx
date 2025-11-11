@@ -1,13 +1,17 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useModuleItems } from '../../../hooks/useModuleItems';
+import { useReview } from '../../../context/ReviewContext.jsx';
 
 export default function ModuleEntryRedirect() {
   const navigate = useNavigate();
   const { moduleNumber } = useParams();
   const { items, loading, error } = useModuleItems(moduleNumber);
+  const { reset } = useReview();
 
   useEffect(() => {
+    // Fresh review queue per lesson
+    try { reset(); } catch (_) {}
     if (loading) return;
     if (error) return;
     if (!items || items.length === 0) return;

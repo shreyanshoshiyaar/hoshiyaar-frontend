@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useAuth } from "../../../context/AuthContext.jsx";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import heroChar from "../../../assets/images/heroChar.png";
 import RevisionStar from "../quiz/RevisionStar.jsx";
 import { ReviewProvider } from "../../../context/ReviewContext.jsx";
 import { useStars } from '../../../context/StarsContext.jsx';
 import chapterImg from "../../../assets/images/chapterImg.png";
 import authService from "../../../services/authService.js";
+import { progressKey } from "../../../utils/progressKey.js";
 
 // --- SVG Icons for the Dashboard ---
 const LearnIcon = () => (
@@ -132,6 +133,7 @@ const LearnDashboard = ({ onboardingData }) => {
   const { logout, user, loading: authLoading } = useAuth();
   const { resetModuleLedger, stars, syncFromServer, setTotal } = useStars();
   const navigate = useNavigate();
+  const location = useLocation();
   
   const [progress, setProgress] = useState([]);
   const [chapterTitle, setChapterTitle] = useState("");
@@ -280,22 +282,50 @@ const LearnDashboard = ({ onboardingData }) => {
   const subjectName = onboardingData?.subject || user?.subject || "Science";
   const preferredChapterId = onboardingData?.chapter || user?.chapter || null;
 
-  // Helpers: local persistence for lesson completion - NOW SUBJECT-AWARE
+  // Helpers: local persistence for lesson completion - NOW USING COMPOSITE KEYS
   const userScopedKey = (base) => `${base}__${user?._id || 'anon'}__${subjectName || 'unknown'}`;
-  const LS_KEY_BASE = "lesson_progress_v1";
+  const chapterScopedKey = (base, chapterId) => chapterId ? `${base}__${user?._id || 'anon'}__${subjectName || 'unknown'}__${chapterId}` : userScopedKey(base);
+  const LS_KEY_BASE_V1 = "lesson_progress_v1"; // Old format (backward compatibility)
+  const LS_KEY_BASE_V2 = "lesson_progress_v2"; // New format with composite keys
   const LS_IDS_KEY_BASE = "lesson_completed_ids_v1";
-  const LS_KEY = userScopedKey(LS_KEY_BASE);
   const USE_LOCAL_PROGRESS = true; // enable client-side caching so stars shift immediately
-  const loadLocalProgress = () => {
+  
+  // Load completed composite keys (new format) - recalculate key each time to ensure user is available
+  const loadCompletedCompositeKeys = () => {
+    if (!USE_LOCAL_PROGRESS) return new Set();
+    try {
+      const LS_KEY_V2 = userScopedKey(LS_KEY_BASE_V2);
+      const raw = localStorage.getItem(LS_KEY_V2);
+      if (raw) {
+        const store = JSON.parse(raw);
+        return new Set(store.completedKeys || []);
+      }
+      return new Set();
+    } catch (_) {
+      return new Set();
+    }
+  };
+  
+  // Legacy loadLocalProgress for backward compatibility
+  const loadLocalProgress = (chapterId = null) => {
     if (!USE_LOCAL_PROGRESS) return {};
     try {
-      // Try user-scoped key first
-      let raw = localStorage.getItem(LS_KEY);
+      // Try chapter-specific key first if chapterId is provided
+      if (chapterId) {
+        const chapterKey = chapterScopedKey(LS_KEY_BASE_V1, chapterId);
+        let raw = localStorage.getItem(chapterKey);
+        if (raw) {
+          return JSON.parse(raw);
+        }
+      }
+      // Try user-scoped key (v1)
+      const LS_KEY_V1 = userScopedKey(LS_KEY_BASE_V1);
+      let raw = localStorage.getItem(LS_KEY_V1);
       if (raw) {
         return JSON.parse(raw);
       }
       // Fallback to non-scoped key for backward compatibility
-      raw = localStorage.getItem(LS_KEY_BASE);
+      raw = localStorage.getItem(LS_KEY_BASE_V1);
       if (raw) {
         return JSON.parse(raw);
       }
@@ -304,20 +334,27 @@ const LearnDashboard = ({ onboardingData }) => {
       return {};
     }
   };
-  const saveLocalProgress = (data) => {
+  const saveLocalProgress = (data, chapterId = null) => {
     if (!USE_LOCAL_PROGRESS) return;
     try {
+      if (chapterId) {
+        // Save to chapter-specific key
+        const chapterKey = chapterScopedKey(LS_KEY_BASE, chapterId);
+        localStorage.setItem(chapterKey, JSON.stringify(data));
+      }
+      // Also save to user-scoped key for backward compatibility
       localStorage.setItem(LS_KEY, JSON.stringify(data));
     } catch (_) {}
   };
-  const markIndexCompletedLocal = (unitId, index) => {
+  const markIndexCompletedLocal = (unitId, index, chapterId = null) => {
     if (!USE_LOCAL_PROGRESS) return;
-    const store = loadLocalProgress();
-    const key = unitId || "default";
+    const store = loadLocalProgress(chapterId);
+    // Use chapter-specific key if available, otherwise use unitId or default
+    const key = chapterId ? `chapter_${chapterId}` : (unitId || "default");
     const set = new Set(store[key] || []);
     set.add(index);
     store[key] = Array.from(set);
-    saveLocalProgress(store);
+    saveLocalProgress(store, chapterId);
     // Optimistically advance current progress state so UI updates immediately
     try {
       setProgress((prev) => {
@@ -336,7 +373,7 @@ const LearnDashboard = ({ onboardingData }) => {
       });
     } catch (_) {}
   };
-  // Track completion by moduleId as well for robustness across ordering
+  // Track completion by moduleId as well for robustness across ordering - Module IDs are globally unique, so no chapter scoping needed
   const LS_IDS_KEY = userScopedKey(LS_IDS_KEY_BASE);
   const loadCompletedIds = () => {
     if (!USE_LOCAL_PROGRESS) return new Set();
@@ -457,13 +494,18 @@ const LearnDashboard = ({ onboardingData }) => {
       store[key] = Array.from(localSet);
       saveLocalProgress(store);
       
-      // Also sync completed IDs
+      // CRITICAL FIX: Use completedModules from backend instead of chapter-level completion
+      // This prevents marking ALL modules in a chapter as completed when only some are done
       const newCompletedIds = new Set(completedIdSet);
-      modulesList.forEach((mod, index) => {
-        if (serverCompletedSet.has(index) && mod?._id) {
-          newCompletedIds.add(String(mod._id));
-        }
-      });
+      if (progress && Array.isArray(progress)) {
+        progress.forEach((p) => {
+          if (p?.subject === subjectName && Array.isArray(p?.completedModules)) {
+            p.completedModules.forEach((moduleId) => {
+              if (moduleId) newCompletedIds.add(String(moduleId));
+            });
+          }
+        });
+      }
       localStorage.setItem(LS_IDS_KEY, JSON.stringify(Array.from(newCompletedIds)));
       
       // Force UI update
@@ -594,15 +636,17 @@ const LearnDashboard = ({ onboardingData }) => {
         setProgress(progressData);
         if (USE_LOCAL_PROGRESS) {
           try {
-            const local = loadLocalProgress();
+            // Load progress for current chapter if available
+            const currentChapterId = params.get("chapterId") || preferredChapterId;
+            const local = loadLocalProgress(currentChapterId);
             const completedIdx = (progressData || [])
-              .filter((p) => p?.conceptCompleted)
+              .filter((p) => p?.conceptCompleted && p?.subject === subjectName)
               .map((p) => (p?.chapter ? p.chapter - 1 : null))
               .filter((n) => Number.isInteger(n));
-            const key = "default";
+            const key = currentChapterId ? `chapter_${currentChapterId}` : "default";
             const set = new Set([...(local[key] || []), ...completedIdx]);
             local[key] = Array.from(set);
-            saveLocalProgress(local);
+            saveLocalProgress(local, currentChapterId);
           } catch (_) {}
         }
         // Load chapter & module titles
@@ -676,7 +720,8 @@ const LearnDashboard = ({ onboardingData }) => {
         }
         
         setChaptersList(listCh);
-        const params = new URLSearchParams(window.location.search);
+        const params = new URLSearchParams(location.search);
+        // Prioritize URL chapterId over preferredChapterId to persist user selection
         const preferId = params.get("chapterId") || preferredChapterId;
         // Normalize chapter objects from API (support variants like id, _id, chapterId or even strings)
         const toChapter = (raw, index = 0) => {
@@ -795,7 +840,7 @@ const LearnDashboard = ({ onboardingData }) => {
               lastMap = {};
             }
             const preferredUnitId =
-              new URLSearchParams(window.location.search).get("unitId") ||
+              new URLSearchParams(location.search).get("unitId") ||
               lastMap?.[ch._id];
             const preferredUnit = units.find((u) => u?._id === preferredUnitId);
             const chosenUnit = preferredUnit || units[0];
@@ -887,7 +932,7 @@ const LearnDashboard = ({ onboardingData }) => {
       }
     };
     load();
-  }, [user, selectedBoard, subjectName, preferredChapterId, authLoading, onboardingData]);
+  }, [user, selectedBoard, subjectName, preferredChapterId, authLoading, onboardingData, location.search]);
 
   // When opening chapters grid, load per-chapter module counts and compute simple completion
   // Debounced and not tied to rapid progress changes to avoid flicker
@@ -1066,30 +1111,83 @@ const LearnDashboard = ({ onboardingData }) => {
   const progressState = useMemo(() => {
     const serverCompletedSet = new Set(
       (progress || [])
-        .filter((p) => p?.conceptCompleted)
+        .filter((p) => p?.conceptCompleted && p?.subject === subjectName)
         .map((p) => (p?.chapter ? p.chapter - 1 : -1))
         .filter((i) => i >= 0)
     );
-    const localProgress = loadLocalProgress();
-    const completedIdSet = loadCompletedIds();
+    // Load local progress for current chapter to ensure chapter-specific tracking
+    const localProgress = loadLocalProgress(chapterId);
+    const allCompletedIds = loadCompletedIds();
+    
+    // CRITICAL FIX: Load completed composite keys (new format) - PRIMARY SOURCE
+    const completedCompositeKeys = loadCompletedCompositeKeys();
+    
+    // CRITICAL FIX: Get completedModules from backend progress (more accurate than chapter-level)
+    const backendCompletedModuleIds = new Set();
+    if (progress && Array.isArray(progress)) {
+      progress.forEach((p) => {
+        if (p?.subject === subjectName && Array.isArray(p?.completedModules)) {
+          p.completedModules.forEach((moduleId) => {
+            if (moduleId) backendCompletedModuleIds.add(String(moduleId));
+          });
+        }
+      });
+    }
+    
+    // CRITICAL FIX: Filter completed IDs to only include modules from the CURRENT chapter
+    // This prevents modules from other chapters being marked as completed
+    const currentChapterModuleIds = new Set(
+      (modulesList || []).map(m => m?._id ? String(m._id) : null).filter(Boolean)
+    );
+    
+    // Merge backend completedModules with local completedIds, but only for current chapter
+    const completedIdSet = new Set(
+      Array.from(allCompletedIds)
+        .filter(id => currentChapterModuleIds.has(id))
+        .concat(Array.from(backendCompletedModuleIds).filter(id => currentChapterModuleIds.has(id)))
+    );
     
     // Debug logging to help identify sync issues
     console.log('[Dashboard Progress Debug]', {
       serverProgress: progress || [],
       serverCompletedSet: Array.from(serverCompletedSet),
       localProgress,
-      completedIdSet: Array.from(completedIdSet),
+      allCompletedIds: Array.from(allCompletedIds),
+      currentChapterModuleIds: Array.from(currentChapterModuleIds),
+      filteredCompletedIdSet: Array.from(completedIdSet),
+      completedCompositeKeys: Array.from(completedCompositeKeys),
+      chapterId,
       modulesList: modulesList?.map((m, i) => ({ index: i, id: m?._id, title: m?.title }))
     });
     
     return {
       serverCompletedSet,
       localProgress,
-      completedIdSet
+      completedIdSet,
+      completedCompositeKeys // NEW: Include composite keys for checking completion
     };
-  }, [progress, progressUpdateTrigger, modulesList]);
+  }, [progress, progressUpdateTrigger, modulesList, chapterId, subjectName, user?._id, user?.subject]);
   
-  const { serverCompletedSet, localProgress, completedIdSet } = progressState;
+  const { serverCompletedSet, localProgress, completedIdSet, completedCompositeKeys } = progressState;
+  
+  // Listen for storage events to update progress when other tabs/pages update localStorage
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key && (e.key.includes('lesson_progress_v2') || e.key.includes('lesson_completed_ids_v1'))) {
+        console.log('[Dashboard] Storage changed, refreshing progress:', e.key);
+        setProgressUpdateTrigger(prev => prev + 1);
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    // Also listen for custom events from same-tab updates
+    window.addEventListener('progressUpdated', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('progressUpdated', handleStorageChange);
+    };
+  }, []);
   
   // Trigger progress update when returning to dashboard
   useEffect(() => {
@@ -1247,6 +1345,45 @@ const LearnDashboard = ({ onboardingData }) => {
               <ProfileIcon />
               <span>Profile</span>
             </a>
+            <a
+              href="https://drive.google.com/file/d/1O_cZFjm4eQSp2S55_6_Ly7zsHhZsX7hG/view?usp=sharing"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 py-3 px-4 rounded-xl border-2 border-blue-100 bg-white text-blue-700 shadow-sm hover:bg-blue-50 transition-colors"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-500 text-lg">📂</div>
+              <div className="text-left">
+                <p className="text-sm font-extrabold leading-tight text-blue-700">Resource Drop 1</p>
+                <p className="text-xs text-blue-500/80">Google Drive</p>
+              </div>
+              <span className="text-lg text-blue-400">↗</span>
+            </a>
+            <a
+              href="https://drive.google.com/file/d/1O_cZFjm4eQSp2S55_6_Ly7zsHhZsX7hG/view?usp=sharing"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 py-3 px-4 rounded-xl border-2 border-blue-100 bg-white text-blue-700 shadow-sm hover:bg-blue-50 transition-colors"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-500 text-lg">📂</div>
+              <div className="text-left">
+                <p className="text-sm font-extrabold leading-tight text-blue-700">Resource Drop 2</p>
+                <p className="text-xs text-blue-500/80">Google Drive</p>
+              </div>
+              <span className="text-lg text-blue-400">↗</span>
+            </a>
+            <a
+              href="https://drive.google.com/file/d/1O_cZFjm4eQSp2S55_6_Ly7zsHhZsX7hG/view?usp=sharing"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 py-3 px-4 rounded-xl border-2 border-blue-100 bg-white text-blue-700 shadow-sm hover:bg-blue-50 transition-colors"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-500 text-lg">📂</div>
+              <div className="text-left">
+                <p className="text-sm font-extrabold leading-tight text-blue-700">Resource Drop 3</p>
+                <p className="text-xs text-blue-500/80">Google Drive</p>
+              </div>
+              <span className="text-lg text-blue-400">↗</span>
+            </a>
           </div>
         </nav>
 
@@ -1284,6 +1421,45 @@ const LearnDashboard = ({ onboardingData }) => {
             <ProfileIcon />
             <span>Profile</span>
           </a>
+        <a
+          href="https://drive.google.com/file/d/1O_cZFjm4eQSp2S55_6_Ly7zsHhZsX7hG/view?usp=sharing"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 py-3 px-4 rounded-xl border-2 border-blue-100 bg-white text-blue-700 shadow-sm hover:bg-blue-50 transition-colors"
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-500 text-lg">📂</div>
+          <div className="text-left">
+            <p className="text-sm font-extrabold leading-tight text-blue-700">Resource Drop 1</p>
+            <p className="text-xs text-blue-500/80">Google Drive</p>
+          </div>
+          <span className="text-lg text-blue-400">↗</span>
+        </a>
+        <a
+          href="https://drive.google.com/file/d/1O_cZFjm4eQSp2S55_6_Ly7zsHhZsX7hG/view?usp=sharing"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 py-3 px-4 rounded-xl border-2 border-blue-100 bg-white text-blue-700 shadow-sm hover:bg-blue-50 transition-colors"
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-500 text-lg">📂</div>
+          <div className="text-left">
+            <p className="text-sm font-extrabold leading-tight text-blue-700">Resource Drop 2</p>
+            <p className="text-xs text-blue-500/80">Google Drive</p>
+          </div>
+          <span className="text-lg text-blue-400">↗</span>
+        </a>
+        <a
+          href="https://drive.google.com/file/d/1O_cZFjm4eQSp2S55_6_Ly7zsHhZsX7hG/view?usp=sharing"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 py-3 px-4 rounded-xl border-2 border-blue-100 bg-white text-blue-700 shadow-sm hover:bg-blue-50 transition-colors"
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-500 text-lg">📂</div>
+          <div className="text-left">
+            <p className="text-sm font-extrabold leading-tight text-blue-700">Resource Drop 3</p>
+            <p className="text-xs text-blue-500/80">Google Drive</p>
+          </div>
+          <span className="text-lg text-blue-400">↗</span>
+        </a>
         </nav>
 
         <main className="flex-grow p-3 md:p-6 overflow-auto no-scrollbar bg-transparent mt-16 md:mt-0">
@@ -1316,88 +1492,126 @@ const LearnDashboard = ({ onboardingData }) => {
             >
               {showChapters ? (
                 <div className="w-full px-4 md:px-8">
-                  <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-3xl p-6 md:p-8 shadow-[0_10px_0_0_rgba(0,0,0,0.15)] ring-4 ring-white/20 w-full">
-                    <div className="flex items-center justify-between mb-4">
-                      
-                      <button
-                        onClick={() => setShowChapters(false)}
-                        className="text-white/90 hover:text-white text-2xl"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                    {statsLoading && (
-                      <div className="flex justify-center items-center py-10">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
-                        <span className="ml-3 font-extrabold">Loading chapter stats…</span>
-                      </div>
-                    )}
-                    <div className="grid grid-cols-1 gap-6 max-h-[60vh] overflow-y-auto pr-1">
-                      {chaptersList.map((ch) => (
-                        <div
-                          key={ch._id}
-                          className="w-full min-h-[200px] md:min-h-[220px] rounded-2xl p-5 md:p-6 bg-white text-blue-700 border-4 border-blue-200 shadow-[0_10px_0_0_rgba(0,0,0,0.10)] flex items-center gap-6"
+                  <div className="bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 text-white rounded-3xl p-6 md:p-8 shadow-2xl ring-4 ring-white/30 w-full relative overflow-hidden">
+                    {/* Decorative background elements */}
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+                    <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full -ml-24 -mb-24 blur-3xl"></div>
+                    
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-2xl md:text-3xl font-extrabold text-white drop-shadow-lg">All Chapters</h2>
+                        <button
+                          onClick={() => setShowChapters(false)}
+                          className="text-white/90 hover:text-white hover:bg-white/20 rounded-full p-2 transition-all duration-200 text-2xl w-10 h-10 flex items-center justify-center"
                         >
-                          <div className="flex-1">
-                            <div className="text-xl md:text-2xl font-extrabold leading-tight">
-                              {ch.title}
-                            </div>
-                            <div className="mt-3 h-3 bg-blue-100 rounded-full overflow-hidden">
-                              {(() => {
-                                const st = chapterStats[ch._id] || {
-                                  total: 0,
-                                  completed: 0,
-                                };
-                                const pct =
-                                  st.total > 0
-                                    ? Math.min(
-                                        100,
-                                        Math.round(
-                                          (st.completed / st.total) * 100
-                                        )
-                                      )
-                                    : 0;
-                                return (
-                                  <div
-                                    className="h-full bg-blue-400"
-                                    style={{ width: `${pct}%` }}
-                                  />
-                                );
-                              })()}
-                            </div>
-                            <div className="mt-1 text-xs text-blue-700/80 font-extrabold">
-                              {(() => {
-                                const st = chapterStats[ch._id] || {
-                                  total: 0,
-                                  completed: 0,
-                                };
-                                return `${st.completed} / ${st.total || "?"}`;
-                              })()}
-                            </div>
-                            <div className="mt-4">
-                              <button
-                                onClick={() => {
-                                  setShowChapters(false);
-                                  window.location.href = `/learn?chapterId=${encodeURIComponent(
-                                    ch._id
-                                  )}`;
-                                }}
-                                className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-sm md:text-base shadow-[0_6px_0_0_rgba(0,0,0,0.12)]"
-                              >
-                                CONTINUE
-                              </button>
-                            </div>
-                          </div>
-                          {/* Chapter illustration (right side) */}
-                          <div className="flex-shrink-0 pr-2 hidden md:block">
-                            <img
-                              src={chapterImg}
-                              alt="Chapter"
-                              className="w-36 h-36 md:w-44 md:h-44 object-contain opacity-95"
-                            />
-                          </div>
+                          ✕
+                        </button>
+                      </div>
+                      {statsLoading && (
+                        <div className="flex justify-center items-center py-10">
+                          <div className="animate-spin rounded-full h-12 w-12 border-4 border-white/30 border-t-white"></div>
+                          <span className="ml-3 font-extrabold text-lg">Loading chapter stats…</span>
                         </div>
-                      ))}
+                      )}
+                      <div className="grid grid-cols-1 gap-4 md:gap-6 max-h-[65vh] overflow-y-auto custom-scrollbar pr-2">
+                        {chaptersList.map((ch, index) => {
+                          const st = chapterStats[ch._id] || { total: 0, completed: 0 };
+                          const pct = st.total > 0 ? Math.min(100, Math.round((st.completed / st.total) * 100)) : 0;
+                          
+                          return (
+                            <div
+                              key={ch._id}
+                              className="group w-full min-h-[200px] md:min-h-[220px] rounded-3xl p-5 md:p-6 bg-white text-blue-700 border-4 border-blue-200/50 shadow-[0_8px_0_0_rgba(59,130,246,0.2)] hover:shadow-[0_12px_0_0_rgba(59,130,246,0.3)] transition-all duration-300 hover:scale-[1.02] hover:border-blue-300 flex items-center gap-6 relative overflow-hidden"
+                              style={{ animationDelay: `${index * 50}ms` }}
+                            >
+                              {/* Gradient background effect */}
+                              <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                              
+                              <div className="flex-1 relative z-10">
+                                <div className="text-xl md:text-2xl font-extrabold leading-tight mb-3 text-blue-900 group-hover:text-blue-800 transition-colors">
+                                  {ch.title}
+                                </div>
+                                
+                                {/* Enhanced progress bar */}
+                                <div className="mt-4 mb-2">
+                                  <div className="flex items-center justify-between mb-1">
+                                    <span className="text-xs font-bold text-blue-600/80">Progress</span>
+                                    <span className="text-xs font-extrabold text-blue-700">{st.completed} / {st.total || "?"}</span>
+                                  </div>
+                                  <div className="h-4 bg-blue-100 rounded-full overflow-hidden shadow-inner">
+                                    <div
+                                      className="h-full bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 rounded-full transition-all duration-500 ease-out relative overflow-hidden"
+                                      style={{ width: `${pct}%` }}
+                                    >
+                                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                <div className="mt-5">
+                                  <button
+                                    onClick={async () => {
+                                      setShowChapters(false);
+                                      if (ch?._id) {
+                                        // Update URL with chapterId to persist selection
+                                        navigate(`/learn?chapterId=${encodeURIComponent(ch._id)}`, { replace: false });
+                                        // Immediately update state to reflect the change
+                                        setChapterId(ch._id);
+                                        setChapterTitle(ch.title);
+                                        
+                                        // Update database with the selected chapter
+                                        if (user?._id) {
+                                          try {
+                                            await authService.updateProfile({
+                                              userId: user._id,
+                                              chapter: ch.title, // Save chapter title to user profile
+                                            });
+                                            console.log('Chapter saved to database:', ch.title);
+                                            
+                                            // Update local user state to reflect the change immediately
+                                            const updatedUser = { ...user, chapter: ch.title };
+                                            try {
+                                              localStorage.setItem('user', JSON.stringify(updatedUser));
+                                            } catch (e) {
+                                              console.warn('Failed to update localStorage:', e);
+                                            }
+                                          } catch (error) {
+                                            console.error('Failed to save chapter to database:', error);
+                                            // Don't block UI if save fails
+                                          }
+                                        }
+                                      }
+                                    }}
+                                    className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 via-blue-600 to-indigo-600 hover:from-blue-700 hover:via-blue-700 hover:to-indigo-700 text-white font-extrabold text-sm md:text-base shadow-[0_6px_0_0_rgba(37,99,235,0.4)] hover:shadow-[0_8px_0_0_rgba(37,99,235,0.5)] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden group"
+                                  >
+                                    <span className="relative z-10 flex items-center justify-center gap-2">
+                                      <span>CONTINUE</span>
+                                      <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                      </svg>
+                                    </span>
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                                  </button>
+                                </div>
+                              </div>
+                              
+                              {/* Chapter illustration (right side) */}
+                              <div className="flex-shrink-0 pr-2 hidden md:block relative z-10">
+                                <div className="relative">
+                                  <img
+                                    src={chapterImg}
+                                    alt="Chapter"
+                                    className="w-36 h-36 md:w-44 md:h-44 object-contain opacity-95 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300"
+                                  />
+                                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center text-xl animate-bounce">
+                                    ❤️
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1423,7 +1637,7 @@ const LearnDashboard = ({ onboardingData }) => {
                             <button
                               onClick={handleOpenSubjectModal}
                               disabled={isLoading || subjectChanging}
-                              className={`text-white/80 hover:text-white text-sm bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg transition-colors ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                              className={`flex items-center gap-2 py-2 px-4 rounded-2xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-sm font-extrabold ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''}`}
                               title={subjectChanging ? "Switching Subject..." : "Change Subject"}
                             >
                               {subjectChanging ? "Switching..." : "Change"}
@@ -1455,14 +1669,32 @@ const LearnDashboard = ({ onboardingData }) => {
                       {/* Render modules directly */}
                       <div className="relative flex flex-col items-center gap-16 sm:gap-20 md:gap-24 pt-20 sm:pt-24 md:pt-28 pb-6 sm:pb-8 px-8 sm:px-12 md:px-16 lg:px-20 xl:px-24">
                         {modulesList.map((mod, index) => {
-                          // --- Revised progress logic: track by module ID and lock correctly ---
+                          // --- CRITICAL FIX: Check completion using composite key (chapterId:unitId:lessonId) ---
                           const moduleIdHere = mod?._id;
-                          const isCompleted = moduleIdHere ? completedIdSet.has(String(moduleIdHere)) : false;
+                          const unitIdHere = null; // No unit for direct chapter modules
+                          const chapterIdHere = chapterId;
+                          
+                          // CRITICAL FIX: Check completion using composite key ONLY (prevents collisions)
+                          // Don't use module ID alone as it can cause collisions across units
+                          const compositeKey = progressKey(chapterIdHere, unitIdHere, moduleIdHere);
+                          const isCompletedByCompositeKey = completedCompositeKeys.has(compositeKey);
+                          
+                          // Only use module ID check if composite key doesn't exist (for migration from old data)
+                          // But prioritize composite key to prevent collisions
+                          const isCompletedById = moduleIdHere && !isCompletedByCompositeKey 
+                            ? completedIdSet.has(String(moduleIdHere)) 
+                            : false;
+                          
+                          // Lesson is completed ONLY if composite key exists (primary check)
+                          // Module ID check is only for backward compatibility during migration
+                          const isCompleted = isCompletedByCompositeKey || isCompletedById;
 
-                          // First module in this list that is not completed by ID
+                          // First module in this list that is not completed by composite key or ID
                           const firstIncompleteForUnit = modulesList.findIndex((m) => {
                             const id = m?._id;
-                            return id ? !completedIdSet.has(String(id)) : true;
+                            if (!id) return true;
+                            const key = progressKey(chapterIdHere, null, id);
+                            return !completedCompositeKeys.has(key) && !completedIdSet.has(String(id));
                           });
 
                           let status = "locked";
@@ -1497,7 +1729,13 @@ const LearnDashboard = ({ onboardingData }) => {
                                         onClick={() => {
                                           if (!canClick) return;
                                           const moduleId = modulesList[index]?._id;
-                                          if (moduleId) navigate(`/learn/module/${moduleId}`);
+                                          if (moduleId) {
+                                            // Preserve chapterId in URL for navigation back
+                                            const params = new URLSearchParams();
+                                            if (chapterId) params.set('chapterId', chapterId);
+                                            const query = params.toString();
+                                            navigate(`/learn/module/${moduleId}${query ? '?' + query : ''}`);
+                                          }
                                           // Do NOT mark completed here; only count after module completion
                                         }}
                                       />
@@ -1518,7 +1756,13 @@ const LearnDashboard = ({ onboardingData }) => {
                                         onClick={() => {
                                           if (!canClick) return;
                                           const moduleId = modulesList[index]?._id;
-                                          if (moduleId) navigate(`/learn/module/${moduleId}`);
+                                          if (moduleId) {
+                                            // Preserve chapterId in URL for navigation back
+                                            const params = new URLSearchParams();
+                                            if (chapterId) params.set('chapterId', chapterId);
+                                            const query = params.toString();
+                                            navigate(`/learn/module/${moduleId}${query ? '?' + query : ''}`);
+                                          }
                                           // Do NOT mark completed here; only count after module completion
                                         }}
                                       />
@@ -1585,14 +1829,14 @@ const LearnDashboard = ({ onboardingData }) => {
                                <p className="opacity-90 text-sm md:text-base">
                                  {subjectName}
                                </p>
-                               <button
-                                 onClick={handleOpenSubjectModal}
-                                 disabled={isLoading || subjectChanging}
-                                 className={`text-white/80 hover:text-white text-xs bg-white/20 hover:bg-white/30 px-2 py-1 rounded-lg transition-colors ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                 title={subjectChanging ? "Switching Subject..." : "Change Subject"}
-                               >
-                                 {subjectChanging ? "Switching..." : "Change"}
-                               </button>
+                              <button
+                                onClick={handleOpenSubjectModal}
+                                disabled={isLoading || subjectChanging}
+                                className={`flex items-center gap-2 py-2 px-3 rounded-2xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-xs font-extrabold ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                title={subjectChanging ? "Switching Subject..." : "Change Subject"}
+                              >
+                                {subjectChanging ? "Switching..." : "Change"}
+                              </button>
                              </div>
                            </div>
                            <div className="flex items-center gap-2">
@@ -1616,14 +1860,32 @@ const LearnDashboard = ({ onboardingData }) => {
                         /> ); })()}
                         <div className="relative flex flex-col items-center gap-16 sm:gap-20 md:gap-24 pt-20 sm:pt-24 md:pt-28 pb-6 sm:pb-8 px-8 sm:px-12 md:px-16 lg:px-20 xl:px-24">
                           {localLevels.map((mod, index) => {
-                            // --- Revised progress logic: track by module ID and lock correctly ---
+                            // --- CRITICAL FIX: Check completion using composite key (chapterId:unitId:lessonId) ---
                             const moduleIdHere = mod?._id;
-                            const isCompleted = moduleIdHere ? completedIdSet.has(String(moduleIdHere)) : false;
+                            const unitIdHere = u?._id;
+                            const chapterIdHere = chapterId;
+                            
+                          // CRITICAL FIX: Check completion using composite key ONLY (prevents collisions)
+                          // Don't use module ID alone as it can cause collisions across units
+                          const compositeKey = progressKey(chapterIdHere, unitIdHere, moduleIdHere);
+                          const isCompletedByCompositeKey = completedCompositeKeys.has(compositeKey);
+                          
+                          // Only use module ID check if composite key doesn't exist (for migration from old data)
+                          // But prioritize composite key to prevent collisions
+                          const isCompletedById = moduleIdHere && !isCompletedByCompositeKey 
+                            ? completedIdSet.has(String(moduleIdHere)) 
+                            : false;
+                          
+                          // Lesson is completed ONLY if composite key exists (primary check)
+                          // Module ID check is only for backward compatibility during migration
+                          const isCompleted = isCompletedByCompositeKey || isCompletedById;
 
-                            // First incomplete within THIS unit by ID
+                            // First incomplete within THIS unit by composite key or ID
                             const firstIncompleteForUnit = localLevels.findIndex((m) => {
                               const id = m?._id;
-                              return id ? !completedIdSet.has(String(id)) : true;
+                              if (!id) return true;
+                              const key = progressKey(chapterIdHere, unitIdHere, id);
+                              return !completedCompositeKeys.has(key) && !completedIdSet.has(String(id));
                             });
 
                             let status = "locked";
@@ -1655,12 +1917,19 @@ const LearnDashboard = ({ onboardingData }) => {
                                           color={unitPalette[unitIdx % unitPalette.length]}
                                           lightenFn={lighten}
                                           darkenFn={darken}
-                                          onClick={() => {
-                                            if (!canClick) return;
-                                            const moduleId = mod?._id;
-                                            if (moduleId) navigate(`/learn/module/${moduleId}`);
-                                            // Do NOT mark completed here; only count after module completion
-                                          }}
+                                        onClick={() => {
+                                          if (!canClick) return;
+                                          const moduleId = mod?._id;
+                                          if (moduleId) {
+                                            // Preserve chapterId and unitId in URL for navigation back
+                                            const params = new URLSearchParams();
+                                            if (chapterId) params.set('chapterId', chapterId);
+                                            if (u?._id) params.set('unitId', u._id);
+                                            const query = params.toString();
+                                            navigate(`/learn/module/${moduleId}${query ? '?' + query : ''}`);
+                                          }
+                                          // Do NOT mark completed here; only count after module completion
+                                        }}
                                         />
                                       </div>
                                     </div>
@@ -1676,12 +1945,19 @@ const LearnDashboard = ({ onboardingData }) => {
                                           color={unitPalette[unitIdx % unitPalette.length]}
                                           lightenFn={lighten}
                                           darkenFn={darken}
-                                          onClick={() => {
-                                            if (!canClick) return;
-                                            const moduleId = mod?._id;
-                                            if (moduleId) navigate(`/learn/module/${moduleId}`);
-                                            // Do NOT mark completed here; only count after module completion
-                                          }}
+                                        onClick={() => {
+                                          if (!canClick) return;
+                                          const moduleId = mod?._id;
+                                          if (moduleId) {
+                                            // Preserve chapterId and unitId in URL for navigation back
+                                            const params = new URLSearchParams();
+                                            if (chapterId) params.set('chapterId', chapterId);
+                                            if (u?._id) params.set('unitId', u._id);
+                                            const query = params.toString();
+                                            navigate(`/learn/module/${moduleId}${query ? '?' + query : ''}`);
+                                          }
+                                          // Do NOT mark completed here; only count after module completion
+                                        }}
                                         />
                                       </div>
                                       <div className="h-1.5 sm:h-2 md:h-3 w-24 sm:w-28 md:w-32 lg:w-36 xl:w-40 rounded-full" style={{ backgroundColor: railColor }}></div>
@@ -1878,7 +2154,13 @@ const LearnDashboard = ({ onboardingData }) => {
                   const nextIndex = Math.max(0, firstIncompleteIndex);
                   const nextId =
                     modulesList?.[nextIndex]?._id || modulesList?.[0]?._id;
-                  if (nextId) navigate(`/learn/module/${nextId}`);
+                  if (nextId) {
+                    // Preserve chapterId in URL for navigation back
+                    const params = new URLSearchParams();
+                    if (chapterId) params.set('chapterId', chapterId);
+                    const query = params.toString();
+                    navigate(`/learn/module/${nextId}${query ? '?' + query : ''}`);
+                  }
                 }}
                 className="px-3 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold shadow-[0_6px_0_0_rgba(0,0,0,0.10)]"
               >

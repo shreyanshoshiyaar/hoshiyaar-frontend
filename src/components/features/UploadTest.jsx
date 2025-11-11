@@ -16,7 +16,7 @@ export default function UploadTest() {
   const [error, setError] = useState('');
   const [toast, setToast] = useState({ open: false, type: 'success', text: '', hideAt: 0 });
   const [uploadedImages, setUploadedImages] = useState([]); // for multi
-  const [maxCount, setMaxCount] = useState(5);
+  const [maxCount, setMaxCount] = useState(130); // Increased to 130 to match multer limit
 
   // Curriculum selection state
   const [boards, setBoards] = useState([]);
@@ -39,35 +39,88 @@ export default function UploadTest() {
     if (!file && files.length === 0) return;
     try {
       setLoading(true);
-      const form = new FormData();
       const many = files.length > 0;
-      if (many) {
-        files.slice(0, maxCount).forEach(f => form.append('files', f));
-      } else if (file) {
-        form.append('file', file);
-      }
-      form.append('folder', 'hoshiyaar-test');
-      const res = await fetch(`${API_BASE}${many ? '/api/upload/images' : '/api/upload/image'}`, {
-        method: 'POST',
-        body: form,
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.message || 'Upload failed');
-      if (data.images) {
-        const toDisplay = (data.images || []).map((img, idx) => ({
-          ...img,
-          name: (files[idx] && files[idx].name) || (() => {
-            try { return decodeURIComponent((img.url || '').split('/').pop() || ''); } catch { return (img.public_id || '').split('/').pop(); }
-          })()
-        }));
+      
+      if (many && files.length > 20) {
+        // Batch upload for large file sets (upload 20 at a time)
+        const batchSize = 20;
+        const filesToUpload = files.slice(0, maxCount);
+        const allResults = [];
+        
+        for (let i = 0; i < filesToUpload.length; i += batchSize) {
+          const batch = filesToUpload.slice(i, i + batchSize);
+          const form = new FormData();
+          batch.forEach(f => form.append('files', f));
+          form.append('folder', 'hoshiyaar-test');
+          
+          const res = await fetch(`${API_BASE}/api/upload/images`, {
+            method: 'POST',
+            body: form,
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data?.message || `Upload failed for batch ${Math.floor(i/batchSize) + 1}`);
+          
+          // Map results with original file names
+          const batchResults = (data.images || []).map((img, idx) => ({
+            ...img,
+            name: (batch[idx] && batch[idx].name) || (() => {
+              try { return decodeURIComponent((img.url || '').split('/').pop() || ''); } catch { return (img.public_id || '').split('/').pop(); }
+            })()
+          }));
+          allResults.push(...batchResults);
+          
+          // Update progress
+          setToast({ open: true, type: 'success', text: `Uploaded ${allResults.length}/${filesToUpload.length} images...`, hideAt: Date.now() + 1000 });
+        }
+        
+        // Sort alphabetically by name
+        allResults.sort((a, b) => {
+          const nameA = (a.name || '').toLowerCase();
+          const nameB = (b.name || '').toLowerCase();
+          return nameA.localeCompare(nameB);
+        });
+        
         setUrl('');
         setPublicId('');
-        setUploadedImages(toDisplay);
-        setToast({ open: true, type: 'success', text: `Uploaded ${data.images.length} images!`, hideAt: Date.now() + 2000 });
+        setUploadedImages(allResults);
+        setToast({ open: true, type: 'success', text: `Uploaded ${allResults.length} images!`, hideAt: Date.now() + 2000 });
       } else {
-        setUrl(data.secure_url || data.url);
-        setPublicId(data.public_id || data.publicId || '');
-        setToast({ open: true, type: 'success', text: 'Uploaded successfully!', hideAt: Date.now() + 2000 });
+        // Single upload or small batch (≤20 files)
+        const form = new FormData();
+        if (many) {
+          files.slice(0, maxCount).forEach(f => form.append('files', f));
+        } else if (file) {
+          form.append('file', file);
+        }
+        form.append('folder', 'hoshiyaar-test');
+        const res = await fetch(`${API_BASE}${many ? '/api/upload/images' : '/api/upload/image'}`, {
+          method: 'POST',
+          body: form,
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data?.message || 'Upload failed');
+        if (data.images) {
+          const toDisplay = (data.images || []).map((img, idx) => ({
+            ...img,
+            name: (files[idx] && files[idx].name) || (() => {
+              try { return decodeURIComponent((img.url || '').split('/').pop() || ''); } catch { return (img.public_id || '').split('/').pop(); }
+            })()
+          }));
+          // Sort alphabetically by name
+          toDisplay.sort((a, b) => {
+            const nameA = (a.name || '').toLowerCase();
+            const nameB = (b.name || '').toLowerCase();
+            return nameA.localeCompare(nameB);
+          });
+          setUrl('');
+          setPublicId('');
+          setUploadedImages(toDisplay);
+          setToast({ open: true, type: 'success', text: `Uploaded ${data.images.length} images!`, hideAt: Date.now() + 2000 });
+        } else {
+          setUrl(data.secure_url || data.url);
+          setPublicId(data.public_id || data.publicId || '');
+          setToast({ open: true, type: 'success', text: 'Uploaded successfully!', hideAt: Date.now() + 2000 });
+        }
       }
     } catch (err) {
       setError(err.message);
@@ -229,7 +282,7 @@ export default function UploadTest() {
             <div className="flex items-center justify-between gap-5 h-full">
               <div className="flex-1">
                 <div className="font-bold text-lg md:text-xl">Click to choose or drag & drop</div>
-                <div className="text-sm text-gray-500">PNG, JPG up to ~10MB (supports multiple)</div>
+                <div className="text-sm text-gray-500">PNG, JPG up to ~50MB (supports multiple)</div>
               </div>
               <div className="px-5 py-2.5 rounded-2xl bg-blue-500 text-white font-bold text-base shadow-lg">Browse</div>
             </div>
@@ -277,7 +330,7 @@ export default function UploadTest() {
                       className="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-bold"
                     >Copy all</button>
                   </div>
-                  <div className="space-y-2 max-h-64 overflow-auto pr-1">
+                  <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
                     {uploadedImages.map((img, idx) => (
                       <div key={img.public_id || idx} className="flex items-center gap-3">
                         <div className="text-[10px] font-bold text-gray-500 w-14 shrink-0">#{idx+1}</div>

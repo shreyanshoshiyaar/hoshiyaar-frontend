@@ -12,7 +12,7 @@ const LessonComplete = () => {
   const navigate = useNavigate();
   const { moduleNumber } = useParams();
   const [isChecking, setIsChecking] = useState(true);
-  const { hasItems } = useReview();
+  const { hasItems, getStagedForModule, clearStagedForModule } = useReview();
   const { user } = useAuth();
   const { stars } = useStars();
   const [scores, setScores] = useState({ best: 0, last: 0 });
@@ -21,6 +21,20 @@ const LessonComplete = () => {
 
   useEffect(() => {
     (async () => {
+      // Flush any staged incorrects for this module so Review screen shows them now
+      try {
+        const staged = getStagedForModule(moduleNumber);
+        if (Array.isArray(staged) && staged.length > 0) {
+          const reviewSvc = (await import('../../../services/reviewService.js')).default;
+          const unique = Array.from(new Set(staged));
+          const userId = user?._id;
+          for (const qid of unique) {
+            if (!userId) break;
+            await reviewSvc.saveIncorrect({ userId, questionId: qid, moduleId: String(moduleNumber) });
+          }
+          clearStagedForModule(moduleNumber);
+        }
+      } catch (_) {}
       try {
         if (user?._id) {
           const auth = (await import('../../../services/authService.js')).default;
@@ -76,7 +90,12 @@ const LessonComplete = () => {
         if (hasItems) {
           navigate('/review-round');
         } else {
-          navigate('/learn?go=dashboard');
+          const urlParams = new URLSearchParams(window.location.search);
+          const chapterId = urlParams.get('chapterId');
+          const params = new URLSearchParams();
+          params.set('go', 'dashboard');
+          if (chapterId) params.set('chapterId', chapterId);
+          navigate(`/learn?${params.toString()}`);
         }
       }
     };
@@ -86,12 +105,38 @@ const LessonComplete = () => {
 
   
 
+  // Helper to get current chapterId from URL or module
+  const getCurrentChapterId = () => {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const chapterId = urlParams.get('chapterId');
+      if (chapterId) return chapterId;
+      
+      // Fallback: try to get from module
+      if (moduleNumber && user?._id) {
+        // This is async but we'll handle it in the navigate call
+        return null; // Will be handled by dashboard loading
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  };
+
   const handleContinue = () => {
-    navigate('/learn?go=dashboard');
+    const chapterId = getCurrentChapterId();
+    const params = new URLSearchParams();
+    params.set('go', 'dashboard');
+    if (chapterId) params.set('chapterId', chapterId);
+    navigate(`/learn?${params.toString()}`);
   };
 
   const handleGoToDashboard = () => {
-    navigate('/learn?go=dashboard');
+    const chapterId = getCurrentChapterId();
+    const params = new URLSearchParams();
+    params.set('go', 'dashboard');
+    if (chapterId) params.set('chapterId', chapterId);
+    navigate(`/learn?${params.toString()}`);
   };
 
   if (isChecking) {

@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import authService from '../services/authService.js';
+import pointsService from '../services/pointsService.js';
 import { useStars } from './StarsContext.jsx';
 
 const AuthContext = createContext(null);
@@ -56,14 +57,24 @@ export const AuthProvider = ({ children }) => {
     const hydrateStarsFromServer = async (uid) => {
         try {
             if (!uid) return;
+            // Prefer authoritative points summary from backend; fall back to progress aggregation
+            try {
+                const { data: pts } = await pointsService.summary({ userId: uid });
+                const totalPoints = Number(pts?.totalPoints || 0);
+                if (Number.isFinite(totalPoints)) {
+                    localStorage.setItem('hs_stars_total_v1', String(Math.max(0, totalPoints)));
+                    syncFromServer(totalPoints, {});
+                    return;
+                }
+            } catch (_) {}
+
+            // Fallback to computing from progress if summary not available
             const { data } = await authService.getProgress(uid);
             const arr = Array.isArray(data) ? data : [];
             let total = 0;
             let moduleStars = {};
-            
             for (const entry of arr) {
                 const stats = entry?.stats || {};
-                // stats may be a plain object or Map serialized by server; iterate keys
                 const values = typeof stats.entries === 'function' ? Array.from(stats.entries()) : Object.entries(stats);
                 let chapterTotal = 0;
                 for (const [, val] of values) {
@@ -73,19 +84,11 @@ export const AuthProvider = ({ children }) => {
                         chapterTotal += best;
                     }
                 }
-                if (entry?.chapter) {
-                    moduleStars[entry.chapter] = chapterTotal;
-                }
+                if (entry?.chapter) moduleStars[entry.chapter] = chapterTotal;
             }
-            
-            // Update localStorage and StarsContext with server data
-            try { 
-                localStorage.setItem('hs_stars_total_v1', String(Math.max(0, total))); 
-                localStorage.setItem('hs_stars_per_module_v1', JSON.stringify(moduleStars));
-                // Also update the StarsContext state
-                syncFromServer(total, moduleStars);
-                console.log('[AuthContext] Synced stars from server:', { total, moduleStars });
-            } catch (_) {}
+            localStorage.setItem('hs_stars_total_v1', String(Math.max(0, total)));
+            localStorage.setItem('hs_stars_per_module_v1', JSON.stringify(moduleStars));
+            syncFromServer(total, moduleStars);
         } catch (error) {
             console.warn('[AuthContext] Failed to sync stars from server:', error);
         }

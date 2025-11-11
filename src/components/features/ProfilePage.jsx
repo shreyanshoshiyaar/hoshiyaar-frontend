@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import authService from '../../services/authService.js';
 import heroChar from '../../assets/images/heroChar.png';
 import BackButton from '../ui/BackButton.jsx';
+import ProgressPanel from './ProgressPanel.jsx';
 
 export default function ProfilePage() {
   const { user, logout } = useAuth();
@@ -93,17 +94,27 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#E6F2FF] to-[#F7FBFF] py-4 px-6 relative">
+    <div className="min-h-screen bg-gradient-to-b from-[#E6F2FF] to-[#F7FBFF] py-4 px-6 relative overflow-y-auto">
+      <style>{`
+        /* Thin scrollbar with transparent track and colored thumb */
+        .transparent-scroll { scrollbar-width: thin; scrollbar-color: rgba(37,99,235,0.6) transparent; }
+        .transparent-scroll::-webkit-scrollbar { width: 6px; }
+        .transparent-scroll::-webkit-scrollbar-track { background: transparent; }
+        .transparent-scroll::-webkit-scrollbar-thumb { background-color: rgba(37,99,235,0.6); border-radius: 8px; }
+        .transparent-scroll::-webkit-scrollbar-thumb:hover { background-color: rgba(37,99,235,0.8); }
+      `}</style>
       <BackButton className="fixed left-6 top-6 z-10" />
-      <div className="max-w-4xl mx-auto bg-white border-2 border-blue-200 rounded-2xl shadow-lg p-6 sm:p-8 relative overflow-hidden mt-16">
-        {/* Top row: Title and Logout */}
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-extrabold text-blue-700">Edit Profile</h1>
-          <button onClick={handleLogout} className="px-4 py-2 rounded-xl bg-red-500 text-white font-extrabold">Logout</button>
-        </div>
-        {/* Mascot */}
-        <img src={mascotSrc} alt="Mascot" className="hidden md:block absolute -right-4 bottom-2 w-44 h-44 object-contain opacity-95 pointer-events-none" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pr-0 md:pr-28">
+      {/* Header */}
+      <div className="max-w-6xl mx-auto mt-16 mb-4 flex items-center justify-between px-1">
+        <h1 className="text-3xl font-extrabold text-blue-700">Edit Profile</h1>
+        <button onClick={handleLogout} className="px-4 py-2 rounded-xl bg-red-500 text-white font-extrabold">Logout</button>
+      </div>
+      {/* Two side-by-side cards */}
+      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left: Details card */}
+        <div className="bg-white border-2 border-blue-200 rounded-2xl shadow-lg p-6 sm:p-8 lg:col-span-5 max-h-[calc(100vh-180px)] overflow-auto transparent-scroll">
+          <h2 className="text-2xl font-extrabold text-blue-700 mb-4">Details</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <label className="block">
             <span className="text-sm font-bold text-gray-700">Username</span>
             <input placeholder={form.username || 'Choose a unique username'} value={form.username} readOnly className="mt-1 w-full px-4 py-3 rounded-2xl border-2 bg-gray-50 border-blue-200 text-gray-600" />
@@ -145,13 +156,20 @@ export default function ProfilePage() {
             <span className="text-sm font-bold text-gray-700">Date of Birth</span>
             <input type="date" placeholder={form.dateOfBirth || 'Not Defined'} value={form.dateOfBirth === 'Not Defined' ? '' : form.dateOfBirth} onChange={e=>update('dateOfBirth', e.target.value)} className="mt-1 w-full px-4 py-3 rounded-2xl border-2 border-blue-200 focus:outline-none focus:border-blue-400" />
           </label>
+          </div>
+          <div className="mt-8 text-center">
+            <button onClick={handleSave} disabled={saving} className="px-10 py-4 rounded-3xl bg-blue-600 hover:bg-blue-700 text-white text-xl font-extrabold shadow-[0_10px_0_0_rgba(0,0,0,0.15)] disabled:opacity-60">
+              {saving ? 'Saving…' : 'Save'}
+            </button>
+            {saveError && <div className="mt-3 text-red-600 font-bold">{saveError}</div>}
+            {saved && <div className="mt-3 text-green-700 font-bold">Saved!</div>}
+          </div>
         </div>
-        <div className="mt-8 text-center">
-          <button onClick={handleSave} disabled={saving} className="px-10 py-4 rounded-3xl bg-blue-600 hover:bg-blue-700 text-white text-xl font-extrabold shadow-[0_10px_0_0_rgba(0,0,0,0.15)] disabled:opacity-60">
-            {saving ? 'Saving…' : 'Save'}
-          </button>
-          {saveError && <div className="mt-3 text-red-600 font-bold">{saveError}</div>}
-          {saved && <div className="mt-3 text-green-700 font-bold">Saved!</div>}
+        {/* Right: Progress card */}
+        <div className="bg-gradient-to-b from-blue-50 to-white border-2 border-blue-200 rounded-2xl shadow-xl p-6 sm:p-8 relative max-h-[calc(100vh-180px)] overflow-auto transparent-scroll lg:col-span-7">
+          <h2 className="text-2xl font-extrabold text-blue-700 mb-4">Progress</h2>
+          <ProgressPanel />
+          <img src={mascotSrc} alt="Mascot" className="hidden lg:block absolute right-4 bottom-4 w-28 h-28 object-contain opacity-95 pointer-events-none" />
         </div>
       </div>
     </div>

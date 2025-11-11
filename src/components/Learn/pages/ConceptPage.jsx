@@ -2,10 +2,11 @@ import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import ProgressBar from '../../ui/ProgressBar.jsx';
 import { StarCounter } from '../../../context/StarsContext.jsx';
 import SimpleLoading from '../../ui/SimpleLoading.jsx';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useModuleItems } from '../../../hooks/useModuleItems';
 import authService from '../../../services/authService.js';
 import { useAuth } from '../../../context/AuthContext.jsx';
+import { useReview } from '../../../context/ReviewContext.jsx';
 import ConceptExitConfirm from '../../modals/ConceptExitConfirm.jsx';
 
 export default function ConceptPage() {
@@ -14,10 +15,75 @@ export default function ConceptPage() {
   const index = Number(indexParam || 0);
   const { items, loading, error } = useModuleItems(moduleNumber);
   const { user } = useAuth();
-  const item = useMemo(() => items[index] || null, [items, index]);
+  const [searchParams] = useSearchParams();
+  const isReviewModeFromUrl = searchParams.get('review') === 'true';
+  const isRevisionModeFromUrl = searchParams.get('revision') === 'true';
+  const isInReviewOrRevision = isReviewModeFromUrl || isRevisionModeFromUrl;
+  const { removeActive, active: activeReviewItem, queue } = useReview();
+  // Use revision data if in revision mode and available, otherwise use curriculum item
+  // IMPORTANT: Only use activeReviewItem if it matches the current URL params
+  const revisionItem = useMemo(() => {
+    if (isRevisionModeFromUrl) {
+      // First check if activeReviewItem matches current URL params
+      if (activeReviewItem && 
+          String(activeReviewItem.moduleNumber) === String(moduleNumber) &&
+          String(activeReviewItem.index) === String(index) &&
+          activeReviewItem._revisionData) {
+        return activeReviewItem._revisionData;
+      }
+      // If not, search queue for matching item
+      if (queue && queue.length > 0) {
+        const matchingItem = queue.find(q => 
+          String(q.moduleNumber) === String(moduleNumber) &&
+          String(q.index) === String(index) &&
+          q._revisionData
+        );
+        if (matchingItem && matchingItem._revisionData) {
+          return matchingItem._revisionData;
+        }
+      }
+    }
+    return null;
+  }, [isRevisionModeFromUrl, activeReviewItem, queue, moduleNumber, index]);
+  const curriculumItem = useMemo(() => items[index] || null, [items, index]);
+  // Prefer revision data over curriculum item when in revision mode
+  const item = revisionItem || curriculumItem;
   const [showExitConfirm, setShowExitConfirm] = useState(false);
 
-  // Removed back/popstate interception
+  // Show exit confirmation on browser back button in revision/review mode
+  useEffect(() => {
+    if (!isInReviewOrRevision) return;
+
+    const handlePop = () => {
+      // Show confirmation dialog
+      setShowExitConfirm(true);
+      // Prevent navigation by pushing current state back
+      try {
+        window.history.pushState(null, '', window.location.href);
+      } catch (_) {}
+    };
+
+    const handleKey = (e) => {
+      // Show confirmation on Alt+Left (common back navigation shortcut)
+      if (e.altKey && e.key === 'ArrowLeft') {
+        e.preventDefault();
+        setShowExitConfirm(true);
+      }
+    };
+
+    // Push current state to track back navigation
+    try {
+      window.history.pushState(null, '', window.location.href);
+    } catch (_) {}
+
+    window.addEventListener('popstate', handlePop);
+    window.addEventListener('keydown', handleKey);
+
+    return () => {
+      window.removeEventListener('popstate', handlePop);
+      window.removeEventListener('keydown', handleKey);
+    };
+  }, [isInReviewOrRevision]);
 
   function routeForType(type, idx) {
     switch (type) {
@@ -32,12 +98,25 @@ export default function ConceptPage() {
   }
 
   const goNext = useCallback(async () => {
+    // If in review or revision mode, navigate back to review-round instead of next sequential item
+    if (isInReviewOrRevision) {
+      removeActive();
+      navigate('/review-round');
+      return;
+    }
+
     const nextIndex = index + 1;
     if (nextIndex >= items.length) {
-      // Mark chapter completed and return
+      // Mark module completed and return
       try {
         if (user?._id) {
-          await authService.updateProgress({ userId: user._id, chapter: Number(moduleNumber), conceptCompleted: true });
+          console.log('[ConceptPage] Saving module completion to database:', moduleNumber);
+          await authService.updateProgress({ 
+            userId: user._id, 
+            moduleId: String(moduleNumber), 
+            subject: user.subject || 'Science', // CRITICAL: Include subject and use moduleId
+            conceptCompleted: true 
+          });
         }
       } catch (_) {}
       return navigate('/lesson-complete');
@@ -47,7 +126,7 @@ export default function ConceptPage() {
     const title = params.get('title');
     const suffix = title ? `?title=${encodeURIComponent(title)}` : '';
     navigate(`${routeForType(nextItem.type, nextIndex)}${suffix}`);
-  }, [index, items, user, moduleNumber, navigate]);
+  }, [index, items, user, moduleNumber, navigate, isInReviewOrRevision, removeActive]);
 
   // Allow advancing with Enter key when the exit confirmation is not visible
   useEffect(() => {
@@ -64,18 +143,30 @@ export default function ConceptPage() {
   if (loading) return <SimpleLoading />;
   if (error) return <div className="p-6 text-red-600">{error}</div>;
   if (!item) return <SimpleLoading />;
-  if (item.type !== 'concept' && item.type !== 'statement') return <div className="p-6">No concept at this step.</div>;
+  // Check type: In revision mode, use revisionItem.type; in normal mode, use item.type
+  let actualType = String(item?.type || '');
+  if (isRevisionModeFromUrl && revisionItem?.type) {
+    // In revision mode, use revision data type (preserved exactly)
+    actualType = String(revisionItem.type || '');
+  }
+  const isConceptOrStatement = actualType === 'concept' || actualType === 'statement';
+  if (!isConceptOrStatement) {
+    return <div className="p-6">No concept at this step.</div>;
+  }
 
   return (
     <div className="h-screen bg-white flex flex-col overflow-hidden">
       {/* Header - reduced padding for mobile */}
       <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
-        <button 
-          onClick={() => setShowExitConfirm(true)}
-          className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-sm sm:text-base"
-        >
-          ✕
-        </button>
+        {!isInReviewOrRevision && (
+          <button 
+            onClick={() => setShowExitConfirm(true)}
+            className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-sm sm:text-base"
+          >
+            ✕
+          </button>
+        )}
+        {isInReviewOrRevision && <div className="w-6 h-6 sm:w-8 sm:h-8"></div>}
         <div className="flex-1 mx-1 sm:mx-2 md:mx-4">
           <ProgressBar currentIndex={index} total={items.length} />
         </div>
@@ -128,7 +219,20 @@ export default function ConceptPage() {
 
       {showExitConfirm && (
         <div className="fixed inset-0 z-[9999]">
-          <ConceptExitConfirm onQuit={() => navigate('/learn')} onContinue={() => setShowExitConfirm(false)} />
+          <ConceptExitConfirm 
+            onQuit={() => {
+              // Preserve chapterId from URL when navigating back
+              const urlParams = new URLSearchParams(window.location.search);
+              const chapterId = urlParams.get('chapterId');
+              const unitId = urlParams.get('unitId');
+              const params = new URLSearchParams();
+              if (chapterId) params.set('chapterId', chapterId);
+              if (unitId) params.set('unitId', unitId);
+              const query = params.toString();
+              navigate(`/learn${query ? '?' + query : ''}`);
+            }} 
+            onContinue={() => setShowExitConfirm(false)} 
+          />
         </div>
       )}
     </div>

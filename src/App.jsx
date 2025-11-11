@@ -22,6 +22,7 @@ import ConceptPage from './components/Learn/pages/ConceptPage.jsx';
 import UploadTest from './components/features/UploadTest.jsx';
 import ProfilePage from './components/features/ProfilePage.jsx';
 import OnboardingFlow from './components/Learn/selectors/OnboardingFlow.jsx';
+import AdminPanel from './components/admin/AdminPanel.jsx';
 
 const MainLayout = ({ children }) => (
   <div className="font-sans">
@@ -73,6 +74,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ProfilePage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin" 
+            element={
+              <ProtectedRoute>
+                <AdminPanel />
               </ProtectedRoute>
             } 
           />
