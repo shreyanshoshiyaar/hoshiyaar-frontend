@@ -35,12 +35,23 @@ const ContentEditor = ({
   const [success, setSuccess] = useState('');
   const [uploadingImages, setUploadingImages] = useState({});
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
     if (moduleId) {
       fetchItems();
     }
   }, [moduleId]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const y = window.scrollY || document.documentElement.scrollTop;
+      setShowScrollTop(y > 300);
+    };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const fetchItems = async () => {
     if (!moduleId) return;
@@ -49,8 +60,15 @@ const ContentEditor = ({
       setError('');
       const response = await curriculumService.listItems(moduleId);
       const sortedItems = (response.data || []).sort((a, b) => (a.order || 0) - (b.order || 0));
-      setItems(sortedItems);
-      setOriginalItems(JSON.parse(JSON.stringify(sortedItems)));
+      // Ensure rearrange items have words initialized
+      const normalizedItems = sortedItems.map(item => {
+        if (item.type === 'rearrange' && !Array.isArray(item.words)) {
+          return { ...item, words: item.options || [], options: item.options || [] };
+        }
+        return item;
+      });
+      setItems(normalizedItems);
+      setOriginalItems(JSON.parse(JSON.stringify(normalizedItems)));
       setHasUnsavedChanges(false);
       setSuccess('');
     } catch (err) {
@@ -62,9 +80,11 @@ const ContentEditor = ({
   };
 
   const updateItem = (index, field, value) => {
-    const updated = [...items];
-    updated[index] = { ...updated[index], [field]: value };
-    setItems(updated);
+    setItems((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
     setHasUnsavedChanges(true);
   };
 
@@ -93,30 +113,63 @@ const ContentEditor = ({
     setHasUnsavedChanges(true);
   };
 
+  const updateRearrangeWords = (index, newWords) => {
+    setItems((prev) => {
+      const updated = [...prev];
+      const current = updated[index] || {};
+      updated[index] = {
+        ...current,
+        words: [...newWords],
+        options: [...newWords],
+      };
+      return updated;
+    });
+    setHasUnsavedChanges(true);
+  };
+
   const changeItemType = (index, newType) => {
     const updated = [...items];
     const oldItem = updated[index];
     
-    const newItem = {
+    // Build new item with only fields relevant to the new type
+    const baseItem = {
       _id: oldItem._id,
       type: newType,
       order: oldItem.order || index + 1,
     };
 
+    let newItem;
     if (newType === 'statement') {
-      newItem.text = oldItem.text || oldItem.question || '';
+      newItem = {
+        ...baseItem,
+        text: oldItem.text || oldItem.question || '',
+      };
     } else if (newType === 'multiple-choice') {
-      newItem.question = oldItem.question || '';
-      newItem.options = oldItem.options || ['', ''];
-      newItem.answer = oldItem.answer || '';
+      newItem = {
+        ...baseItem,
+        question: oldItem.question || '',
+        options: oldItem.options || ['', ''],
+        answer: oldItem.answer || '',
+      };
     } else if (newType === 'fill-in-the-blank') {
-      newItem.question = oldItem.question || '';
-      newItem.answer = oldItem.answer || '';
+      newItem = {
+        ...baseItem,
+        question: oldItem.question || '',
+        answer: oldItem.answer || '',
+      };
     } else if (newType === 'rearrange') {
-      newItem.question = oldItem.question || '';
-      newItem.words = oldItem.words || oldItem.options || [];
-      newItem.options = newItem.words;
-      newItem.answer = oldItem.answer || '';
+      // Convert old options to words if available, otherwise use existing words
+      const wordsArray = Array.isArray(oldItem.words) ? oldItem.words : 
+                        (Array.isArray(oldItem.options) ? oldItem.options : []);
+      newItem = {
+        ...baseItem,
+        question: oldItem.question || '',
+        words: wordsArray,
+        options: wordsArray, // Keep options in sync with words
+        answer: oldItem.answer || '',
+      };
+    } else {
+      newItem = baseItem;
     }
 
     updated[index] = newItem;
@@ -457,7 +510,7 @@ const ContentEditor = ({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="bg-white rounded-lg shadow-md p-6 relative">
       <div className="flex justify-between items-center mb-4">
         <div>
           <h2 className="text-xl font-semibold text-gray-800">
@@ -722,19 +775,21 @@ const ContentEditor = ({
                           type="text"
                           value={word}
                           onChange={(e) => {
-                            const newWords = [...(item.words || [])];
+                            const currentItem = items[actualIndex];
+                            const currentWords = Array.isArray(currentItem?.words) ? currentItem.words : [];
+                            const newWords = [...currentWords];
                             newWords[wordIndex] = e.target.value;
-                            updateItem(actualIndex, 'words', newWords);
-                            updateItem(actualIndex, 'options', newWords);
+                            updateRearrangeWords(actualIndex, newWords);
                           }}
                           className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                           placeholder={`Word/Phrase ${wordIndex + 1}`}
                         />
                         <button
                           onClick={() => {
-                            const newWords = item.words.filter((_, i) => i !== wordIndex);
-                            updateItem(actualIndex, 'words', newWords);
-                            updateItem(actualIndex, 'options', newWords);
+                            const currentItem = items[actualIndex];
+                            const currentWords = Array.isArray(currentItem?.words) ? currentItem.words : [];
+                            const newWords = currentWords.filter((_, i) => i !== wordIndex);
+                            updateRearrangeWords(actualIndex, newWords);
                           }}
                           className="px-2 py-1 bg-red-500 text-white rounded text-sm"
                         >
@@ -744,9 +799,10 @@ const ContentEditor = ({
                     ))}
                     <button
                       onClick={() => {
-                        const newWords = [...(item.words || []), ''];
-                        updateItem(actualIndex, 'words', newWords);
-                        updateItem(actualIndex, 'options', newWords);
+                        const currentItem = items[actualIndex];
+                        const currentWords = Array.isArray(currentItem?.words) ? currentItem.words : [];
+                        const newWords = [...currentWords, ''];
+                        updateRearrangeWords(actualIndex, newWords);
                       }}
                       className="mt-2 px-3 py-1 bg-gray-500 text-white rounded text-sm hover:bg-gray-600"
                     >
@@ -780,6 +836,14 @@ const ContentEditor = ({
             );
           })}
         </div>
+      )}
+      {showScrollTop && (
+      <button
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        className="fixed bottom-6 right-6 px-4 py-2 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+      >
+        ↑ Back to Top
+      </button>
       )}
     </div>
   );

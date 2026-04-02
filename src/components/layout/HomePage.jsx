@@ -14,16 +14,7 @@ const HomePage = () => (
     {/* I've uncommented LanguageScroller, assuming you have this component */}
     {/* <LanguageScroller /> */}
     
-    {features.slice(0, 2).map((feature, index) => (
-      <FeatureSection
-        key={index}
-        title={feature.title}
-        imgSrc={feature.imgSrc}
-        imageSide={feature.imageSide}
-      >
-        <p>{feature.description}</p>
-      </FeatureSection>
-    ))}
+    
     
     {/* <AppDownloadSection /> */}
     

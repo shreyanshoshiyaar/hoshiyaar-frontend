@@ -1,15 +1,16 @@
 import React, { useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useModuleItems } from '../../../hooks/useModuleItems';
 import { useReview } from '../../../context/ReviewContext.jsx';
 
 export default function LessonEntryRedirectByTitle() {
   const navigate = useNavigate();
   const { moduleNumber, title } = useParams();
+  const location = useLocation();
   const decodedTitle = decodeURIComponent(title || '');
   const { items, loading, error } = useModuleItems(moduleNumber);
   const { reset } = useReview();
-  const params = new URLSearchParams(window.location.search);
+  const params = new URLSearchParams(location.search);
   const mode = params.get('mode');
 
   useEffect(() => {
@@ -26,20 +27,23 @@ export default function LessonEntryRedirectByTitle() {
     }
     const item = items[targetIndex];
     if (!item) return;
-    const q = `?title=${encodeURIComponent(decodedTitle)}`;
+    // Preserve existing query params (including chapterId/unitId) while updating title
+    const mergedParams = new URLSearchParams(location.search);
+    mergedParams.set('title', decodedTitle);
+    const querySuffix = mergedParams.toString() ? `?${mergedParams.toString()}` : '';
     switch (item.type) {
       case 'concept':
       case 'statement':
-        navigate(`/learn/module/${moduleNumber}/concept/${targetIndex}${q}`, { replace: true });
+        navigate(`/learn/module/${moduleNumber}/concept/${targetIndex}${querySuffix}`, { replace: true });
         break;
       case 'multiple-choice':
-        navigate(`/learn/module/${moduleNumber}/mcq/${targetIndex}${q}`, { replace: true });
+        navigate(`/learn/module/${moduleNumber}/mcq/${targetIndex}${querySuffix}`, { replace: true });
         break;
       case 'fill-in-the-blank':
-        navigate(`/learn/module/${moduleNumber}/fillups/${targetIndex}${q}`, { replace: true });
+        navigate(`/learn/module/${moduleNumber}/fillups/${targetIndex}${querySuffix}`, { replace: true });
         break;
       case 'rearrange':
-        navigate(`/learn/module/${moduleNumber}/rearrange/${targetIndex}${q}`, { replace: true });
+        navigate(`/learn/module/${moduleNumber}/rearrange/${targetIndex}${querySuffix}`, { replace: true });
         break;
       default:
         navigate('/learn', { replace: true });

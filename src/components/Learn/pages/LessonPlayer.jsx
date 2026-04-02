@@ -156,11 +156,17 @@ export default function LessonPlayer() {
     else navigate('/learn');
   }
 
+  const normalizeAnswer = (value) => String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
   function checkAnswerAndProceed(given) {
     // Simple client-side check when answer is provided in item.answer
     const expected = current?.answer;
     if (typeof expected === 'string' && expected.length > 0) {
-      const isCorrect = expected.trim().toLowerCase() === String(given).trim().toLowerCase();
+      const isCorrect = normalizeAnswer(expected) === normalizeAnswer(given);
       // For now we just proceed; could store progress here
       // Optionally display feedback
     }

@@ -163,11 +163,21 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
+    const updateUser = (userData) => {
+        try {
+            localStorage.setItem('user', JSON.stringify(userData));
+            setUser(userData);
+        } catch (error) {
+            console.error('[AuthContext] Failed to update user:', error);
+        }
+    };
+
     const value = {
         user,
         loading, // Provide loading state to other components
         login,
         logout,
+        updateUser, // Expose updateUser function
     };
 
     // Always render children, let ProtectedRoute handle the loading state

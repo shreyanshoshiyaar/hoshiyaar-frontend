@@ -18,8 +18,61 @@ export default function ConceptPage() {
   const [searchParams] = useSearchParams();
   const isReviewModeFromUrl = searchParams.get('review') === 'true';
   const isRevisionModeFromUrl = searchParams.get('revision') === 'true';
+  const chapterIdParam = searchParams.get('chapterId');
+  const unitIdParam = searchParams.get('unitId');
   const isInReviewOrRevision = isReviewModeFromUrl || isRevisionModeFromUrl;
   const { removeActive, active: activeReviewItem, queue } = useReview();
+  const [videoAcknowledged, setVideoAcknowledged] = useState(false);
+  const [showEndVideo, setShowEndVideo] = useState(false);
+
+  // Allow temporary override via query param for testing
+  const introVideoFromQuery = useMemo(() => {
+    const raw = searchParams.get('introVideo') || '';
+    return raw && typeof raw === 'string' ? raw : '';
+  }, [searchParams]);
+
+  // Lightweight YouTube -> embed converter; other URLs pass through
+  const isYouTubeUrl = useCallback((rawUrl) => {
+    if (!rawUrl) return '';
+    try {
+      const url = new URL(rawUrl);
+      const host = url.hostname.replace(/^www\./, '');
+      if (host === 'youtu.be') return url.pathname.replace('/', '') || '';
+      if (host === 'youtube.com' || host === 'm.youtube.com') {
+        // Standard watch URLs: ?v=ID
+        const vid = url.searchParams.get('v');
+        if (vid) return vid;
+        // Embed URLs: /embed/ID
+        const parts = url.pathname.split('/');
+        const embedIdx = parts.indexOf('embed');
+        if (embedIdx !== -1 && parts[embedIdx + 1]) {
+          return parts[embedIdx + 1];
+        }
+      }
+    } catch (_) {
+      // fall through
+    }
+    return '';
+  }, []);
+
+  const normalizeVideoUrl = useCallback((rawUrl) => {
+    if (!rawUrl) return '';
+    const ytId = isYouTubeUrl(rawUrl);
+    if (ytId) {
+      return `https://www.youtube.com/embed/${ytId}?modestbranding=1&rel=0&controls=1`;
+    }
+    return rawUrl;
+  }, [isYouTubeUrl]);
+  useEffect(() => {
+    if (chapterIdParam && unitIdParam) {
+      try {
+        const map = JSON.parse(localStorage.getItem('last_unit_by_chapter') || '{}');
+        map[chapterIdParam] = unitIdParam;
+        localStorage.setItem('last_unit_by_chapter', JSON.stringify(map));
+      } catch (_) {}
+    }
+  }, [chapterIdParam, unitIdParam]);
+
   // Use revision data if in revision mode and available, otherwise use curriculum item
   // IMPORTANT: Only use activeReviewItem if it matches the current URL params
   const revisionItem = useMemo(() => {
@@ -49,6 +102,118 @@ export default function ConceptPage() {
   // Prefer revision data over curriculum item when in revision mode
   const item = revisionItem || curriculumItem;
   const [showExitConfirm, setShowExitConfirm] = useState(false);
+  // Hardwire intro videos per module when requested
+  // Format: { moduleId: videoUrl } for start-of-lesson videos (index 0)
+  const forcedIntroByModule = useMemo(() => ({
+    '68e276236d69ef07c1a2e133': 'https://youtu.be/33bEGe44vyE',
+    '68e276b26d69ef07c1a2e167': 'https://youtu.be/mo-oW33Dqu0',
+    '68e2771a6d69ef07c1a2e1ab': 'https://youtu.be/ytSYjCqQUj0',
+    '68e277716d69ef07c1a2e1d1': 'https://youtu.be/26THnY_3mtY', // Before card 1
+    '68e277b86d69ef07c1a2e20f': 'https://youtu.be/CIqRRxP4r7g',
+    '68e7cfa9d96c390ca2489fbb': 'https://youtu.be/OYQNzRLDjCo', // Before card 1
+    '68e7d53dd96c390ca248a099': 'https://youtu.be/T4-LR0PCGB4', // Before card 1
+    '68e7de6bd96c390ca248a0f2': 'https://youtu.be/DbGZ0KSS0ZU', // Before card 1
+    '68e7df9bd96c390ca248a12d': 'https://youtu.be/SymhcoFMNaw', // Before card 1
+    '68eba905996044d1e5cbefd6': 'https://youtu.be/i59cR7MPD5M', // Before card 1
+    '68ebaa6c996044d1e5cbf031': 'https://youtu.be/OoLh_Ck1PTA', // Before card 1
+    '68ebb957fc8995cc925650d8': 'https://youtu.be/8kjtyxEIgbg', // Before card 1
+    '68ebbaddfc8995cc925650fe': 'https://youtu.be/t41q21zK-iM', // Before card 1
+    '68ebbb5ffc8995cc92565152': 'https://youtu.be/fIrQIhIAB4s', // Before card 1
+    '68ebbc67fc8995cc925651dd': 'https://youtu.be/9YcQzKUG0vo', // Before card 1
+    '68ebc01cfc8995cc92565205': 'https://youtu.be/yh_18cJbBww', // Before card 1
+    '68ebc134fc8995cc92565279': 'https://youtu.be/snE3QBO1cDo', // Before card 1
+    '691726f9bcaad0116413deb8': 'https://youtu.be/uxX4tcZ5vVY', // Before card 1
+    '69172e1dbcaad0116413e604': 'https://youtu.be/gbCBsR9d75E', // Before card 1
+    '69172ebdbcaad0116413e70c': 'https://youtu.be/7wq7V8z-Rkc', // Before card 1
+    '69173004bcaad0116413e8a7': 'https://youtu.be/UfH2T532NJk', // Before card 1
+    '6917310abcaad0116413e9df': 'https://youtu.be/VyfltE9RuX8', // Before card 1
+    '69173227bcaad0116413eb53': 'https://youtu.be/3kSLLVlWGYE', // Before card 1
+    '691733dbbcaad0116413ed5c': 'https://youtu.be/qzT3C5T1fpo', // Before card 1
+    '69173549bcaad0116413ef25': 'https://youtu.be/fl-2yuASqfw', // Before card 1
+  }), []);
+
+  // Mid-lesson videos: { 'moduleId:cardIndex': videoUrl }
+  // Videos show BEFORE the specified card, so use index (card - 1)
+  // Card 15 (concept) - show at index 14
+  // Card 27 - show at index 26 (before card 27)
+  // Card 7 - show at index 6 (before card 7)
+  // Card 14 - show at index 13 (before card 14)
+  const midLessonVideos = useMemo(() => ({
+    '68e276236d69ef07c1a2e133:12': 'https://youtu.be/2H3FWuKsahg', // Before card 13
+    '68e276b26d69ef07c1a2e167:19': 'https://youtu.be/8uplR1ztb64', // Before card 20
+    '68e276b26d69ef07c1a2e167:26': 'https://youtu.be/8uplR1ztb64', // Before card 27 (MCQ)
+    '68e2771a6d69ef07c1a2e1ab:5': 'https://youtu.be/kcNefeA1RS8', // Before card 6
+    '68e277716d69ef07c1a2e1d1:13': 'https://youtu.be/xDsXRV0MklE', // Before card 14 (concept)
+    '68e7cfa9d96c390ca2489fbb:5': 'https://youtu.be/IZx6UiwF7VE', // Before card 6
+    '68e7d53dd96c390ca248a099:10': 'https://youtu.be/X2TVQFJZhqk', // Before card 11
+    '68e7df9bd96c390ca248a12d:22': 'https://youtu.be/uu94oylVRzA', // Before card 23
+    '68eba905996044d1e5cbefd6:15': 'https://youtu.be/m2_hLp0mLkM', // Before card 16
+    '68ebb957fc8995cc925650d8:9': 'https://youtu.be/-nbylw4qSbA', // Before card 10
+    '68ebbaddfc8995cc925650fe:17': 'https://youtu.be/0zoJVHp0SVQ', // Before card 18
+  }), []);
+
+  const introVideoUrl = useMemo(() => {
+    // Check for end-of-lesson video (after completing last item)
+    if (showEndVideo) {
+      const endVideoKey = `${moduleNumber}:${index}`;
+      const endVideo = midLessonVideos[endVideoKey] || '';
+      if (endVideo) {
+        console.log('[ConceptPage] End video found:', { showEndVideo, endVideoKey, endVideo });
+        return normalizeVideoUrl(endVideo);
+      }
+      console.log('[ConceptPage] End video not found:', { showEndVideo, endVideoKey, midLessonVideos });
+    }
+    
+    // Check for mid-lesson video (specific card/index)
+    const midLessonKey = `${moduleNumber}:${index}`;
+    const midLessonVideo = midLessonVideos[midLessonKey] || '';
+    
+    // Check for start-of-lesson video (index 0)
+    const startVideo = index === 0 ? (forcedIntroByModule[String(moduleNumber)] || '') : '';
+    
+    // Priority: query param > mid-lesson > start video > item video
+    const src = introVideoFromQuery || midLessonVideo || startVideo || item?.introVideoUrl || item?.videoUrl || '';
+    return normalizeVideoUrl(src);
+  }, [forcedIntroByModule, midLessonVideos, introVideoFromQuery, item, moduleNumber, index, normalizeVideoUrl, showEndVideo]);
+
+  // Reset gate when starting a new module (index 0) or reaching a card with mid-lesson video
+  useEffect(() => {
+    const midLessonKey = `${moduleNumber}:${index}`;
+    if (index === 0 || midLessonVideos[midLessonKey]) {
+      setVideoAcknowledged(false);
+    }
+  }, [moduleNumber, index, midLessonVideos]);
+
+  // Reset showEndVideo when module changes (but keep it when index changes within same module)
+  useEffect(() => {
+    setShowEndVideo(false);
+  }, [moduleNumber]);
+
+  // Auto-navigate to lesson complete after acknowledging end video
+  useEffect(() => {
+    if (showEndVideo && videoAcknowledged) {
+      // Small delay to ensure state is updated, then navigate to lesson complete
+      const timer = setTimeout(async () => {
+        try {
+          if (user?._id) {
+            await authService.updateProgress({ 
+              userId: user._id, 
+              moduleId: String(moduleNumber), 
+              subject: user.subject || 'Science',
+              conceptCompleted: true 
+            });
+          }
+        } catch (_) {}
+        const completionParams = new URLSearchParams();
+        completionParams.set('moduleId', String(moduleNumber));
+        completionParams.set('chapter', String(moduleNumber));
+        if (chapterIdParam) completionParams.set('chapterId', chapterIdParam);
+        if (unitIdParam) completionParams.set('unitId', unitIdParam);
+        navigate(`/lesson-complete?${completionParams.toString()}`);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [showEndVideo, videoAcknowledged, user, moduleNumber, navigate, chapterIdParam, unitIdParam]);
 
   // Show exit confirmation on browser back button in revision/review mode
   useEffect(() => {
@@ -107,6 +272,29 @@ export default function ConceptPage() {
 
     const nextIndex = index + 1;
     if (nextIndex >= items.length) {
+      // Check if there's an end-of-lesson video for this module (card 22 case)
+      const endVideoKey = `${moduleNumber}:${index}`;
+      const endVideo = midLessonVideos[endVideoKey];
+      
+      console.log('[ConceptPage] End of lesson check:', { 
+        moduleNumber, 
+        index, 
+        nextIndex, 
+        itemsLength: items.length,
+        endVideoKey, 
+        endVideo, 
+        showEndVideo,
+        midLessonVideos 
+      });
+      
+      if (endVideo && !showEndVideo) {
+        // Show video after completing last item, before lesson complete
+        console.log('[ConceptPage] Setting showEndVideo to true');
+        setShowEndVideo(true);
+        setVideoAcknowledged(false);
+        return;
+      }
+      
       // Mark module completed and return
       try {
         if (user?._id) {
@@ -119,14 +307,25 @@ export default function ConceptPage() {
           });
         }
       } catch (_) {}
-      return navigate('/lesson-complete');
+      const completionParams = new URLSearchParams();
+      completionParams.set('moduleId', String(moduleNumber));
+      completionParams.set('chapter', String(moduleNumber));
+      if (chapterIdParam) completionParams.set('chapterId', chapterIdParam);
+      if (unitIdParam) completionParams.set('unitId', unitIdParam);
+      return navigate(`/lesson-complete?${completionParams.toString()}`);
     }
     const nextItem = items[nextIndex];
     const params = new URLSearchParams(window.location.search);
-    const title = params.get('title');
-    const suffix = title ? `?title=${encodeURIComponent(title)}` : '';
+    const persistent = new URLSearchParams();
+    ['title', 'chapterId', 'unitId', 'review', 'revision'].forEach((key) => {
+      const value = params.get(key);
+      if (value !== null && value !== '') {
+        persistent.set(key, value);
+      }
+    });
+    const suffix = persistent.toString() ? `?${persistent.toString()}` : '';
     navigate(`${routeForType(nextItem.type, nextIndex)}${suffix}`);
-  }, [index, items, user, moduleNumber, navigate, isInReviewOrRevision, removeActive]);
+  }, [index, items, user, moduleNumber, navigate, isInReviewOrRevision, removeActive, midLessonVideos, showEndVideo, videoAcknowledged, chapterIdParam, unitIdParam]);
 
   // Allow advancing with Enter key when the exit confirmation is not visible
   useEffect(() => {
@@ -152,6 +351,87 @@ export default function ConceptPage() {
   const isConceptOrStatement = actualType === 'concept' || actualType === 'statement';
   if (!isConceptOrStatement) {
     return <div className="p-6">No concept at this step.</div>;
+  }
+
+  // Gate lesson content behind intro video acknowledgement when present
+  // Show video at start of lesson (index 0), at specific card numbers (mid-lesson), or after last item (end video)
+  const midLessonKey = `${moduleNumber}:${index}`;
+  const hasMidLessonVideo = midLessonVideos[midLessonKey];
+  const shouldShowVideo = introVideoUrl && !videoAcknowledged && (index === 0 || hasMidLessonVideo || showEndVideo);
+  
+  if (showEndVideo || introVideoUrl) {
+    console.log('[ConceptPage] Video gate check:', { 
+      moduleNumber, 
+      index, 
+      showEndVideo, 
+      videoAcknowledged, 
+      introVideoUrl, 
+      hasMidLessonVideo, 
+      midLessonKey,
+      shouldShowVideo 
+    });
+  }
+  
+  if (shouldShowVideo) {
+    return (
+      <div className="h-screen bg-white flex flex-col overflow-hidden">
+        <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
+          {!isInReviewOrRevision && (
+            <button
+              onClick={() => setShowExitConfirm(true)}
+              className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-sm sm:text-base"
+            >
+              ✕
+            </button>
+          )}
+          {isInReviewOrRevision && <div className="w-6 h-6 sm:w-8 sm:h-8"></div>}
+          <div className="flex-1 mx-1 sm:mx-2 md:mx-4">
+            <ProgressBar currentIndex={index} total={items.length} />
+          </div>
+          <StarCounter />
+        </div>
+
+        <div className="flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 80px)' }}>
+          <div className="w-full max-w-3xl sm:max-w-4xl mt-4 sm:mt-6 md:mt-8">
+            <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
+              <iframe
+                src={introVideoUrl}
+                title="Lesson intro video"
+                className="absolute inset-0 w-full h-full rounded-xl border border-gray-200 shadow-sm"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen={false}
+              />
+            </div>
+            <div className="mt-4 sm:mt-5 md:mt-6 flex flex-col items-center gap-2">
+              <button
+                onClick={() => setVideoAcknowledged(true)}
+                className="px-5 py-3 sm:px-6 sm:py-3.5 rounded-lg sm:rounded-xl text-white font-semibold text-base sm:text-lg shadow-md transition-colors bg-blue-600 hover:bg-blue-700"
+              >
+                Start lesson
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {showExitConfirm && (
+          <div className="fixed inset-0 z-[9999]">
+            <ConceptExitConfirm
+              onQuit={() => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const chapterId = urlParams.get('chapterId');
+                const unitId = urlParams.get('unitId');
+                const params = new URLSearchParams();
+                if (chapterId) params.set('chapterId', chapterId);
+                if (unitId) params.set('unitId', unitId);
+                const query = params.toString();
+                navigate(`/learn${query ? '?' + query : ''}`);
+              }}
+              onContinue={() => setShowExitConfirm(false)}
+            />
+          </div>
+        )}
+      </div>
+    );
   }
 
   return (

@@ -9,7 +9,7 @@ import { useReview } from '../../../context/ReviewContext.jsx';
 import { useStars, StarCounter } from '../../../context/StarsContext.jsx';
 import pointsService from '../../../services/pointsService.js';
 import curriculumService from '../../../services/curriculumService.js';
-import React, { useMemo, useState, useEffect, useRef } from 'react';
+import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useModuleItems } from '../../../hooks/useModuleItems';
 import ConceptExitConfirm from '../../modals/ConceptExitConfirm.jsx';
@@ -26,6 +26,8 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
   const urlParams = new URLSearchParams(window.location.search);
   const isReviewModeFromUrl = urlParams.get('review') === 'true';
   const isRevisionModeFromUrl = urlParams.get('revision') === 'true';
+  const chapterIdParam = urlParams.get('chapterId');
+  const unitIdParam = urlParams.get('unitId');
   const actualReviewMode = isReviewMode || isReviewModeFromUrl || isRevisionModeFromUrl;
   const { user } = useAuth();
   const { add: addToReview, removeActive, requeueActive, stageIncorrect, clearStagedForModule, active: activeReviewItem, queue } = useReview();
@@ -115,6 +117,110 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   // First-attempt guard per question instance
   const [hasAttempted, setHasAttempted] = useState(false);
+  const [videoAcknowledged, setVideoAcknowledged] = useState(false);
+  const [showEndVideo, setShowEndVideo] = useState(false);
+
+  // Start-of-lesson videos (index 0)
+  const forcedIntroByModule = useMemo(() => ({
+    '68e276236d69ef07c1a2e133': 'https://youtu.be/33bEGe44vyE',
+    '68e276b26d69ef07c1a2e167': 'https://youtu.be/mo-oW33Dqu0',
+    '68e2771a6d69ef07c1a2e1ab': 'https://youtu.be/ytSYjCqQUj0',
+    '68e277716d69ef07c1a2e1d1': 'https://youtu.be/26THnY_3mtY',
+    '68e277b86d69ef07c1a2e20f': 'https://youtu.be/CIqRRxP4r7g',
+    '68e7cfa9d96c390ca2489fbb': 'https://youtu.be/OYQNzRLDjCo',
+    '68e7d53dd96c390ca248a099': 'https://youtu.be/T4-LR0PCGB4',
+    '68e7de6bd96c390ca248a0f2': 'https://youtu.be/DbGZ0KSS0ZU',
+    '68e7df9bd96c390ca248a12d': 'https://youtu.be/SymhcoFMNaw',
+    '68eba905996044d1e5cbefd6': 'https://youtu.be/i59cR7MPD5M',
+    '68ebaa6c996044d1e5cbf031': 'https://youtu.be/OoLh_Ck1PTA',
+    '68ebb957fc8995cc925650d8': 'https://youtu.be/8kjtyxEIgbg',
+    '68ebbaddfc8995cc925650fe': 'https://youtu.be/t41q21zK-iM',
+    '68ebbb5ffc8995cc92565152': 'https://youtu.be/fIrQIhIAB4s',
+    '68ebbc67fc8995cc925651dd': 'https://youtu.be/9YcQzKUG0vo',
+    '68ebc01cfc8995cc92565205': 'https://youtu.be/yh_18cJbBww',
+    '68ebc134fc8995cc92565279': 'https://youtu.be/snE3QBO1cDo',
+    '691726f9bcaad0116413deb8': 'https://youtu.be/uxX4tcZ5vVY', // Before card 1
+    '69172e1dbcaad0116413e604': 'https://youtu.be/gbCBsR9d75E', // Before card 1
+    '69172ebdbcaad0116413e70c': 'https://youtu.be/7wq7V8z-Rkc', // Before card 1
+    '69173004bcaad0116413e8a7': 'https://youtu.be/UfH2T532NJk', // Before card 1
+    '6917310abcaad0116413e9df': 'https://youtu.be/VyfltE9RuX8', // Before card 1
+    '69173227bcaad0116413eb53': 'https://youtu.be/3kSLLVlWGYE', // Before card 1
+    '691733dbbcaad0116413ed5c': 'https://youtu.be/qzT3C5T1fpo', // Before card 1
+    '69173549bcaad0116413ef25': 'https://youtu.be/fl-2yuASqfw', // Before card 1
+  }), []);
+
+  // Mid-lesson videos: { 'moduleId:cardIndex': videoUrl }
+  // End-of-lesson videos (after last item, before lesson complete)
+  const midLessonVideos = useMemo(() => ({
+    '68e276236d69ef07c1a2e133:12': 'https://youtu.be/2H3FWuKsahg', // Before card 13
+    '68e276b26d69ef07c1a2e167:19': 'https://youtu.be/8uplR1ztb64', // Before card 20
+    '68e276b26d69ef07c1a2e167:26': 'https://youtu.be/8uplR1ztb64', // Before card 27 (MCQ)
+    '68e2771a6d69ef07c1a2e1ab:5': 'https://youtu.be/kcNefeA1RS8', // Before card 6
+    '68e277716d69ef07c1a2e1d1:13': 'https://youtu.be/xDsXRV0MklE', // Before card 14
+    '68e7cfa9d96c390ca2489fbb:5': 'https://youtu.be/IZx6UiwF7VE', // Before card 6
+    '68e7d53dd96c390ca248a099:10': 'https://youtu.be/X2TVQFJZhqk', // Before card 11
+    '68e7df9bd96c390ca248a12d:22': 'https://youtu.be/uu94oylVRzA', // Before card 23
+    '68eba905996044d1e5cbefd6:15': 'https://youtu.be/m2_hLp0mLkM', // Before card 16
+    '68ebb957fc8995cc925650d8:9': 'https://youtu.be/-nbylv4qSbA', // Before card 10
+    '68ebbaddfc8995cc925650fe:17': 'https://youtu.be/OzoJVHp0SVQ', // Before card 18
+  }), []);
+
+  const isYouTubeUrl = useCallback((rawUrl) => {
+    if (!rawUrl) return '';
+    try {
+      const url = new URL(rawUrl);
+      const host = url.hostname.replace(/^www\./, '');
+      if (host === 'youtu.be') return url.pathname.replace('/', '') || '';
+      if (host === 'youtube.com' || host === 'm.youtube.com') {
+        const vid = url.searchParams.get('v');
+        if (vid) return vid;
+        const parts = url.pathname.split('/');
+        const embedIdx = parts.indexOf('embed');
+        if (embedIdx !== -1 && parts[embedIdx + 1]) {
+          return parts[embedIdx + 1];
+        }
+      }
+    } catch (_) {}
+    return '';
+  }, []);
+
+  const normalizeVideoUrl = useCallback((rawUrl) => {
+    if (!rawUrl) return '';
+    const ytId = isYouTubeUrl(rawUrl);
+    if (ytId) {
+      return `https://www.youtube.com/embed/${ytId}?modestbranding=1&rel=0&controls=1`;
+    }
+    return rawUrl;
+  }, [isYouTubeUrl]);
+
+  const midLessonKey = `${moduleNumber}:${index}`;
+  
+  // Check for end-of-lesson video (after completing last item)
+  const introVideoUrl = useMemo(() => {
+    if (showEndVideo) {
+      const endVideoKey = `${moduleNumber}:${index}`;
+      const endVideo = midLessonVideos[endVideoKey] || '';
+      if (endVideo) return normalizeVideoUrl(endVideo);
+    }
+    // Check for mid-lesson video (specific card/index)
+    const midLessonVideo = midLessonVideos[midLessonKey] || '';
+    // Check for start-of-lesson video (index 0)
+    const startVideo = index === 0 ? (forcedIntroByModule[String(moduleNumber)] || '') : '';
+    const src = midLessonVideo || startVideo || '';
+    return src ? normalizeVideoUrl(src) : '';
+  }, [showEndVideo, moduleNumber, index, midLessonVideos, midLessonKey, forcedIntroByModule, normalizeVideoUrl]);
+
+  // Reset gate when reaching a card with mid-lesson video or start video (index 0)
+  useEffect(() => {
+    if (index === 0 || midLessonVideos[midLessonKey]) {
+      setVideoAcknowledged(false);
+    }
+  }, [moduleNumber, index, midLessonVideos, midLessonKey]);
+
+  // Reset showEndVideo when module changes
+  useEffect(() => {
+    setShowEndVideo(false);
+  }, [moduleNumber]);
   
   // Audio refs
   const correctAudioRef = useRef(null);
@@ -160,6 +266,16 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
       });
     }
   };
+
+  useEffect(() => {
+    if (chapterIdParam && unitIdParam) {
+      try {
+        const map = JSON.parse(localStorage.getItem('last_unit_by_chapter') || '{}');
+        map[chapterIdParam] = unitIdParam;
+        localStorage.setItem('last_unit_by_chapter', JSON.stringify(map));
+      } catch (_) {}
+    }
+  }, [chapterIdParam, unitIdParam]);
 
   // Reset state when item changes; populate words robustly
   useEffect(() => {
@@ -457,10 +573,20 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
     const nextIndex = index + 1;
     const nextItem = items[nextIndex];
     const params = new URLSearchParams(window.location.search);
-    const title = params.get('title');
-    const suffix = title ? `?title=${encodeURIComponent(title)}` : '';
+    const persistent = new URLSearchParams();
+    ['title', 'chapterId', 'unitId', 'review', 'revision'].forEach((key) => {
+      const value = params.get(key);
+      if (value !== null && value !== '') {
+        persistent.set(key, value);
+      }
+    });
+    const suffix = persistent.toString() ? `?${persistent.toString()}` : '';
     
     if (nextIndex >= items.length) {
+      // Declare variables outside try block so they're accessible throughout the function
+      let chapterIdForStorage = chapterIdParam || null;
+      let unitIdForStorage = unitIdParam || null;
+      
       // Count only when module completes
       try { 
         if (user?._id) await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', conceptCompleted: true }); 
@@ -468,18 +594,19 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
       // Update local caches so dashboard updates without refresh
       try {
         // Get chapterId from module to make completion chapter-specific
-        let chapterIdForStorage = null;
         try {
           const urlParams = new URLSearchParams(window.location.search);
-          chapterIdForStorage = urlParams.get('chapterId');
+          chapterIdForStorage = chapterIdForStorage || urlParams.get('chapterId');
+          unitIdForStorage = unitIdForStorage || urlParams.get('unitId');
           
-          if (!chapterIdForStorage) {
+          if (!chapterIdForStorage || !unitIdForStorage) {
             const chapters = await curriculumService.listChapters(user?.board || 'CBSE', user?.subject || 'Science');
             for (const ch of (chapters?.data || [])) {
               const modules = await curriculumService.listModules(ch._id);
               const found = (modules?.data || []).find(m => m._id === moduleNumber);
               if (found) {
                 chapterIdForStorage = ch._id;
+                unitIdForStorage = unitIdForStorage || found.unitId || null;
                 break;
               }
             }
@@ -525,7 +652,19 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
           localStorage.setItem(userIDS_KEY, JSON.stringify(Array.from(userIdsSet)));
         } catch (_) {}
       } catch (_) {}
-      return navigate('/lesson-complete');
+      if (chapterIdForStorage && unitIdForStorage) {
+        try {
+          const map = JSON.parse(localStorage.getItem('last_unit_by_chapter') || '{}');
+          map[chapterIdForStorage] = unitIdForStorage;
+          localStorage.setItem('last_unit_by_chapter', JSON.stringify(map));
+        } catch (_) {}
+      }
+      const completionParams = new URLSearchParams();
+      completionParams.set('moduleId', String(moduleNumber));
+      completionParams.set('chapter', String(moduleNumber));
+      if (chapterIdForStorage) completionParams.set('chapterId', chapterIdForStorage);
+      if (unitIdForStorage) completionParams.set('unitId', unitIdForStorage);
+      return navigate(`/lesson-complete?${completionParams.toString()}`);
     }
     navigate(`${routeForType(nextItem.type, nextIndex)}${suffix}`);
   }
@@ -571,6 +710,74 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
   // Only display if it's actually a rearrange type
   if (actualType !== 'rearrange') {
     return <div className="p-6">No rearrange at this step.</div>;
+  }
+
+  // Gate lesson content behind intro video acknowledgement when present
+  const hasStartVideo = index === 0 && forcedIntroByModule[String(moduleNumber)] && introVideoUrl;
+  const hasEndVideo = showEndVideo && introVideoUrl;
+  const hasMidLessonVideo = midLessonVideos[midLessonKey] && introVideoUrl;
+  const shouldShowVideo = (hasStartVideo || hasEndVideo || hasMidLessonVideo) && !videoAcknowledged;
+  
+  if (shouldShowVideo) {
+    return (
+      <div className="h-screen bg-white flex flex-col overflow-hidden">
+        <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
+          {!actualReviewMode && (
+            <button
+              onClick={() => setShowExitConfirm(true)}
+              className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-sm sm:text-base"
+            >
+              ✕
+            </button>
+          )}
+          {actualReviewMode && <div className="w-6 h-6 sm:w-8 sm:h-8"></div>}
+          <div className="flex-1 mx-1 sm:mx-2 md:mx-4">
+            <ProgressBar currentIndex={index} total={items.length} />
+          </div>
+          <StarCounter />
+        </div>
+
+        <div className="flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 80px)' }}>
+          <div className="w-full max-w-3xl sm:max-w-4xl mt-4 sm:mt-6 md:mt-8">
+            <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
+              <iframe
+                src={introVideoUrl}
+                title="Lesson intro video"
+                className="absolute inset-0 w-full h-full rounded-xl border border-gray-200 shadow-sm"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen={false}
+              />
+            </div>
+            <div className="mt-4 sm:mt-5 md:mt-6 flex flex-col items-center gap-2">
+              <button
+                onClick={() => setVideoAcknowledged(true)}
+                className="px-5 py-3 sm:px-6 sm:py-3.5 rounded-lg sm:rounded-xl text-white font-semibold text-base sm:text-lg shadow-md transition-colors bg-blue-600 hover:bg-blue-700"
+              >
+                Start lesson
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {showExitConfirm && (
+          <div className="fixed inset-0 z-[9999]">
+            <ConceptExitConfirm
+              onQuit={() => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const chapterId = urlParams.get('chapterId');
+                const unitId = urlParams.get('unitId');
+                const params = new URLSearchParams();
+                if (chapterId) params.set('chapterId', chapterId);
+                if (unitId) params.set('unitId', unitId);
+                const query = params.toString();
+                navigate(`/learn${query ? '?' + query : ''}`);
+              }}
+              onContinue={() => setShowExitConfirm(false)}
+            />
+          </div>
+        )}
+      </div>
+    );
   }
 
   return (

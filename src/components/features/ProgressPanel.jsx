@@ -65,23 +65,6 @@ export default function ProgressPanel() {
 
       <div className="rounded-2xl border-2 border-blue-200 p-4 bg-white/70 backdrop-blur-sm">
         <div className="flex items-center justify-between">
-          <h3 className="text-xl font-extrabold text-blue-700">Points by Chapter</h3>
-        </div>
-        <div className="mt-3 h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data.byChapter} margin={{ top: 10, right: 10, bottom: 0, left: -10 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="chapterNumber" label={{ value: 'Chapter', position: 'insideBottom', offset: -5 }} />
-              <YAxis allowDecimals={false} />
-              <Tooltip />
-              <Bar dataKey="points" fill="#16a34a" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      <div className="rounded-2xl border-2 border-blue-200 p-4 bg-white/70 backdrop-blur-sm">
-        <div className="flex items-center justify-between">
           <h3 className="text-xl font-extrabold text-blue-700">Points by Module</h3>
         </div>
         <div className="mt-3 h-72">

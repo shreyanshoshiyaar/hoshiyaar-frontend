@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useLayoutEffect } from "react";
 import { useAuth } from "../../../context/AuthContext.jsx";
 import { useNavigate, useLocation } from "react-router-dom";
 import heroChar from "../../../assets/images/heroChar.png";
@@ -64,7 +64,7 @@ const CloseIcon = () => (
 );
 
 const ChapterNavIcon = () => (
-  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
     <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path>
   </svg>
 );
@@ -130,7 +130,7 @@ const PathNode = ({ status, onClick, disabled, offset = 0, color = "#2C6DEF", li
 };
 
 const LearnDashboard = ({ onboardingData }) => {
-  const { logout, user, loading: authLoading } = useAuth();
+  const { logout, user, loading: authLoading, updateUser } = useAuth();
   const { resetModuleLedger, stars, syncFromServer, setTotal } = useStars();
   const navigate = useNavigate();
   const location = useLocation();
@@ -148,6 +148,20 @@ const LearnDashboard = ({ onboardingData }) => {
   const [showChapters, setShowChapters] = useState(false);
   const [chapterStats, setChapterStats] = useState({}); // { [chapterId]: { total, completed } }
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Simple scroll position preservation using sessionStorage
+  const saveScrollPosition = () => {
+    try {
+      const scrollContainer = document.getElementById("tree-scroll-container");
+      if (scrollContainer) {
+        const scrollTop = scrollContainer.scrollTop;
+        sessionStorage.setItem('dashboardScrollPos', scrollTop.toString());
+        console.log('[Scroll Preservation] Saved scroll position:', scrollTop);
+      }
+    } catch (error) {
+      console.warn('[Scroll Preservation] Failed to save scroll position:', error);
+    }
+  };
   const tips = [
     "Short lessons win! Finish one star, then take a mini break.",
     "Try to explain the concept to a friend or toy. Teaching helps!",
@@ -280,7 +294,22 @@ const LearnDashboard = ({ onboardingData }) => {
   // Pull subject/board from user or onboardingData - MOVED UP TO FIX INITIALIZATION ORDER
   const selectedBoard = onboardingData?.board || user?.board || "CBSE";
   const subjectName = onboardingData?.subject || user?.subject || "Science";
-  const preferredChapterId = onboardingData?.chapter || user?.chapter || null;
+  // Get preferred chapter ID from URL, localStorage, onboardingData, or user
+  const getPreferredChapterId = () => {
+    const params = new URLSearchParams(location.search);
+    const urlChapterId = params.get("chapterId");
+    if (urlChapterId) return urlChapterId;
+    
+    // Check localStorage for last selected chapter ID
+    try {
+      const stored = localStorage.getItem(`last_selected_chapter_${user?._id || 'anon'}_${subjectName}`);
+      if (stored) return stored;
+    } catch (_) {}
+    
+    // Fall back to user chapter (title) or onboardingData chapter
+    return onboardingData?.chapter || user?.chapter || null;
+  };
+  const preferredChapterId = getPreferredChapterId();
 
   // Helpers: local persistence for lesson completion - NOW USING COMPOSITE KEYS
   const userScopedKey = (base) => `${base}__${user?._id || 'anon'}__${subjectName || 'unknown'}`;
@@ -934,6 +963,89 @@ const LearnDashboard = ({ onboardingData }) => {
     load();
   }, [user, selectedBoard, subjectName, preferredChapterId, authLoading, onboardingData, location.search]);
 
+  // Restore scroll position when returning to dashboard (using useLayoutEffect for instant restoration)
+  useLayoutEffect(() => {
+    // Check if we have a saved position
+    const savedPosition = sessionStorage.getItem('dashboardScrollPos');
+    
+    if (savedPosition && !isLoading && unitsList.length > 0) {
+      const scrollContainer = document.getElementById("tree-scroll-container");
+      if (scrollContainer) {
+        // Restore the scroll position instantly (before paint to prevent flicker)
+        scrollContainer.scrollTop = parseInt(savedPosition, 10);
+        console.log('[Scroll Preservation] Restored scroll position:', savedPosition);
+        
+        // Clear it so it doesn't stick forever (optional - remove if you want it to persist)
+        // sessionStorage.removeItem('dashboardScrollPos');
+      }
+    }
+  }, [isLoading, unitsList]);
+
+  // Scroll to Active Unit (fallback if no saved position)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const targetUnitId = params.get("unitId");
+    const savedPosition = sessionStorage.getItem('dashboardScrollPos');
+
+    // Only scroll to active unit if there's no saved position
+    if (savedPosition) return;
+
+    if (targetUnitId && !isLoading && unitsList.length > 0) {
+      const attemptScroll = () => {
+        const element = document.querySelector(`[data-unit-id="${targetUnitId}"]`);
+        const scrollContainer = document.getElementById("tree-scroll-container");
+        
+        if (element && scrollContainer) {
+          // Calculate scroll position to center the element within the container
+          const containerRect = scrollContainer.getBoundingClientRect();
+          const elementRect = element.getBoundingClientRect();
+          const scrollTop = scrollContainer.scrollTop;
+          const elementTop = elementRect.top - containerRect.top + scrollTop;
+          const containerHeight = scrollContainer.clientHeight;
+          const elementHeight = elementRect.height;
+          
+          // Calculate scroll position to center the element
+          const targetScroll = elementTop - (containerHeight / 2) + (elementHeight / 2);
+          
+          scrollContainer.scrollTo({
+            top: targetScroll,
+            behavior: 'smooth'
+          });
+          
+          return true;
+        }
+        return false;
+      };
+
+      // Immediate attempt
+      let interval = null;
+      let timeout = null;
+      
+      if (!attemptScroll()) {
+        // Retry logic for image/layout delays
+        interval = setInterval(() => {
+          if (attemptScroll()) {
+            clearInterval(interval);
+            interval = null;
+          }
+        }, 100);
+        
+        timeout = setTimeout(() => {
+          if (interval) {
+            clearInterval(interval);
+            interval = null;
+          }
+        }, 2000);
+      }
+
+      // Cleanup function
+      return () => {
+        if (interval) clearInterval(interval);
+        if (timeout) clearTimeout(timeout);
+      };
+    }
+  }, [location.search, isLoading, unitsList]);
+
   // When opening chapters grid, load per-chapter module counts and compute simple completion
   // Debounced and not tied to rapid progress changes to avoid flicker
   useEffect(() => {
@@ -1136,16 +1248,40 @@ const LearnDashboard = ({ onboardingData }) => {
     
     // CRITICAL FIX: Filter completed IDs to only include modules from the CURRENT chapter
     // This prevents modules from other chapters being marked as completed
-    const currentChapterModuleIds = new Set(
+    // IMPORTANT: Include modules from both modulesList AND unitModulesMap (for units)
+    const chapterModuleIds = new Set(
       (modulesList || []).map(m => m?._id ? String(m._id) : null).filter(Boolean)
     );
     
+    // Also include all modules from unitModulesMap for this chapter
+    if (unitModulesMap && typeof unitModulesMap === 'object') {
+      Object.values(unitModulesMap).forEach((unitModules) => {
+        if (Array.isArray(unitModules)) {
+          unitModules.forEach((m) => {
+            if (m?._id) {
+              chapterModuleIds.add(String(m._id));
+            }
+          });
+        }
+      });
+    }
+    
+    const currentChapterModuleIds = chapterModuleIds;
+    
     // Merge backend completedModules with local completedIds, but only for current chapter
-    const completedIdSet = new Set(
-      Array.from(allCompletedIds)
-        .filter(id => currentChapterModuleIds.has(id))
-        .concat(Array.from(backendCompletedModuleIds).filter(id => currentChapterModuleIds.has(id)))
-    );
+    // CRITICAL FIX: Don't filter if currentChapterModuleIds is empty (modules not loaded yet)
+    // This prevents stars from disappearing on refresh before modules are loaded
+    const completedIdSet = currentChapterModuleIds.size > 0
+      ? new Set(
+          Array.from(allCompletedIds)
+            .filter(id => currentChapterModuleIds.has(id))
+            .concat(Array.from(backendCompletedModuleIds).filter(id => currentChapterModuleIds.has(id)))
+        )
+      : new Set(
+          // If modules not loaded yet, include all IDs to prevent flicker
+          // They will be filtered properly once modules are loaded
+          Array.from(allCompletedIds).concat(Array.from(backendCompletedModuleIds))
+        );
     
     // Debug logging to help identify sync issues
     console.log('[Dashboard Progress Debug]', {
@@ -1166,7 +1302,7 @@ const LearnDashboard = ({ onboardingData }) => {
       completedIdSet,
       completedCompositeKeys // NEW: Include composite keys for checking completion
     };
-  }, [progress, progressUpdateTrigger, modulesList, chapterId, subjectName, user?._id, user?.subject]);
+  }, [progress, progressUpdateTrigger, modulesList, unitModulesMap, chapterId, subjectName, user?._id, user?.subject]);
   
   const { serverCompletedSet, localProgress, completedIdSet, completedCompositeKeys } = progressState;
   
@@ -1422,12 +1558,12 @@ const LearnDashboard = ({ onboardingData }) => {
             <span>Profile</span>
           </a>
         <a
-          href="https://drive.google.com/file/d/1O_cZFjm4eQSp2S55_6_Ly7zsHhZsX7hG/view?usp=sharing"
+          href="https://drive.google.com/file/d/1s6DgcP-hu7vdm6La7WwABPlvsetxZNiM/view"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-3 py-3 px-4 rounded-xl border-2 border-blue-100 bg-white text-blue-700 shadow-sm hover:bg-blue-50 transition-colors"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-500 text-lg">📂</div>
+          <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-blue-50 text-blue-500 text-lg">📂</div>
           <div className="text-left">
             <p className="text-sm font-extrabold leading-tight text-blue-700">Resource Drop 1</p>
             <p className="text-xs text-blue-500/80">Google Drive</p>
@@ -1435,12 +1571,12 @@ const LearnDashboard = ({ onboardingData }) => {
           <span className="text-lg text-blue-400">↗</span>
         </a>
         <a
-          href="https://drive.google.com/file/d/1O_cZFjm4eQSp2S55_6_Ly7zsHhZsX7hG/view?usp=sharing"
+          href="https://docs.google.com/forms/d/e/1FAIpQLScOIcWmNcebXFgfgLxmfAt0Pd4hzPyhphUOsDbXsBX4pLexHw/viewform"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-3 py-3 px-4 rounded-xl border-2 border-blue-100 bg-white text-blue-700 shadow-sm hover:bg-blue-50 transition-colors"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-500 text-lg">📂</div>
+          <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-blue-50 text-blue-500 text-lg">📂</div>
           <div className="text-left">
             <p className="text-sm font-extrabold leading-tight text-blue-700">Resource Drop 2</p>
             <p className="text-xs text-blue-500/80">Google Drive</p>
@@ -1448,14 +1584,40 @@ const LearnDashboard = ({ onboardingData }) => {
           <span className="text-lg text-blue-400">↗</span>
         </a>
         <a
-          href="https://drive.google.com/file/d/1O_cZFjm4eQSp2S55_6_Ly7zsHhZsX7hG/view?usp=sharing"
+          href="https://docs.google.com/forms/d/e/1FAIpQLScmiG8DzBgY5Z9Aa2DiI0J7GOuKEYa5UABri8qXfPehmiK0bg/viewform"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-3 py-3 px-4 rounded-xl border-2 border-blue-100 bg-white text-blue-700 shadow-sm hover:bg-blue-50 transition-colors"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-500 text-lg">📂</div>
+          <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-blue-50 text-blue-500 text-lg">📂</div>
           <div className="text-left">
             <p className="text-sm font-extrabold leading-tight text-blue-700">Resource Drop 3</p>
+            <p className="text-xs text-blue-500/80">Google Drive</p>
+          </div>
+          <span className="text-lg text-blue-400">↗</span>
+        </a>
+        <a
+          href="https://docs.google.com/forms/d/1SgerXkOG-lT3RR0TejOC2w4MBGE7Bbpy9RCzQ9dpocE/viewform?edit_requested=true"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 py-3 px-4 rounded-xl border-2 border-blue-100 bg-white text-blue-700 shadow-sm hover:bg-blue-50 transition-colors"
+        >
+          <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-blue-50 text-blue-500 text-lg">📂</div>
+          <div className="text-left">
+            <p className="text-sm font-extrabold leading-tight text-blue-700">Resource Drop 4</p>
+            <p className="text-xs text-blue-500/80">Google Drive</p>
+          </div>
+          <span className="text-lg text-blue-400">↗</span>
+        </a>
+        <a
+          href="https://drive.google.com/drive/folders/1O2NlDltqr3hodICT_UrH2tCJaLfC2zqd?usp=sharing"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 py-3 px-4 rounded-xl border-2 border-blue-100 bg-white text-blue-700 shadow-sm hover:bg-blue-50 transition-colors"
+        >
+          <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-blue-50 text-blue-500 text-lg">📂</div>
+          <div className="text-left">
+            <p className="text-sm font-extrabold leading-tight text-blue-700">Resource Drop 5</p>
             <p className="text-xs text-blue-500/80">Google Drive</p>
           </div>
           <span className="text-lg text-blue-400">↗</span>
@@ -1486,6 +1648,7 @@ const LearnDashboard = ({ onboardingData }) => {
             unitsList.length > 0 || modulesList.length > 0 || true
           ) && (
             <div
+              id="tree-scroll-container"
               className={`${
                 showChapters ? "relative w-full" : "relative max-w-4xl"
               } mx-auto h-[80vh] overflow-y-auto no-scrollbar`}
@@ -1562,23 +1725,40 @@ const LearnDashboard = ({ onboardingData }) => {
                                         // Update database with the selected chapter
                                         if (user?._id) {
                                           try {
-                                            await authService.updateProfile({
+                                            const response = await authService.updateProfile({
                                               userId: user._id,
                                               chapter: ch.title, // Save chapter title to user profile
                                             });
                                             console.log('Chapter saved to database:', ch.title);
                                             
                                             // Update local user state to reflect the change immediately
-                                            const updatedUser = { ...user, chapter: ch.title };
+                                            const updatedUser = response?.data ? { ...user, ...response.data } : { ...user, chapter: ch.title, chapterId: ch._id };
                                             try {
-                                              localStorage.setItem('user', JSON.stringify(updatedUser));
+                                              // Also save chapter ID to localStorage for quick retrieval
+                                              localStorage.setItem(`last_selected_chapter_${user._id}_${subjectName}`, ch._id);
+                                              // Update AuthContext user state immediately
+                                              if (updateUser) {
+                                                updateUser(updatedUser);
+                                              } else {
+                                                // Fallback to localStorage only
+                                                localStorage.setItem('user', JSON.stringify(updatedUser));
+                                              }
                                             } catch (e) {
-                                              console.warn('Failed to update localStorage:', e);
+                                              console.warn('Failed to update user state:', e);
                                             }
                                           } catch (error) {
                                             console.error('Failed to save chapter to database:', error);
+                                            // Still save to localStorage as fallback
+                                            try {
+                                              localStorage.setItem(`last_selected_chapter_${user._id}_${subjectName}`, ch._id);
+                                            } catch (_) {}
                                             // Don't block UI if save fails
                                           }
+                                        } else {
+                                          // Save to localStorage even if not logged in
+                                          try {
+                                            localStorage.setItem(`last_selected_chapter_anon_${subjectName}`, ch._id);
+                                          } catch (_) {}
                                         }
                                       }
                                     }}
@@ -1622,7 +1802,10 @@ const LearnDashboard = ({ onboardingData }) => {
                   {(() => {
                     if (unitsList.length === 0 && modulesList.length > 0) {
                       return (
-                        <div className="relative pt-12 pb-28">
+                        <div 
+                          className="relative pt-12 pb-28"
+                          data-chapter-id={chapterId}
+                        >
                       {/* Unit header card for direct modules */}
                       <div className="sticky top-0 z-30 text-white px-6 py-5 rounded-3xl flex justify-between items-center mb-8 shadow-[0_10px_0_0_rgba(0,0,0,0.15)] max-w-3xl mx-auto border-4"
                            style={{ background: `linear-gradient(90deg, #2C6DEF, #1E4A8C)`, borderColor: 'rgba(44, 109, 239, 0.25)' }}>
@@ -1647,12 +1830,12 @@ const LearnDashboard = ({ onboardingData }) => {
                         <div className="flex items-center gap-2">
                           <button 
                             onClick={() => setShowChapters(true)} 
-                            className="flex items-center gap-3 py-3 px-5 rounded-2xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-lg"
+                            className="flex items-center gap-2.5 py-2 px-4 rounded-xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-base"
                           >
-                            <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white/20">
+                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-white/20 flex-shrink-0">
                               <ChapterNavIcon />
                             </span>
-                            <span className="font-bold hidden sm:inline">All Chapters</span>
+                            <span className="font-bold hidden sm:inline leading-tight self-center">All Chapters</span>
                           </button>
                           {/* Debug button to clear false completions */}
                           <button 
@@ -1730,6 +1913,8 @@ const LearnDashboard = ({ onboardingData }) => {
                                           if (!canClick) return;
                                           const moduleId = modulesList[index]?._id;
                                           if (moduleId) {
+                                            // Save scroll position before navigating
+                                            saveScrollPosition();
                                             // Preserve chapterId in URL for navigation back
                                             const params = new URLSearchParams();
                                             if (chapterId) params.set('chapterId', chapterId);
@@ -1757,6 +1942,8 @@ const LearnDashboard = ({ onboardingData }) => {
                                           if (!canClick) return;
                                           const moduleId = modulesList[index]?._id;
                                           if (moduleId) {
+                                            // Save scroll position before navigating
+                                            saveScrollPosition();
                                             // Preserve chapterId in URL for navigation back
                                             const params = new URLSearchParams();
                                             if (chapterId) params.set('chapterId', chapterId);
@@ -1811,13 +1998,15 @@ const LearnDashboard = ({ onboardingData }) => {
                       <div
                         key={u._id || unitIdx}
                         className="relative pt-12 pb-28"
+                        data-chapter-id={chapterId}
+                        data-unit-id={String(u._id)}
                       >
                          {/* Unit header card - sticky until next unit */}
                          {(() => { const color = unitPalette[unitIdx % unitPalette.length]; const gradFrom = color; const gradTo = darken(color, 0.15); return (
                          <div className="sticky top-0 z-30 text-white px-6 py-5 rounded-3xl flex justify-between items-center mb-8 shadow-[0_10px_0_0_rgba(0,0,0,0.15)] max-w-3xl mx-auto border-4"
                               style={{ background: `linear-gradient(90deg, ${gradFrom}, ${gradTo})`, borderColor: withAlpha(color, 0.25) }}>
                            <div>
-                             <p className="font-extrabold text-xl md:text-2xl">
+                             <p className="font-extrabold text-base md:text-lg">
                                {u.title || `Unit ${unitIdx + 1}`}
                              </p>
                              {chapterTitle && (
@@ -1842,12 +2031,12 @@ const LearnDashboard = ({ onboardingData }) => {
                            <div className="flex items-center gap-2">
                              <button 
                                onClick={() => setShowChapters(true)} 
-                               className="flex items-center gap-3 py-3 px-5 rounded-2xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-lg"
+                               className="flex items-center gap-2.5 py-2 px-4 rounded-xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-base"
                              >
-                               <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white/20">
+                               <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-white/20 flex-shrink-0">
                                  <ChapterNavIcon />
                                </span>
-                               <span className="font-bold hidden sm:inline">All Chapters</span>
+                               <span className="font-bold hidden sm:inline leading-tight self-center">All Chapters</span>
                              </button>
                            </div>
                          </div>
@@ -1900,6 +2089,7 @@ const LearnDashboard = ({ onboardingData }) => {
                             return (
                               <div
                                 key={index}
+                                id={`chapter-${mod._id}`}
                                 className="relative w-full flex items-center justify-center px-4 sm:px-6 md:px-8"
                                 onMouseEnter={() => setHoveredIndex(index)}
                                 onMouseLeave={() => setHoveredIndex(null)}
@@ -1921,6 +2111,8 @@ const LearnDashboard = ({ onboardingData }) => {
                                           if (!canClick) return;
                                           const moduleId = mod?._id;
                                           if (moduleId) {
+                                            // Save scroll position before navigating
+                                            saveScrollPosition();
                                             // Preserve chapterId and unitId in URL for navigation back
                                             const params = new URLSearchParams();
                                             if (chapterId) params.set('chapterId', chapterId);
@@ -1949,6 +2141,8 @@ const LearnDashboard = ({ onboardingData }) => {
                                           if (!canClick) return;
                                           const moduleId = mod?._id;
                                           if (moduleId) {
+                                            // Save scroll position before navigating
+                                            saveScrollPosition();
                                             // Preserve chapterId and unitId in URL for navigation back
                                             const params = new URLSearchParams();
                                             if (chapterId) params.set('chapterId', chapterId);
@@ -2155,6 +2349,8 @@ const LearnDashboard = ({ onboardingData }) => {
                   const nextId =
                     modulesList?.[nextIndex]?._id || modulesList?.[0]?._id;
                   if (nextId) {
+                    // Save scroll position before navigating
+                    saveScrollPosition();
                     // Preserve chapterId in URL for navigation back
                     const params = new URLSearchParams();
                     if (chapterId) params.set('chapterId', chapterId);
