@@ -1,71 +1,53 @@
 import axios from 'axios';
 
-// The base URL of your backend API
-// In development, use same-origin so Vite proxy (see vite.config.js) forwards to http://localhost:5000
-// In production, allow overriding with VITE_API_BASE, otherwise fall back to current origin
-// For mobile access on local network, use the local IP
+// Determine the backend base URL
+// - In development, use '' so Vite proxy (vite.config.js) forwards to http://localhost:5000
+// - In production, use VITE_API_URL (full URL to your Railway service)
+// - If it's missing, we log an error so you catch misconfigurations early
 const getBaseURL = () => {
   if (import.meta.env.DEV) {
-    return ''; // Use Vite proxy in development
+    return ''; // Vite proxy handles http://localhost:5000
   }
-  
-  // Check if we're accessing from mobile on local network
-  const hostname = window.location.hostname;
-  if (hostname === '192.168.1.11') {
-    return 'http://192.168.1.11:5000'; // Local network backend
+
+  // Production: use the explicit Railway backend URL
+  const base = import.meta.env.VITE_API_URL;
+  if (!base) {
+    console.error(
+      '❌ VITE_API_URL is not defined in production. Set it in your deployment environment (Vercel → Settings → Environment Variables) to your Railway backend URL, e.g., https://hoshiyaar-backend-production.up.railway.app'
+    );
   }
-  
-  return import.meta.env.VITE_API_BASE || '';
+  return base; // Should be full domain, like https://hoshiyaar-backend-production.up.railway.app
 };
 
 const BASE = getBaseURL();
-const API_URL = `${BASE}/api/auth/`;
+const API_URL = `${BASE}/api/auth/`; // All auth endpoints will start from this path
 
-// Debug logging
+// Debug logging (helps confirm environment and URL are correct)
 console.log('API_URL:', API_URL);
 console.log('Environment:', import.meta.env.DEV ? 'development' : 'production');
-console.log('BASE:', BASE);
+console.log('BASE URL from env:', BASE);
 
-// Centralized axios instance with timeout
+// Centralized axios instance
 const http = axios.create({
   baseURL: API_URL,
   timeout: 12000,
-  withCredentials: false,
+  withCredentials: true, // Helpful if using cookies/session-based auth
 });
 
-// Register user (username-based)
-const register = (userData, opts) => {
-  return http.post('register', userData, opts);
-};
-
-// Login user with username
-const login = (userData, opts) => {
-  return http.post('login', userData, opts);
-};
-
-// Update onboarding selections
-const updateOnboarding = (data, opts) => {
-  return http.put('onboarding', data, opts);
-};
-
-// Update profile (alias to onboarding update for now)
-const updateProfile = (data, opts) => http.put('onboarding', data, opts);
-
-// Get user data
-const getUser = (userId, opts) => {
-  return http.get('user/' + userId, opts);
-};
-
-// Progress APIs
+// Auth service functions
+const register = (userData, opts) => http.post('register', userData, opts);
+const login = (userData, opts) => http.post('login', userData, opts);
+const updateOnboarding = (data, opts) => http.put('onboarding', data, opts);
+const updateProfile = (data, opts) => http.put('onboarding', data, opts); // alias if this matches your backend
+const getUser = (userId, opts) => http.get('user/' + userId, opts);
 const getProgress = (userId, opts) => http.get('progress/' + userId, opts);
 const updateProgress = (data, opts) => http.put('progress', data, opts);
-const getCompletedModuleIds = (userId, { subject } = {}, opts) => http.get('completed-modules/' + userId, { params: { subject }, ...(opts || {}) });
+const getCompletedModuleIds = (userId, { subject } = {}, opts) =>
+  http.get('completed-modules/' + userId, { params: { subject }, ...(opts || {}) });
+const checkUsername = (username, opts) =>
+  http.get('check-username', { params: { username }, ...(opts || {}) });
 
-// Username availability
-const checkUsername = (username, opts) => http.get('check-username', { params: { username }, ...(opts || {}) });
-
-// Export the functions
-const authService = {
+export default {
   register,
   login,
   updateOnboarding,
@@ -76,5 +58,3 @@ const authService = {
   getCompletedModuleIds,
   checkUsername,
 };
-
-export default authService;
