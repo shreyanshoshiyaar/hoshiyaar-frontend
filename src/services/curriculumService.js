@@ -1,72 +1,139 @@
 import axios from 'axios';
 
-// Prefer Vite proxy on localhost; use VITE_API_BASE or current origin in non-local envs
-// For mobile access on local network, use the local IP
+// Get the API base URL
 const getAPIBase = () => {
-  if (typeof window === 'undefined') return '';
-  
-  const hostname = window.location.hostname;
-  const isLocalhost = /^(localhost|127\.0\.0\.1)/.test(hostname);
-  
-  if (isLocalhost) {
-    return ''; // Use Vite proxy in development
+  // In production (Vercel), use VITE_API_URL
+  if (import.meta.env.PROD) {
+    const apiUrl = import.meta.env.VITE_API_URL;
+    if (!apiUrl) {
+      console.error('❌ VITE_API_URL not set in production!');
+      return '';
+    }
+    console.log('🌐 Using production API URL:', apiUrl);
+    return apiUrl;
   }
   
-  // Check if we're accessing from mobile on local network
+  // In development
+  const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+  
+  // Local network mobile access
   if (hostname === '192.168.1.11') {
-    return 'http://192.168.1.11:5000'; // Local network backend
+    console.log('📱 Using local network backend: http://192.168.1.11:5000');
+    return 'http://192.168.1.11:5000';
   }
   
-  return import.meta.env.VITE_API_BASE || '';
+  // Localhost - use Vite proxy (empty baseURL)
+  console.log('🔧 Using Vite proxy for development');
+  return '';
 };
 
-const API = getAPIBase();
+const API_BASE = getAPIBase();
 
-// Centralized axios instance with sane defaults to avoid hanging requests
+// Centralized axios instance
 const http = axios.create({
-  baseURL: API,
-  timeout: 12000, // 12s timeout to fail fast and render fallbacks
-  withCredentials: false,
+  baseURL: API_BASE,
+  timeout: 12000,
+  withCredentials: true, // Allow cookies/sessions
 });
+
+// Log axios requests for debugging
+http.interceptors.request.use((config) => {
+  const fullUrl = API_BASE ? `${API_BASE}${config.url}` : config.url;
+  console.log(`📡 ${config.method.toUpperCase()} ${fullUrl}`);
+  return config;
+});
+
+// Log axios responses for debugging
+http.interceptors.response.use(
+  (response) => {
+    console.log(`✅ Response:`, response.data);
+    return response;
+  },
+  (error) => {
+    console.error(`❌ API Error:`, error.message);
+    return Promise.reject(error);
+  }
+);
 
 const passOpts = (opts) => (opts && typeof opts === 'object' ? opts : {});
 
 const curriculumService = {
   listBoards(opts) {
+    console.log('📚 Calling listBoards');
     return http.get(`/api/curriculum/boards`, passOpts(opts));
   },
+  
   listClasses(board = 'CBSE', opts) {
-    return http.get(`/api/curriculum/classes`, { params: { board }, ...passOpts(opts) });
+    console.log('📚 Calling listClasses for board:', board);
+    return http.get(`/api/curriculum/classes`, { 
+      params: { board }, 
+      ...passOpts(opts) 
+    });
   },
+  
   listSubjects(board = 'CBSE', opts) {
-    return http.get(`/api/curriculum/subjects`, { params: { board }, ...passOpts(opts) });
+    console.log('📚 Calling listSubjects for board:', board);
+    return http.get(`/api/curriculum/subjects`, { 
+      params: { board }, 
+      ...passOpts(opts) 
+    });
   },
+  
   listChapters(board = 'CBSE', subject = 'Science', extraParams = {}, opts) {
-    // extraParams can include { userId, classTitle }
-    return http.get(`/api/curriculum/chapters`, { params: { board, subject, ...(extraParams || {}) }, ...passOpts(opts) });
+    console.log('📚 Calling listChapters for board:', board, 'subject:', subject);
+    return http.get(`/api/curriculum/chapters`, { 
+      params: { board, subject, ...(extraParams || {}) }, 
+      ...passOpts(opts) 
+    });
   },
+  
   listUnits(chapterId, opts) {
-    return http.get(`/api/curriculum/units`, { params: { chapterId }, ...passOpts(opts) });
+    console.log('📚 Calling listUnits for chapter:', chapterId);
+    return http.get(`/api/curriculum/units`, { 
+      params: { chapterId }, 
+      ...passOpts(opts) 
+    });
   },
+  
   listModules(chapterId, opts) {
-    return http.get(`/api/curriculum/modules`, { params: { chapterId }, ...passOpts(opts) });
+    console.log('📚 Calling listModules for chapter:', chapterId);
+    return http.get(`/api/curriculum/modules`, { 
+      params: { chapterId }, 
+      ...passOpts(opts) 
+    });
   },
+  
   listModulesByUnit(unitId, opts) {
-    return http.get(`/api/curriculum/modules`, { params: { unitId }, ...passOpts(opts) });
+    console.log('📚 Calling listModulesByUnit for unit:', unitId);
+    return http.get(`/api/curriculum/modules`, { 
+      params: { unitId }, 
+      ...passOpts(opts) 
+    });
   },
+  
   listItems(moduleId, opts) {
-    return http.get(`/api/curriculum/items`, { params: { moduleId }, ...passOpts(opts) });
+    console.log('📚 Calling listItems for module:', moduleId);
+    return http.get(`/api/curriculum/items`, { 
+      params: { moduleId }, 
+      ...passOpts(opts) 
+    });
   },
+  
   getModule(moduleId, opts) {
-    // Fetch module details by ID - we'll search through chapters if no direct endpoint exists
-    // For now, return a promise that can be resolved by the caller
-    return http.get(`/api/curriculum/module`, { params: { moduleId }, ...passOpts(opts) }).catch(() => {
-      // Fallback: return null if endpoint doesn't exist yet
+    console.log('📚 Calling getModule:', moduleId);
+    return http.get(`/api/curriculum/module`, { 
+      params: { moduleId }, 
+      ...passOpts(opts) 
+    }).catch(() => {
+      console.warn('⚠️ getModule endpoint not available, returning null');
       return { data: null };
     });
+  },
+  
+  setItemImage(itemId, imageUrl, opts) {
+    console.log('🖼️ Calling setItemImage for item:', itemId);
+    return http.put(`/api/curriculum/items/${itemId}/image`, { imageUrl }, passOpts(opts));
   },
 };
 
 export default curriculumService;
-
-
