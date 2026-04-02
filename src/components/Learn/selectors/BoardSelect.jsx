@@ -28,53 +28,91 @@ const BoardOption = ({ label, value, selectedValue, onChange }) => (
     </label>
 );
 
-
-import authService from '../../../services/authService.js';
-
 const BoardSelect = ({ onContinue, onBack, updateData, autoAdvance = false }) => {
     const { user } = useAuth();
     const navigate = useNavigate();
     const [selectedBoard, setSelectedBoard] = useState('');
     const [boards, setBoards] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         if (user?._id && user?.onboardingCompleted) {
             navigate('/learn', { replace: true });
             return;
         }
+        
         const loadBoards = async () => {
             try {
+                setError(null);
                 const res = await curriculumService.listBoards();
-                const names = (res?.data || []).map(b => b.name);
-                setBoards(names);
-                // Manual selection only - no auto-selection
+                console.log('Boards API response:', res); // Debug log
                 
-                // If no boards found, show error message
-                if (names.length === 0) {
+                let boardNames = [];
+                
+                // Handle different response formats
+                if (Array.isArray(res)) {
+                    // Response is directly an array: [{ name: 'CBSE' }, ...]
+                    boardNames = res.map(b => b.name || b);
+                } else if (res?.data && Array.isArray(res.data)) {
+                    // Response is { data: [...] }
+                    boardNames = res.data.map(b => b.name || b);
+                } else if (res?.boards && Array.isArray(res.boards)) {
+                    // Response is { boards: [...] }
+                    boardNames = res.boards.map(b => b.name || b);
+                } else {
+                    console.error('Unexpected boards response format:', res);
+                    setError('Unexpected response format from server');
+                    boardNames = [];
+                }
+                
+                setBoards(boardNames.filter(Boolean)); // Remove any null/undefined
+                
+                if (boardNames.length === 0) {
                     console.warn('No boards found from API');
+                    setError('No boards available');
                 }
             } catch (error) {
                 console.error('Failed to load boards:', error);
+                setError(error.message || 'Failed to load boards');
                 setBoards([]);
-                // Could show a retry button or error message here
             } finally {
                 setLoading(false);
             }
         };
+        
         loadBoards();
-    }, []);
+    }, [user, navigate]);
 
     const handleSelection = async (e) => {
         const val = e.target.value;
         setSelectedBoard(val);
+        
         // Step-ahead prefetch: subjects for chosen board
         try {
             const res = await curriculumService.listSubjects(val);
-            const names = (res?.data || []).map(s => s.name);
-            try { sessionStorage.setItem(`subjects_cache_v1__${val}`, JSON.stringify(names || [])); } catch(_) {}
-        } catch (_) {}
-        // Manual selection only - no auto-advance
+            console.log('Subjects API response:', res); // Debug log
+            
+            let subjectNames = [];
+            
+            // Handle different response formats
+            if (Array.isArray(res)) {
+                subjectNames = res.map(s => s.name || s);
+            } else if (res?.data && Array.isArray(res.data)) {
+                subjectNames = res.data.map(s => s.name || s);
+            } else if (res?.subjects && Array.isArray(res.subjects)) {
+                subjectNames = res.subjects.map(s => s.name || s);
+            }
+            
+            try { 
+                sessionStorage.setItem(
+                    `subjects_cache_v1__${val}`, 
+                    JSON.stringify(subjectNames.filter(Boolean) || [])
+                ); 
+            } catch(_) {}
+        } catch (error) {
+            console.error('Failed to prefetch subjects:', error);
+        }
     };
 
     const handleContinue = async () => {
@@ -93,7 +131,7 @@ const BoardSelect = ({ onContinue, onBack, updateData, autoAdvance = false }) =>
                 </button>
                 <div>
                     <p className="font-extrabold text-2xl md:text-3xl">Which board do you belong to?</p>
-                    <p className="opacity-90 text-base md:text-lg">We’ll tailor content to your selection</p>
+                    <p className="opacity-90 text-base md:text-lg">We'll tailor content to your selection</p>
                 </div>
             </div>
 
@@ -106,12 +144,27 @@ const BoardSelect = ({ onContinue, onBack, updateData, autoAdvance = false }) =>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {loading && (
-                            <div className="col-span-2 text-gray-500 text-lg">Loading boards...</div>
+                            <div className="col-span-2 text-center text-gray-500 text-lg py-8">
+                                <div className="animate-pulse">Loading boards...</div>
+                            </div>
                         )}
-                        {!loading && boards.length === 0 && (
-                            <div className="col-span-2 text-gray-500 text-lg">No boards found.</div>
+                        {!loading && error && (
+                            <div className="col-span-2 text-center text-red-500 text-lg py-8">
+                                <p>{error}</p>
+                                <button 
+                                    onClick={() => window.location.reload()} 
+                                    className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                                >
+                                    Retry
+                                </button>
+                            </div>
                         )}
-                        {!loading && boards.map(board => (
+                        {!loading && !error && boards.length === 0 && (
+                            <div className="col-span-2 text-center text-gray-500 text-lg py-8">
+                                No boards found. Please contact support.
+                            </div>
+                        )}
+                        {!loading && boards.length > 0 && boards.map(board => (
                             <BoardOption 
                                 key={board} 
                                 label={board} 
@@ -128,7 +181,7 @@ const BoardSelect = ({ onContinue, onBack, updateData, autoAdvance = false }) =>
             <div className="border-t pt-6 px-6 pb-6 flex justify-end">
                 <button 
                     onClick={handleContinue}
-                    disabled={!selectedBoard}
+                    disabled={!selectedBoard || loading}
                     className="bg-green-600 text-white font-extrabold py-5 px-12 rounded-xl text-xl transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-green-700 shadow-[0_6px_0_0_rgba(0,0,0,0.15)]"
                 >
                     Continue
