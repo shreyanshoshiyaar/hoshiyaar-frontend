@@ -4,14 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import heroChar from '../../../assets/images/heroChar.png';
 import curriculumService from '../../../services/curriculumService.js';
 
-// A placeholder for the character icon
 const HoshiIcon = () => (
     <div className="w-24 h-24 rounded-2xl flex items-center justify-center flex-shrink-0">
         <img src={heroChar} alt="Hoshi" className="w-24 h-24 object-contain" />
     </div>
 );
 
-// Reusable component for the radio button options
 const BoardOption = ({ label, value, selectedValue, onChange }) => (
     <label className="flex items-center gap-5 cursor-pointer">
         <input 
@@ -37,6 +35,7 @@ const BoardSelect = ({ onContinue, onBack, updateData, autoAdvance = false }) =>
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        // Prevent running if already onboarded
         if (user?._id && user?.onboardingCompleted) {
             navigate('/learn', { replace: true });
             return;
@@ -46,34 +45,35 @@ const BoardSelect = ({ onContinue, onBack, updateData, autoAdvance = false }) =>
             try {
                 setError(null);
                 const res = await curriculumService.listBoards();
-                console.log('Boards API response:', res); // Debug log
+                
+                console.log('🔍 Boards API Response:', res);
                 
                 let boardNames = [];
                 
-                // Handle different response formats
+                // Handle all possible response formats
                 if (Array.isArray(res)) {
-                    // Response is directly an array: [{ name: 'CBSE' }, ...]
-                    boardNames = res.map(b => b.name || b);
-                } else if (res?.data && Array.isArray(res.data)) {
-                    // Response is { data: [...] }
-                    boardNames = res.data.map(b => b.name || b);
+                    boardNames = res.map(b => (typeof b === 'string' ? b : b?.name)).filter(Boolean);
+                } else if (res?.data) {
+                    if (Array.isArray(res.data)) {
+                        boardNames = res.data.map(b => (typeof b === 'string' ? b : b?.name)).filter(Boolean);
+                    } else if (Array.isArray(res.data.boards)) {
+                        boardNames = res.data.boards.map(b => (typeof b === 'string' ? b : b?.name)).filter(Boolean);
+                    } else if (Array.isArray(res.data.data)) {
+                        boardNames = res.data.data.map(b => (typeof b === 'string' ? b : b?.name)).filter(Boolean);
+                    }
                 } else if (res?.boards && Array.isArray(res.boards)) {
-                    // Response is { boards: [...] }
-                    boardNames = res.boards.map(b => b.name || b);
-                } else {
-                    console.error('Unexpected boards response format:', res);
-                    setError('Unexpected response format from server');
-                    boardNames = [];
+                    boardNames = res.boards.map(b => (typeof b === 'string' ? b : b?.name)).filter(Boolean);
                 }
                 
-                setBoards(boardNames.filter(Boolean)); // Remove any null/undefined
+                console.log('✅ Extracted boards:', boardNames);
+                
+                setBoards(boardNames);
                 
                 if (boardNames.length === 0) {
-                    console.warn('No boards found from API');
                     setError('No boards available');
                 }
             } catch (error) {
-                console.error('Failed to load boards:', error);
+                console.error('❌ Load boards error:', error);
                 setError(error.message || 'Failed to load boards');
                 setBoards([]);
             } finally {
@@ -88,34 +88,26 @@ const BoardSelect = ({ onContinue, onBack, updateData, autoAdvance = false }) =>
         const val = e.target.value;
         setSelectedBoard(val);
         
-        // Step-ahead prefetch: subjects for chosen board
+        // Prefetch subjects
         try {
             const res = await curriculumService.listSubjects(val);
-            console.log('Subjects API response:', res); // Debug log
-            
             let subjectNames = [];
             
-            // Handle different response formats
             if (Array.isArray(res)) {
-                subjectNames = res.map(s => s.name || s);
+                subjectNames = res.map(s => (typeof s === 'string' ? s : s?.name)).filter(Boolean);
             } else if (res?.data && Array.isArray(res.data)) {
-                subjectNames = res.data.map(s => s.name || s);
-            } else if (res?.subjects && Array.isArray(res.subjects)) {
-                subjectNames = res.subjects.map(s => s.name || s);
+                subjectNames = res.data.map(s => (typeof s === 'string' ? s : s?.name)).filter(Boolean);
             }
             
             try { 
-                sessionStorage.setItem(
-                    `subjects_cache_v1__${val}`, 
-                    JSON.stringify(subjectNames.filter(Boolean) || [])
-                ); 
+                sessionStorage.setItem(`subjects_cache_v1__${val}`, JSON.stringify(subjectNames));
             } catch(_) {}
         } catch (error) {
             console.error('Failed to prefetch subjects:', error);
         }
     };
 
-    const handleContinue = async () => {
+    const handleContinue = () => {
         if (selectedBoard) {
             updateData?.({ board: selectedBoard });
             onContinue?.();
@@ -124,10 +116,9 @@ const BoardSelect = ({ onContinue, onBack, updateData, autoAdvance = false }) =>
     
     return (
         <div className="flex flex-col h-screen bg-gradient-to-b from-blue-50 via-white to-blue-50">
-            {/* Header bar consistent with dashboard */}
             <div className="bg-duo-blue text-white px-6 py-5 md:px-8 md:py-6 flex items-center gap-4 shadow-[0_10px_0_0_rgba(0,0,0,0.08)]">
                 <button onClick={onBack} className="p-2 rounded-full bg-white/15 hover:bg-white/25">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
                 </button>
                 <div>
                     <p className="font-extrabold text-2xl md:text-3xl">Which board do you belong to?</p>
@@ -135,7 +126,6 @@ const BoardSelect = ({ onContinue, onBack, updateData, autoAdvance = false }) =>
                 </div>
             </div>
 
-            {/* Main content area */}
             <div className="flex-grow overflow-y-auto no-scrollbar p-8">
                 <div className="max-w-4xl mx-auto">
                     <div className="flex items-start gap-6 mb-8">
@@ -143,28 +133,10 @@ const BoardSelect = ({ onContinue, onBack, updateData, autoAdvance = false }) =>
                         <div className="bg-blue-50 text-duo-blue px-6 py-4 rounded-xl text-xl">Which board do you belong to?</div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {loading && (
-                            <div className="col-span-2 text-center text-gray-500 text-lg py-8">
-                                <div className="animate-pulse">Loading boards...</div>
-                            </div>
-                        )}
-                        {!loading && error && (
-                            <div className="col-span-2 text-center text-red-500 text-lg py-8">
-                                <p>{error}</p>
-                                <button 
-                                    onClick={() => window.location.reload()} 
-                                    className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                                >
-                                    Retry
-                                </button>
-                            </div>
-                        )}
-                        {!loading && !error && boards.length === 0 && (
-                            <div className="col-span-2 text-center text-gray-500 text-lg py-8">
-                                No boards found. Please contact support.
-                            </div>
-                        )}
-                        {!loading && boards.length > 0 && boards.map(board => (
+                        {loading && <div className="col-span-2 text-center py-8 text-gray-500">Loading boards...</div>}
+                        {error && <div className="col-span-2 text-center py-8 text-red-500">{error}</div>}
+                        {!loading && !error && boards.length === 0 && <div className="col-span-2 text-center py-8 text-gray-500">No boards found</div>}
+                        {boards.map(board => (
                             <BoardOption 
                                 key={board} 
                                 label={board} 
@@ -177,7 +149,6 @@ const BoardSelect = ({ onContinue, onBack, updateData, autoAdvance = false }) =>
                 </div>
             </div>
 
-            {/* Footer with Continue button */}
             <div className="border-t pt-6 px-6 pb-6 flex justify-end">
                 <button 
                     onClick={handleContinue}
