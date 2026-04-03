@@ -1,8 +1,9 @@
 import axios from 'axios';
 import { getApiBase } from '../utils/apiBase.js';
 
+
 const BASE = getApiBase();
-const API_URL = ${BASE}/api/auth/;
+const API_URL = `${BASE}/api/auth/`;
 
 // Debug logging
 console.log('API_URL:', API_URL);

@@ -171,7 +171,7 @@ const ContentEditor = ({
 
   const addNewItem = () => {
     const newItem = {
-      _id: new-${Date.now()},
+      _id: `new-${Date.now()}`,
       type: 'statement',
       text: '',
       order: items.length + 1,
@@ -181,7 +181,7 @@ const ContentEditor = ({
   };
 
   const removeItem = (index) => {
-    const confirmMessage = Are you sure you want to remove this item?\n\nNote: This change will NOT be saved to the database until you click "Save Changes".\n\nClick "Discard Changes" to reload from database if you want to cancel.;
+    const confirmMessage = `Are you sure you want to remove this item?\n\nNote: This change will NOT be saved to the database until you click "Save Changes".\n\nClick "Discard Changes" to reload from database if you want to cancel.`;
     
     if (!window.confirm(confirmMessage)) {
       return;
@@ -283,7 +283,7 @@ const ContentEditor = ({
             }
           } catch (singleErr) {
             if (singleErr.response?.status === 413) {
-              setError(File "${singleFile.name}" is too large. Maximum size is 50MB per file.);
+              setError(`File "${singleFile.name}" is too large. Maximum size is 50MB per file.`);
             } else {
               console.error('Error uploading file:', singleFile.name, singleErr);
             }
@@ -349,9 +349,9 @@ const ContentEditor = ({
       if (err.response?.status === 413) {
         setError('Upload failed: File(s) too large. Maximum file size is 50MB per file. Try uploading images one at a time or reduce image sizes.');
       } else if (err.response?.status) {
-        setError(Failed to upload image: ${err.response?.data?.message || `Server error ${err.response.status}}`);
+        setError(`Failed to upload image: ${err.response?.data?.message || `Server error ${err.response.status}`}`);
       } else {
-        setError(Failed to upload image: ${err.message || 'Network error'});
+        setError(`Failed to upload image: ${err.message || 'Network error'}`);
       }
       setUploadingImages({ ...uploadingImages, [itemIndex]: false });
     }
@@ -473,9 +473,9 @@ const ContentEditor = ({
       const skippedCount = response.data.skipped || 0;
       
       if (importedCount === concepts.length && skippedCount === 0) {
-        setSuccess(Successfully saved! ${importedCount} items imported.);
+        setSuccess(`Successfully saved! ${importedCount} items imported.`);
       } else {
-        setSuccess(Saved with warnings: ${importedCount} items imported, ${skippedCount} skipped. Check backend logs for details.);
+        setSuccess(`Saved with warnings: ${importedCount} items imported, ${skippedCount} skipped. Check backend logs for details.`);
       }
       
       setHasUnsavedChanges(false);
@@ -674,7 +674,7 @@ const ContentEditor = ({
                           value={option}
                           onChange={(e) => updateItemArray(actualIndex, 'options', optIndex, e.target.value)}
                           className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                          placeholder={Option ${optIndex + 1}}
+                          placeholder={`Option ${optIndex + 1}`}
                         />
                         <button
                           onClick={() => removeItemArrayElement(actualIndex, 'options', optIndex)}
@@ -774,7 +774,7 @@ const ContentEditor = ({
                             updateRearrangeWords(actualIndex, newWords);
                           }}
                           className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                          placeholder={Word/Phrase ${wordIndex + 1}}
+                          placeholder={`Word/Phrase ${wordIndex + 1}`}
                         />
                         <button
                           onClick={() => {
@@ -908,7 +908,7 @@ const ImageEditor = ({ item, index, handleImageUpload, handleImageUrlInput, remo
               <div key={imgIndex} className="relative">
                 <img 
                   src={imgUrl} 
-                  alt={Image ${imgIndex + 1}} 
+                  alt={`Image ${imgIndex + 1}`} 
                   className="h-24 w-full object-cover rounded border border-gray-300"
                 />
                 <button

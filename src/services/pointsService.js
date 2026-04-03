@@ -2,7 +2,7 @@ import axios from 'axios';
 import { getApiBase } from '../utils/apiBase.js';
 
 const BASE = getApiBase();
-const API_URL = ${BASE}/api/points/;
+const API_URL = `${BASE}/api/points/`;
 
 const http = axios.create({ baseURL: API_URL, timeout: 12000, withCredentials: false });
 
