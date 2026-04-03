@@ -1,26 +1,7 @@
 import axios from 'axios';
+import { getApiBase } from '../utils/apiBase.js';
 
-// Prefer Vite proxy on localhost; use VITE_API_BASE or current origin in non-local envs
-// For mobile access on local network, use the local IP
-const getAPIBase = () => {
-  if (typeof window === 'undefined') return '';
-  
-  const hostname = window.location.hostname;
-  const isLocalhost = /^(localhost|127\.0\.0\.1)/.test(hostname);
-  
-  if (isLocalhost) {
-    return ''; // Use Vite proxy in development
-  }
-  
-  // Check if we're accessing from mobile on local network
-  if (hostname === '192.168.1.11') {
-    return 'http://192.168.1.11:5000'; // Local network backend
-  }
-  
-  return import.meta.env.VITE_API_BASE || '';
-};
-
-const API = getAPIBase();
+const API = getApiBase();
 
 // Centralized axios instance with sane defaults to avoid hanging requests
 const http = axios.create({
@@ -33,34 +14,34 @@ const passOpts = (opts) => (opts && typeof opts === 'object' ? opts : {});
 
 const curriculumService = {
   listBoards(opts) {
-    return http.get(`/api/curriculum/boards`, passOpts(opts));
+    return http.get(/api/curriculum/boards, passOpts(opts));
   },
   listClasses(board = 'CBSE', opts) {
-    return http.get(`/api/curriculum/classes`, { params: { board }, ...passOpts(opts) });
+    return http.get(/api/curriculum/classes, { params: { board }, ...passOpts(opts) });
   },
   listSubjects(board = 'CBSE', opts) {
-    return http.get(`/api/curriculum/subjects`, { params: { board }, ...passOpts(opts) });
+    return http.get(/api/curriculum/subjects, { params: { board }, ...passOpts(opts) });
   },
   listChapters(board = 'CBSE', subject = 'Science', extraParams = {}, opts) {
     // extraParams can include { userId, classTitle }
-    return http.get(`/api/curriculum/chapters`, { params: { board, subject, ...(extraParams || {}) }, ...passOpts(opts) });
+    return http.get(/api/curriculum/chapters, { params: { board, subject, ...(extraParams || {}) }, ...passOpts(opts) });
   },
   listUnits(chapterId, opts) {
-    return http.get(`/api/curriculum/units`, { params: { chapterId }, ...passOpts(opts) });
+    return http.get(/api/curriculum/units, { params: { chapterId }, ...passOpts(opts) });
   },
   listModules(chapterId, opts) {
-    return http.get(`/api/curriculum/modules`, { params: { chapterId }, ...passOpts(opts) });
+    return http.get(/api/curriculum/modules, { params: { chapterId }, ...passOpts(opts) });
   },
   listModulesByUnit(unitId, opts) {
-    return http.get(`/api/curriculum/modules`, { params: { unitId }, ...passOpts(opts) });
+    return http.get(/api/curriculum/modules, { params: { unitId }, ...passOpts(opts) });
   },
   listItems(moduleId, opts) {
-    return http.get(`/api/curriculum/items`, { params: { moduleId }, ...passOpts(opts) });
+    return http.get(/api/curriculum/items, { params: { moduleId }, ...passOpts(opts) });
   },
   getModule(moduleId, opts) {
     // Fetch module details by ID - we'll search through chapters if no direct endpoint exists
     // For now, return a promise that can be resolved by the caller
-    return http.get(`/api/curriculum/module`, { params: { moduleId }, ...passOpts(opts) }).catch(() => {
+    return http.get(/api/curriculum/module, { params: { moduleId }, ...passOpts(opts) }).catch(() => {
       // Fallback: return null if endpoint doesn't exist yet
       return { data: null };
     });
@@ -68,5 +49,3 @@ const curriculumService = {
 };
 
 export default curriculumService;
-
-

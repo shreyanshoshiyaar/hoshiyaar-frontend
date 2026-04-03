@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import heroPoint from '../../assets/images/imageUpload.png';
+import { getApiBase } from '../../utils/apiBase.js';
 
-// API base URL configuration - same logic as other services
-const isLocalhost = typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1)/.test(window.location.hostname);
-const API_BASE = isLocalhost ? '' : (import.meta.env.VITE_API_BASE || '');
+const API_BASE = getApiBase();
 
 export default function UploadTest() {
   const [file, setFile] = useState(null);
@@ -444,5 +443,3 @@ export default function UploadTest() {
     </div>
   );
 }
-
-

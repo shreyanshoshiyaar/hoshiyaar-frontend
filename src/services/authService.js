@@ -1,53 +1,54 @@
 import axios from 'axios';
+import { getApiBase } from '../utils/apiBase.js';
 
-// Determine the backend base URL
-// - In development, use '' so Vite proxy (vite.config.js) forwards to http://localhost:5000
-// - In production, use VITE_API_URL (full URL to your Railway service)
-// - If it's missing, we log an error so you catch misconfigurations early
-const getBaseURL = () => {
-  if (import.meta.env.DEV) {
-    return ''; // Vite proxy handles http://localhost:5000
-  }
+const BASE = getApiBase();
+const API_URL = ${BASE}/api/auth/;
 
-  // Production: use the explicit Railway backend URL
-  const base = import.meta.env.VITE_API_URL;
-  if (!base) {
-    console.error(
-      '❌ VITE_API_URL is not defined in production. Set it in your deployment environment (Vercel → Settings → Environment Variables) to your Railway backend URL, e.g., https://hoshiyaar-backend-production.up.railway.app'
-    );
-  }
-  return base; // Should be full domain, like https://hoshiyaar-backend-production.up.railway.app
-};
-
-const BASE = getBaseURL();
-const API_URL = `${BASE}/api/auth/`; // All auth endpoints will start from this path
-
-// Debug logging (helps confirm environment and URL are correct)
+// Debug logging
 console.log('API_URL:', API_URL);
 console.log('Environment:', import.meta.env.DEV ? 'development' : 'production');
-console.log('BASE URL from env:', BASE);
+console.log('BASE:', BASE);
 
-// Centralized axios instance
+// Centralized axios instance with timeout
 const http = axios.create({
   baseURL: API_URL,
   timeout: 12000,
-  withCredentials: true, // Helpful if using cookies/session-based auth
+  withCredentials: false,
 });
 
-// Auth service functions
-const register = (userData, opts) => http.post('register', userData, opts);
-const login = (userData, opts) => http.post('login', userData, opts);
-const updateOnboarding = (data, opts) => http.put('onboarding', data, opts);
-const updateProfile = (data, opts) => http.put('onboarding', data, opts); // alias if this matches your backend
-const getUser = (userId, opts) => http.get('user/' + userId, opts);
+// Register user (username-based)
+const register = (userData, opts) => {
+  return http.post('register', userData, opts);
+};
+
+// Login user with username
+const login = (userData, opts) => {
+  return http.post('login', userData, opts);
+};
+
+// Update onboarding selections
+const updateOnboarding = (data, opts) => {
+  return http.put('onboarding', data, opts);
+};
+
+// Update profile (alias to onboarding update for now)
+const updateProfile = (data, opts) => http.put('onboarding', data, opts);
+
+// Get user data
+const getUser = (userId, opts) => {
+  return http.get('user/' + userId, opts);
+};
+
+// Progress APIs
 const getProgress = (userId, opts) => http.get('progress/' + userId, opts);
 const updateProgress = (data, opts) => http.put('progress', data, opts);
-const getCompletedModuleIds = (userId, { subject } = {}, opts) =>
-  http.get('completed-modules/' + userId, { params: { subject }, ...(opts || {}) });
-const checkUsername = (username, opts) =>
-  http.get('check-username', { params: { username }, ...(opts || {}) });
+const getCompletedModuleIds = (userId, { subject } = {}, opts) => http.get('completed-modules/' + userId, { params: { subject }, ...(opts || {}) });
 
-export default {
+// Username availability
+const checkUsername = (username, opts) => http.get('check-username', { params: { username }, ...(opts || {}) });
+
+// Export the functions
+const authService = {
   register,
   login,
   updateOnboarding,
@@ -58,3 +59,5 @@ export default {
   getCompletedModuleIds,
   checkUsername,
 };
+
+export default authService;
