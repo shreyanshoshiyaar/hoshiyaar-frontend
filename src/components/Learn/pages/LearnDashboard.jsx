@@ -182,37 +182,53 @@ const LearnDashboard = ({ onboardingData }) => {
   const [subjectOptions, setSubjectOptions] = useState([]);
   const [subjectChanging, setSubjectChanging] = useState(false);
 
-// Sync stars and progress when dashboard becomes visible
-useEffect(() => {
-  const handleVisibilityChange = () => {
-    if (!document.hidden && user?._id) {
-      console.log('[LearnDashboard] Tab visible, syncing...');
-      
-      // Sync progress from server
-      authService.getProgress(user._id)
-        .then(response => {
-          if (response?.data) {
-            const subjectProgress = response.data.filter(p => p.subject === subjectName);
-            setProgress(subjectProgress);
-            console.log('[LearnDashboard] Progress synced:', subjectProgress.length);
-          }
-        })
-        .catch(error => console.warn('[LearnDashboard] Sync failed:', error));
-    }
-  };
-  
-  // Initial sync on mount
-  handleVisibilityChange();
-  
-  // Listen for visibility changes
-  document.addEventListener('visibilitychange', handleVisibilityChange);
-  window.addEventListener('focus', handleVisibilityChange);
-  
-  return () => {
-    document.removeEventListener('visibilitychange', handleVisibilityChange);
-    window.removeEventListener('focus', handleVisibilityChange);
-  };
-}, [user?._id, subjectName]); // Note: removed syncFromServer from deps
+  // Force refresh stars from localStorage on dashboard load
+  useEffect(() => {
+    const refreshStars = () => {
+      try {
+        const storedStars = localStorage.getItem('hs_stars_total_v1');
+        const starCount = Number(storedStars);
+        console.log('[LearnDashboard] Current localStorage value:', storedStars, '->', starCount);
+        if (Number.isFinite(starCount) && starCount >= 0) {
+          setTotal(starCount);
+          console.log('[LearnDashboard] Refreshed stars from localStorage:', starCount);
+        }
+      } catch (error) {
+        console.warn('[LearnDashboard] Failed to refresh stars:', error);
+      }
+    };
+    
+    // Immediate refresh
+    refreshStars();
+    
+    // Also refresh every 2 seconds to catch any updates
+    const refreshInterval = setInterval(() => {
+      console.log('[LearnDashboard] Periodic refresh...');
+      refreshStars();
+    }, 100000);
+    
+    // Also refresh when window gains focus (user returns from learning)
+    const handleFocus = () => {
+      console.log('[LearnDashboard] Window focused, refreshing stars...');
+      refreshStars();
+    };
+    window.addEventListener('focus', handleFocus);
+    
+    // Also refresh on visibility change (tab switching)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        console.log('[LearnDashboard] Tab became visible, refreshing stars...');
+        refreshStars();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      clearInterval(refreshInterval);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [setTotal]);
 
   // Palette for per-unit theming
   const unitPalette = ["#2C6DEF", "#58CC02", "#CE82FF", "#00CD9C"];
@@ -1368,7 +1384,24 @@ useEffect(() => {
     return () => clearTimeout(debounce);
   }, [user?._id, subjectName, modulesList.length]);
 
-  
+  // Refresh progress; do not clear local completions to avoid flicker
+  useEffect(() => {
+    if (!user?._id) return;
+    const timeoutId = setTimeout(async () => {
+      try {
+        console.log('[Dashboard] Refreshing progress from database for user:', user._id);
+        const response = await authService.getProgress(user._id);
+        if (response?.data) {
+          const subjectProgress = response.data.filter(p => p.subject === subjectName);
+          setProgress(subjectProgress);
+          console.log('[Dashboard] Progress refreshed for subject:', subjectName, subjectProgress);
+        }
+      } catch (error) {
+        console.error('[Dashboard] Failed to refresh progress from database:', error);
+      }
+    }, 800);
+    return () => clearTimeout(timeoutId);
+  }, [user?._id]);
 
   // Note: firstIncompleteIndex will be computed per unit to reflect local/module-id completion
   const firstIncompleteIndex = levels.findIndex((_, i) => !serverCompletedSet.has(i));
