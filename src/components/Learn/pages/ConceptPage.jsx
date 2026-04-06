@@ -24,6 +24,8 @@ export default function ConceptPage() {
   const { removeActive, active: activeReviewItem, queue } = useReview();
   const [videoAcknowledged, setVideoAcknowledged] = useState(false);
   const [showEndVideo, setShowEndVideo] = useState(false);
+  const [comicSlideIndex, setComicSlideIndex] = useState(0);
+  const [isZoomed, setIsZoomed] = useState(false);
 
   // Allow temporary override via query param for testing
   const introVideoFromQuery = useMemo(() => {
@@ -69,7 +71,7 @@ export default function ConceptPage() {
         const map = JSON.parse(localStorage.getItem('last_unit_by_chapter') || '{}');
         map[chapterIdParam] = unitIdParam;
         localStorage.setItem('last_unit_by_chapter', JSON.stringify(map));
-      } catch (_) {}
+      } catch (_) { }
     }
   }, [chapterIdParam, unitIdParam]);
 
@@ -78,15 +80,15 @@ export default function ConceptPage() {
   const revisionItem = useMemo(() => {
     if (isRevisionModeFromUrl) {
       // First check if activeReviewItem matches current URL params
-      if (activeReviewItem && 
-          String(activeReviewItem.moduleNumber) === String(moduleNumber) &&
-          String(activeReviewItem.index) === String(index) &&
-          activeReviewItem._revisionData) {
+      if (activeReviewItem &&
+        String(activeReviewItem.moduleNumber) === String(moduleNumber) &&
+        String(activeReviewItem.index) === String(index) &&
+        activeReviewItem._revisionData) {
         return activeReviewItem._revisionData;
       }
       // If not, search queue for matching item
       if (queue && queue.length > 0) {
-        const matchingItem = queue.find(q => 
+        const matchingItem = queue.find(q =>
           String(q.moduleNumber) === String(moduleNumber) &&
           String(q.index) === String(index) &&
           q._revisionData
@@ -105,7 +107,7 @@ export default function ConceptPage() {
   // Hardwire intro videos per module when requested
   // Format: { moduleId: videoUrl } for start-of-lesson videos (index 0)
   const forcedIntroByModule = useMemo(() => ({
-    '68e276236d69ef07c1a2e133': 'https://youtu.be/33bEGe44vyE',
+    // '68e276236d69ef07c1a2e133': 'https://youtu.be/33bEGe44vyE', // Replaced with comic slides
     '68e276b26d69ef07c1a2e167': 'https://youtu.be/mo-oW33Dqu0',
     '68e2771a6d69ef07c1a2e1ab': 'https://youtu.be/ytSYjCqQUj0',
     '68e277716d69ef07c1a2e1d1': 'https://youtu.be/26THnY_3mtY', // Before card 1
@@ -163,24 +165,37 @@ export default function ConceptPage() {
       }
       console.log('[ConceptPage] End video not found:', { showEndVideo, endVideoKey, midLessonVideos });
     }
-    
+
     // Check for mid-lesson video (specific card/index)
     const midLessonKey = `${moduleNumber}:${index}`;
     const midLessonVideo = midLessonVideos[midLessonKey] || '';
-    
+
     // Check for start-of-lesson video (index 0)
     const startVideo = index === 0 ? (forcedIntroByModule[String(moduleNumber)] || '') : '';
-    
+
     // Priority: query param > mid-lesson > start video > item video
     const src = introVideoFromQuery || midLessonVideo || startVideo || item?.introVideoUrl || item?.videoUrl || '';
     return normalizeVideoUrl(src);
   }, [forcedIntroByModule, midLessonVideos, introVideoFromQuery, item, moduleNumber, index, normalizeVideoUrl, showEndVideo]);
+
+  const introComicUrls = useMemo(() => {
+    // Try the DB item first:
+    const dbType = isRevisionModeFromUrl ? revisionItem?.type : item?.type;
+    if (dbType === 'comic') {
+      const dbItem = isRevisionModeFromUrl ? revisionItem : item;
+      const imgs = (dbItem?.images || []).filter(Boolean);
+      if (imgs.length > 0) return imgs;
+      if (dbItem?.imageUrl) return [dbItem.imageUrl];
+    }
+    return null;
+  }, [moduleNumber, index, showEndVideo, item, revisionItem, isRevisionModeFromUrl]);
 
   // Reset gate when starting a new module (index 0) or reaching a card with mid-lesson video
   useEffect(() => {
     const midLessonKey = `${moduleNumber}:${index}`;
     if (index === 0 || midLessonVideos[midLessonKey]) {
       setVideoAcknowledged(false);
+      setComicSlideIndex(0);
     }
   }, [moduleNumber, index, midLessonVideos]);
 
@@ -196,14 +211,14 @@ export default function ConceptPage() {
       const timer = setTimeout(async () => {
         try {
           if (user?._id) {
-            await authService.updateProgress({ 
-              userId: user._id, 
-              moduleId: String(moduleNumber), 
+            await authService.updateProgress({
+              userId: user._id,
+              moduleId: String(moduleNumber),
               subject: user.subject || 'Science',
-              conceptCompleted: true 
+              conceptCompleted: true
             });
           }
-        } catch (_) {}
+        } catch (_) { }
         const completionParams = new URLSearchParams();
         completionParams.set('moduleId', String(moduleNumber));
         completionParams.set('chapter', String(moduleNumber));
@@ -225,7 +240,7 @@ export default function ConceptPage() {
       // Prevent navigation by pushing current state back
       try {
         window.history.pushState(null, '', window.location.href);
-      } catch (_) {}
+      } catch (_) { }
     };
 
     const handleKey = (e) => {
@@ -239,7 +254,7 @@ export default function ConceptPage() {
     // Push current state to track back navigation
     try {
       window.history.pushState(null, '', window.location.href);
-    } catch (_) {}
+    } catch (_) { }
 
     window.addEventListener('popstate', handlePop);
     window.addEventListener('keydown', handleKey);
@@ -252,6 +267,7 @@ export default function ConceptPage() {
 
   function routeForType(type, idx) {
     switch (type) {
+      case 'comic':
       case 'concept':
       case 'statement':
         return `/learn/module/${moduleNumber}/concept/${idx}`;
@@ -275,18 +291,18 @@ export default function ConceptPage() {
       // Check if there's an end-of-lesson video for this module (card 22 case)
       const endVideoKey = `${moduleNumber}:${index}`;
       const endVideo = midLessonVideos[endVideoKey];
-      
-      console.log('[ConceptPage] End of lesson check:', { 
-        moduleNumber, 
-        index, 
-        nextIndex, 
+
+      console.log('[ConceptPage] End of lesson check:', {
+        moduleNumber,
+        index,
+        nextIndex,
         itemsLength: items.length,
-        endVideoKey, 
-        endVideo, 
+        endVideoKey,
+        endVideo,
         showEndVideo,
-        midLessonVideos 
+        midLessonVideos
       });
-      
+
       if (endVideo && !showEndVideo) {
         // Show video after completing last item, before lesson complete
         console.log('[ConceptPage] Setting showEndVideo to true');
@@ -294,19 +310,19 @@ export default function ConceptPage() {
         setVideoAcknowledged(false);
         return;
       }
-      
+
       // Mark module completed and return
       try {
         if (user?._id) {
           console.log('[ConceptPage] Saving module completion to database:', moduleNumber);
-          await authService.updateProgress({ 
-            userId: user._id, 
-            moduleId: String(moduleNumber), 
+          await authService.updateProgress({
+            userId: user._id,
+            moduleId: String(moduleNumber),
             subject: user.subject || 'Science', // CRITICAL: Include subject and use moduleId
-            conceptCompleted: true 
+            conceptCompleted: true
           });
         }
-      } catch (_) {}
+      } catch (_) { }
       const completionParams = new URLSearchParams();
       completionParams.set('moduleId', String(moduleNumber));
       completionParams.set('chapter', String(moduleNumber));
@@ -348,31 +364,34 @@ export default function ConceptPage() {
     // In revision mode, use revision data type (preserved exactly)
     actualType = String(revisionItem.type || '');
   }
-  const isConceptOrStatement = actualType === 'concept' || actualType === 'statement';
+  const isConceptOrStatement = actualType === 'concept' || actualType === 'statement' || actualType === 'comic';
   if (!isConceptOrStatement) {
     return <div className="p-6">No concept at this step.</div>;
   }
 
-  // Gate lesson content behind intro video acknowledgement when present
-  // Show video at start of lesson (index 0), at specific card numbers (mid-lesson), or after last item (end video)
+  // Gate lesson content behind intro media acknowledgement when present
+  // Show media at start of lesson (index 0), at specific card numbers (mid-lesson), or after last item (end video)
   const midLessonKey = `${moduleNumber}:${index}`;
   const hasMidLessonVideo = midLessonVideos[midLessonKey];
   const shouldShowVideo = introVideoUrl && !videoAcknowledged && (index === 0 || hasMidLessonVideo || showEndVideo);
-  
-  if (showEndVideo || introVideoUrl) {
-    console.log('[ConceptPage] Video gate check:', { 
-      moduleNumber, 
-      index, 
-      showEndVideo, 
-      videoAcknowledged, 
-      introVideoUrl, 
-      hasMidLessonVideo, 
+
+  const shouldShowComic = introComicUrls && introComicUrls.length > 0 && (!videoAcknowledged && index === 0 || actualType === 'comic');
+
+  if (showEndVideo || introVideoUrl || shouldShowComic) {
+    console.log('[ConceptPage] Media gate check:', {
+      moduleNumber,
+      index,
+      showEndVideo,
+      videoAcknowledged,
+      introVideoUrl,
+      shouldShowComic,
+      hasMidLessonVideo,
       midLessonKey,
-      shouldShowVideo 
+      shouldShowVideo
     });
   }
-  
-  if (shouldShowVideo) {
+
+  if (shouldShowVideo || shouldShowComic) {
     return (
       <div className="h-screen bg-white flex flex-col overflow-hidden">
         <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
@@ -393,25 +412,86 @@ export default function ConceptPage() {
 
         <div className="flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 80px)' }}>
           <div className="w-full max-w-3xl sm:max-w-4xl mt-4 sm:mt-6 md:mt-8">
-            <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
-              <iframe
-                src={introVideoUrl}
-                title="Lesson intro video"
-                className="absolute inset-0 w-full h-full rounded-xl border border-gray-200 shadow-sm"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen={false}
-              />
-            </div>
+            {shouldShowComic ? (
+              <div className="relative w-full rounded-xl border border-gray-200 shadow-sm overflow-hidden flex items-center justify-center p-2 bg-gray-50" style={{ minHeight: '60vh' }}>
+                <img
+                  src={introComicUrls[comicSlideIndex]}
+                  alt={`Comic slide ${comicSlideIndex + 1}`}
+                  className="max-w-full max-h-[65vh] object-contain rounded-lg cursor-zoom-in"
+                  onClick={() => setIsZoomed(true)}
+                />
+
+                {/* Zoom button on top right */}
+                <button
+                  onClick={() => setIsZoomed(true)}
+                  className="absolute top-4 right-4 bg-white/80 backdrop-blur text-gray-800 p-2.5 rounded-lg shadow-md border border-gray-200 hover:bg-white transition-colors"
+                  title="Zoom In"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
+                  </svg>
+                </button>
+              </div>
+            ) : (
+              <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
+                <iframe
+                  src={introVideoUrl}
+                  title="Lesson intro video"
+                  className="absolute inset-0 w-full h-full rounded-xl border border-gray-200 shadow-sm"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen={false}
+                />
+              </div>
+            )}
+
             <div className="mt-4 sm:mt-5 md:mt-6 flex flex-col items-center gap-2">
-              <button
-                onClick={() => setVideoAcknowledged(true)}
-                className="px-5 py-3 sm:px-6 sm:py-3.5 rounded-lg sm:rounded-xl text-white font-semibold text-base sm:text-lg shadow-md transition-colors bg-blue-600 hover:bg-blue-700"
-              >
-                Start lesson
-              </button>
+              {shouldShowComic ? (
+                <button
+                  onClick={() => {
+                    if (comicSlideIndex < introComicUrls.length - 1) {
+                      setComicSlideIndex(prev => prev + 1);
+                    } else {
+                      if (actualType === 'comic') {
+                        goNext();
+                      } else {
+                        setVideoAcknowledged(true);
+                      }
+                    }
+                  }}
+                  className="px-5 py-3 sm:px-6 sm:py-3.5 rounded-lg sm:rounded-xl text-white font-semibold text-base sm:text-lg shadow-md transition-colors bg-blue-600 hover:bg-blue-700 min-w-[200px]"
+                >
+                  {comicSlideIndex < introComicUrls.length - 1 ? 'Next' : (actualType === 'comic' ? 'Continue' : 'Start lesson')}
+                </button>
+              ) : (
+                <button
+                  onClick={() => setVideoAcknowledged(true)}
+                  className="px-5 py-3 sm:px-6 sm:py-3.5 rounded-lg sm:rounded-xl text-white font-semibold text-base sm:text-lg shadow-md transition-colors bg-blue-600 hover:bg-blue-700"
+                >
+                  Start lesson
+                </button>
+              )}
             </div>
           </div>
         </div>
+
+        {isZoomed && shouldShowComic && (
+          <div className="fixed inset-0 z-[10000] bg-black/95 flex flex-col items-center justify-center p-4">
+            <button
+              onClick={() => setIsZoomed(false)}
+              className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <img
+              src={introComicUrls[comicSlideIndex]}
+              alt={`Zoomed Comic ${comicSlideIndex + 1}`}
+              className="max-w-[95%] max-h-[90vh] object-contain cursor-zoom-out"
+              onClick={() => setIsZoomed(false)}
+            />
+          </div>
+        )}
 
         {showExitConfirm && (
           <div className="fixed inset-0 z-[9999]">
@@ -439,7 +519,7 @@ export default function ConceptPage() {
       {/* Header - reduced padding for mobile */}
       <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
         {!isInReviewOrRevision && (
-          <button 
+          <button
             onClick={() => setShowExitConfirm(true)}
             className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-sm sm:text-base"
           >
@@ -469,18 +549,20 @@ export default function ConceptPage() {
         </div>
 
         {/* Images block - mobile optimized, desktop unchanged */}
-        {(() => { const imgs = (item.images || []).filter(Boolean); if (imgs.length === 0 && item.imageUrl) imgs.push(item.imageUrl); return imgs.length > 0 ? (
-          <div className="w-full max-w-2xl sm:max-w-3xl md:max-w-4xl mt-2 sm:mt-6 md:mt-8 flex justify-center">
-            <div className="flex flex-wrap justify-center gap-1 sm:gap-3 md:gap-5">
-              {((item.images && item.images.filter(Boolean)) || (item.imageUrl ? [item.imageUrl] : [])).slice(0,5).map((src, i) => (
-                <div key={i} className="border border-blue-300 rounded-lg sm:rounded-2xl p-1 sm:p-3 bg-white shadow-sm">
-                  <img src={src} alt={'concept-'+i} className="h-40 w-32 sm:h-32 sm:w-24 md:h-48 md:w-36 lg:h-60 lg:w-44 xl:h-80 xl:w-60 object-contain rounded-md sm:rounded-xl" />
-                </div>
-              ))}
+        {(() => {
+          const imgs = (item.images || []).filter(Boolean); if (imgs.length === 0 && item.imageUrl) imgs.push(item.imageUrl); return imgs.length > 0 ? (
+            <div className="w-full max-w-2xl sm:max-w-3xl md:max-w-4xl mt-2 sm:mt-6 md:mt-8 flex justify-center">
+              <div className="flex flex-wrap justify-center gap-1 sm:gap-3 md:gap-5">
+                {((item.images && item.images.filter(Boolean)) || (item.imageUrl ? [item.imageUrl] : [])).slice(0, 5).map((src, i) => (
+                  <div key={i} className="border border-blue-300 rounded-lg sm:rounded-2xl p-1 sm:p-3 bg-white shadow-sm">
+                    <img src={src} alt={'concept-' + i} className="h-40 w-32 sm:h-32 sm:w-24 md:h-48 md:w-36 lg:h-60 lg:w-44 xl:h-80 xl:w-60 object-contain rounded-md sm:rounded-xl" />
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        ) : null })()}
-        
+          ) : null
+        })()}
+
         {/* Bottom padding - mobile only for fixed button */}
         <div className="h-16 sm:h-0 md:h-0"></div>
       </div>
@@ -488,7 +570,7 @@ export default function ConceptPage() {
       {/* Continue button - fixed on mobile, normal on desktop */}
       <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white border-t-2 border-blue-300 sm:border-t-0 shadow-lg sm:shadow-none px-2 sm:px-3 md:px-6 py-3 sm:py-4 z-50 sm:z-auto">
         <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto">
-          <button 
+          <button
             onClick={goNext}
             className="w-full py-3 sm:py-4 md:py-5 rounded-lg sm:rounded-xl bg-blue-600 text-white font-extrabold text-xl sm:text-base md:text-lg hover:bg-blue-700 transition-colors shadow-lg sm:shadow-none"
           >
@@ -499,7 +581,7 @@ export default function ConceptPage() {
 
       {showExitConfirm && (
         <div className="fixed inset-0 z-[9999]">
-          <ConceptExitConfirm 
+          <ConceptExitConfirm
             onQuit={() => {
               // Preserve chapterId from URL when navigating back
               const urlParams = new URLSearchParams(window.location.search);
@@ -510,8 +592,8 @@ export default function ConceptPage() {
               if (unitId) params.set('unitId', unitId);
               const query = params.toString();
               navigate(`/learn${query ? '?' + query : ''}`);
-            }} 
-            onContinue={() => setShowExitConfirm(false)} 
+            }}
+            onContinue={() => setShowExitConfirm(false)}
           />
         </div>
       )}

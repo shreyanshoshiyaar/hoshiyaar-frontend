@@ -892,8 +892,10 @@ const LearnDashboard = ({ onboardingData }) => {
               try { const mid = list[0]?._id; if (mid) resetModuleLedger(String(mid)); } catch (_) {}
             }
             // Safety: if units exist but chosenList is empty and chapter modules are also empty, avoid blank state by picking any first non-empty unit list
-            if (units.length > 0 && (!modulesList || modulesList.length === 0)) {
-              const firstNonEmpty = units.map((u) => nextMap[u._id] || []).find((arr) => arr.length > 0) || [];
+            // CRITICAL FIX: Use the local variables (finalUnitsArr, nextMap) instead of state (unitsList, modulesList)
+            // which are not yet updated during this async execution.
+            if (finalUnitsArr && finalUnitsArr.length > 0 && (!cachedChosen || cachedChosen.length === 0)) {
+              const firstNonEmpty = finalUnitsArr.map((u) => nextMap[u._id] || []).find((arr) => arr.length > 0) || [];
               console.log('Dashboard: Safety check - firstNonEmpty', firstNonEmpty);
               if (firstNonEmpty.length > 0) {
                 setModulesList(firstNonEmpty);
@@ -902,9 +904,9 @@ const LearnDashboard = ({ onboardingData }) => {
               }
             }
             
-            // Final safety: If we still have no modules but have units, try to get modules from the first unit
-            if (units.length > 0 && (!modulesList || modulesList.length === 0)) {
-              const firstUnit = units[0];
+            // Final safety: If we still have no chosen modules but have units, try to get modules from the first unit
+            if (finalUnitsArr && finalUnitsArr.length > 0 && (!cachedChosen || cachedChosen.length === 0)) {
+              const firstUnit = finalUnitsArr[0];
               const firstUnitModules = nextMap[firstUnit._id] || [];
               console.log('Dashboard: Final safety check - firstUnitModules', firstUnitModules);
               if (firstUnitModules.length > 0) {
@@ -1339,14 +1341,15 @@ const LearnDashboard = ({ onboardingData }) => {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [progress, modulesList]);
 
-  // Auto-sync progress when component loads or progress changes
+  // Auto-sync progress when component loads. 
+  // Dependency on 'progress' removed to break infinite loop. 
   useEffect(() => {
-    if (progress && modulesList && modulesList.length > 0) {
+    if (modulesList && modulesList.length > 0) {
       // Small delay to ensure all data is loaded
       const timeoutId = setTimeout(syncProgress, 500);
       return () => clearTimeout(timeoutId);
     }
-  }, [progress, modulesList]);
+  }, [modulesList.length]);
 
   // Clear localStorage when user changes (account switching)
   useEffect(() => {

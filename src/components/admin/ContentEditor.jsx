@@ -136,6 +136,11 @@ const ContentEditor = ({
         ...baseItem,
         text: oldItem.text || oldItem.question || '',
       };
+    } else if (newType === 'comic') {
+      newItem = {
+        ...baseItem,
+        images: oldItem.images || (oldItem.imageUrl ? [oldItem.imageUrl] : []),
+      };
     } else if (newType === 'multiple-choice') {
       newItem = {
         ...baseItem,
@@ -570,6 +575,7 @@ const ContentEditor = ({
                     className="px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   >
                     <option value="statement">Statement</option>
+                    <option value="comic">Comic Slides</option>
                     <option value="multiple-choice">MCQ</option>
                     <option value="fill-in-the-blank">Fill in the Blank</option>
                     <option value="rearrange">Rearrange</option>
@@ -814,6 +820,23 @@ const ContentEditor = ({
                     />
                   </div>
                   
+                  <ImageEditor 
+                    item={item} 
+                    index={actualIndex}
+                    handleImageUpload={handleImageUpload}
+                    handleImageUrlInput={handleImageUrlInput}
+                    removeImage={removeImage}
+                    uploading={uploadingImages[actualIndex]}
+                  />
+                </div>
+              )}
+
+              {/* Comic Slides Type */}
+              {item.type === 'comic' && (
+                <div className="space-y-3">
+                  <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-md border border-blue-100">
+                    Upload your comic slides below using the Multiple Images tool. They will be displayed perfectly in the comic viewer.
+                  </div>
                   <ImageEditor 
                     item={item} 
                     index={actualIndex}
