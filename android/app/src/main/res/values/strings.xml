@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">HoshiYaar</string>
+    <string name="title_activity_main">HoshiYaar</string>
+    <string name="package_name">com.hoshiyaar.app</string>
+    <string name="custom_url_scheme">com.hoshiyaar.app</string>
+</resources>

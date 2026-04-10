@@ -432,6 +432,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
 
   function routeForType(type, idx) {
     switch (type) {
+      case 'comic':
       case 'concept':
       case 'statement':
         return `/learn/module/${moduleNumber}/concept/${idx}`;

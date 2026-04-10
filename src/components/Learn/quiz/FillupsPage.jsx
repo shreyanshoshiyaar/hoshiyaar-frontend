@@ -336,6 +336,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
 
   function routeForType(type, idx) {
     switch (type) {
+      case 'comic':
       case 'concept':
       case 'statement':
         return `/learn/module/${moduleNumber}/concept/${idx}`;

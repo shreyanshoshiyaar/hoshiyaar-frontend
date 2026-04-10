@@ -191,11 +191,12 @@ export default function ConceptPage() {
   }, [moduleNumber, index, showEndVideo, item, revisionItem, isRevisionModeFromUrl]);
 
   // Reset gate when starting a new module (index 0) or reaching a card with mid-lesson video
+  // Reset comicSlideIndex whenever advancing so new comics start at slide 0
   useEffect(() => {
+    setComicSlideIndex(0);
     const midLessonKey = `${moduleNumber}:${index}`;
     if (index === 0 || midLessonVideos[midLessonKey]) {
       setVideoAcknowledged(false);
-      setComicSlideIndex(0);
     }
   }, [moduleNumber, index, midLessonVideos]);
 

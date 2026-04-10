@@ -1,0 +1,19 @@
+{
+  "appId": "com.hoshiyaar.app",
+  "appName": "HoshiYaar",
+  "webDir": "dist",
+  "android": {
+    "allowMixedContent": true
+  },
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#0f0f1a",
+      "showSpinner": false
+    }
+  }
+}

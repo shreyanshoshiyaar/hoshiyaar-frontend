@@ -7,11 +7,16 @@
     "dev": "vite",
     "build": "vite build",
     "build:spa": "node build-spa.js",
+    "build:android": "vite build --mode android && npx cap sync android",
+    "android:open": "npx cap open android",
     "start": "node server.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@capacitor/android": "^8.3.0",
+    "@capacitor/cli": "^8.3.0",
+    "@capacitor/core": "^8.3.0",
     "axios": "^1.12.2",
     "express": "^4.21.2",
     "react": "^19.1.1",
