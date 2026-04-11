@@ -39,7 +39,20 @@ export const AuthProvider = ({ children }) => {
                             console.log('[AuthContext] Anonymous guest account created:', guestUser.username);
                         }
                     } catch (error) {
-                        console.error('[AuthContext] Failed to create anonymous guest account:', error);
+                        console.error('[AuthContext] Failed to create anonymous guest account from server:', error);
+                        
+                        // FALLBACK: Create a local-only guest identity to prevent redirect loops
+                        const localGuestId = `local_${Math.random().toString(36).substring(2, 9)}`;
+                        const localGuest = {
+                            _id: localGuestId,
+                            username: localGuestId,
+                            name: 'Learner (Offline)',
+                            isGuest: true,
+                            onboardingCompleted: false,
+                            isOffline: true
+                        };
+                        setUser(localGuest);
+                        console.log('[AuthContext] Using local-only guest fallback');
                     }
                 }
             } catch (error) {

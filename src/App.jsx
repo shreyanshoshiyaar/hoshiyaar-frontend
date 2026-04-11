@@ -39,9 +39,8 @@ function App() {
         <Router>
         <Routes>
           {/* Public Routes */}
-          {/* Auth Routes redirected to Home in Guest Mode */}
-          <Route path="/login" element={<Navigate to="/" replace />} />
-          <Route path="/signup" element={<Navigate to="/" replace />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
           <Route path="/loading" element={<LoadingPage />} />
 
           {/* Home Page Route */}
