@@ -436,9 +436,9 @@ const Hero = () => {
 
             <ScrollRevealButton
               className="bg-duo-blue text-white font-bold uppercase tracking-wider py-2 px-6 sm:py-3 sm:px-8 md:px-10 rounded-lg border-b-4 border-duo-blue-dark hover:bg-blue-500 hover:scale-105 transition-all duration-300 text-sm sm:text-base"
-              onClick={() => window.location.href = '/learn'}
+              onClick={() => window.location.href = user ? '/learn' : '/signup'}
             >
-              Start Learning
+              {user ? 'Back to Study' : 'Get Started'}
             </ScrollRevealButton>
           </div>
         </div>
