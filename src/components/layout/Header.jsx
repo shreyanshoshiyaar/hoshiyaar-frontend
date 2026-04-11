@@ -28,26 +28,9 @@ const Header = () => {
           />
         </Link>
 
-        {/* BUTTONS SECTION */}
+        {/* BUTTONS SECTION - HIDDEN IN GUEST MODE */}
         <div className="flex items-center gap-4">
-          {user ? (
-            <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
-              <button 
-                onClick={handleLogout}
-                // UPDATED: Adjusted padding (md:py-2.5) for a sharper, less bulky button look on desktop
-                className="w-full sm:w-auto bg-duo-blue text-white font-bold uppercase tracking-wider py-2 px-4 md:py-2.5 md:px-7 rounded-xl sm:rounded-2xl border-b-4 border-duo-blue-dark hover:bg-blue-500 transition-all text-xs sm:text-sm btn-responsive"
-              >
-                Logout
-              </button>
-            </div>
-          ) : (
-            <Link to="/login">
-              {/* UPDATED: Adjusted padding (md:py-2.5) for consistency */}
-              <button className="w-full sm:w-auto bg-duo-blue text-white font-bold uppercase tracking-wider py-2 px-4 md:py-2.5 md:px-7 rounded-xl sm:rounded-2xl border-b-4 border-duo-blue-dark hover:bg-blue-500 transition-all text-xs sm:text-sm btn-responsive">
-                Login / Signup
-              </button>
-            </Link>
-          )}
+          {/* Auth buttons removed for Guest Mode */}
         </div>
       </div>
     </header>

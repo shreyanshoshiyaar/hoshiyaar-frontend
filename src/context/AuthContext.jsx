@@ -28,13 +28,26 @@ export const AuthProvider = ({ children }) => {
                     } catch (error) {
                         console.warn('[AuthContext] Failed to sync stars on app load:', error);
                     }
+                } else {
+                    // AUTO-GUEST MODE: Create an anonymous guest account if no user is logged in
+                    console.log('[AuthContext] No user found, creating anonymous guest account...');
+                    try {
+                        const { data: guestUser } = await authService.registerGuest();
+                        if (guestUser) {
+                            localStorage.setItem('user', JSON.stringify(guestUser));
+                            setUser(guestUser);
+                            console.log('[AuthContext] Anonymous guest account created:', guestUser.username);
+                        }
+                    } catch (error) {
+                        console.error('[AuthContext] Failed to create anonymous guest account:', error);
+                    }
                 }
             } catch (error) {
                 console.error("Failed to parse user from localStorage", error);
             }
             
             // Add a minimum loading time to show the loading screen
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            await new Promise(resolve => setTimeout(resolve, 800)); // Reduced from 1500 for snappier experience
             setLoading(false);
         };
         

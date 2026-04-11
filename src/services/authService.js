@@ -22,6 +22,11 @@ const register = (userData, opts) => {
   return http.post('register', userData, opts);
 };
 
+// Register guest (anonymous)
+const registerGuest = (opts) => {
+  return http.post('register-guest', {}, opts);
+};
+
 // Login user with username
 const login = (userData, opts) => {
   return http.post('login', userData, opts);
@@ -51,6 +56,7 @@ const checkUsername = (username, opts) => http.get('check-username', { params: {
 // Export the functions
 const authService = {
   register,
+  registerGuest,
   login,
   updateOnboarding,
   updateProfile,

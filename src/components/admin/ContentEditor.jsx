@@ -6,7 +6,7 @@ import { getApiBase } from '../../utils/apiBase.js';
 const API = getApiBase();
 const http = axios.create({
   baseURL: API,
-  timeout: 12000,
+  timeout: 42000,
   withCredentials: false,
 });
 
@@ -122,7 +122,7 @@ const ContentEditor = ({
   const changeItemType = (index, newType) => {
     const updated = [...items];
     const oldItem = updated[index];
-    
+
     // Build new item with only fields relevant to the new type
     const baseItem = {
       _id: oldItem._id,
@@ -156,8 +156,8 @@ const ContentEditor = ({
       };
     } else if (newType === 'rearrange') {
       // Convert old options to words if available, otherwise use existing words
-      const wordsArray = Array.isArray(oldItem.words) ? oldItem.words : 
-                        (Array.isArray(oldItem.options) ? oldItem.options : []);
+      const wordsArray = Array.isArray(oldItem.words) ? oldItem.words :
+        (Array.isArray(oldItem.options) ? oldItem.options : []);
       newItem = {
         ...baseItem,
         question: oldItem.question || '',
@@ -187,11 +187,11 @@ const ContentEditor = ({
 
   const removeItem = (index) => {
     const confirmMessage = `Are you sure you want to remove this item?\n\nNote: This change will NOT be saved to the database until you click "Save Changes".\n\nClick "Discard Changes" to reload from database if you want to cancel.`;
-    
+
     if (!window.confirm(confirmMessage)) {
       return;
     }
-    
+
     const updated = items.filter((_, i) => i !== index);
     const reordered = updated.map((item, idx) => ({
       ...item,
@@ -203,12 +203,12 @@ const ContentEditor = ({
 
   const discardChanges = () => {
     if (!hasUnsavedChanges) return;
-    
+
     const confirmMessage = 'Are you sure you want to discard all unsaved changes? This will reload the content from the database.';
     if (!window.confirm(confirmMessage)) {
       return;
     }
-    
+
     setItems(JSON.parse(JSON.stringify(originalItems)));
     setHasUnsavedChanges(false);
     setError('');
@@ -245,22 +245,22 @@ const ContentEditor = ({
     if (isNaN(orderNum) || orderNum < 1 || orderNum > items.length) {
       return;
     }
-    
+
     const updated = [...items];
     const item = updated[index];
     const oldOrder = item.order || index + 1;
-    
+
     if (orderNum === oldOrder) return;
-    
+
     updated.splice(index, 1);
     const newIndex = orderNum - 1;
     updated.splice(newIndex, 0, item);
-    
+
     const reordered = updated.map((it, idx) => ({
       ...it,
       order: idx + 1
     }));
-    
+
     setItems(reordered);
     setHasUnsavedChanges(true);
   };
@@ -268,7 +268,7 @@ const ContentEditor = ({
   const handleImageUpload = async (itemIndex, file, isMultiple = false) => {
     try {
       setUploadingImages({ ...uploadingImages, [itemIndex]: true });
-      
+
       // If uploading multiple files, upload them one at a time to avoid 413 errors
       if (isMultiple && Array.isArray(file) && file.length > 1) {
         const uploadedUrls = [];
@@ -277,11 +277,11 @@ const ContentEditor = ({
             const formData = new FormData();
             formData.append('file', singleFile);
             formData.append('folder', 'hoshiyaar');
-            
+
             const response = await http.post('/api/upload/image', formData, {
               headers: { 'Content-Type': 'multipart/form-data' },
             });
-            
+
             const imageUrl = response.data.url || response.data.secure_url;
             if (imageUrl) {
               uploadedUrls.push(imageUrl);
@@ -294,7 +294,7 @@ const ContentEditor = ({
             }
           }
         }
-        
+
         if (uploadedUrls.length > 0) {
           const updated = [...items];
           const existingImages = updated[itemIndex].images || [];
@@ -308,30 +308,30 @@ const ContentEditor = ({
         setUploadingImages({ ...uploadingImages, [itemIndex]: false });
         return;
       }
-      
+
       // Single file or single-item multiple upload
       const formData = new FormData();
-      
+
       if (isMultiple && Array.isArray(file)) {
         file.forEach(f => formData.append('files', f));
       } else {
         formData.append('file', file);
       }
-      
+
       formData.append('folder', 'hoshiyaar');
-      
-      const endpoint = isMultiple && Array.isArray(file) 
-        ? '/api/upload/images' 
+
+      const endpoint = isMultiple && Array.isArray(file)
+        ? '/api/upload/images'
         : '/api/upload/image';
-      
+
       const response = await http.post(endpoint, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         maxContentLength: Infinity,
         maxBodyLength: Infinity,
       });
-      
+
       const updated = [...items];
-      
+
       if (isMultiple && Array.isArray(file) && response.data.images) {
         const existingImages = updated[itemIndex].images || [];
         const newImages = response.data.images.map(img => img.url || img.secure_url);
@@ -346,7 +346,7 @@ const ContentEditor = ({
           imageUrl: imageUrl,
         };
       }
-      
+
       setItems(updated);
       setHasUnsavedChanges(true);
       setUploadingImages({ ...uploadingImages, [itemIndex]: false });
@@ -364,7 +364,7 @@ const ContentEditor = ({
 
   const handleImageUrlInput = (itemIndex, url, isMultiple = false, imageIndex = null) => {
     const updated = [...items];
-    
+
     if (isMultiple) {
       const images = [...(updated[itemIndex].images || [])];
       if (imageIndex !== null) {
@@ -376,14 +376,14 @@ const ContentEditor = ({
     } else {
       updated[itemIndex] = { ...updated[itemIndex], imageUrl: url };
     }
-    
+
     setItems(updated);
     setHasUnsavedChanges(true);
   };
 
   const removeImage = (itemIndex, imageIndex = null, isMultiple = false) => {
     const updated = [...items];
-    
+
     if (isMultiple) {
       const images = [...(updated[itemIndex].images || [])];
       images.splice(imageIndex, 1);
@@ -391,7 +391,7 @@ const ContentEditor = ({
     } else {
       updated[itemIndex] = { ...updated[itemIndex], imageUrl: '' };
     }
-    
+
     setItems(updated);
     setHasUnsavedChanges(true);
   };
@@ -408,7 +408,7 @@ const ContentEditor = ({
       setSuccess('');
 
       const sortedItems = [...items].sort((a, b) => (a.order || 0) - (b.order || 0));
-      
+
       const concepts = sortedItems.map((item) => {
         const concept = {
           type: item.type,
@@ -470,21 +470,21 @@ const ContentEditor = ({
       console.log('[ContentEditor] Full payload:', JSON.stringify(payload, null, 2));
 
       const response = await http.post('/api/curriculum/import', payload);
-      
+
       console.log('[ContentEditor] Save response:', response.data);
-      
+
       // Check if items were actually updated or if new ones were created
       const importedCount = response.data.importedItems || 0;
       const skippedCount = response.data.skipped || 0;
-      
+
       if (importedCount === concepts.length && skippedCount === 0) {
         setSuccess(`Successfully saved! ${importedCount} items imported.`);
       } else {
         setSuccess(`Saved with warnings: ${importedCount} items imported, ${skippedCount} skipped. Check backend logs for details.`);
       }
-      
+
       setHasUnsavedChanges(false);
-      
+
       setTimeout(() => {
         fetchItems();
       }, 1000);
@@ -563,302 +563,302 @@ const ContentEditor = ({
           {[...items].sort((a, b) => (a.order || 0) - (b.order || 0)).map((item, index) => {
             const originalIndex = items.findIndex(i => (i._id || '') === (item._id || ''));
             const actualIndex = originalIndex >= 0 ? originalIndex : index;
-            
+
             return (
-            <div key={item._id || actualIndex} className="border border-gray-300 rounded-lg p-4">
-              <div className="flex justify-between items-start mb-3">
-                <div className="flex items-center gap-3">
-                  <label className="text-sm font-medium text-gray-700">Type:</label>
-                  <select
-                    value={item.type || 'statement'}
-                    onChange={(e) => changeItemType(actualIndex, e.target.value)}
-                    className="px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              <div key={item._id || actualIndex} className="border border-gray-300 rounded-lg p-4">
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex items-center gap-3">
+                    <label className="text-sm font-medium text-gray-700">Type:</label>
+                    <select
+                      value={item.type || 'statement'}
+                      onChange={(e) => changeItemType(actualIndex, e.target.value)}
+                      className="px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                      <option value="statement">Statement</option>
+                      <option value="comic">Comic Slides</option>
+                      <option value="multiple-choice">MCQ</option>
+                      <option value="fill-in-the-blank">Fill in the Blank</option>
+                      <option value="rearrange">Rearrange</option>
+                    </select>
+
+                    {/* Order Controls */}
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm font-medium text-gray-700">Order:</label>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => moveItemUp(actualIndex)}
+                          disabled={actualIndex === 0}
+                          className="px-2 py-1 bg-gray-500 text-white rounded-md hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                          title="Move Up"
+                        >
+                          ↑
+                        </button>
+                        <input
+                          type="number"
+                          min="1"
+                          max={items.length}
+                          value={item.order || index + 1}
+                          onChange={(e) => updateOrder(actualIndex, e.target.value)}
+                          className="w-16 px-2 py-1 border border-gray-300 rounded-md text-center text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                        <button
+                          onClick={() => moveItemDown(actualIndex)}
+                          disabled={actualIndex === items.length - 1}
+                          className="px-2 py-1 bg-gray-500 text-white rounded-md hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                          title="Move Down"
+                        >
+                          ↓
+                        </button>
+                      </div>
+                      <span className="text-xs text-gray-500">({items.length} total)</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => removeItem(actualIndex)}
+                    className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 text-sm"
                   >
-                    <option value="statement">Statement</option>
-                    <option value="comic">Comic Slides</option>
-                    <option value="multiple-choice">MCQ</option>
-                    <option value="fill-in-the-blank">Fill in the Blank</option>
-                    <option value="rearrange">Rearrange</option>
-                  </select>
-                  
-                  {/* Order Controls */}
-                  <div className="flex items-center gap-2">
-                    <label className="text-sm font-medium text-gray-700">Order:</label>
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => moveItemUp(actualIndex)}
-                        disabled={actualIndex === 0}
-                        className="px-2 py-1 bg-gray-500 text-white rounded-md hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-                        title="Move Up"
-                      >
-                        ↑
-                      </button>
-                      <input
-                        type="number"
-                        min="1"
-                        max={items.length}
-                        value={item.order || index + 1}
-                        onChange={(e) => updateOrder(actualIndex, e.target.value)}
-                        className="w-16 px-2 py-1 border border-gray-300 rounded-md text-center text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    Remove
+                  </button>
+                </div>
+
+                {/* Statement Type */}
+                {item.type === 'statement' && (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Text Content
+                      </label>
+                      <textarea
+                        value={item.text || ''}
+                        onChange={(e) => updateItem(actualIndex, 'text', e.target.value)}
+                        rows={3}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="Enter statement text..."
                       />
+                    </div>
+
+                    <ImageEditor
+                      item={item}
+                      index={actualIndex}
+                      handleImageUpload={handleImageUpload}
+                      handleImageUrlInput={handleImageUrlInput}
+                      removeImage={removeImage}
+                      uploading={uploadingImages[actualIndex]}
+                    />
+                  </div>
+                )}
+
+                {/* Multiple Choice Type */}
+                {item.type === 'multiple-choice' && (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Question
+                      </label>
+                      <input
+                        type="text"
+                        value={item.question || ''}
+                        onChange={(e) => updateItem(actualIndex, 'question', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="Enter question..."
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Options
+                      </label>
+                      {(item.options || []).map((option, optIndex) => (
+                        <div key={optIndex} className="flex gap-2 mb-2">
+                          <input
+                            type="radio"
+                            checked={item.answer === option}
+                            onChange={() => updateItem(actualIndex, 'answer', option)}
+                            className="mt-2"
+                          />
+                          <input
+                            type="text"
+                            value={option}
+                            onChange={(e) => updateItemArray(actualIndex, 'options', optIndex, e.target.value)}
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            placeholder={`Option ${optIndex + 1}`}
+                          />
+                          <button
+                            onClick={() => removeItemArrayElement(actualIndex, 'options', optIndex)}
+                            className="px-2 py-1 bg-red-500 text-white rounded text-sm"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
                       <button
-                        onClick={() => moveItemDown(actualIndex)}
-                        disabled={actualIndex === items.length - 1}
-                        className="px-2 py-1 bg-gray-500 text-white rounded-md hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-                        title="Move Down"
+                        onClick={() => addItemArrayElement(actualIndex, 'options')}
+                        className="mt-2 px-3 py-1 bg-gray-500 text-white rounded text-sm hover:bg-gray-600"
                       >
-                        ↓
+                        + Add Option
                       </button>
                     </div>
-                    <span className="text-xs text-gray-500">({items.length} total)</span>
+
+                    <ImageEditor
+                      item={item}
+                      index={actualIndex}
+                      handleImageUpload={handleImageUpload}
+                      handleImageUrlInput={handleImageUrlInput}
+                      removeImage={removeImage}
+                      uploading={uploadingImages[actualIndex]}
+                    />
                   </div>
-                </div>
-                <button
-                  onClick={() => removeItem(actualIndex)}
-                  className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 text-sm"
-                >
-                  Remove
-                </button>
+                )}
+
+                {/* Fill in the Blank Type */}
+                {item.type === 'fill-in-the-blank' && (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Question
+                      </label>
+                      <input
+                        type="text"
+                        value={item.question || ''}
+                        onChange={(e) => updateItem(actualIndex, 'question', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="Enter question with blank..."
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Correct Answer
+                      </label>
+                      <input
+                        type="text"
+                        value={item.answer || ''}
+                        onChange={(e) => updateItem(actualIndex, 'answer', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="Enter correct answer..."
+                      />
+                    </div>
+
+                    <ImageEditor
+                      item={item}
+                      index={actualIndex}
+                      handleImageUpload={handleImageUpload}
+                      handleImageUrlInput={handleImageUrlInput}
+                      removeImage={removeImage}
+                      uploading={uploadingImages[actualIndex]}
+                    />
+                  </div>
+                )}
+
+                {/* Rearrange Type */}
+                {item.type === 'rearrange' && (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Question
+                      </label>
+                      <input
+                        type="text"
+                        value={item.question || ''}
+                        onChange={(e) => updateItem(actualIndex, 'question', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="Enter question..."
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Words/Phrases to Rearrange
+                      </label>
+                      {(item.words || []).map((word, wordIndex) => (
+                        <div key={wordIndex} className="flex gap-2 mb-2">
+                          <input
+                            type="text"
+                            value={word}
+                            onChange={(e) => {
+                              const currentItem = items[actualIndex];
+                              const currentWords = Array.isArray(currentItem?.words) ? currentItem.words : [];
+                              const newWords = [...currentWords];
+                              newWords[wordIndex] = e.target.value;
+                              updateRearrangeWords(actualIndex, newWords);
+                            }}
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            placeholder={`Word/Phrase ${wordIndex + 1}`}
+                          />
+                          <button
+                            onClick={() => {
+                              const currentItem = items[actualIndex];
+                              const currentWords = Array.isArray(currentItem?.words) ? currentItem.words : [];
+                              const newWords = currentWords.filter((_, i) => i !== wordIndex);
+                              updateRearrangeWords(actualIndex, newWords);
+                            }}
+                            className="px-2 py-1 bg-red-500 text-white rounded text-sm"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        onClick={() => {
+                          const currentItem = items[actualIndex];
+                          const currentWords = Array.isArray(currentItem?.words) ? currentItem.words : [];
+                          const newWords = [...currentWords, ''];
+                          updateRearrangeWords(actualIndex, newWords);
+                        }}
+                        className="mt-2 px-3 py-1 bg-gray-500 text-white rounded text-sm hover:bg-gray-600"
+                      >
+                        + Add Word/Phrase
+                      </button>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Correct Answer (comma-separated or space-separated)
+                      </label>
+                      <input
+                        type="text"
+                        value={item.answer || ''}
+                        onChange={(e) => updateItem(actualIndex, 'answer', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="Enter correct answer sequence..."
+                      />
+                    </div>
+
+                    <ImageEditor
+                      item={item}
+                      index={actualIndex}
+                      handleImageUpload={handleImageUpload}
+                      handleImageUrlInput={handleImageUrlInput}
+                      removeImage={removeImage}
+                      uploading={uploadingImages[actualIndex]}
+                    />
+                  </div>
+                )}
+
+                {/* Comic Slides Type */}
+                {item.type === 'comic' && (
+                  <div className="space-y-3">
+                    <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-md border border-blue-100">
+                      Upload your comic slides below using the Multiple Images tool. They will be displayed perfectly in the comic viewer.
+                    </div>
+                    <ImageEditor
+                      item={item}
+                      index={actualIndex}
+                      handleImageUpload={handleImageUpload}
+                      handleImageUrlInput={handleImageUrlInput}
+                      removeImage={removeImage}
+                      uploading={uploadingImages[actualIndex]}
+                    />
+                  </div>
+                )}
               </div>
-
-              {/* Statement Type */}
-              {item.type === 'statement' && (
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Text Content
-                    </label>
-                    <textarea
-                      value={item.text || ''}
-                      onChange={(e) => updateItem(actualIndex, 'text', e.target.value)}
-                      rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      placeholder="Enter statement text..."
-                    />
-                  </div>
-                  
-                  <ImageEditor 
-                    item={item} 
-                    index={actualIndex}
-                    handleImageUpload={handleImageUpload}
-                    handleImageUrlInput={handleImageUrlInput}
-                    removeImage={removeImage}
-                    uploading={uploadingImages[actualIndex]}
-                  />
-                </div>
-              )}
-
-              {/* Multiple Choice Type */}
-              {item.type === 'multiple-choice' && (
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Question
-                    </label>
-                    <input
-                      type="text"
-                      value={item.question || ''}
-                      onChange={(e) => updateItem(actualIndex, 'question', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      placeholder="Enter question..."
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Options
-                    </label>
-                    {(item.options || []).map((option, optIndex) => (
-                      <div key={optIndex} className="flex gap-2 mb-2">
-                        <input
-                          type="radio"
-                          checked={item.answer === option}
-                          onChange={() => updateItem(actualIndex, 'answer', option)}
-                          className="mt-2"
-                        />
-                        <input
-                          type="text"
-                          value={option}
-                          onChange={(e) => updateItemArray(actualIndex, 'options', optIndex, e.target.value)}
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                          placeholder={`Option ${optIndex + 1}`}
-                        />
-                        <button
-                          onClick={() => removeItemArrayElement(actualIndex, 'options', optIndex)}
-                          className="px-2 py-1 bg-red-500 text-white rounded text-sm"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                    <button
-                      onClick={() => addItemArrayElement(actualIndex, 'options')}
-                      className="mt-2 px-3 py-1 bg-gray-500 text-white rounded text-sm hover:bg-gray-600"
-                    >
-                      + Add Option
-                    </button>
-                  </div>
-                  
-                  <ImageEditor 
-                    item={item} 
-                    index={actualIndex}
-                    handleImageUpload={handleImageUpload}
-                    handleImageUrlInput={handleImageUrlInput}
-                    removeImage={removeImage}
-                    uploading={uploadingImages[actualIndex]}
-                  />
-                </div>
-              )}
-
-              {/* Fill in the Blank Type */}
-              {item.type === 'fill-in-the-blank' && (
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Question
-                    </label>
-                    <input
-                      type="text"
-                      value={item.question || ''}
-                      onChange={(e) => updateItem(actualIndex, 'question', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      placeholder="Enter question with blank..."
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Correct Answer
-                    </label>
-                    <input
-                      type="text"
-                      value={item.answer || ''}
-                      onChange={(e) => updateItem(actualIndex, 'answer', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      placeholder="Enter correct answer..."
-                    />
-                  </div>
-                  
-                  <ImageEditor 
-                    item={item} 
-                    index={actualIndex}
-                    handleImageUpload={handleImageUpload}
-                    handleImageUrlInput={handleImageUrlInput}
-                    removeImage={removeImage}
-                    uploading={uploadingImages[actualIndex]}
-                  />
-                </div>
-              )}
-
-              {/* Rearrange Type */}
-              {item.type === 'rearrange' && (
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Question
-                    </label>
-                    <input
-                      type="text"
-                      value={item.question || ''}
-                      onChange={(e) => updateItem(actualIndex, 'question', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      placeholder="Enter question..."
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Words/Phrases to Rearrange
-                    </label>
-                    {(item.words || []).map((word, wordIndex) => (
-                      <div key={wordIndex} className="flex gap-2 mb-2">
-                        <input
-                          type="text"
-                          value={word}
-                          onChange={(e) => {
-                            const currentItem = items[actualIndex];
-                            const currentWords = Array.isArray(currentItem?.words) ? currentItem.words : [];
-                            const newWords = [...currentWords];
-                            newWords[wordIndex] = e.target.value;
-                            updateRearrangeWords(actualIndex, newWords);
-                          }}
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                          placeholder={`Word/Phrase ${wordIndex + 1}`}
-                        />
-                        <button
-                          onClick={() => {
-                            const currentItem = items[actualIndex];
-                            const currentWords = Array.isArray(currentItem?.words) ? currentItem.words : [];
-                            const newWords = currentWords.filter((_, i) => i !== wordIndex);
-                            updateRearrangeWords(actualIndex, newWords);
-                          }}
-                          className="px-2 py-1 bg-red-500 text-white rounded text-sm"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                    <button
-                      onClick={() => {
-                        const currentItem = items[actualIndex];
-                        const currentWords = Array.isArray(currentItem?.words) ? currentItem.words : [];
-                        const newWords = [...currentWords, ''];
-                        updateRearrangeWords(actualIndex, newWords);
-                      }}
-                      className="mt-2 px-3 py-1 bg-gray-500 text-white rounded text-sm hover:bg-gray-600"
-                    >
-                      + Add Word/Phrase
-                    </button>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Correct Answer (comma-separated or space-separated)
-                    </label>
-                    <input
-                      type="text"
-                      value={item.answer || ''}
-                      onChange={(e) => updateItem(actualIndex, 'answer', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      placeholder="Enter correct answer sequence..."
-                    />
-                  </div>
-                  
-                  <ImageEditor 
-                    item={item} 
-                    index={actualIndex}
-                    handleImageUpload={handleImageUpload}
-                    handleImageUrlInput={handleImageUrlInput}
-                    removeImage={removeImage}
-                    uploading={uploadingImages[actualIndex]}
-                  />
-                </div>
-              )}
-
-              {/* Comic Slides Type */}
-              {item.type === 'comic' && (
-                <div className="space-y-3">
-                  <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-md border border-blue-100">
-                    Upload your comic slides below using the Multiple Images tool. They will be displayed perfectly in the comic viewer.
-                  </div>
-                  <ImageEditor 
-                    item={item} 
-                    index={actualIndex}
-                    handleImageUpload={handleImageUpload}
-                    handleImageUrlInput={handleImageUrlInput}
-                    removeImage={removeImage}
-                    uploading={uploadingImages[actualIndex]}
-                  />
-                </div>
-              )}
-            </div>
             );
           })}
         </div>
       )}
       {showScrollTop && (
-      <button
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="fixed bottom-6 right-6 px-4 py-2 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-      >
-        ↑ Back to Top
-      </button>
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed bottom-6 right-6 px-4 py-2 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+        >
+          ↑ Back to Top
+        </button>
       )}
     </div>
   );
@@ -868,21 +868,21 @@ const ContentEditor = ({
 const ImageEditor = ({ item, index, handleImageUpload, handleImageUrlInput, removeImage, uploading }) => {
   const fileInputRef = React.useRef(null);
   const multipleFileInputRef = React.useRef(null);
-  
+
   return (
     <div className="mt-4 pt-4 border-t border-gray-200">
       <label className="block text-sm font-medium text-gray-700 mb-3">
         Images
       </label>
-      
+
       {/* Single Image (imageUrl) */}
       <div className="mb-4">
         <div className="text-xs text-gray-600 mb-2">Single Image (Primary)</div>
         {item.imageUrl && (
           <div className="mb-2 relative inline-block">
-            <img 
-              src={item.imageUrl} 
-              alt="Preview" 
+            <img
+              src={item.imageUrl}
+              alt="Preview"
               className="h-24 w-auto rounded border border-gray-300"
             />
             <button
@@ -921,7 +921,7 @@ const ImageEditor = ({ item, index, handleImageUpload, handleImageUrlInput, remo
           </button>
         </div>
       </div>
-      
+
       {/* Multiple Images (images array) */}
       <div>
         <div className="text-xs text-gray-600 mb-2">Multiple Images</div>
@@ -929,9 +929,9 @@ const ImageEditor = ({ item, index, handleImageUpload, handleImageUrlInput, remo
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
             {item.images.map((imgUrl, imgIndex) => (
               <div key={imgIndex} className="relative">
-                <img 
-                  src={imgUrl} 
-                  alt={`Image ${imgIndex + 1}`} 
+                <img
+                  src={imgUrl}
+                  alt={`Image ${imgIndex + 1}`}
                   className="h-24 w-full object-cover rounded border border-gray-300"
                 />
                 <button
