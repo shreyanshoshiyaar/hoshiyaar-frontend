@@ -439,6 +439,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       case 'multiple-choice': return `/learn/module/${moduleNumber}/mcq/${idx}`;
       case 'fill-in-the-blank': return `/learn/module/${moduleNumber}/fillups/${idx}`;
       case 'rearrange': return `/learn/module/${moduleNumber}/rearrange/${idx}`;
+      case 'descriptive': return `/learn/module/${moduleNumber}/descriptive/${idx}`;
       default: return `/learn`;
     }
   }
@@ -618,33 +619,27 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
           const response = await authService.updateProgress({ 
             userId: user._id, 
             moduleId: String(moduleNumber), 
-            subject: user.subject || 'Science', // CRITICAL FIX: Include subject
+            subject: user.subject || 'Science', 
             conceptCompleted: true 
           });
           console.log('[MCQ] Database save response:', response?.data);
         }
       } catch (error) {
         console.error('[MCQ] Failed to save to database:', error);
-        // Still continue with local storage as fallback
       }
       
-      // Also persist locally so dashboard immediately reflects completion - USING COMPOSITE KEYS
+      // Also persist locally so dashboard immediately reflects completion
       try {
-        // Get chapterId and unitId from module to create composite key
-      chapterIdForStorage = chapterIdForStorage || chapterIdParam || null;
-      unitIdForStorage = unitIdForStorage || unitIdParam || null;
+        chapterIdForStorage = chapterIdForStorage || chapterIdParam || null;
+        unitIdForStorage = unitIdForStorage || unitIdParam || null;
         try {
-          // Try to get from URL first (if navigating from dashboard)
           const urlParams = new URLSearchParams(window.location.search);
           chapterIdForStorage = chapterIdForStorage || urlParams.get('chapterId');
           unitIdForStorage = unitIdForStorage || urlParams.get('unitId');
           
-          // If not in URL, fetch module details to get chapterId and unitId
           if (!chapterIdForStorage || !unitIdForStorage) {
-            // Try to get from all chapters (fallback method)
             const chapters = await curriculumService.listChapters(user?.board || 'CBSE', user?.subject || 'Science');
             for (const ch of (chapters?.data || [])) {
-              // Try chapter-level modules first
               const modules = await curriculumService.listModules(ch._id);
               const found = (modules?.data || []).find(m => m._id === moduleNumber);
               if (found) {
@@ -652,8 +647,6 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
                 unitIdForStorage = found.unitId || null;
                 break;
               }
-              
-              // If not found, try unit-level modules
               if (!found) {
                 const units = await curriculumService.listUnits(ch._id);
                 for (const unit of (units?.data || [])) {
@@ -673,12 +666,9 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
           console.warn('[MCQ] Could not fetch chapterId/unitId:', e);
         }
         
-        // Mark completed using composite key (chapterId:unitId:lessonId)
         if (chapterIdForStorage && moduleNumber) {
           markCompletedLocal(chapterIdForStorage, unitIdForStorage || '', moduleNumber);
         }
-        
-        // Also store by module id (globally unique, for backward compatibility)
         recordCompletedId(moduleNumber);
 
         if (chapterIdForStorage && unitIdForStorage) {
@@ -700,6 +690,20 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
     }
     navigate(`${routeForType(nextItem.type, nextIndex)}${suffix}`);
   }
+
+  const handleMasterSkip = async () => {
+    // If master, award correct silently and move next
+    const qid = `${moduleNumber}_${index}_mcq`;
+    const type = isRevisionModeFromUrl ? 'revision' : 'curriculum';
+    awardCorrect(String(moduleNumber), qid, 5, { type });
+    try {
+      if (user?._id) {
+        await pointsService.award({ userId: user._id, questionId: qid, moduleId: String(moduleNumber), type, result: 'correct' });
+        await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: 5 });
+      }
+    } catch (_) {}
+    handleNext(true);
+  };
 
   const handleFeedbackClose = () => {
     setFeedback({ open: false, correct: false, expected: '' });
@@ -840,6 +844,15 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       <ProgressBar currentIndex={index} total={items.length} />
         </div>
         <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
+          {/* Master Mode Skip Button */}
+          {(user?.role === 'master' || user?.username === 'Host') && (
+            <button
+              onClick={handleMasterSkip}
+              className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-black rounded-lg shadow-sm border-b-4 border-yellow-700 active:border-b-0 active:translate-y-1 transition-all mr-2 uppercase"
+            >
+              Skip ⚡️
+            </button>
+          )}
           
           {/* Show flagged status */}
           {isFlagged && (

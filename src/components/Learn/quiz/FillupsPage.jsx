@@ -343,6 +343,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
       case 'multiple-choice': return `/learn/module/${moduleNumber}/mcq/${idx}`;
       case 'fill-in-the-blank': return `/learn/module/${moduleNumber}/fillups/${idx}`;
       case 'rearrange': return `/learn/module/${moduleNumber}/rearrange/${idx}`;
+      case 'descriptive': return `/learn/module/${moduleNumber}/descriptive/${idx}`;
       default: return `/learn`;
     }
   }
@@ -575,6 +576,19 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
   // Backward-compat alias in case any stale listeners call goNext
   const goNext = (force = false) => handleNext(force);
 
+  const handleMasterSkip = async () => {
+    const qid = `${moduleNumber}_${index}_fillups`;
+    const type = isRevisionModeFromUrl ? 'revision' : 'curriculum';
+    awardCorrect(String(moduleNumber), qid, 5, { type });
+    try {
+      if (user?._id) {
+        await pointsService.award({ userId: user._id, questionId: qid, moduleId: String(moduleNumber), type, result: 'correct' });
+        await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: 5 });
+      }
+    } catch (_) {}
+    handleNext(true);
+  };
+
   const handleFeedbackClose = () => {
     setFeedback({ open: false, correct: false, expected: '' });
   };
@@ -699,15 +713,14 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
           <ProgressBar currentIndex={index} total={items.length} />
         </div>
         <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
-          
-          {/* Show flagged status */}
-          {isFlagged && (
-            <div className="flex items-center gap-1 sm:gap-2 px-2 py-1 sm:px-3 sm:py-2 rounded-lg bg-green-50 border border-green-200 text-green-700">
-              <span className="text-sm sm:text-lg">✅</span>
-              <span className="text-xs sm:text-sm font-medium">Marked for Review</span>
-            </div>
+          {(user?.role === 'master' || user?.username === 'Host') && (
+            <button
+              onClick={handleMasterSkip}
+              className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-black rounded-lg shadow-sm border-b-4 border-yellow-700 active:border-b-0 active:translate-y-1 transition-all mr-2 uppercase"
+            >
+              Skip ⚡️
+            </button>
           )}
-          
           <StarCounter />
         </div>
       </div>

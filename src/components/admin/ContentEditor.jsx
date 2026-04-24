@@ -52,10 +52,17 @@ const ContentEditor = ({
       setError('');
       const response = await curriculumService.listItems(moduleId);
       const sortedItems = (response.data || []).sort((a, b) => (a.order || 0) - (b.order || 0));
-      // Ensure rearrange items have words initialized
+      // Ensure rearrange items have words initialized and descriptive items have modelAnswers
       const normalizedItems = sortedItems.map(item => {
         if (item.type === 'rearrange' && !Array.isArray(item.words)) {
           return { ...item, words: item.options || [], options: item.options || [] };
+        }
+        if (item.type === 'descriptive') {
+          const mAnswers = Array.isArray(item.modelAnswers) ? item.modelAnswers : [];
+          if (mAnswers.length === 0 && item.text) {
+            mAnswers.push(item.text); // Backwards compatibility
+          }
+          return { ...item, modelAnswers: mAnswers };
         }
         return item;
       });
@@ -119,6 +126,19 @@ const ContentEditor = ({
     setHasUnsavedChanges(true);
   };
 
+  const updateKeywords = (index, keywords) => {
+    setItems((prev) => {
+      const updated = [...prev];
+      const current = updated[index] || {};
+      updated[index] = {
+        ...current,
+        keywords: [...keywords],
+      };
+      return updated;
+    });
+    setHasUnsavedChanges(true);
+  };
+
   const changeItemType = (index, newType) => {
     const updated = [...items];
     const oldItem = updated[index];
@@ -165,6 +185,13 @@ const ContentEditor = ({
         options: wordsArray, // Keep options in sync with words
         answer: oldItem.answer || '',
       };
+    } else if (newType === 'descriptive') {
+      newItem = {
+        ...baseItem,
+        question: oldItem.question || '',
+        keywords: oldItem.keywords || (oldItem.answer ? String(oldItem.answer).split(',').map(s => s.trim()).filter(Boolean) : []),
+        modelAnswers: oldItem.modelAnswers || (oldItem.text ? [oldItem.text] : []),
+      };
     } else {
       newItem = baseItem;
     }
@@ -175,11 +202,13 @@ const ContentEditor = ({
   };
 
   const addNewItem = () => {
+    const lastItem = items[items.length - 1];
+    const newOrder = lastItem ? (lastItem.order || 0) + 1024 : 1024;
     const newItem = {
       _id: `new-${Date.now()}`,
       type: 'statement',
       text: '',
-      order: items.length + 1,
+      order: newOrder,
     };
     setItems([...items, newItem]);
     setHasUnsavedChanges(true);
@@ -193,11 +222,7 @@ const ContentEditor = ({
     }
 
     const updated = items.filter((_, i) => i !== index);
-    const reordered = updated.map((item, idx) => ({
-      ...item,
-      order: idx + 1
-    }));
-    setItems(reordered);
+    setItems(updated);
     setHasUnsavedChanges(true);
   };
 
@@ -219,49 +244,61 @@ const ContentEditor = ({
   const moveItemUp = (index) => {
     if (index === 0) return;
     const updated = [...items];
+    const current = updated[index];
+    const prev = updated[index - 1];
+    
+    // Calculation: Midpoint between prev.order and its predecessor
+    let newOrder;
+    if (index === 1) {
+      newOrder = (prev.order || 1024) / 2;
+    } else {
+      const pred = updated[index - 2];
+      newOrder = ((pred.order || 0) + (prev.order || 0)) / 2;
+    }
+    
+    current.order = newOrder;
+    
+    // Swap position in array and re-sort to be safe
     [updated[index - 1], updated[index]] = [updated[index], updated[index - 1]];
-    const reordered = updated.map((item, idx) => ({
-      ...item,
-      order: idx + 1
-    }));
-    setItems(reordered);
+    const sorted = updated.sort((a,b) => (a.order || 0) - (b.order || 0));
+    
+    setItems(sorted);
     setHasUnsavedChanges(true);
   };
 
   const moveItemDown = (index) => {
     if (index === items.length - 1) return;
     const updated = [...items];
+    const current = updated[index];
+    const next = updated[index + 1];
+    
+    // Calculation: Midpoint between next.order and its successor
+    let newOrder;
+    if (index === items.length - 2) {
+      newOrder = (next.order || 1024) + 1024;
+    } else {
+      const succ = updated[index + 2];
+      newOrder = ((next.order || 0) + (succ.order || 0)) / 2;
+    }
+    
+    current.order = newOrder;
+    
     [updated[index], updated[index + 1]] = [updated[index + 1], updated[index]];
-    const reordered = updated.map((item, idx) => ({
-      ...item,
-      order: idx + 1
-    }));
-    setItems(reordered);
+    const sorted = updated.sort((a,b) => (a.order || 0) - (b.order || 0));
+    
+    setItems(sorted);
     setHasUnsavedChanges(true);
   };
 
-  const updateOrder = (index, newOrder) => {
-    const orderNum = parseInt(newOrder, 10);
-    if (isNaN(orderNum) || orderNum < 1 || orderNum > items.length) {
-      return;
-    }
+  const updateOrder = (index, newOrderStr) => {
+    const newOrder = parseFloat(newOrderStr);
+    if (isNaN(newOrder)) return;
 
     const updated = [...items];
-    const item = updated[index];
-    const oldOrder = item.order || index + 1;
-
-    if (orderNum === oldOrder) return;
-
-    updated.splice(index, 1);
-    const newIndex = orderNum - 1;
-    updated.splice(newIndex, 0, item);
-
-    const reordered = updated.map((it, idx) => ({
-      ...it,
-      order: idx + 1
-    }));
-
-    setItems(reordered);
+    updated[index].order = newOrder;
+    
+    const sorted = updated.sort((a,b) => (a.order || 0) - (b.order || 0));
+    setItems(sorted);
     setHasUnsavedChanges(true);
   };
 
@@ -438,6 +475,10 @@ const ContentEditor = ({
           concept.words = item.words || [];
           concept.options = item.words || [];
           concept.answer = item.answer || '';
+        } else if (item.type === 'descriptive') {
+          concept.question = item.question || '';
+          concept.keywords = item.keywords || [];
+          concept.modelAnswers = item.modelAnswers || [];
         }
 
         if (item.imageUrl) {
@@ -579,6 +620,7 @@ const ContentEditor = ({
                       <option value="multiple-choice">MCQ</option>
                       <option value="fill-in-the-blank">Fill in the Blank</option>
                       <option value="rearrange">Rearrange</option>
+                      <option value="descriptive">Descriptive Question</option>
                     </select>
 
                     {/* Order Controls */}
@@ -593,14 +635,9 @@ const ContentEditor = ({
                         >
                           ↑
                         </button>
-                        <input
-                          type="number"
-                          min="1"
-                          max={items.length}
-                          value={item.order || index + 1}
-                          onChange={(e) => updateOrder(actualIndex, e.target.value)}
-                          className="w-16 px-2 py-1 border border-gray-300 rounded-md text-center text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        />
+                        <div className="w-8 flex items-center justify-center font-bold text-gray-700 text-sm">
+                          {index + 1}
+                        </div>
                         <button
                           onClick={() => moveItemDown(actualIndex)}
                           disabled={actualIndex === items.length - 1}
@@ -818,6 +855,145 @@ const ContentEditor = ({
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         placeholder="Enter correct answer sequence..."
                       />
+                    </div>
+
+                    <ImageEditor
+                      item={item}
+                      index={actualIndex}
+                      handleImageUpload={handleImageUpload}
+                      handleImageUrlInput={handleImageUrlInput}
+                      removeImage={removeImage}
+                      uploading={uploadingImages[actualIndex]}
+                    />
+                  </div>
+                )}
+
+                {/* Descriptive Type */}
+                {item.type === 'descriptive' && (
+                  <div className="space-y-4 p-4 bg-indigo-50/30 rounded-lg border border-indigo-100">
+                    <div>
+                      <label className="block text-sm font-bold text-indigo-900 mb-2">
+                        Step 1: The Question
+                      </label>
+                      <textarea
+                        value={item.question || ''}
+                        onChange={(e) => updateItem(actualIndex, 'question', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+                        placeholder="Type the subjective question here..."
+                        rows={3}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-bold text-indigo-900 mb-2">
+                        Step 2: Accuracy Matching Keywords
+                      </label>
+                      <div className="bg-white p-3 rounded-md border border-gray-300">
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {(item.keywords || []).map((keyword, kwIndex) => (
+                            <span key={kwIndex} className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-600 text-white shadow-sm">
+                              {keyword}
+                              <button
+                                onClick={() => {
+                                  const newKeywords = (item.keywords || []).filter((_, i) => i !== kwIndex);
+                                  updateKeywords(actualIndex, newKeywords);
+                                }}
+                                className="ml-1.5 inline-flex items-center justify-center hover:text-red-200 focus:outline-none"
+                              >
+                                ×
+                              </button>
+                            </span>
+                          ))}
+                          {(item.keywords || []).length === 0 && (
+                            <span className="text-xs text-gray-400 italic">No keywords added. Type below and press Add or Enter.</span>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            placeholder="Add a required keyword (e.g. chloroplast)"
+                            className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && e.target.value) {
+                                e.preventDefault();
+                                const val = e.target.value.trim();
+                                if (val && !(item.keywords || []).includes(val)) {
+                                  updateKeywords(actualIndex, [...(item.keywords || []), val]);
+                                }
+                                e.target.value = '';
+                              }
+                            }}
+                          />
+                          <button
+                            onClick={(e) => {
+                              const input = e.target.previousSibling;
+                              const val = input.value.trim();
+                              if (val && !(item.keywords || []).includes(val)) {
+                                updateKeywords(actualIndex, [...(item.keywords || []), val]);
+                                input.value = '';
+                              }
+                            }}
+                            className="px-4 py-1.5 bg-indigo-600 text-white rounded-md text-sm font-bold hover:bg-indigo-700 transition-colors shadow-sm"
+                          >
+                            Add
+                          </button>
+                        </div>
+                        <p className="mt-2 text-[11px] text-gray-600">
+                          <strong>How it works:</strong> The student must include most of these words in their answer to get marks. Matching is case-insensitive.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-bold text-indigo-900 mb-2">
+                        Step 3: Model Answers (Up to 4 variations)
+                      </label>
+                      <div className="bg-white p-3 rounded-md border border-gray-300 space-y-3">
+                        <p className="text-xs text-gray-500 italic pb-2 border-b border-gray-100">
+                          Provide different ways to write the correct answer. The student will see these as "Model Answers" after submitting.
+                        </p>
+                        {(item.modelAnswers || []).map((ans, ansIdx) => (
+                          <div key={ansIdx} className="flex gap-2">
+                            <textarea
+                              value={ans}
+                              onChange={(e) => {
+                                const newArray = [...(item.modelAnswers || [])];
+                                newArray[ansIdx] = e.target.value;
+                                updateItem(actualIndex, 'modelAnswers', newArray);
+                              }}
+                              className="w-full px-3 py-2 border border-blue-200 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-blue-50/50 text-sm"
+                              placeholder={`Model Answer Variation ${ansIdx + 1}...`}
+                              rows={2}
+                            />
+                            <button
+                              onClick={() => {
+                                const newArray = (item.modelAnswers || []).filter((_, i) => i !== ansIdx);
+                                updateItem(actualIndex, 'modelAnswers', newArray);
+                              }}
+                              className="px-2 py-1 bg-red-100 text-red-600 hover:bg-red-200 rounded self-start h-10 flex items-center justify-center font-bold"
+                              title="Remove Answer"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                        
+                        {(item.modelAnswers || []).length < 4 && (
+                          <button
+                            onClick={() => {
+                              const newArray = [...(item.modelAnswers || []), ''];
+                              updateItem(actualIndex, 'modelAnswers', newArray);
+                            }}
+                            className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+                          >
+                            + Add another acceptable answer format
+                          </button>
+                        )}
+                        
+                        {(item.modelAnswers || []).length >= 4 && (
+                          <p className="text-xs text-orange-500 font-medium">Maximum 4 model answers allowed.</p>
+                        )}
+                      </div>
                     </div>
 
                     <ImageEditor

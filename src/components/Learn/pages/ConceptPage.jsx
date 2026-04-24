@@ -26,6 +26,7 @@ export default function ConceptPage() {
   const [showEndVideo, setShowEndVideo] = useState(false);
   const [comicSlideIndex, setComicSlideIndex] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
+  const [comicReadTimer, setComicReadTimer] = useState(0);
 
   // Allow temporary override via query param for testing
   const introVideoFromQuery = useMemo(() => {
@@ -275,6 +276,7 @@ export default function ConceptPage() {
       case 'multiple-choice': return `/learn/module/${moduleNumber}/mcq/${idx}`;
       case 'fill-in-the-blank': return `/learn/module/${moduleNumber}/fillups/${idx}`;
       case 'rearrange': return `/learn/module/${moduleNumber}/rearrange/${idx}`;
+      case 'descriptive': return `/learn/module/${moduleNumber}/descriptive/${idx}`;
       default: return `/learn`;
     }
   }
@@ -344,39 +346,89 @@ export default function ConceptPage() {
     navigate(`${routeForType(nextItem.type, nextIndex)}${suffix}`);
   }, [index, items, user, moduleNumber, navigate, isInReviewOrRevision, removeActive, midLessonVideos, showEndVideo, videoAcknowledged, chapterIdParam, unitIdParam]);
 
+  const handleMasterSkip = async () => {
+    try {
+      if (user?._id) {
+        await authService.updateProgress({
+          userId: user._id, 
+          moduleId: String(moduleNumber), 
+          subject: user.subject || 'Science', 
+          conceptCompleted: true 
+        });
+      }
+    } catch (_) {}
+    goNext();
+  };
+
+  // DERIVED STATE MOVED UP FOR HOOKS
+  const actualType = (() => {
+    if (isRevisionModeFromUrl && revisionItem?.type) {
+      return String(revisionItem.type);
+    }
+    return String(item?.type || '');
+  })();
+  const midLessonKey = `${moduleNumber}:${index}`;
+  const hasMidLessonVideo = midLessonVideos[midLessonKey];
+  const shouldShowVideo = introVideoUrl && !videoAcknowledged && (index === 0 || hasMidLessonVideo || showEndVideo);
+  const shouldShowComic = introComicUrls && introComicUrls.length > 0 && (!videoAcknowledged && index === 0 || actualType === 'comic');
+  const isComicActive = shouldShowComic || actualType === 'comic';
+
+  // COMIC TIMER EFFECT
+  useEffect(() => {
+    if (isComicActive) {
+      setComicReadTimer(10);
+      const interval = setInterval(() => {
+        setComicReadTimer(prev => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(interval);
+    } else {
+      setComicReadTimer(0);
+    }
+  }, [isComicActive, comicSlideIndex, index]);
+
   // Allow advancing with Enter key when the exit confirmation is not visible
   useEffect(() => {
     function handleKeyDown(event) {
       if (event.key === 'Enter' && !showExitConfirm) {
         event.preventDefault();
-        goNext();
+        
+        if (isComicActive && comicReadTimer > 0) return;
+
+        if (shouldShowComic) {
+          if (introComicUrls && comicSlideIndex < introComicUrls.length - 1) {
+            setComicSlideIndex(prev => prev + 1);
+          } else {
+            if (actualType === 'comic') {
+              goNext();
+            } else {
+              setVideoAcknowledged(true);
+            }
+          }
+        } else if (shouldShowVideo && !videoAcknowledged) {
+          setVideoAcknowledged(true);
+        } else {
+          goNext();
+        }
       }
     }
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [goNext, showExitConfirm]);
+  }, [goNext, showExitConfirm, isComicActive, comicReadTimer, shouldShowComic, shouldShowVideo, videoAcknowledged, comicSlideIndex, introComicUrls, actualType]);
 
   if (loading) return <SimpleLoading />;
   if (error) return <div className="p-6 text-red-600">{error}</div>;
   if (!item) return <SimpleLoading />;
-  // Check type: In revision mode, use revisionItem.type; in normal mode, use item.type
-  let actualType = String(item?.type || '');
-  if (isRevisionModeFromUrl && revisionItem?.type) {
-    // In revision mode, use revision data type (preserved exactly)
-    actualType = String(revisionItem.type || '');
-  }
+
   const isConceptOrStatement = actualType === 'concept' || actualType === 'statement' || actualType === 'comic';
   if (!isConceptOrStatement) {
     return <div className="p-6">No concept at this step.</div>;
   }
-
-  // Gate lesson content behind intro media acknowledgement when present
-  // Show media at start of lesson (index 0), at specific card numbers (mid-lesson), or after last item (end video)
-  const midLessonKey = `${moduleNumber}:${index}`;
-  const hasMidLessonVideo = midLessonVideos[midLessonKey];
-  const shouldShowVideo = introVideoUrl && !videoAcknowledged && (index === 0 || hasMidLessonVideo || showEndVideo);
-
-  const shouldShowComic = introComicUrls && introComicUrls.length > 0 && (!videoAcknowledged && index === 0 || actualType === 'comic');
 
   if (showEndVideo || introVideoUrl || shouldShowComic) {
     console.log('[ConceptPage] Media gate check:', {
@@ -408,7 +460,17 @@ export default function ConceptPage() {
           <div className="flex-1 mx-1 sm:mx-2 md:mx-4">
             <ProgressBar currentIndex={index} total={items.length} />
           </div>
-          <StarCounter />
+          <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
+            {(user?.role === 'master' || user?.username === 'Host') && (
+              <button
+                onClick={handleMasterSkip}
+                className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-black rounded-lg shadow-sm border-b-4 border-yellow-700 active:border-b-0 active:translate-y-1 transition-all mr-2 uppercase"
+              >
+                Skip ⚡️
+              </button>
+            )}
+            <StarCounter />
+          </div>
         </div>
 
         <div className="flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 80px)' }}>
@@ -448,6 +510,7 @@ export default function ConceptPage() {
             <div className="mt-4 sm:mt-5 md:mt-6 flex flex-col items-center gap-2">
               {shouldShowComic ? (
                 <button
+                  disabled={comicReadTimer > 0}
                   onClick={() => {
                     if (comicSlideIndex < introComicUrls.length - 1) {
                       setComicSlideIndex(prev => prev + 1);
@@ -459,9 +522,11 @@ export default function ConceptPage() {
                       }
                     }
                   }}
-                  className="px-5 py-3 sm:px-6 sm:py-3.5 rounded-lg sm:rounded-xl text-white font-semibold text-base sm:text-lg shadow-md transition-colors bg-blue-600 hover:bg-blue-700 min-w-[200px]"
+                  className={`px-5 py-3 sm:px-6 sm:py-3.5 rounded-lg sm:rounded-xl text-white font-semibold text-base sm:text-lg shadow-md transition-colors min-w-[200px] ${comicReadTimer > 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
                 >
-                  {comicSlideIndex < introComicUrls.length - 1 ? 'Next' : (actualType === 'comic' ? 'Continue' : 'Start lesson')}
+                  {comicReadTimer > 0 
+                    ? `Wait ${comicReadTimer}s`
+                    : (comicSlideIndex < introComicUrls.length - 1 ? 'Next' : (actualType === 'comic' ? 'Continue' : 'Start lesson'))}
                 </button>
               ) : (
                 <button
@@ -531,7 +596,17 @@ export default function ConceptPage() {
         <div className="flex-1 mx-1 sm:mx-2 md:mx-4">
           <ProgressBar currentIndex={index} total={items.length} />
         </div>
-        <StarCounter />
+        <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
+          {(user?.role === 'master' || user?.username === 'Host') && (
+            <button
+              onClick={handleMasterSkip}
+              className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-black rounded-lg shadow-sm border-b-4 border-yellow-700 active:border-b-0 active:translate-y-1 transition-all mr-2 uppercase"
+            >
+              Skip ⚡️
+            </button>
+          )}
+          <StarCounter />
+        </div>
       </div>
 
       {/* Main Content - mobile optimized, desktop unchanged */}
@@ -573,9 +648,10 @@ export default function ConceptPage() {
         <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto">
           <button
             onClick={goNext}
-            className="w-full py-3 sm:py-4 md:py-5 rounded-lg sm:rounded-xl bg-blue-600 text-white font-extrabold text-xl sm:text-base md:text-lg hover:bg-blue-700 transition-colors shadow-lg sm:shadow-none"
+            disabled={isComicActive && comicReadTimer > 0}
+            className={`w-full py-3 sm:py-4 md:py-5 rounded-lg sm:rounded-xl text-white font-extrabold text-xl sm:text-base md:text-lg transition-colors shadow-lg sm:shadow-none ${isComicActive && comicReadTimer > 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
           >
-            Continue
+            {isComicActive && comicReadTimer > 0 ? `Please wait ${comicReadTimer}s...` : 'Continue'}
           </button>
         </div>
       </div>

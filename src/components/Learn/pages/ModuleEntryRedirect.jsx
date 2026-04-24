@@ -50,6 +50,9 @@ export default function ModuleEntryRedirect() {
       case 'rearrange':
         navigate(`/learn/module/${moduleNumber}/rearrange/${idx}${searchSuffix}`, { replace: true });
         break;
+      case 'descriptive':
+        navigate(`/learn/module/${moduleNumber}/descriptive/${idx}${searchSuffix}`, { replace: true });
+        break;
       default:
         console.warn('[ModuleEntryRedirect] Unknown item type, redirecting back:', first.type);
         navigate('/learn', { replace: true });

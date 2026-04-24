@@ -3,19 +3,17 @@
 @tailwind utilities;
 
 /* Responsive Design Fixes */
-html {
+html, body {
+  /* Prevent horizontal scroll */
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+  max-width: 100%;
   /* Prevent zoom on iOS */
   -webkit-text-size-adjust: 100%;
   /* Better font rendering */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-body {
-  /* Prevent horizontal scroll */
-  overflow-x: hidden;
-  /* Better text rendering */
-  text-rendering: optimizeLegibility;
 }
 
 /* Utility to hide scrollbars while keeping scroll behavior */

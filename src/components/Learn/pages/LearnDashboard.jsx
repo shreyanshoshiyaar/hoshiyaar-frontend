@@ -93,7 +93,7 @@ const StartBadge = ({ color = "#2C6DEF" }) => (
   </div>
 );
 
-const PathNode = ({ status, onClick, disabled, offset = 0, color = "#2C6DEF", lightenFn, darkenFn }) => {
+const PathNode = ({ status, onClick, disabled, color = "#2C6DEF", lightenFn, darkenFn, isDifficult = false, isDescriptive = false, offset = 0 }) => {
   const isCompleted = status === "completed";
   const isActive = status === "active";
   const iconColor = "text-white";
@@ -111,20 +111,80 @@ const PathNode = ({ status, onClick, disabled, offset = 0, color = "#2C6DEF", li
     : "w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 lg:w-20 lg:h-20";
   return (
     <div
-      className="inline-flex items-center justify-center"
+      className="inline-flex items-center justify-center transition-transform duration-500 ease-in-out"
       style={{ transform: `translateX(${offset}px)` }}
     >
       <div
         onClick={disabled ? undefined : onClick}
-        className={`${size} rounded-full flex items-center justify-center shadow-[0_4px_0_0_rgba(0,0,0,0.15)] sm:shadow-[0_6px_0_0_rgba(0,0,0,0.15)] md:shadow-[0_8px_0_0_rgba(0,0,0,0.15)] ${iconColor} ring-2 sm:ring-3 md:ring-4 ring-white/70 ${
+        className={`${size} rounded-full flex items-center justify-center shadow-[0_4px_0_0_rgba(0,0,0,0.1),0_0_12px_rgba(0,0,0,0.05)] sm:shadow-[0_6px_0_0_rgba(0,0,0,0.1),0_0_15px_rgba(0,0,0,0.05)] md:shadow-[0_8px_0_0_rgba(0,0,0,0.1),0_0_20px_rgba(0,0,0,0.05)] ${iconColor} ring-2 sm:ring-4 md:ring-6 ring-white/90 ${
           disabled
-            ? "cursor-not-allowed"
-            : "cursor-pointer hover:scale-110 transition-transform"
+            ? "cursor-not-allowed opacity-90"
+            : "cursor-pointer hover:scale-110 transition-transform active:scale-95"
         }`}
         style={nodeStyle}
       >
-        <StarIcon />
+        {isCompleted && isDifficult ? (
+          <img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1776952137/img-to-link/mnig5ccfujvcmoywkzzd.png" alt="Completed Difficult" className="w-full h-full object-cover rounded-full" />
+        ) : isCompleted && isDescriptive ? (
+          <img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1776952136/img-to-link/ypsfoz9ajmfqexqc7srm.png" alt="Completed Descriptive" className="w-full h-full object-cover rounded-full" />
+        ) : isDifficult ? (
+          <img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1776938254/img-to-link/agvmuzaxkjvqpawpaytv.png" alt="Difficult Module" className="w-full h-full object-cover rounded-full" />
+        ) : isDescriptive ? (
+          <img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1776937688/img-to-link/oxlhdzxrunthts3fj0va.png" alt="Descriptive Module" className="w-full h-full object-cover rounded-full" />
+        ) : (
+          <StarIcon />
+        )}
       </div>
+    </div>
+  );
+};
+
+const getWaveOffset = (index, isMobile = false) => {
+  const amplitude = isMobile ? 55 : 85;
+  const angle = (index * Math.PI) / 2;
+  return Math.sin(angle) * amplitude;
+};
+
+const OrganicPathSvg = ({ nodesCount, color, rowSpacing, isMobile }) => {
+  const svgW = isMobile ? 300 : 500;
+  const center = svgW / 2;
+  const count = Math.max(2, nodesCount);
+  
+  // Calculate points for the wave
+  const points = [];
+  for (let i = 0; i < count; i++) {
+    points.push({
+      x: center + getWaveOffset(i, isMobile),
+      y: i * rowSpacing
+    });
+  }
+
+  // Draw smooth Bezier curve
+  let pathData = `M ${points[0].x} ${points[0].y}`;
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[i];
+    const p1 = points[i + 1];
+    
+    // Control points for organic feel
+    const cp1y = p0.y + rowSpacing * 0.5;
+    const cp2y = p1.y - rowSpacing * 0.5;
+    
+    pathData += ` C ${p0.x} ${cp1y}, ${p1.x} ${cp2y}, ${p1.x} ${p1.y}`;
+  }
+
+  return (
+    <div className="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none z-0" style={{ width: svgW, height: "100%" }}>
+      <svg width={svgW} height={(count - 1) * rowSpacing + 50} className="overflow-visible">
+        <path 
+          d={pathData} 
+          stroke={color} 
+          strokeWidth="3.5" 
+          fill="transparent" 
+          strokeLinecap="round" 
+          strokeDasharray="0 14"
+          className="opacity-40"
+        />
+      </svg>
     </div>
   );
 };
@@ -145,6 +205,15 @@ const LearnDashboard = ({ onboardingData }) => {
   const [unitsList, setUnitsList] = useState([]);
   const [unitModulesMap, setUnitModulesMap] = useState({}); // { unitId: Module[] }
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [hoveredUnitModule, setHoveredUnitModule] = useState(null);
+  const rowSpacing = 160;
+  const [isMobileLayout, setIsMobileLayout] = useState(window.innerWidth < 768);
+  const [progressUpdateTrigger, setProgressUpdateTrigger] = useState(0);
+  useEffect(() => {
+    const handleResize = () => setIsMobileLayout(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   const [showChapters, setShowChapters] = useState(false);
   const [chapterStats, setChapterStats] = useState({}); // { [chapterId]: { total, completed } }
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -1216,10 +1285,7 @@ const LearnDashboard = ({ onboardingData }) => {
     } catch (_) {}
   };
 
-  const levels = modulesList;
-  
-  // Force re-calculation of progress state when component updates
-  const [progressUpdateTrigger, setProgressUpdateTrigger] = useState(0);
+
   
   // Re-calculate progress state when trigger changes
   const progressState = useMemo(() => {
@@ -1407,14 +1473,7 @@ const LearnDashboard = ({ onboardingData }) => {
   }, [user?._id]);
 
   // Note: firstIncompleteIndex will be computed per unit to reflect local/module-id completion
-  const firstIncompleteIndex = levels.findIndex((_, i) => !serverCompletedSet.has(i));
 
-  const amplitude = 20; // Reduced from 30
-  const nodesCount = levels.length + 1; // modules + revision node
-  const rowSpacing = 120; // Reduced from 160px per row
-  const centerTopOffset = 60; // Reduced from 80
-  const listHeight = nodesCount * rowSpacing;
-  const lineHeight = Math.max(150, levels.length * rowSpacing - 100); // Reduced from 200 and 120
 
   return (
     <ReviewProvider>
@@ -1653,8 +1712,8 @@ const LearnDashboard = ({ onboardingData }) => {
             <div
               id="tree-scroll-container"
               className={`${
-                showChapters ? "relative w-full" : "relative max-w-4xl"
-              } mx-auto h-[80vh] overflow-y-auto no-scrollbar`}
+                showChapters ? "relative w-full" : "relative max-w-5xl"
+              } mx-auto h-[82vh] overflow-y-auto overflow-x-hidden no-scrollbar scroll-smooth bg-neutral-50/10 rounded-3xl`}
             >
               {showChapters ? (
                 <div className="w-full px-4 md:px-8">
@@ -1852,31 +1911,26 @@ const LearnDashboard = ({ onboardingData }) => {
                         </div>
                       </div>
                       
-                      {/* Render modules directly */}
-                      <div className="relative flex flex-col items-center gap-16 sm:gap-20 md:gap-24 pt-20 sm:pt-24 md:pt-28 pb-6 sm:pb-8 px-8 sm:px-12 md:px-16 lg:px-20 xl:px-24">
+                      {/* Render modules directly along the wavy path */}
+                      <div className="relative w-full mx-auto pb-32 pt-20 mt-24" style={{ minHeight: Math.max(modulesList.length * rowSpacing, 400) }}>
+                        <OrganicPathSvg 
+                          nodesCount={modulesList.length} 
+                          color={lighten("#2C6DEF", 0.3)} 
+                          rowSpacing={rowSpacing}
+                          isMobile={isMobileLayout}
+                        />
+
                         {modulesList.map((mod, index) => {
-                          // --- CRITICAL FIX: Check completion using composite key (chapterId:unitId:lessonId) ---
                           const moduleIdHere = mod?._id;
-                          const unitIdHere = null; // No unit for direct chapter modules
                           const chapterIdHere = chapterId;
-                          
-                          // CRITICAL FIX: Check completion using composite key ONLY (prevents collisions)
-                          // Don't use module ID alone as it can cause collisions across units
-                          const compositeKey = progressKey(chapterIdHere, unitIdHere, moduleIdHere);
+                          const compositeKey = progressKey(chapterIdHere, null, moduleIdHere);
                           const isCompletedByCompositeKey = completedCompositeKeys.has(compositeKey);
-                          
-                          // Only use module ID check if composite key doesn't exist (for migration from old data)
-                          // But prioritize composite key to prevent collisions
                           const isCompletedById = moduleIdHere && !isCompletedByCompositeKey 
                             ? completedIdSet.has(String(moduleIdHere)) 
                             : false;
-                          
-                          // Lesson is completed ONLY if composite key exists (primary check)
-                          // Module ID check is only for backward compatibility during migration
                           const isCompleted = isCompletedByCompositeKey || isCompletedById;
 
-                          // First module in this list that is not completed by composite key or ID
-                          const firstIncompleteForUnit = modulesList.findIndex((m) => {
+                          const firstIncompleteGlobal = modulesList.findIndex((m) => {
                             const id = m?._id;
                             if (!id) return true;
                             const key = progressKey(chapterIdHere, null, id);
@@ -1886,96 +1940,63 @@ const LearnDashboard = ({ onboardingData }) => {
                           let status = "locked";
                           if (isCompleted) {
                             status = "completed";
-                          } else if (index === firstIncompleteForUnit) {
+                          } else if (index === firstIncompleteGlobal) {
                             status = "active";
                           }
                           const canClick = (status === 'active' || status === 'completed');
-                          const alignRight = index % 2 === 1;
-                          const railColor = lighten("#2C6DEF", 0.45);
+                          const offset = getWaveOffset(index, isMobileLayout);
+                          
                           return (
                             <div
                               key={index}
-                              className="relative w-full flex items-center justify-center px-4 sm:px-6 md:px-8"
+                              className="absolute w-full flex justify-center items-center px-4"
                               onMouseEnter={() => setHoveredIndex(index)}
                               onMouseLeave={() => setHoveredIndex(null)}
+                              style={{ 
+                                top: index * rowSpacing + 40, 
+                                zIndex: 10 + modulesList.length - index,
+                                height: 0 
+                              }}
                             >
-                              {/* Connector + Star Node (alternate left/right) */}
-                              {alignRight ? (
-                                <div className="absolute left-1/2 top-1/2 -translate-y-1/2 w-1/2">
-                                  <div className="flex items-center">
-                                    <div className="h-1.5 sm:h-2 md:h-3 w-24 sm:w-28 md:w-32 lg:w-36 xl:w-40 rounded-full" style={{ backgroundColor: railColor }}></div>
-                                    <div className="relative">
-                                      {status === "active" && <StartBadge color="#2C6DEF" />}
-                                      <PathNode
-                                        status={status}
-                                        disabled={!canClick}
-                                        color="#2C6DEF"
-                                        lightenFn={lighten}
-                                        darkenFn={darken}
-                                        onClick={() => {
-                                          if (!canClick) return;
-                                          const moduleId = modulesList[index]?._id;
-                                          if (moduleId) {
-                                            // Save scroll position before navigating
-                                            saveScrollPosition();
-                                            // Preserve chapterId in URL for navigation back
-                                            const params = new URLSearchParams();
-                                            if (chapterId) params.set('chapterId', chapterId);
-                                            const query = params.toString();
-                                            navigate(`/learn/module/${moduleId}${query ? '?' + query : ''}`);
-                                          }
-                                          // Do NOT mark completed here; only count after module completion
-                                        }}
-                                      />
-                                    </div>
+                              <div className="relative">
+                                {status === "active" && <StartBadge color="#2C6DEF" />}
+                                <PathNode
+                                  status={status}
+                                  disabled={!canClick}
+                                  color="#2C6DEF"
+                                  lightenFn={lighten}
+                                  darkenFn={darken}
+                                  isDifficult={mod?.isDifficult}
+                                  isDescriptive={mod?.isDescriptive}
+                                  offset={offset}
+                                  onClick={() => {
+                                    if (!canClick) return;
+                                    saveScrollPosition();
+                                    const params = new URLSearchParams();
+                                    if (chapterId) params.set('chapterId', chapterId);
+                                    const query = params.toString();
+                                    navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
+                                  }}
+                                />
+                                
+                                {/* Original-Style side tooltip */}
+                                <div
+                                  className={`absolute top-1/2 -translate-y-1/2 bg-white border border-blue-100 rounded-xl shadow-lg px-4 py-3 w-48 hidden md:block transition-all duration-300 ease-out transform ${
+                                    offset < 0 
+                                      ? `left-full ml-12 ${hoveredIndex === index ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 pointer-events-none"}` 
+                                      : `right-full mr-12 ${hoveredIndex === index ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 pointer-events-none"}`
+                                  }`}
+                                  style={{ zIndex: 50 }}
+                                >
+                                  {/* Tooltip arrow */}
+                                  <div className={`absolute top-1/2 -translate-y-1/2 border-8 border-transparent ${
+                                    offset < 0 ? "right-full border-r-white" : "left-full border-l-white"
+                                  }`}></div>
+                                  
+                                  <div className="text-[10px] uppercase tracking-wider font-bold text-blue-500 mb-0.5">Lesson {index + 1}</div>
+                                  <div className="text-sm font-bold text-gray-800 line-clamp-2">
+                                    {mod?.title || "—"}
                                   </div>
-                                </div>
-                              ) : (
-                                <div className="absolute right-1/2 top-1/2 -translate-y-1/2 w-1/2">
-                                  <div className="flex items-center justify-end">
-                                    <div className="relative">
-                                      {status === "active" && <StartBadge color="#2C6DEF" />}
-                                      <PathNode
-                                        status={status}
-                                        disabled={!canClick}
-                                        color="#2C6DEF"
-                                        lightenFn={lighten}
-                                        darkenFn={darken}
-                                        onClick={() => {
-                                          if (!canClick) return;
-                                          const moduleId = modulesList[index]?._id;
-                                          if (moduleId) {
-                                            // Save scroll position before navigating
-                                            saveScrollPosition();
-                                            // Preserve chapterId in URL for navigation back
-                                            const params = new URLSearchParams();
-                                            if (chapterId) params.set('chapterId', chapterId);
-                                            const query = params.toString();
-                                            navigate(`/learn/module/${moduleId}${query ? '?' + query : ''}`);
-                                          }
-                                          // Do NOT mark completed here; only count after module completion
-                                        }}
-                                      />
-                                    </div>
-                                    <div className="h-1.5 sm:h-2 md:h-3 w-24 sm:w-28 md:w-32 lg:w-36 xl:w-40 rounded-full" style={{ backgroundColor: railColor }}></div>
-                                  </div>
-                                </div>
-                              )}
-                              {/* Tooltip */}
-                              <div
-                                className={`absolute ${alignRight ? "left-[62%]" : "right-[62%]"} top-full mt-4 bg-white border-2 border-blue-600 rounded-xl shadow-lg px-4 py-3 w-64 hidden md:block transition-all duration-500 ease-out ${
-                                  hoveredIndex === index ? "opacity-100" : "opacity-0 pointer-events-none"
-                                }`}
-                                style={{ zIndex: 40 }}
-                              >
-                                <div className="text-lg font-extrabold mt-1 text-blue-700">
-                                  {modulesList[index]?.title || "—"}
-                                </div>
-                                <div className="text-base font-semibold text-blue-700/80">
-                                  {chapterTitle || "—"}
-                                </div>
-                                <div className="text-sm font-medium text-blue-700/60">
-                                  {subjectName || "—"}
                                 </div>
                               </div>
                             </div>
@@ -2044,35 +2065,25 @@ const LearnDashboard = ({ onboardingData }) => {
                            </div>
                          </div>
                          ); })()}
-                        {/* Center line for this unit */}
-                        {(() => { const color = unitPalette[unitIdx % unitPalette.length]; return (
-                        <div
-                          className="absolute left-1/2 -translate-x-1/2 w-2 sm:w-2.5 md:w-3 rounded-full z-20 shadow-[0_0_0_4px_rgba(255,255,255,0.5)] sm:shadow-[0_0_0_5px_rgba(255,255,255,0.5)] md:shadow-[0_0_0_6px_rgba(255,255,255,0.5)]"
-                          style={{ top: 200, height: localLineHeight + 40, backgroundColor: lighten(color, 0.5) }}
-                        /> ); })()}
-                        <div className="relative flex flex-col items-center gap-16 sm:gap-20 md:gap-24 pt-20 sm:pt-24 md:pt-28 pb-6 sm:pb-8 px-8 sm:px-12 md:px-16 lg:px-20 xl:px-24">
+                        <div className="relative w-full mx-auto pb-40 pt-20 mt-28" style={{ minHeight: Math.max((localLevels.length + 1) * rowSpacing, 400) }}>
+                          <OrganicPathSvg 
+                            nodesCount={localLevels.length + 1} 
+                            color={lighten(unitPalette[unitIdx % unitPalette.length], 0.25)} 
+                            rowSpacing={rowSpacing}
+                            isMobile={isMobileLayout}
+                          />
+
                           {localLevels.map((mod, index) => {
-                            // --- CRITICAL FIX: Check completion using composite key (chapterId:unitId:lessonId) ---
                             const moduleIdHere = mod?._id;
                             const unitIdHere = u?._id;
                             const chapterIdHere = chapterId;
-                            
-                          // CRITICAL FIX: Check completion using composite key ONLY (prevents collisions)
-                          // Don't use module ID alone as it can cause collisions across units
-                          const compositeKey = progressKey(chapterIdHere, unitIdHere, moduleIdHere);
-                          const isCompletedByCompositeKey = completedCompositeKeys.has(compositeKey);
-                          
-                          // Only use module ID check if composite key doesn't exist (for migration from old data)
-                          // But prioritize composite key to prevent collisions
-                          const isCompletedById = moduleIdHere && !isCompletedByCompositeKey 
-                            ? completedIdSet.has(String(moduleIdHere)) 
-                            : false;
-                          
-                          // Lesson is completed ONLY if composite key exists (primary check)
-                          // Module ID check is only for backward compatibility during migration
-                          const isCompleted = isCompletedByCompositeKey || isCompletedById;
+                            const compositeKey = progressKey(chapterIdHere, unitIdHere, moduleIdHere);
+                            const isCompletedByCompositeKey = completedCompositeKeys.has(compositeKey);
+                            const isCompletedById = moduleIdHere && !isCompletedByCompositeKey 
+                              ? completedIdSet.has(String(moduleIdHere)) 
+                              : false;
+                            const isCompleted = isCompletedByCompositeKey || isCompletedById;
 
-                            // First incomplete within THIS unit by composite key or ID
                             const firstIncompleteForUnit = localLevels.findIndex((m) => {
                               const id = m?._id;
                               if (!id) return true;
@@ -2087,141 +2098,91 @@ const LearnDashboard = ({ onboardingData }) => {
                               status = "active";
                             }
                             const canClick = (status === 'active' || status === 'completed');
-                            const alignRight = index % 2 === 1;
-                            const railColor = lighten(unitPalette[unitIdx % unitPalette.length], 0.45);
+                            const offset = getWaveOffset(index, isMobileLayout);
+                            
                             return (
                               <div
                                 key={index}
                                 id={`chapter-${mod._id}`}
-                                className="relative w-full flex items-center justify-center px-4 sm:px-6 md:px-8"
-                                onMouseEnter={() => setHoveredIndex(index)}
-                                onMouseLeave={() => setHoveredIndex(null)}
+                                className="absolute w-full flex justify-center items-center px-4"
+                                onMouseEnter={() => {
+                                  setHoveredIndex(index);
+                                  setHoveredUnitModule(u._id);
+                                }}
+                                onMouseLeave={() => {
+                                  setHoveredIndex(null);
+                                  setHoveredUnitModule(null);
+                                }}
+                                style={{ 
+                                  top: index * rowSpacing + 40, 
+                                  zIndex: 10 + localLevels.length - index,
+                                  height: 0 
+                                }}
                               >
-                                {/* Connector + Star Node (alternate left/right) */}
-                                {alignRight ? (
-                                  <div className="absolute left-1/2 top-1/2 -translate-y-1/2 w-1/2">
-                                    <div className="flex items-center">
-                                      <div className="h-1.5 sm:h-2 md:h-3 w-24 sm:w-28 md:w-32 lg:w-36 xl:w-40 rounded-full" style={{ backgroundColor: railColor }}></div>
-                                      <div className="relative">
-                                        {status === "active" && <StartBadge color={unitPalette[unitIdx % unitPalette.length]} />}
-                                        <PathNode
-                                          status={status}
-                                          disabled={!canClick}
-                                          color={unitPalette[unitIdx % unitPalette.length]}
-                                          lightenFn={lighten}
-                                          darkenFn={darken}
-                                        onClick={() => {
-                                          if (!canClick) return;
-                                          const moduleId = mod?._id;
-                                          if (moduleId) {
-                                            // Save scroll position before navigating
-                                            saveScrollPosition();
-                                            // Preserve chapterId and unitId in URL for navigation back
-                                            const params = new URLSearchParams();
-                                            if (chapterId) params.set('chapterId', chapterId);
-                                            if (u?._id) params.set('unitId', u._id);
-                                            const query = params.toString();
-                                            navigate(`/learn/module/${moduleId}${query ? '?' + query : ''}`);
-                                          }
-                                          // Do NOT mark completed here; only count after module completion
-                                        }}
-                                        />
-                                      </div>
+                                <div className="relative">
+                                  {status === "active" && <StartBadge color={unitPalette[unitIdx % unitPalette.length]} />}
+                                  <PathNode
+                                    status={status}
+                                    disabled={!canClick}
+                                    color={unitPalette[unitIdx % unitPalette.length]}
+                                    lightenFn={lighten}
+                                    darkenFn={darken}
+                                    isDifficult={mod?.isDifficult}
+                                    isDescriptive={mod?.isDescriptive}
+                                    offset={offset}
+                                    onClick={() => {
+                                      if (!canClick) return;
+                                      saveScrollPosition();
+                                      const params = new URLSearchParams();
+                                      if (chapterId) params.set('chapterId', chapterId);
+                                      if (u?._id) params.set('unitId', u._id);
+                                      const query = params.toString();
+                                      navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
+                                    }}
+                                  />
+                                  
+                                  {/* Original-Style side tooltip */}
+                                  <div
+                                    className={`absolute top-1/2 -translate-y-1/2 bg-white border border-gray-100 rounded-xl shadow-lg px-4 py-3 w-48 hidden md:block transition-all duration-300 ease-out transform ${
+                                      offset < 0 
+                                        ? `left-full ml-12 ${hoveredIndex === index && hoveredUnitModule === u._id ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 pointer-events-none"}` 
+                                        : `right-full mr-12 ${hoveredIndex === index && hoveredUnitModule === u._id ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 pointer-events-none"}`
+                                    }`}
+                                    style={{ zIndex: 50 }}
+                                  >
+                                    {/* Tooltip arrow */}
+                                    <div className={`absolute top-1/2 -translate-y-1/2 border-8 border-transparent ${
+                                      offset < 0 ? "right-full border-r-white" : "left-full border-l-white"
+                                    }`}></div>
+
+                                    <div className="text-[10px] uppercase tracking-wider font-bold mb-0.5" style={{ color: unitPalette[unitIdx % unitPalette.length] }}>Lesson {index + 1}</div>
+                                    <div className="text-sm font-bold text-gray-800 line-clamp-2">
+                                      {mod?.title || "—"}
                                     </div>
-                                  </div>
-                                ) : (
-                                  <div className="absolute right-1/2 top-1/2 -translate-y-1/2 w-1/2">
-                                    <div className="flex items-center justify-end">
-                                      <div className="relative">
-                                        {status === "active" && <StartBadge color={unitPalette[unitIdx % unitPalette.length]} />}
-                                        <PathNode
-                                          status={status}
-                                          disabled={!canClick}
-                                          color={unitPalette[unitIdx % unitPalette.length]}
-                                          lightenFn={lighten}
-                                          darkenFn={darken}
-                                        onClick={() => {
-                                          if (!canClick) return;
-                                          const moduleId = mod?._id;
-                                          if (moduleId) {
-                                            // Save scroll position before navigating
-                                            saveScrollPosition();
-                                            // Preserve chapterId and unitId in URL for navigation back
-                                            const params = new URLSearchParams();
-                                            if (chapterId) params.set('chapterId', chapterId);
-                                            if (u?._id) params.set('unitId', u._id);
-                                            const query = params.toString();
-                                            navigate(`/learn/module/${moduleId}${query ? '?' + query : ''}`);
-                                          }
-                                          // Do NOT mark completed here; only count after module completion
-                                        }}
-                                        />
-                                      </div>
-                                      <div className="h-1.5 sm:h-2 md:h-3 w-24 sm:w-28 md:w-32 lg:w-36 xl:w-40 rounded-full" style={{ backgroundColor: railColor }}></div>
-                                    </div>
-                                  </div>
-                                )}
-                                {/* Tooltip (hover only with smooth transition) - placed below the star */}
-                                <div
-                                  className={`absolute ${alignRight ? "left-[62%]" : "right-[62%]"} top-full mt-4 rounded-xl shadow-lg px-4 py-3 w-64 hidden md:block transition-all duration-500 ease-out ${
-                                    hoveredIndex === index ? "opacity-100" : "opacity-0 pointer-events-none"
-                                  }`}
-                                  style={{ zIndex: 40, background: `linear-gradient(135deg, ${withAlpha(unitPalette[unitIdx % unitPalette.length],0.08)}, #fff)`, borderWidth: 2, borderStyle: 'solid', borderColor: withAlpha(unitPalette[unitIdx % unitPalette.length], 0.6) }}
-                                >
-                                  <div className="text-lg font-extrabold mt-1"
-                                       style={{ color: darken(unitPalette[unitIdx % unitPalette.length], 0.2) }}>
-                                    {unitMods[index]?.title ||
-                                      moduleTitle ||
-                                      "—"}
-                                  </div>
-                                  <div className="text-base font-semibold"
-                                       style={{ color: withAlpha(unitPalette[unitIdx % unitPalette.length], 0.85) }}>
-                                    {u.title || unitTitle || "—"}
-                                  </div>
-                                  <div className="text-sm font-medium"
-                                       style={{ color: withAlpha(unitPalette[unitIdx % unitPalette.length], 0.7) }}>
-                                    {chapterTitle || "—"}
                                   </div>
                                 </div>
                               </div>
                             );
                           })}
-                          {/* Revision star below modules, connected to center line and on alternate side of last module */}
-                          {(() => {
-                            const lastIndex = Math.max(0, localLevels.length - 1);
-                            const lastAlignRight = lastIndex % 2 === 1; // true if last node is on the right
-                            const starAlignRight = !lastAlignRight; // place revision star opposite the last node
-                            const railColor = lighten(unitPalette[unitIdx % unitPalette.length], 0.55);
-                            return (
-                              <div className="relative w-full h-24 sm:h-28 px-4 sm:px-6 md:px-8">
-                                {starAlignRight ? (
-                                  <div className="absolute left-1/2 top-1/2 -translate-y-1/2 w-1/2 flex items-center">
-                                    <div
-                                      className="h-1.5 sm:h-2 md:h-3 rounded-full w-[calc(50%-32px)] sm:w-[calc(50%-36px)] md:w-[calc(50%-40px)] lg:w-[calc(50%-44px)] xl:w-[calc(50%-48px)]"
-                                      style={{ backgroundColor: railColor, opacity: 0.8 }}
-                                    ></div>
-                                    <RevisionStar
-                                      align="right"
-                                      chapterId={chapterId}
-                                      unitId={u?._id}
-                                    />
-                                  </div>
-                                ) : (
-                                  <div className="absolute right-1/2 top-1/2 -translate-y-1/2 w-1/2 flex items-center justify-end">
-                                    <RevisionStar
-                                      align="left"
-                                      chapterId={chapterId}
-                                      unitId={u?._id}
-                                    />
-                                    <div
-                                      className="h-1.5 sm:h-2 md:h-3 rounded-full w-[calc(50%-32px)] sm:w-[calc(50%-36px)] md:w-[calc(50%-40px)] lg:w-[calc(50%-44px)] xl:w-[calc(50%-48px)]"
-                                      style={{ backgroundColor: railColor, opacity: 0.8 }}
-                                    ></div>
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })()}
+
+                          {/* Revision star at the end of the wavy path */}
+                          <div 
+                             className="absolute w-full flex justify-center items-center px-4"
+                             style={{ top: localLevels.length * rowSpacing + 40, zIndex: 10, height: 0 }}
+                          >
+                             <div className="relative group" style={{ transform: `translateX(${getWaveOffset(localLevels.length, isMobileLayout)}px)` }}>
+                                <RevisionStar
+                                  align="center"
+                                  chapterId={chapterId}
+                                  unitId={u?._id}
+                                />
+                                {/* Optional tooltip for revision star */}
+                                <div className="absolute left-full ml-10 top-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-sm border-2 border-yellow-200 rounded-2xl shadow-xl px-5 py-4 w-56 hidden lg:block opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
+                                  <div className="text-[10px] uppercase tracking-wider font-black text-yellow-500 mb-1">Final Challenge</div>
+                                  <div className="text-base font-extrabold text-gray-800">Unit Revision</div>
+                                </div>
+                             </div>
+                          </div>
                         </div>
                       </div>
                     );

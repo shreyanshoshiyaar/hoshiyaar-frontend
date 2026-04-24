@@ -15,6 +15,7 @@ import RevisionList from './components/Learn/quiz/RevisionList.jsx';
 import McqPage from './components/Learn/quiz/McqPage.jsx';
 import FillupsPage from './components/Learn/quiz/FillupsPage.jsx';
 import RearrangePage from './components/Learn/quiz/RearrangePage.jsx';
+import DescriptivePage from './components/Learn/quiz/DescriptivePage.jsx';
 import ModuleEntryRedirect from './components/Learn/pages/ModuleEntryRedirect.jsx';
 import LessonEntryRedirectByTitle from './components/Learn/pages/LessonEntryRedirectByTitle.jsx';
 import LessonComplete from './components/Learn/pages/LessonComplete.jsx';
@@ -130,6 +131,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <RearrangePage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/learn/module/:moduleNumber/descriptive/:index" 
+            element={
+              <ProtectedRoute>
+                <DescriptivePage />
               </ProtectedRoute>
             } 
           />

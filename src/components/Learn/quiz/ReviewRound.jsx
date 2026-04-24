@@ -18,6 +18,7 @@ export default function ReviewRound() {
 			case 'multiple-choice': return `/learn/module/${mod}/mcq/${idx}?${modeParam}`;
 			case 'fill-in-the-blank': return `/learn/module/${mod}/fillups/${idx}?${modeParam}`;
 			case 'rearrange': return `/learn/module/${mod}/rearrange/${idx}?${modeParam}`;
+			case 'descriptive': return `/learn/module/${mod}/descriptive/${idx}?${modeParam}`;
 			case 'statement':
 			case 'concept':
 				return `/learn/module/${mod}/concept/${idx}?${modeParam}`;

@@ -5,10 +5,12 @@ export default function IncorrectAnswerModal({
   onClose, 
   onContinue, 
   onTryAgain, 
+  onViewExpertAnswer,
   incorrectText, 
   correctAnswer,
   showContinueButton = true,
-  showTryAgainButton = true
+  showTryAgainButton = true,
+  hideCorrectAnswer = false
 }) {
   const [isVisible, setIsVisible] = useState(false);
   const continueBtnRef = useRef(null);
@@ -61,35 +63,45 @@ export default function IncorrectAnswerModal({
             <div className="flex items-center gap-3 flex-1">
               <div className="text-left">
                 <div className="text-base font-extrabold text-gray-900">Incorrect answer</div>
-                <div className="text-sm text-gray-700">
-                  <span>Correct answer: </span>
-                  {(() => {
-                    const isImageUrl = typeof correctAnswer === 'string' && 
-                      (correctAnswer.startsWith('http') || correctAnswer.startsWith('https'));
-                    if (isImageUrl) {
-                      return (
-                        <div className="flex items-center gap-2 mt-1">
-                          <img 
-                            src={correctAnswer} 
-                            alt="Correct answer"
-                            className="w-10 h-10 object-contain rounded border border-gray-300"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              e.target.nextSibling.style.display = 'block';
-                            }}
-                          />
-                          <span className="text-xs text-gray-500" style={{display: 'none'}}>
-                            Image failed to load
-                          </span>
-                        </div>
-                      );
-                    }
-                    return <span className="font-semibold">{correctAnswer}</span>;
-                  })()}
-                </div>
+                {!hideCorrectAnswer && (
+                  <div className="text-sm text-gray-700">
+                    <span>Correct answer: </span>
+                    {(() => {
+                      const isImageUrl = typeof correctAnswer === 'string' && 
+                        (correctAnswer.startsWith('http') || correctAnswer.startsWith('https'));
+                      if (isImageUrl) {
+                        return (
+                          <div className="flex items-center gap-2 mt-1">
+                            <img 
+                              src={correctAnswer} 
+                              alt="Correct answer"
+                              className="w-10 h-10 object-contain rounded border border-gray-300"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'block';
+                              }}
+                            />
+                            <span className="text-xs text-gray-500" style={{display: 'none'}}>
+                              Image failed to load
+                            </span>
+                          </div>
+                        );
+                      }
+                      return <span className="font-semibold">{correctAnswer}</span>;
+                    })()}
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex gap-2">
+              {typeof onViewExpertAnswer === 'function' && (
+                <button
+                  onClick={onViewExpertAnswer}
+                  className="px-4 py-2 rounded-xl text-white font-extrabold text-sm bg-blue-600 hover:bg-blue-700 transition-colors"
+                >
+                  View Expert Answer
+                </button>
+              )}
               {typeof onTryAgain === 'function' && showTryAgainButton && (
                 <button
                   ref={tryAgainBtnRef}
@@ -121,33 +133,43 @@ export default function IncorrectAnswerModal({
           <div className="flex items-center gap-4">
             <div className="text-left">
               <div className="text-lg font-extrabold text-gray-900">Incorrect answer</div>
-              <div className="text-sm text-gray-700">
-                <span>Correct answer: </span>
-                {(() => {
-                  const isImageUrl = typeof correctAnswer === 'string' && 
-                    (correctAnswer.startsWith('http') || correctAnswer.startsWith('https'));
-                  if (isImageUrl) {
-                    return (
-                      <div className="inline-flex items-center gap-2 ml-1">
-                        <img 
-                          src={correctAnswer} 
-                          alt="Correct answer"
-                          className="w-12 h-12 object-contain rounded border border-gray-300 bg-white"
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            e.target.nextSibling.style.display = 'inline-block';
-                          }}
-                        />
-                        <span className="text-xs text-gray-500" style={{display: 'none'}}>Image failed to load</span>
-                      </div>
-                    );
-                  }
-                  return <span className="font-semibold">{correctAnswer}</span>;
-                })()}
-              </div>
+              {!hideCorrectAnswer && (
+                <div className="text-sm text-gray-700">
+                  <span>Correct answer: </span>
+                  {(() => {
+                    const isImageUrl = typeof correctAnswer === 'string' && 
+                      (correctAnswer.startsWith('http') || correctAnswer.startsWith('https'));
+                    if (isImageUrl) {
+                      return (
+                        <div className="inline-flex items-center gap-2 ml-1">
+                          <img 
+                            src={correctAnswer} 
+                            alt="Correct answer"
+                            className="w-12 h-12 object-contain rounded border border-gray-300 bg-white"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'inline-block';
+                            }}
+                          />
+                          <span className="text-xs text-gray-500" style={{display: 'none'}}>Image failed to load</span>
+                        </div>
+                      );
+                    }
+                    return <span className="font-semibold">{correctAnswer}</span>;
+                  })()}
+                </div>
+              )}
             </div>
           </div>
           <div className="flex gap-3">
+            {typeof onViewExpertAnswer === 'function' && (
+              <button
+                onClick={onViewExpertAnswer}
+                className="px-6 py-3 rounded-2xl text-white font-extrabold text-lg bg-blue-600 hover:bg-blue-700 transition-colors"
+              >
+                View Expert Answer
+              </button>
+            )}
             {typeof onTryAgain === 'function' && showTryAgainButton && (
               <button
                 ref={tryAgainBtnRef}

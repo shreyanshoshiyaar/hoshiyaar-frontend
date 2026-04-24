@@ -369,6 +369,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
       case 'multiple-choice': return `/learn/module/${moduleNumber}/mcq/${idx}`;
       case 'fill-in-the-blank': return `/learn/module/${moduleNumber}/fillups/${idx}`;
       case 'rearrange': return `/learn/module/${moduleNumber}/rearrange/${idx}`;
+      case 'descriptive': return `/learn/module/${moduleNumber}/descriptive/${idx}`;
       default: return `/learn`;
     }
   }
@@ -670,6 +671,19 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
     navigate(`${routeForType(nextItem.type, nextIndex)}${suffix}`);
   }
 
+  const handleMasterSkip = async () => {
+    const qid = `${moduleNumber}_${index}_rearrange`;
+    const type = isRevisionModeFromUrl ? 'revision' : 'curriculum';
+    awardCorrect(String(moduleNumber), qid, 5, { type });
+    try {
+      if (user?._id) {
+        await pointsService.award({ userId: user._id, questionId: qid, moduleId: String(moduleNumber), type, result: 'correct' });
+        await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: 5 });
+      }
+    } catch (_) {}
+    handleNext(true);
+  };
+
   const handleFeedbackClose = () => {
     setFeedback({ open: false, correct: false, expected: '' });
   };
@@ -797,6 +811,14 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
       <ProgressBar currentIndex={index} total={items.length} />
         </div>
         <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
+          {(user?.role === 'master' || user?.username === 'Host') && (
+            <button
+              onClick={handleMasterSkip}
+              className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-black rounded-lg shadow-sm border-b-4 border-yellow-700 active:border-b-0 active:translate-y-1 transition-all mr-2 uppercase"
+            >
+              Skip ⚡️
+            </button>
+          )}
           
           {/* Show flagged status */}
           {isFlagged && (
