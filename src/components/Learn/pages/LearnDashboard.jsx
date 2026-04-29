@@ -1416,28 +1416,34 @@ const LearnDashboard = ({ onboardingData }) => {
   const fetchLeaderboard = useCallback(async (schoolName, timeframe) => {
     if (!schoolName?.trim()) return;
     
+    const targetTimeframe = timeframe || leaderboardTimeframe;
+    let data = [];
+    
     try {
       setLeaderboardLoading(true);
-      const targetTimeframe = timeframe || leaderboardTimeframe;
       const response = await authService.getLeaderboard(schoolName, targetTimeframe);
-      let data = response?.data?.leaderboard || [];
-      
-      // Ensure current user is in the list
-      if (user && !data.find(u => u.username === user.username)) {
-        data.push({
-          username: user.username,
-          name: user.name || user.username,
-          school: user.school || schoolName,
-          totalPoints: targetTimeframe === 'weekly' ? weeklyStarsRef.current : (starsRef.current || 0)
-        });
-        data.sort((a, b) => (b.totalPoints || 0) - (a.totalPoints || 0));
-      }
-
-      setLeaderboardData(data);
-      setLeaderboardSearched(true);
+      data = response?.data?.leaderboard || [];
     } catch (error) {
       console.error('Leaderboard fetch failed:', error);
+      data = []; // Use empty list on failure to allow user-only display
     } finally {
+      // Ensure current user is always in the list for their own school
+      if (user && (user.school === schoolName || !data.find(u => u.username === user.username))) {
+        if (!data.find(u => u.username === user.username)) {
+          data.push({
+            username: user.username,
+            name: user.name || user.username,
+            school: user.school || schoolName,
+            totalPoints: targetTimeframe === 'weekly' ? weeklyStarsRef.current : (starsRef.current || 0)
+          });
+        }
+      }
+      
+      // Always sort to ensure correct order after potential local push
+      data.sort((a, b) => (b.totalPoints || 0) - (a.totalPoints || 0));
+      
+      setLeaderboardData(data);
+      setLeaderboardSearched(true);
       setLeaderboardLoading(false);
     }
   }, [user?._id, user?.username, user?.school, leaderboardTimeframe]);
