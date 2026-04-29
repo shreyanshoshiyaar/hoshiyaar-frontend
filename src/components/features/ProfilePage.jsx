@@ -7,7 +7,7 @@ import ProgressPanel from './ProgressPanel.jsx';
 
 export default function ProfilePage() {
   const { user, logout } = useAuth();
-  const [form, setForm] = useState({ username: '', name: '', email: '', phone: '', board: '', classLevel: '', age: '', dateOfBirth: '' });
+  const [form, setForm] = useState({ username: '', name: '', email: '', phone: '', board: '', classLevel: '', school: '', age: '', dateOfBirth: '' });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState('');
@@ -28,6 +28,7 @@ export default function ProfilePage() {
           phone: (dbUser.phone ?? 'Not Defined'),
           board: (dbUser.board ?? 'Not Defined'),
           classLevel: (dbUser.classLevel ?? 'Not Defined'),
+          school: (dbUser.school ?? 'Not Defined'),
           age: (dbUser.age ?? 'Not Defined'),
           dateOfBirth: dbUser.dateOfBirth ? String(dbUser.dateOfBirth).slice(0,10) : 'Not Defined',
         });
@@ -40,6 +41,7 @@ export default function ProfilePage() {
           phone: (user?.phone ?? 'Not Defined'),
           board: (user?.board ?? 'Not Defined'),
           classLevel: (user?.classLevel ?? 'Not Defined'),
+          school: (user?.school ?? 'Not Defined'),
           age: (user?.age ?? 'Not Defined'),
           dateOfBirth: user?.dateOfBirth ? String(user.dateOfBirth).slice(0,10) : 'Not Defined',
         });
@@ -75,6 +77,7 @@ export default function ProfilePage() {
         name: form.name === 'Not Defined' ? null : form.name,
         phone: form.phone === 'Not Defined' ? null : form.phone,
         classLevel: form.classLevel === 'Not Defined' ? null : form.classLevel,
+        school: form.school === 'Not Defined' ? null : form.school,
         dateOfBirth: dob,
         email: form.email === 'Not Defined' ? null : form.email,
       });
@@ -147,6 +150,10 @@ export default function ProfilePage() {
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
+          </label>
+          <label className="block">
+            <span className="text-sm font-bold text-gray-700">School</span>
+            <input placeholder={form.school || 'Not Defined'} value={form.school === 'Not Defined' ? '' : form.school} onChange={e=>update('school', e.target.value)} className="mt-1 w-full px-4 py-3 rounded-2xl border-2 border-blue-200 focus:outline-none focus:border-blue-400" />
           </label>
           <label className="block">
             <span className="text-sm font-bold text-gray-700">Age</span>

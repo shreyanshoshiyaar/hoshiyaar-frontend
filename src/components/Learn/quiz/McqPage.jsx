@@ -475,9 +475,6 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         const type = isRevisionModeFromUrl ? 'revision' : 'curriculum';
         if (pts !== 0) awardCorrect(String(moduleNumber), qid, pts, { type });
         try {
-          if (user?._id) {
-            await pointsService.award({ userId: user._id, questionId: qid, moduleId: String(moduleNumber), type, result: 'correct' });
-          }
           await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: pts });
         } catch (_) {}
       }
@@ -497,9 +494,6 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         const type = isRevisionModeFromUrl ? 'revision' : 'curriculum';
         awardWrong(String(moduleNumber), qid, -2, { isRetry: false, type });
         try {
-          if (user?._id) {
-            await pointsService.award({ userId: user._id, questionId: qid, moduleId: String(moduleNumber), type, result: 'incorrect' });
-          }
           await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: false, deltaScore: -2 });
         } catch (_) {}
       }
@@ -698,7 +692,6 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
     awardCorrect(String(moduleNumber), qid, 5, { type });
     try {
       if (user?._id) {
-        await pointsService.award({ userId: user._id, questionId: qid, moduleId: String(moduleNumber), type, result: 'correct' });
         await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: 5 });
       }
     } catch (_) {}

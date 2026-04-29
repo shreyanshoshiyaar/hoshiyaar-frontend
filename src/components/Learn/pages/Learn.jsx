@@ -7,6 +7,7 @@ import SubjectSelect from '../selectors/SubjectSelect.jsx';
 import ChapterSelect from '../selectors/ChapterSelect.jsx';
 import LearnDashboard from './LearnDashboard.jsx'; // Import the final dashboard component
 import SimpleLoading from '../../ui/SimpleLoading.jsx';
+import ErrorBoundary from '../../ui/ErrorBoundary.jsx';
 
 const Learn = () => {
   const [step, setStep] = useState(1);
@@ -161,9 +162,17 @@ const Learn = () => {
           />
         );
       case 5:
-        return <LearnDashboard onboardingData={onboardingData} />;
+        return (
+          <ErrorBoundary>
+            <LearnDashboard onboardingData={onboardingData} />
+          </ErrorBoundary>
+        );
       default:
-        return <LearnDashboard onboardingData={onboardingData} />;
+        return (
+          <ErrorBoundary>
+            <LearnDashboard onboardingData={onboardingData} />
+          </ErrorBoundary>
+        );
     }
   };
 

@@ -142,7 +142,7 @@ const Signup = () => {
                     value={formData.dateOfBirth}
                     onChange={onChange}
                     placeholder="Date of Birth"
-                    className="w-full bg-[#3c3c3c] border-2 border-[#585858] rounded-xl sm:rounded-2xl p-3 sm:p-4 focus:outline-none focus:border-duo-blue text-sm sm:text-base"
+                    className="w-full bg-[#3c3c3c] border-2 border-[#585858] rounded-xl sm:rounded-2xl p-3 sm:p-4 focus:outline-none focus:border-duo-blue text-sm sm:text-base text-white"
                     required
                   />
                 </div>

@@ -53,6 +53,46 @@ const getCompletedModuleIds = (userId, { subject } = {}, opts) => http.get('comp
 // Username availability
 const checkUsername = (username, opts) => http.get('check-username', { params: { username }, ...(opts || {}) });
 
+// Leaderboard API (calls pointsRoutes mounted at /api/points/leaderboard)
+const getLeaderboard = (school, timeframe = 'total', opts) => {
+  // Use absolute URL or relative to BASE if needed, but BASE depends on getApiBase()
+  // authService's http instance uses API_URL which is `${BASE}/api/auth/`
+  // We need to call `${BASE}/api/points/leaderboard`
+  return axios.get(`${BASE}/api/points/leaderboard`, { params: { school, timeframe }, ...(opts || {}) });
+};
+
+// Get points summary (calls pointsRoutes mounted at /api/points/summary)
+const getSummary = (params, opts) => {
+  return axios.get(`${BASE}/api/points/summary`, { params, ...(opts || {}) });
+};
+
+// Get list of unique school names for autocomplete
+const getSchoolNames = (query, opts) => {
+  return axios.get(`${BASE}/api/points/schools`, { params: { q: query }, ...(opts || {}) });
+};
+
+// Get school suggestions from Ola Maps API
+const getOlaSchoolSuggestions = async (query) => {
+  const apiKey = import.meta.env.VITE_OLA_MAPS_API_KEY;
+  if (!apiKey) {
+    console.warn('Ola Maps API Key not found in .env');
+    return { data: { predictions: [] } };
+  }
+  
+  try {
+    const response = await axios.get('https://api.olamaps.io/places/v1/autocomplete', {
+      params: {
+        input: query,
+        api_key: apiKey,
+      }
+    });
+    return response;
+  } catch (error) {
+    console.error('Ola Maps Autocomplete Error:', error);
+    return { data: { predictions: [] } };
+  }
+};
+
 // Export the functions
 const authService = {
   register,
@@ -65,6 +105,10 @@ const authService = {
   updateProgress,
   getCompletedModuleIds,
   checkUsername,
+  getLeaderboard,
+  getSchoolNames,
+  getSummary,
+  getOlaSchoolSuggestions,
 };
 
 export default authService;

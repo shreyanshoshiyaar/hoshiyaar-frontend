@@ -62,7 +62,6 @@ export const AuthProvider = ({ children }) => {
                 const { data: pts } = await pointsService.summary({ userId: uid });
                 const totalPoints = Number(pts?.totalPoints || 0);
                 if (Number.isFinite(totalPoints)) {
-                    localStorage.setItem('hs_stars_total_v1', String(Math.max(0, totalPoints)));
                     syncFromServer(totalPoints, {});
                     return;
                 }
@@ -86,8 +85,6 @@ export const AuthProvider = ({ children }) => {
                 }
                 if (entry?.chapter) moduleStars[entry.chapter] = chapterTotal;
             }
-            localStorage.setItem('hs_stars_total_v1', String(Math.max(0, total)));
-            localStorage.setItem('hs_stars_per_module_v1', JSON.stringify(moduleStars));
             syncFromServer(total, moduleStars);
         } catch (error) {
             console.warn('[AuthContext] Failed to sync stars from server:', error);

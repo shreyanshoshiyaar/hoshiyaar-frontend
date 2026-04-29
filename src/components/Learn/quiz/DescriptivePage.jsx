@@ -172,7 +172,6 @@ export default function DescriptivePage() {
         awardCorrect(String(moduleNumber), qid, pts, { type });
         try {
           if (user?._id) {
-            await pointsService.award({ userId: user._id, questionId: qid, moduleId: String(moduleNumber), type, result: dbResult });
             await authService.updateProgress({ 
               userId: user._id, 
               moduleId: String(moduleNumber), 
@@ -189,7 +188,6 @@ export default function DescriptivePage() {
           awardWrong(String(moduleNumber), qid, pts, { isRetry: false, type });
           try {
             if (user?._id) {
-              await pointsService.award({ userId: user._id, questionId: qid, moduleId: String(moduleNumber), type, result: dbResult });
               await authService.updateProgress({ 
                 userId: user._id, 
                 moduleId: String(moduleNumber), 
@@ -301,7 +299,6 @@ export default function DescriptivePage() {
     awardCorrect(String(moduleNumber), qid, 5, { type });
     try {
       if (user?._id) {
-        await pointsService.award({ userId: user._id, questionId: qid, moduleId: String(moduleNumber), type, result: 'correct' });
         await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: 5 });
       }
     } catch (_) {}

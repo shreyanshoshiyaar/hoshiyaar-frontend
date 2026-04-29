@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useLayoutEffect } from "react";
+import React, { useEffect, useState, useMemo, useLayoutEffect, useCallback, useRef } from "react";
 import { useAuth } from "../../../context/AuthContext.jsx";
 import { useNavigate, useLocation } from "react-router-dom";
 import heroChar from "../../../assets/images/heroChar.png";
@@ -8,6 +8,9 @@ import { useStars } from '../../../context/StarsContext.jsx';
 import chapterImg from "../../../assets/images/chapterImg.png";
 import authService from "../../../services/authService.js";
 import { progressKey } from "../../../utils/progressKey.js";
+import Lottie from "lottie-react";
+import pathAnimationData from "../../../assets/lottie/Ruhaan2.json";
+const DASHBOARD_VERSION = "V5.1-FREQ-3";
 
 // --- SVG Icons for the Dashboard ---
 const LearnIcon = () => (
@@ -63,6 +66,18 @@ const CloseIcon = () => (
   </svg>
 );
 
+const FireIcon = () => (
+  <svg viewBox="0 0 16 16" className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10" fill="currentColor">
+    <path d="M8 16c3.314 0 6-2 6-5.5 0-1.5-.5-4-2.5-6 .25 1.5-1.25 2-1.25 2C11 4 9 .5 6 0c.357 2 .5 4-2 6-1.25 1-2 2.729-2 4.5C2 14 4.686 16 8 16m0-1c-1.657 0-3-1-3-2.75 0-.75.25-2 1.25-3C6.125 10 7 10.5 7 10.5c-.375-1.25.5-3.25 2-3.5-.179 1-.25 2 1 3 .625.5 1 1.364 1 2.25C11 14 9.657 15 8 15" />
+  </svg>
+);
+
+const PencilIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10" fill="currentColor">
+    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+  </svg>
+);
+
 const ChapterNavIcon = () => (
   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
     <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path>
@@ -71,77 +86,147 @@ const ChapterNavIcon = () => (
 
 // Cute bouncing "START" badge used above the active node
 const StartBadge = ({ color = "#2C6DEF" }) => (
-  <div className="absolute -top-12 left-1/2 -translate-x-1/2 z-30 select-none">
-    <div className="relative">
+  <div className="absolute -top-16 left-1/2 -translate-x-1/2 z-[100] select-none pointer-events-none">
+    <div className="relative animate-bounce">
+      {/* DuoLingo Style Speech Bubble - White Background */}
       <div
-        className="px-3 py-1.5 rounded-xl font-extrabold tracking-wider shadow-none animate-bounce"
-        style={{
-          color: color,
-          background: "transparent",
-          borderWidth: 2,
-          borderStyle: "solid",
-          borderColor: color,
-        }}
+        className="px-5 py-2 rounded-2xl font-black tracking-widest bg-white shadow-[0_4px_0_0_rgba(0,0,0,0.1)] flex items-center justify-center border-2 border-gray-100 min-w-[100px]"
+        style={{ color: color }}
       >
         START
       </div>
+      {/* Triangle pointer */}
       <div
-        className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-0 h-0 border-l-6 border-r-6 border-t-8 border-l-transparent border-r-transparent"
-        style={{ borderTopColor: color }}
-      ></div>
+        className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-0 h-0 border-l-[10px] border-r-[10px] border-t-[10px] border-l-transparent border-r-transparent border-t-white"
+      />
     </div>
   </div>
 );
 
-const PathNode = ({ status, onClick, disabled, color = "#2C6DEF", lightenFn, darkenFn, isDifficult = false, isDescriptive = false, offset = 0 }) => {
-  const isCompleted = status === "completed";
-  const isActive = status === "active";
-  const iconColor = "text-white";
-  const activeFrom = color;
-  const activeTo = darkenFn ? darkenFn(color, 0.15) : color;
-  const lockedFrom = lightenFn ? lightenFn(color, 0.55) : color;
-  const lockedTo = lightenFn ? lightenFn(color, 0.35) : color;
-  const nodeStyle = isCompleted
-    ? { background: "linear-gradient(135deg, #FACC15, #EAB308)" }
-    : isActive
-    ? { background: `linear-gradient(135deg, ${activeFrom}, ${activeTo})`, animation: "pulse 2s infinite" }
-    : { background: `linear-gradient(135deg, ${lockedFrom}, ${lockedTo})` };
-  const size = isActive
-    ? "w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 lg:w-24 lg:h-24"
-    : "w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 lg:w-20 lg:h-20";
+// Decorative Lottie animation placed along the path with a 3D Base (like DuoLingo)
+const PathAnimation = ({ offset, top, isMobileLayout }) => {
+  const sizeBase = "w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 lg:w-22 lg:h-22";
+  const depth = "6px";
   return (
     <div
-      className="inline-flex items-center justify-center transition-transform duration-500 ease-in-out"
-      style={{ transform: `translateX(${offset}px)` }}
+      className="absolute pointer-events-none z-[200]"
+      style={{
+        width: isMobileLayout ? '56px' : '180px',
+        left: isMobileLayout 
+          ? `clamp(43px, calc(50% + ${offset}px), calc(100% - 43px))`
+          : `calc(50% + ${offset}px)`,
+        top: `${top}px`,
+        transform: 'translate(-50%, -50%)',
+      }}
     >
-      <div
-        onClick={disabled ? undefined : onClick}
-        className={`${size} rounded-full flex items-center justify-center shadow-[0_4px_0_0_rgba(0,0,0,0.1),0_0_12px_rgba(0,0,0,0.05)] sm:shadow-[0_6px_0_0_rgba(0,0,0,0.1),0_0_15px_rgba(0,0,0,0.05)] md:shadow-[0_8px_0_0_rgba(0,0,0,0.1),0_0_20px_rgba(0,0,0,0.05)] ${iconColor} ring-2 sm:ring-4 md:ring-6 ring-white/90 ${
-          disabled
-            ? "cursor-not-allowed opacity-90"
-            : "cursor-pointer hover:scale-110 transition-transform active:scale-95"
-        }`}
-        style={nodeStyle}
-      >
-        {isCompleted && isDifficult ? (
-          <img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1776952137/img-to-link/mnig5ccfujvcmoywkzzd.png" alt="Completed Difficult" className="w-full h-full object-cover rounded-full" />
-        ) : isCompleted && isDescriptive ? (
-          <img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1776952136/img-to-link/ypsfoz9ajmfqexqc7srm.png" alt="Completed Descriptive" className="w-full h-full object-cover rounded-full" />
-        ) : isDifficult ? (
-          <img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1776938254/img-to-link/agvmuzaxkjvqpawpaytv.png" alt="Difficult Module" className="w-full h-full object-cover rounded-full" />
-        ) : isDescriptive ? (
-          <img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1776937688/img-to-link/oxlhdzxrunthts3fj0va.png" alt="Descriptive Module" className="w-full h-full object-cover rounded-full" />
-        ) : (
-          <StarIcon />
-        )}
+      <div className={`relative ${sizeBase} scale-[1.1]`}>
+        {/* Decorative Atmosphere Glow */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 md:w-64 md:h-64 rounded-full bg-blue-50/20 -z-10 border border-blue-100/10" />
+
+        {/* 3D Base - Bottom Layer (Depth) */}
+        <div
+          className="absolute inset-0 rounded-full"
+          style={{
+            backgroundColor: '#adb9c7',
+            transform: `translateY(${depth})`
+          }}
+        />
+        {/* 3D Base - Top Layer (Surface) */}
+        <div
+          className="absolute inset-0 rounded-full border-2 border-white shadow-[inset_0_2px_4px_rgba(255,255,255,0.3)]"
+          style={{ backgroundColor: '#d1dae1' }}
+        />
+
+        {/* Lottie Animation (Balanced Hero Size - 224px) */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-[224px] h-[224px] -translate-y-[94px]">
+            <Lottie
+              animationData={pathAnimationData}
+              loop={true}
+              style={{ width: '224px', height: '224px', backgroundColor: 'transparent' }}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
+const PathNode = ({ status, onClick, disabled, color = "#2C6DEF", lightenFn, darkenFn, isDifficult = false, isDescriptive = false, offset = 0, children }) => {
+  const isCompleted = status === "completed";
+  const isActive = status === "active";
+  const isLocked = status === "locked";
+
+  // Specialty modules use a red color theme
+  const baseColor = (isDifficult || isDescriptive) ? "#FF4B4B" : color;
+
+  // 3D Colors
+  let topColor, bottomColor;
+
+  if (isCompleted) {
+    topColor = "#FACC15"; // Bright Yellow
+    bottomColor = "#CA8A04"; // Darker Yellow/Gold
+  } else if (isActive) {
+    topColor = baseColor;
+    bottomColor = darkenFn ? darkenFn(baseColor, 0.2) : baseColor;
+  } else {
+    topColor = "#E5E7EB"; // Light Gray (locked)
+    bottomColor = "#9CA3AF"; // Darker Gray (locked)
+  }
+
+  const iconColor = isLocked ? "text-gray-400" : "text-white";
+
+  const sizeBase = "w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 lg:w-22 lg:h-22";
+
+  // Depth in pixels
+  const depth = "6px";
+
+  return (
+    <div
+      className="inline-flex items-center justify-center transition-transform duration-500 ease-in-out relative group"
+      style={{ transform: `translateX(${offset}px)` }}
+    >
+      <div className={`relative ${sizeBase} transition-transform duration-100 active:translate-y-[4px]`}>
+        {/* BOTTOM LAYER (DEPTH) */}
+        <div
+          className="absolute inset-0 rounded-full"
+          style={{
+            backgroundColor: bottomColor,
+            transform: `translateY(${depth})`
+          }}
+        />
+
+        {/* TOP LAYER (BUTTON FACE) */}
+        <div
+          onClick={disabled ? undefined : onClick}
+          className={`absolute inset-0 rounded-full flex items-center justify-center transform transition-all duration-75 shadow-[inset_0_2px_4px_rgba(255,255,255,0.3)] ${disabled ? "cursor-not-allowed" : "cursor-pointer hover:-translate-y-[2px]"
+            } active:translate-y-[3px]`}
+          style={{
+            backgroundColor: topColor,
+          }}
+        >
+          <div className={`${iconColor} drop-shadow-md transform transition-transform group-hover:scale-110 w-full h-full flex items-center justify-center`}>
+            {isDifficult ? (
+              <FireIcon />
+            ) : isDescriptive ? (
+              <PencilIcon />
+            ) : (
+              <StarIcon />
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* RENDER BADGE ON TOP */}
+      {children}
+    </div>
+  );
+};
+
 const getWaveOffset = (index, isMobile = false) => {
-  const amplitude = isMobile ? 55 : 85;
-  const angle = (index * Math.PI) / 2;
+  const amplitude = isMobile ? 35 : 85;
+  // Frequency reduced for a smoother "S" shape
+  const angle = (index * Math.PI) / 4;
   return Math.sin(angle) * amplitude;
 };
 
@@ -149,7 +234,7 @@ const OrganicPathSvg = ({ nodesCount, color, rowSpacing, isMobile }) => {
   const svgW = isMobile ? 300 : 500;
   const center = svgW / 2;
   const count = Math.max(2, nodesCount);
-  
+
   // Calculate points for the wave
   const points = [];
   for (let i = 0; i < count; i++) {
@@ -164,29 +249,15 @@ const OrganicPathSvg = ({ nodesCount, color, rowSpacing, isMobile }) => {
   for (let i = 0; i < points.length - 1; i++) {
     const p0 = points[i];
     const p1 = points[i + 1];
-    
+
     // Control points for organic feel
     const cp1y = p0.y + rowSpacing * 0.5;
     const cp2y = p1.y - rowSpacing * 0.5;
-    
+
     pathData += ` C ${p0.x} ${cp1y}, ${p1.x} ${cp2y}, ${p1.x} ${p1.y}`;
   }
 
-  return (
-    <div className="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none z-0" style={{ width: svgW, height: "100%" }}>
-      <svg width={svgW} height={(count - 1) * rowSpacing + 50} className="overflow-visible">
-        <path 
-          d={pathData} 
-          stroke={color} 
-          strokeWidth="3.5" 
-          fill="transparent" 
-          strokeLinecap="round" 
-          strokeDasharray="0 14"
-          className="opacity-40"
-        />
-      </svg>
-    </div>
-  );
+  return null; // Dotted lines removed per request
 };
 
 const LearnDashboard = ({ onboardingData }) => {
@@ -194,7 +265,7 @@ const LearnDashboard = ({ onboardingData }) => {
   const { resetModuleLedger, stars, syncFromServer, setTotal } = useStars();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const [progress, setProgress] = useState([]);
   const [chapterTitle, setChapterTitle] = useState("");
   const [chapterId, setChapterId] = useState("");
@@ -206,9 +277,35 @@ const LearnDashboard = ({ onboardingData }) => {
   const [unitModulesMap, setUnitModulesMap] = useState({}); // { unitId: Module[] }
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [hoveredUnitModule, setHoveredUnitModule] = useState(null);
-  const rowSpacing = 160;
+
+  // Leaderboard states
+  const [leaderboardSchool, setLeaderboardSchool] = useState("");
+  const [leaderboardData, setLeaderboardData] = useState([]);
+  const [leaderboardLoading, setLeaderboardLoading] = useState(false);
+  const [leaderboardSearched, setLeaderboardSearched] = useState(false);
+  const [schoolSuggestions, setSchoolSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isManualSchoolInput, setIsManualSchoolInput] = useState(false);
+  const [isChangingSchool, setIsChangingSchool] = useState(false);
+  const [weeklyStars, setWeeklyStars] = useState(0);
+  const [leaderboardTimeframe, setLeaderboardTimeframe] = useState("weekly"); // "weekly" or "total"
+  const [showMobileLeaderboard, setShowMobileLeaderboard] = useState(false);
+
+  const rowSpacing = 110;
   const [isMobileLayout, setIsMobileLayout] = useState(window.innerWidth < 768);
   const [progressUpdateTrigger, setProgressUpdateTrigger] = useState(0);
+  
+  // Refs for stable identity in callbacks
+  const starsRef = React.useRef(stars);
+  const weeklyStarsRef = React.useRef(weeklyStars);
+  
+  useEffect(() => {
+    starsRef.current = stars;
+  }, [stars]);
+  
+  useEffect(() => {
+    weeklyStarsRef.current = weeklyStars;
+  }, [weeklyStars]);
   useEffect(() => {
     const handleResize = () => setIsMobileLayout(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
@@ -245,7 +342,7 @@ const LearnDashboard = ({ onboardingData }) => {
   const [statsLoading, setStatsLoading] = useState(false);
   // Track when the first fetch completes to avoid false "No units" while fetching
   const [hasFetched, setHasFetched] = useState(false);
-  
+
   // Subject change functionality
   const [showSubjectModal, setShowSubjectModal] = useState(false);
   const [subjectOptions, setSubjectOptions] = useState([]);
@@ -255,7 +352,9 @@ const LearnDashboard = ({ onboardingData }) => {
   useEffect(() => {
     const refreshStars = () => {
       try {
-        const storedStars = localStorage.getItem('hs_stars_total_v1');
+        const userId = user?._id;
+        const key = userId ? `hs_stars_total_v1__${userId}` : 'hs_stars_total_v1';
+        const storedStars = localStorage.getItem(key);
         const starCount = Number(storedStars);
         console.log('[LearnDashboard] Current localStorage value:', storedStars, '->', starCount);
         if (Number.isFinite(starCount) && starCount >= 0) {
@@ -266,23 +365,23 @@ const LearnDashboard = ({ onboardingData }) => {
         console.warn('[LearnDashboard] Failed to refresh stars:', error);
       }
     };
-    
+
     // Immediate refresh
     refreshStars();
-    
+
     // Also refresh every 2 seconds to catch any updates
     const refreshInterval = setInterval(() => {
       console.log('[LearnDashboard] Periodic refresh...');
       refreshStars();
     }, 100000);
-    
+
     // Also refresh when window gains focus (user returns from learning)
     const handleFocus = () => {
       console.log('[LearnDashboard] Window focused, refreshing stars...');
       refreshStars();
     };
     window.addEventListener('focus', handleFocus);
-    
+
     // Also refresh on visibility change (tab switching)
     const handleVisibilityChange = () => {
       if (!document.hidden) {
@@ -291,7 +390,7 @@ const LearnDashboard = ({ onboardingData }) => {
       }
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    
+
     return () => {
       clearInterval(refreshInterval);
       window.removeEventListener('focus', handleFocus);
@@ -299,16 +398,42 @@ const LearnDashboard = ({ onboardingData }) => {
     };
   }, [setTotal]);
 
+  // Fetch weekly stars
+  useEffect(() => {
+    if (!user?._id) return;
+    const fetchWeekly = async () => {
+      try {
+        const response = await authService.getSummary({ userId: user._id, days: 7 });
+        if (response?.data?.totalPoints !== undefined) {
+          // getSummary with days=7 returns the total for those days in totalPoints? 
+          // Let's check getSummary implementation. 
+          // Actually, getSummary returns { totalPoints (lifetime), ... }
+          // We need to sum up the timeSeries for the last 7 days or use a different endpoint.
+          // Wait, getSummary calculates totalPoints as the lifetime total.
+          // Let's look at getSummary in pointsController.js again.
+          const timeSeries = response.data.timeSeries || [];
+          const weeklySum = timeSeries.reduce((acc, curr) => acc + (curr.points || 0), 0);
+          setWeeklyStars(weeklySum);
+        }
+      } catch (error) {
+        console.warn('Failed to fetch weekly stars:', error);
+      }
+    };
+    fetchWeekly();
+    const interval = setInterval(fetchWeekly, 60000);
+    return () => clearInterval(interval);
+  }, [user?._id, stars]);
+
   // Palette for per-unit theming
   const unitPalette = ["#2C6DEF", "#58CC02", "#CE82FF", "#00CD9C"];
   const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
   const hexToRgb = (hex) => {
-    const h = hex.replace('#','');
-    const bigint = parseInt(h.length === 3 ? h.split('').map((c)=>c+c).join('') : h, 16);
+    const h = hex.replace('#', '');
+    const bigint = parseInt(h.length === 3 ? h.split('').map((c) => c + c).join('') : h, 16);
     return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
   };
-  const rgbToHex = ({r,g,b}) => {
-    const toHex = (v) => v.toString(16).padStart(2,'0');
+  const rgbToHex = ({ r, g, b }) => {
+    const toHex = (v) => v.toString(16).padStart(2, '0');
     return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
   };
   const lighten = (hex, amount = 0.25) => {
@@ -342,7 +467,7 @@ const LearnDashboard = ({ onboardingData }) => {
   const saveUnitModulesCache = (chapterId, map) => {
     try {
       sessionStorage.setItem(cacheKeyForChapter(chapterId), JSON.stringify(map || {}));
-    } catch (_) {}
+    } catch (_) { }
   };
 
   // Cache units list per chapter to hydrate UI immediately
@@ -357,7 +482,7 @@ const LearnDashboard = ({ onboardingData }) => {
   const saveUnitsCache = (chapterId, units) => {
     try {
       sessionStorage.setItem(unitsKeyForChapter(chapterId), JSON.stringify(units || []));
-    } catch (_) {}
+    } catch (_) { }
   };
 
   // Pull subject/board from user or onboardingData - MOVED UP TO FIX INITIALIZATION ORDER
@@ -368,13 +493,13 @@ const LearnDashboard = ({ onboardingData }) => {
     const params = new URLSearchParams(location.search);
     const urlChapterId = params.get("chapterId");
     if (urlChapterId) return urlChapterId;
-    
+
     // Check localStorage for last selected chapter ID
     try {
       const stored = localStorage.getItem(`last_selected_chapter_${user?._id || 'anon'}_${subjectName}`);
       if (stored) return stored;
-    } catch (_) {}
-    
+    } catch (_) { }
+
     // Fall back to user chapter (title) or onboardingData chapter
     return onboardingData?.chapter || user?.chapter || null;
   };
@@ -387,7 +512,7 @@ const LearnDashboard = ({ onboardingData }) => {
   const LS_KEY_BASE_V2 = "lesson_progress_v2"; // New format with composite keys
   const LS_IDS_KEY_BASE = "lesson_completed_ids_v1";
   const USE_LOCAL_PROGRESS = true; // enable client-side caching so stars shift immediately
-  
+
   // Load completed composite keys (new format) - recalculate key each time to ensure user is available
   const loadCompletedCompositeKeys = () => {
     if (!USE_LOCAL_PROGRESS) return new Set();
@@ -403,7 +528,7 @@ const LearnDashboard = ({ onboardingData }) => {
       return new Set();
     }
   };
-  
+
   // Legacy loadLocalProgress for backward compatibility
   const loadLocalProgress = (chapterId = null) => {
     if (!USE_LOCAL_PROGRESS) return {};
@@ -437,12 +562,13 @@ const LearnDashboard = ({ onboardingData }) => {
     try {
       if (chapterId) {
         // Save to chapter-specific key
-        const chapterKey = chapterScopedKey(LS_KEY_BASE, chapterId);
+        const chapterKey = chapterScopedKey(LS_KEY_BASE_V2, chapterId);
         localStorage.setItem(chapterKey, JSON.stringify(data));
       }
       // Also save to user-scoped key for backward compatibility
+      const LS_KEY = userScopedKey(LS_KEY_BASE_V2);
       localStorage.setItem(LS_KEY, JSON.stringify(data));
-    } catch (_) {}
+    } catch (_) { }
   };
   const markIndexCompletedLocal = (unitId, index, chapterId = null) => {
     if (!USE_LOCAL_PROGRESS) return;
@@ -469,7 +595,7 @@ const LearnDashboard = ({ onboardingData }) => {
         }
         return next;
       });
-    } catch (_) {}
+    } catch (_) { }
   };
   // Track completion by moduleId as well for robustness across ordering - Module IDs are globally unique, so no chapter scoping needed
   const LS_IDS_KEY = userScopedKey(LS_IDS_KEY_BASE);
@@ -499,7 +625,7 @@ const LearnDashboard = ({ onboardingData }) => {
       const set = loadCompletedIds();
       if (moduleId) set.add(String(moduleId));
       localStorage.setItem(LS_IDS_KEY, JSON.stringify(Array.from(set)));
-    } catch (_) {}
+    } catch (_) { }
   };
 
   // Function to clear false completions and reset progress
@@ -507,13 +633,14 @@ const LearnDashboard = ({ onboardingData }) => {
     if (!USE_LOCAL_PROGRESS) return;
     try {
       console.log('[Progress Reset] Clearing false completions...');
-      
+
       // Clear all local storage progress
-      localStorage.removeItem(LS_KEY);
+      const LS_KEY_V2 = userScopedKey(LS_KEY_BASE_V2);
+      localStorage.removeItem(LS_KEY_V2);
       localStorage.removeItem(LS_IDS_KEY);
-      localStorage.removeItem(LS_KEY_BASE);
+      localStorage.removeItem(LS_KEY_BASE_V1);
       localStorage.removeItem(LS_IDS_KEY_BASE);
-      
+
       // Reset progress state to only database data
       if (user?._id) {
         // Keep only database progress, clear local additions
@@ -523,11 +650,11 @@ const LearnDashboard = ({ onboardingData }) => {
             .map((p) => (p?.chapter ? p.chapter - 1 : -1))
             .filter((i) => i >= 0)
         );
-        
+
         // Only keep server-verified completions in local storage
         const store = { default: Array.from(serverCompletedSet) };
         saveLocalProgress(store);
-        
+
         // Only keep server-verified completed IDs
         const newCompletedIds = new Set();
         modulesList.forEach((mod, index) => {
@@ -536,13 +663,13 @@ const LearnDashboard = ({ onboardingData }) => {
           }
         });
         localStorage.setItem(LS_IDS_KEY, JSON.stringify(Array.from(newCompletedIds)));
-        
+
         console.log('[Progress Reset] Reset to database-only progress:', {
           serverCompleted: Array.from(serverCompletedSet),
           completedIds: Array.from(newCompletedIds)
         });
       }
-      
+
       // Force UI update
       setProgressUpdateTrigger(prev => prev + 1);
     } catch (error) {
@@ -568,30 +695,30 @@ const LearnDashboard = ({ onboardingData }) => {
           console.warn('[Progress Sync] Failed to refresh from database:', error);
         }
       }
-      
+
       const serverCompletedSet = new Set(
         (progress || [])
           .filter((p) => p?.conceptCompleted && p?.subject === subjectName)
           .map((p) => (p?.chapter ? p.chapter - 1 : -1))
           .filter((i) => i >= 0)
       );
-      
+
       const localProgress = loadLocalProgress();
       const completedIdSet = loadCompletedIds();
-      
+
       // Sync local progress with server progress (database is source of truth)
       const store = { ...localProgress };
       const key = "default";
       const localSet = new Set(store[key] || []);
-      
+
       // Add server-completed items to local storage
       serverCompletedSet.forEach(index => {
         localSet.add(index);
       });
-      
+
       store[key] = Array.from(localSet);
       saveLocalProgress(store);
-      
+
       // CRITICAL FIX: Use completedModules from backend instead of chapter-level completion
       // This prevents marking ALL modules in a chapter as completed when only some are done
       const newCompletedIds = new Set(completedIdSet);
@@ -605,10 +732,10 @@ const LearnDashboard = ({ onboardingData }) => {
         });
       }
       localStorage.setItem(LS_IDS_KEY, JSON.stringify(Array.from(newCompletedIds)));
-      
+
       // Force UI update
       setProgressUpdateTrigger(prev => prev + 1);
-      
+
       console.log('[Progress Sync] Synced progress:', {
         serverCompleted: Array.from(serverCompletedSet),
         localCompleted: Array.from(localSet),
@@ -619,11 +746,11 @@ const LearnDashboard = ({ onboardingData }) => {
     }
   };
 
-  
+
   // State to track available boards/subjects for fallback
   const [availableBoards, setAvailableBoards] = useState([]);
   const [availableSubjects, setAvailableSubjects] = useState([]);
-  
+
   // Immediate fallback for new users to prevent black page
   const isNewUser = !user?.board && !user?.subject && !onboardingData?.board && !onboardingData?.subject;
   const [showImmediateFallback, setShowImmediateFallback] = useState(false);
@@ -646,7 +773,7 @@ const LearnDashboard = ({ onboardingData }) => {
         { _id: 'immediate-dummy-module-3', title: 'Practice Time', order: 3 }
       ];
       const dummyUnit = { _id: 'immediate-dummy-unit', title: 'Unit 1 (Welcome)', virtual: true };
-      
+
       setChaptersList([dummyChapter]);
       setUnitsList([dummyUnit]);
       setModulesList(dummyModules);
@@ -664,12 +791,12 @@ const LearnDashboard = ({ onboardingData }) => {
     const load = async () => {
       try {
         setIsLoading(true);
-        console.log('Dashboard: Starting load...', { 
-          user: user?._id, 
-          selectedBoard, 
-          subjectName, 
+        console.log('Dashboard: Starting load...', {
+          user: user?._id,
+          selectedBoard,
+          subjectName,
           authLoading,
-          onboardingData 
+          onboardingData
         });
         // Import services concurrently and fetch progress + chapters in parallel
         const [authMod, curMod] = await Promise.all([
@@ -678,21 +805,21 @@ const LearnDashboard = ({ onboardingData }) => {
         ]);
         const svc = authMod.default;
         const cur = curMod.default;
-        
+
         // For new users without preferences, fetch available boards and subjects first
         let finalBoard = selectedBoard;
         let finalSubject = subjectName;
-        
+
         // Check if user has no preferences (new user)
         const isNewUser = !user?.board && !user?.subject && !onboardingData?.board && !onboardingData?.subject;
-        console.log('Dashboard: User preference check', { 
-          isNewUser, 
-          userBoard: user?.board, 
-          userSubject: user?.subject, 
-          onboardingBoard: onboardingData?.board, 
-          onboardingSubject: onboardingData?.subject 
+        console.log('Dashboard: User preference check', {
+          isNewUser,
+          userBoard: user?.board,
+          userSubject: user?.subject,
+          onboardingBoard: onboardingData?.board,
+          onboardingSubject: onboardingData?.subject
         });
-        
+
         if (isNewUser) {
           console.log('Dashboard: New user detected, fetching available options...');
           try {
@@ -706,7 +833,7 @@ const LearnDashboard = ({ onboardingData }) => {
             console.log('Dashboard: Available options fetched', { boards: boards.length, subjects: subjects.length });
             setAvailableBoards(boards);
             setAvailableSubjects(subjects);
-            
+
             // Use first available board and subject if defaults don't exist
             if (boards.length > 0 && subjects.length > 0) {
               finalBoard = boards[0].name;
@@ -719,7 +846,7 @@ const LearnDashboard = ({ onboardingData }) => {
             console.warn('Dashboard: Failed to fetch available options, using defaults', e);
           }
         }
-        
+
         const ac2 = new AbortController();
         const validUserId = typeof user?._id === 'string' && user._id.length >= 8 && user._id !== 'undefined' ? user._id : null;
         const extraChapterParams = user?._id
@@ -734,6 +861,7 @@ const LearnDashboard = ({ onboardingData }) => {
         setProgress(progressData);
         if (USE_LOCAL_PROGRESS) {
           try {
+            const params = new URLSearchParams(location.search);
             // Load progress for current chapter if available
             const currentChapterId = params.get("chapterId") || preferredChapterId;
             const local = loadLocalProgress(currentChapterId);
@@ -745,13 +873,13 @@ const LearnDashboard = ({ onboardingData }) => {
             const set = new Set([...(local[key] || []), ...completedIdx]);
             local[key] = Array.from(set);
             saveLocalProgress(local, currentChapterId);
-          } catch (_) {}
+          } catch (_) { }
         }
         // Load chapter & module titles
-        
+
         let listCh = chaptersResp?.data || [];
         console.log('Dashboard: Chapters found', listCh);
-        
+
         // If no chapters found, try other available options (fetch them if not present)
         if (listCh.length === 0) {
           console.log('Dashboard: No chapters found, trying other available options...');
@@ -763,14 +891,14 @@ const LearnDashboard = ({ onboardingData }) => {
               boardsToTry = br?.data || [];
               setAvailableBoards(boardsToTry);
             }
-          } catch (_) {}
+          } catch (_) { }
           try {
             if (!subjectsToTry || subjectsToTry.length === 0) {
               const sr = await cur.listSubjects(finalBoard);
               subjectsToTry = sr?.data || [];
               setAvailableSubjects(subjectsToTry);
             }
-          } catch (_) {}
+          } catch (_) { }
           for (const board of boardsToTry) {
             for (const subject of subjectsToTry) {
               try {
@@ -805,7 +933,7 @@ const LearnDashboard = ({ onboardingData }) => {
             }
           }
         }
-        
+
         // If still no chapters, stop here without creating dummies
         if (listCh.length === 0) {
           console.warn('Dashboard: No chapters available after all attempts');
@@ -816,7 +944,7 @@ const LearnDashboard = ({ onboardingData }) => {
           setHasFetched(true);
           return;
         }
-        
+
         setChaptersList(listCh);
         const params = new URLSearchParams(location.search);
         // Prioritize URL chapterId over preferredChapterId to persist user selection
@@ -919,7 +1047,7 @@ const LearnDashboard = ({ onboardingData }) => {
             // Fire and forget; don't await all to allow progressive paint
             try {
               await Promise.allSettled(units.map(fetchPerUnit));
-            } catch (_) {}
+            } catch (_) { }
             // Ensure virtual unit modules are included in the final map
             units.forEach(u => {
               if (u.virtual && !nextMap[u._id]) {
@@ -951,14 +1079,14 @@ const LearnDashboard = ({ onboardingData }) => {
               setModulesList(cachedChosen);
               if (cachedChosen[0]) setModuleTitle(cachedChosen[0].title);
               // Reset per-module ledger when opening a new module list
-              try { const mid = cachedChosen[0]?._id; if (mid) resetModuleLedger(String(mid)); } catch (_) {}
+              try { const mid = cachedChosen[0]?._id; if (mid) resetModuleLedger(String(mid)); } catch (_) { }
             } else {
               const modules = await cur.listModules(ch._id, { signal: (new AbortController()).signal });
               const list = modules?.data || [];
               console.log('Dashboard: Fallback chapter modules', list);
               setModulesList(list);
               if (list[0]) setModuleTitle(list[0].title);
-              try { const mid = list[0]?._id; if (mid) resetModuleLedger(String(mid)); } catch (_) {}
+              try { const mid = list[0]?._id; if (mid) resetModuleLedger(String(mid)); } catch (_) { }
             }
             // Safety: if units exist but chosenList is empty and chapter modules are also empty, avoid blank state by picking any first non-empty unit list
             // CRITICAL FIX: Use the local variables (finalUnitsArr, nextMap) instead of state (unitsList, modulesList)
@@ -972,7 +1100,7 @@ const LearnDashboard = ({ onboardingData }) => {
                 console.log('Dashboard: Set modules list from safety check', firstNonEmpty);
               }
             }
-            
+
             // Final safety: If we still have no chosen modules but have units, try to get modules from the first unit
             if (finalUnitsArr && finalUnitsArr.length > 0 && (!cachedChosen || cachedChosen.length === 0)) {
               const firstUnit = finalUnitsArr[0];
@@ -992,19 +1120,19 @@ const LearnDashboard = ({ onboardingData }) => {
             if (list[0]) setModuleTitle(list[0].title);
           }
         }
-        console.log('Dashboard: Load complete', { 
-          unitsList: unitsList.length, 
+        console.log('Dashboard: Load complete', {
+          unitsList: unitsList.length,
           modulesList: modulesList.length,
           finalUnits: finalUnitsArr,
           finalModulesMap: finalModulesMapVar
         });
-        
+
         // Clear immediate fallback if we loaded real data
         if (showImmediateFallback && ((finalUnitsArr && finalUnitsArr.length > 0) || modulesList.length > 0)) {
           console.log('Dashboard: Clearing immediate fallback, real data loaded');
           setShowImmediateFallback(false);
         }
-        
+
         setIsLoading(false);
         setHasFetched(true);
       } catch (e) {
@@ -1026,7 +1154,7 @@ const LearnDashboard = ({ onboardingData }) => {
           setUnitModulesMap({ [dummyUnit._id]: dummyModules });
           setModulesList(dummyModules);
           setModuleTitle(dummyModules[0].title);
-        } catch (_) {}
+        } catch (_) { }
         setIsLoading(false);
         setHasFetched(true);
       }
@@ -1038,14 +1166,14 @@ const LearnDashboard = ({ onboardingData }) => {
   useLayoutEffect(() => {
     // Check if we have a saved position
     const savedPosition = sessionStorage.getItem('dashboardScrollPos');
-    
+
     if (savedPosition && !isLoading && unitsList.length > 0) {
       const scrollContainer = document.getElementById("tree-scroll-container");
       if (scrollContainer) {
         // Restore the scroll position instantly (before paint to prevent flicker)
         scrollContainer.scrollTop = parseInt(savedPosition, 10);
         console.log('[Scroll Preservation] Restored scroll position:', savedPosition);
-        
+
         // Clear it so it doesn't stick forever (optional - remove if you want it to persist)
         // sessionStorage.removeItem('dashboardScrollPos');
       }
@@ -1065,7 +1193,7 @@ const LearnDashboard = ({ onboardingData }) => {
       const attemptScroll = () => {
         const element = document.querySelector(`[data-unit-id="${targetUnitId}"]`);
         const scrollContainer = document.getElementById("tree-scroll-container");
-        
+
         if (element && scrollContainer) {
           // Calculate scroll position to center the element within the container
           const containerRect = scrollContainer.getBoundingClientRect();
@@ -1074,15 +1202,15 @@ const LearnDashboard = ({ onboardingData }) => {
           const elementTop = elementRect.top - containerRect.top + scrollTop;
           const containerHeight = scrollContainer.clientHeight;
           const elementHeight = elementRect.height;
-          
+
           // Calculate scroll position to center the element
           const targetScroll = elementTop - (containerHeight / 2) + (elementHeight / 2);
-          
+
           scrollContainer.scrollTo({
             top: targetScroll,
             behavior: 'smooth'
           });
-          
+
           return true;
         }
         return false;
@@ -1091,7 +1219,7 @@ const LearnDashboard = ({ onboardingData }) => {
       // Immediate attempt
       let interval = null;
       let timeout = null;
-      
+
       if (!attemptScroll()) {
         // Retry logic for image/layout delays
         interval = setInterval(() => {
@@ -1100,7 +1228,7 @@ const LearnDashboard = ({ onboardingData }) => {
             interval = null;
           }
         }, 100);
-        
+
         timeout = setTimeout(() => {
           if (interval) {
             clearInterval(interval);
@@ -1144,7 +1272,7 @@ const LearnDashboard = ({ onboardingData }) => {
           if (cancelled) return;
         }
         if (!cancelled) setChapterStats(nextStats);
-      } catch (_) {}
+      } catch (_) { }
       if (!cancelled) setStatsLoading(false);
     }, 300);
     return () => {
@@ -1181,10 +1309,10 @@ const LearnDashboard = ({ onboardingData }) => {
         setShowConfetti(true);
         try {
           setTimeout(() => setShowConfetti(false), 1500);
-        } catch (_) {}
+        } catch (_) { }
       }
       setStreak(count || 1);
-    } catch (_) {}
+    } catch (_) { }
   }, []);
 
   // Refresh progress when window gains focus (user returns from lesson)
@@ -1193,7 +1321,7 @@ const LearnDashboard = ({ onboardingData }) => {
       // Force a re-render by updating a dummy state
       setHoveredIndex(prev => prev === null ? -1 : null);
     };
-    
+
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
   }, []);
@@ -1219,36 +1347,36 @@ const LearnDashboard = ({ onboardingData }) => {
     try {
       setSubjectChanging(true);
       setShowSubjectModal(false);
-      
+
       console.log('Changing subject to:', newSubject);
       console.log('User ID:', user._id);
-      
+
       // Validate user ID
       if (!user._id) {
         throw new Error('User ID not found. Please log in again.');
       }
-      
+
       // Check if user ID is a valid MongoDB ObjectId format
       const objectIdRegex = /^[0-9a-fA-F]{24}$/;
       if (!objectIdRegex.test(user._id)) {
         throw new Error('Invalid user ID format. Please log in again.');
       }
-      
+
       // Update user profile with new subject
       const response = await authService.updateProfile({
         userId: user._id,
         subject: newSubject
       });
-      
+
       console.log('Update profile response:', response);
-      
+
       // Update local user state to show correct subject name immediately
       const updatedUser = { ...user, subject: newSubject };
       localStorage.setItem('user', JSON.stringify(updatedUser));
-      
+
       // Immediately reload the page to show the new subject content
       window.location.reload();
-      
+
     } catch (error) {
       console.error('Failed to change subject:', error);
       console.error('Error details:', error.response?.data || error.message);
@@ -1266,27 +1394,112 @@ const LearnDashboard = ({ onboardingData }) => {
           // Clear user-scoped keys
           localStorage.removeItem(userScopedKey(LS_KEY_BASE));
           localStorage.removeItem(userScopedKey(LS_IDS_KEY_BASE));
-          
+
           // Clear non-scoped keys (backward compatibility)
           localStorage.removeItem(LS_KEY_BASE);
           localStorage.removeItem(LS_IDS_KEY_BASE);
-          
+
           // Clear any other progress-related keys
           localStorage.removeItem("daily_streak_day");
           localStorage.removeItem("daily_streak_count");
-          
+
           console.log('[Logout] Cleared all progress localStorage');
-        } catch (_) {}
+        } catch (_) { }
       }
-    } catch (_) {}
+    } catch (_) { }
     logout?.();
     try {
       window.location.href = "/";
-    } catch (_) {}
+    } catch (_) { }
   };
 
+  const fetchLeaderboard = useCallback(async (schoolName, timeframe) => {
+    if (!schoolName?.trim()) return;
+    
+    try {
+      setLeaderboardLoading(true);
+      const targetTimeframe = timeframe || leaderboardTimeframe;
+      const response = await authService.getLeaderboard(schoolName, targetTimeframe);
+      let data = response?.data?.leaderboard || [];
+      
+      // Ensure current user is in the list
+      if (user && !data.find(u => u.username === user.username)) {
+        data.push({
+          username: user.username,
+          name: user.name || user.username,
+          school: user.school || schoolName,
+          totalPoints: targetTimeframe === 'weekly' ? weeklyStarsRef.current : (starsRef.current || 0)
+        });
+        data.sort((a, b) => (b.totalPoints || 0) - (a.totalPoints || 0));
+      }
 
-  
+      setLeaderboardData(data);
+      setLeaderboardSearched(true);
+    } catch (error) {
+      console.error('Leaderboard fetch failed:', error);
+    } finally {
+      setLeaderboardLoading(false);
+    }
+  }, [user?._id, user?.username, user?.school, leaderboardTimeframe]);
+
+  const handleLeaderboardSearch = async (e) => {
+    if (e) e.preventDefault();
+    if (!leaderboardSchool.trim()) return;
+
+    setShowSuggestions(false);
+    
+    // If user is logged in and school is different, update profile
+    if (user?._id && leaderboardSchool !== user.school) {
+      try {
+        const updateResponse = await authService.updateProfile({
+          userId: user._id,
+          school: leaderboardSchool
+        });
+        if (updateResponse?.data && updateUser) {
+          updateUser({ ...user, school: leaderboardSchool });
+        }
+        setIsChangingSchool(false);
+      } catch (updateErr) {
+        console.error('Failed to update user school:', updateErr);
+      }
+    }
+
+    fetchLeaderboard(leaderboardSchool);
+  };
+
+  // Fetch school suggestions for autocomplete
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (leaderboardSchool.trim().length < 2) {
+        setSchoolSuggestions([]);
+        return;
+      }
+
+      try {
+        const response = await authService.getOlaSchoolSuggestions(leaderboardSchool);
+        // Ola Maps returns predictions array
+        const predictions = response?.data?.predictions || [];
+        const suggestions = predictions.map(p => p.description);
+        setSchoolSuggestions(suggestions);
+      } catch (error) {
+        console.error('Failed to fetch school suggestions:', error);
+      }
+    };
+
+    const timer = setTimeout(fetchSuggestions, 300);
+    return () => clearTimeout(timer);
+  }, [leaderboardSchool]);
+
+  // Auto-load or refresh leaderboard when school or timeframe changes
+  useEffect(() => {
+    const activeSchool = user?.school || leaderboardSchool;
+    if (activeSchool && !isChangingSchool) {
+      fetchLeaderboard(activeSchool);
+    }
+  }, [user?.school, isChangingSchool, leaderboardTimeframe, fetchLeaderboard]);
+
+
+
   // Re-calculate progress state when trigger changes
   const progressState = useMemo(() => {
     const serverCompletedSet = new Set(
@@ -1298,10 +1511,10 @@ const LearnDashboard = ({ onboardingData }) => {
     // Load local progress for current chapter to ensure chapter-specific tracking
     const localProgress = loadLocalProgress(chapterId);
     const allCompletedIds = loadCompletedIds();
-    
+
     // CRITICAL FIX: Load completed composite keys (new format) - PRIMARY SOURCE
     const completedCompositeKeys = loadCompletedCompositeKeys();
-    
+
     // CRITICAL FIX: Get completedModules from backend progress (more accurate than chapter-level)
     const backendCompletedModuleIds = new Set();
     if (progress && Array.isArray(progress)) {
@@ -1313,14 +1526,14 @@ const LearnDashboard = ({ onboardingData }) => {
         }
       });
     }
-    
+
     // CRITICAL FIX: Filter completed IDs to only include modules from the CURRENT chapter
     // This prevents modules from other chapters being marked as completed
     // IMPORTANT: Include modules from both modulesList AND unitModulesMap (for units)
     const chapterModuleIds = new Set(
       (modulesList || []).map(m => m?._id ? String(m._id) : null).filter(Boolean)
     );
-    
+
     // Also include all modules from unitModulesMap for this chapter
     if (unitModulesMap && typeof unitModulesMap === 'object') {
       Object.values(unitModulesMap).forEach((unitModules) => {
@@ -1333,24 +1546,24 @@ const LearnDashboard = ({ onboardingData }) => {
         }
       });
     }
-    
+
     const currentChapterModuleIds = chapterModuleIds;
-    
+
     // Merge backend completedModules with local completedIds, but only for current chapter
     // CRITICAL FIX: Don't filter if currentChapterModuleIds is empty (modules not loaded yet)
     // This prevents stars from disappearing on refresh before modules are loaded
     const completedIdSet = currentChapterModuleIds.size > 0
       ? new Set(
-          Array.from(allCompletedIds)
-            .filter(id => currentChapterModuleIds.has(id))
-            .concat(Array.from(backendCompletedModuleIds).filter(id => currentChapterModuleIds.has(id)))
-        )
+        Array.from(allCompletedIds)
+          .filter(id => currentChapterModuleIds.has(id))
+          .concat(Array.from(backendCompletedModuleIds).filter(id => currentChapterModuleIds.has(id)))
+      )
       : new Set(
-          // If modules not loaded yet, include all IDs to prevent flicker
-          // They will be filtered properly once modules are loaded
-          Array.from(allCompletedIds).concat(Array.from(backendCompletedModuleIds))
-        );
-    
+        // If modules not loaded yet, include all IDs to prevent flicker
+        // They will be filtered properly once modules are loaded
+        Array.from(allCompletedIds).concat(Array.from(backendCompletedModuleIds))
+      );
+
     // Debug logging to help identify sync issues
     console.log('[Dashboard Progress Debug]', {
       serverProgress: progress || [],
@@ -1363,7 +1576,7 @@ const LearnDashboard = ({ onboardingData }) => {
       chapterId,
       modulesList: modulesList?.map((m, i) => ({ index: i, id: m?._id, title: m?.title }))
     });
-    
+
     return {
       serverCompletedSet,
       localProgress,
@@ -1371,9 +1584,9 @@ const LearnDashboard = ({ onboardingData }) => {
       completedCompositeKeys // NEW: Include composite keys for checking completion
     };
   }, [progress, progressUpdateTrigger, modulesList, unitModulesMap, chapterId, subjectName, user?._id, user?.subject]);
-  
+
   const { serverCompletedSet, localProgress, completedIdSet, completedCompositeKeys } = progressState;
-  
+
   // Listen for storage events to update progress when other tabs/pages update localStorage
   useEffect(() => {
     const handleStorageChange = (e) => {
@@ -1382,17 +1595,17 @@ const LearnDashboard = ({ onboardingData }) => {
         setProgressUpdateTrigger(prev => prev + 1);
       }
     };
-    
+
     window.addEventListener('storage', handleStorageChange);
     // Also listen for custom events from same-tab updates
     window.addEventListener('progressUpdated', handleStorageChange);
-    
+
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('progressUpdated', handleStorageChange);
     };
   }, []);
-  
+
   // Trigger progress update when returning to dashboard
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -1402,7 +1615,7 @@ const LearnDashboard = ({ onboardingData }) => {
         setTimeout(syncProgress, 100);
       }
     };
-    
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [progress, modulesList]);
@@ -1424,12 +1637,12 @@ const LearnDashboard = ({ onboardingData }) => {
       const clearPreviousAccountData = () => {
         try {
           // Clear non-scoped keys that might contain previous account data
-          localStorage.removeItem(LS_KEY_BASE);
+          localStorage.removeItem(LS_KEY_BASE_V1);
           localStorage.removeItem(LS_IDS_KEY_BASE);
           console.log('[Account Switch] Cleared previous account localStorage');
-        } catch (_) {}
+        } catch (_) { }
       };
-      
+
       clearPreviousAccountData();
     }
   }, [user?._id]);
@@ -1472,15 +1685,30 @@ const LearnDashboard = ({ onboardingData }) => {
     return () => clearTimeout(timeoutId);
   }, [user?._id]);
 
-  // Note: firstIncompleteIndex will be computed per unit to reflect local/module-id completion
-
+  const firstIncompleteIndex = useMemo(() => {
+    return modulesList.findIndex((m) => {
+      const id = m?._id;
+      if (!id) return true;
+      const key = progressKey(chapterId, null, id);
+      return !completedCompositeKeys.has(key) && !completedIdSet.has(String(id));
+    });
+  }, [modulesList, chapterId, completedCompositeKeys, completedIdSet]);
 
   return (
     <ReviewProvider>
       <div className="bg-gradient-to-b from-[#E6F2FF] to-[#F7FBFF] h-screen flex flex-col md:flex-row overflow-hidden">
         {/* Mobile Header */}
-        <div className="md:hidden bg-white border-b border-blue-200 p-4 flex items-center justify-between shadow-lg">
-          <h1 className="text-2xl font-extrabold text-blue-600">HoshiYaar</h1>
+        <div className="md:hidden fixed top-0 left-0 right-0 z-[1001] bg-white border-b border-blue-200 p-4 flex items-center justify-between shadow-md">
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-extrabold text-blue-600">HoshiYaar</h1>
+            <button
+              onClick={() => setShowMobileLeaderboard(true)}
+              className="flex items-center gap-1.5 bg-indigo-50 px-3 py-1.5 rounded-full border border-indigo-100 active:scale-95 transition-transform"
+            >
+              <span className="text-sm">🏆</span>
+              <span className="text-[10px] font-black text-indigo-600 uppercase">Rankings</span>
+            </button>
+          </div>
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="p-2 rounded-lg hover:bg-blue-50 transition-colors"
@@ -1491,16 +1719,15 @@ const LearnDashboard = ({ onboardingData }) => {
 
         {/* Mobile Menu Overlay */}
         {isMobileMenuOpen && (
-          <div 
+          <div
             className="md:hidden fixed inset-0 z-50 bg-black bg-opacity-50"
             onClick={() => setIsMobileMenuOpen(false)}
           />
         )}
 
         {/* Mobile Menu Sidebar */}
-        <nav className={`md:hidden fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out ${
-          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}>
+        <nav className={`md:hidden fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}>
           <div className="p-6 space-y-4">
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-2xl font-extrabold text-blue-600">HoshiYaar</h1>
@@ -1543,45 +1770,6 @@ const LearnDashboard = ({ onboardingData }) => {
               <ProfileIcon />
               <span>Profile</span>
             </a>
-            <a
-              href="https://drive.google.com/file/d/1O_cZFjm4eQSp2S55_6_Ly7zsHhZsX7hG/view?usp=sharing"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 py-3 px-4 rounded-xl border-2 border-blue-100 bg-white text-blue-700 shadow-sm hover:bg-blue-50 transition-colors"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-500 text-lg">📂</div>
-              <div className="text-left">
-                <p className="text-sm font-extrabold leading-tight text-blue-700">Resource Drop 1</p>
-                <p className="text-xs text-blue-500/80">Google Drive</p>
-              </div>
-              <span className="text-lg text-blue-400">↗</span>
-            </a>
-            <a
-              href="https://drive.google.com/file/d/1O_cZFjm4eQSp2S55_6_Ly7zsHhZsX7hG/view?usp=sharing"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 py-3 px-4 rounded-xl border-2 border-blue-100 bg-white text-blue-700 shadow-sm hover:bg-blue-50 transition-colors"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-500 text-lg">📂</div>
-              <div className="text-left">
-                <p className="text-sm font-extrabold leading-tight text-blue-700">Resource Drop 2</p>
-                <p className="text-xs text-blue-500/80">Google Drive</p>
-              </div>
-              <span className="text-lg text-blue-400">↗</span>
-            </a>
-            <a
-              href="https://drive.google.com/file/d/1O_cZFjm4eQSp2S55_6_Ly7zsHhZsX7hG/view?usp=sharing"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 py-3 px-4 rounded-xl border-2 border-blue-100 bg-white text-blue-700 shadow-sm hover:bg-blue-50 transition-colors"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-500 text-lg">📂</div>
-              <div className="text-left">
-                <p className="text-sm font-extrabold leading-tight text-blue-700">Resource Drop 3</p>
-                <p className="text-xs text-blue-500/80">Google Drive</p>
-              </div>
-              <span className="text-lg text-blue-400">↗</span>
-            </a>
           </div>
         </nav>
 
@@ -1619,621 +1807,579 @@ const LearnDashboard = ({ onboardingData }) => {
             <ProfileIcon />
             <span>Profile</span>
           </a>
-        <a
-          href="https://drive.google.com/file/d/1s6DgcP-hu7vdm6La7WwABPlvsetxZNiM/view"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 py-3 px-4 rounded-xl border-2 border-blue-100 bg-white text-blue-700 shadow-sm hover:bg-blue-50 transition-colors"
-        >
-          <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-blue-50 text-blue-500 text-lg">📂</div>
-          <div className="text-left">
-            <p className="text-sm font-extrabold leading-tight text-blue-700">Resource Drop 1</p>
-            <p className="text-xs text-blue-500/80">Google Drive</p>
-          </div>
-          <span className="text-lg text-blue-400">↗</span>
-        </a>
-        <a
-          href="https://docs.google.com/forms/d/e/1FAIpQLScOIcWmNcebXFgfgLxmfAt0Pd4hzPyhphUOsDbXsBX4pLexHw/viewform"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 py-3 px-4 rounded-xl border-2 border-blue-100 bg-white text-blue-700 shadow-sm hover:bg-blue-50 transition-colors"
-        >
-          <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-blue-50 text-blue-500 text-lg">📂</div>
-          <div className="text-left">
-            <p className="text-sm font-extrabold leading-tight text-blue-700">Resource Drop 2</p>
-            <p className="text-xs text-blue-500/80">Google Drive</p>
-          </div>
-          <span className="text-lg text-blue-400">↗</span>
-        </a>
-        <a
-          href="https://docs.google.com/forms/d/e/1FAIpQLScmiG8DzBgY5Z9Aa2DiI0J7GOuKEYa5UABri8qXfPehmiK0bg/viewform"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 py-3 px-4 rounded-xl border-2 border-blue-100 bg-white text-blue-700 shadow-sm hover:bg-blue-50 transition-colors"
-        >
-          <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-blue-50 text-blue-500 text-lg">📂</div>
-          <div className="text-left">
-            <p className="text-sm font-extrabold leading-tight text-blue-700">Resource Drop 3</p>
-            <p className="text-xs text-blue-500/80">Google Drive</p>
-          </div>
-          <span className="text-lg text-blue-400">↗</span>
-        </a>
-        <a
-          href="https://docs.google.com/forms/d/1SgerXkOG-lT3RR0TejOC2w4MBGE7Bbpy9RCzQ9dpocE/viewform?edit_requested=true"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 py-3 px-4 rounded-xl border-2 border-blue-100 bg-white text-blue-700 shadow-sm hover:bg-blue-50 transition-colors"
-        >
-          <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-blue-50 text-blue-500 text-lg">📂</div>
-          <div className="text-left">
-            <p className="text-sm font-extrabold leading-tight text-blue-700">Resource Drop 4</p>
-            <p className="text-xs text-blue-500/80">Google Drive</p>
-          </div>
-          <span className="text-lg text-blue-400">↗</span>
-        </a>
-        <a
-          href="https://drive.google.com/drive/folders/1O2NlDltqr3hodICT_UrH2tCJaLfC2zqd?usp=sharing"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 py-3 px-4 rounded-xl border-2 border-blue-100 bg-white text-blue-700 shadow-sm hover:bg-blue-50 transition-colors"
-        >
-          <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-blue-50 text-blue-500 text-lg">📂</div>
-          <div className="text-left">
-            <p className="text-sm font-extrabold leading-tight text-blue-700">Resource Drop 5</p>
-            <p className="text-xs text-blue-500/80">Google Drive</p>
-          </div>
-          <span className="text-lg text-blue-400">↗</span>
-        </a>
         </nav>
 
-        <main className="flex-grow p-3 md:p-6 overflow-auto no-scrollbar bg-transparent mt-16 md:mt-0">
-          {/* Mobile Score Display - Fancy Extension Style - only visible on small screens */}
-          <div className="md:hidden fixed bottom-4 right-4 z-40">
-            <div className="bg-gradient-to-br from-yellow-50 via-yellow-100 to-orange-100 rounded-xl shadow-2xl border-2 border-yellow-300 p-3 flex items-center gap-2 min-w-[75px] backdrop-blur-sm">
-              <div className="relative">
-                <span className="text-yellow-600 text-xl drop-shadow-sm">⭐</span>
-                <div className="absolute inset-0 text-yellow-400 text-xl blur-sm opacity-50">⭐</div>
-              </div>
-              <span className="text-gray-800 font-extrabold text-sm bg-white/50 px-1.5 py-0.5 rounded-md">
-                {stars}
-              </span>
-            </div>
-          </div>
+        <main className="flex-grow p-1 md:p-3 overflow-y-auto overflow-x-hidden no-scrollbar bg-transparent mt-16 md:mt-0">
+          {/* Mobile Score Display removed per request */}
 
           {/* Section Header (hide when viewing chapters list). If units exist, headers are shown per unit below, so hide this top one. */}
-          
 
-        {/* Loading screen removed per request */}
+
+          {/* Loading screen removed per request */}
 
           {/* Vertical timelines - stacked per unit (scroll to view more) */}
           {(
             unitsList.length > 0 || modulesList.length > 0 || true
           ) && (
-            <div
-              id="tree-scroll-container"
-              className={`${
-                showChapters ? "relative w-full" : "relative max-w-5xl"
-              } mx-auto h-[82vh] overflow-y-auto overflow-x-hidden no-scrollbar scroll-smooth bg-neutral-50/10 rounded-3xl`}
-            >
-              {showChapters ? (
-                <div className="w-full px-4 md:px-8">
-                  <div className="bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 text-white rounded-3xl p-6 md:p-8 shadow-2xl ring-4 ring-white/30 w-full relative overflow-hidden">
-                    {/* Decorative background elements */}
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-                    <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full -ml-24 -mb-24 blur-3xl"></div>
-                    
-                    <div className="relative z-10">
-                      <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-2xl md:text-3xl font-extrabold text-white drop-shadow-lg">All Chapters</h2>
-                        <button
-                          onClick={() => setShowChapters(false)}
-                          className="text-white/90 hover:text-white hover:bg-white/20 rounded-full p-2 transition-all duration-200 text-2xl w-10 h-10 flex items-center justify-center"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                      {statsLoading && (
-                        <div className="flex justify-center items-center py-10">
-                          <div className="animate-spin rounded-full h-12 w-12 border-4 border-white/30 border-t-white"></div>
-                          <span className="ml-3 font-extrabold text-lg">Loading chapter stats…</span>
+              <div
+                id="tree-scroll-container"
+                className="relative w-full mx-auto bg-transparent"
+              >
+                {showChapters ? (
+                  <div className="w-full px-4 md:px-8">
+                    <div className="bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 text-white rounded-3xl p-6 md:p-8 shadow-2xl ring-4 ring-white/30 w-full relative overflow-hidden">
+                      {/* Decorative background elements */}
+                      <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+                      <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full -ml-24 -mb-24 blur-3xl"></div>
+
+                      <div className="relative z-10">
+                        <div className="flex items-center justify-between mb-6">
+                          <h2 className="text-2xl md:text-3xl font-extrabold text-white drop-shadow-lg">All Chapters</h2>
+                          <button
+                            onClick={() => setShowChapters(false)}
+                            className="text-white/90 hover:text-white hover:bg-white/20 rounded-full p-2 transition-all duration-200 text-2xl w-10 h-10 flex items-center justify-center"
+                          >
+                            ✕
+                          </button>
                         </div>
-                      )}
-                      <div className="grid grid-cols-1 gap-4 md:gap-6 max-h-[65vh] overflow-y-auto custom-scrollbar pr-2">
-                        {chaptersList.map((ch, index) => {
-                          const st = chapterStats[ch._id] || { total: 0, completed: 0 };
-                          const pct = st.total > 0 ? Math.min(100, Math.round((st.completed / st.total) * 100)) : 0;
-                          
-                          return (
-                            <div
-                              key={ch._id}
-                              className="group w-full min-h-[200px] md:min-h-[220px] rounded-3xl p-5 md:p-6 bg-white text-blue-700 border-4 border-blue-200/50 shadow-[0_8px_0_0_rgba(59,130,246,0.2)] hover:shadow-[0_12px_0_0_rgba(59,130,246,0.3)] transition-all duration-300 hover:scale-[1.02] hover:border-blue-300 flex items-center gap-6 relative overflow-hidden"
-                              style={{ animationDelay: `${index * 50}ms` }}
-                            >
-                              {/* Gradient background effect */}
-                              <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                              
-                              <div className="flex-1 relative z-10">
-                                <div className="text-xl md:text-2xl font-extrabold leading-tight mb-3 text-blue-900 group-hover:text-blue-800 transition-colors">
-                                  {ch.title}
-                                </div>
-                                
-                                {/* Enhanced progress bar */}
-                                <div className="mt-4 mb-2">
-                                  <div className="flex items-center justify-between mb-1">
-                                    <span className="text-xs font-bold text-blue-600/80">Progress</span>
-                                    <span className="text-xs font-extrabold text-blue-700">{st.completed} / {st.total || "?"}</span>
-                                  </div>
-                                  <div className="h-4 bg-blue-100 rounded-full overflow-hidden shadow-inner">
-                                    <div
-                                      className="h-full bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 rounded-full transition-all duration-500 ease-out relative overflow-hidden"
-                                      style={{ width: `${pct}%` }}
-                                    >
-                                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
-                                    </div>
-                                  </div>
-                                </div>
-                                
-                                <div className="mt-5">
-                                  <button
-                                    onClick={async () => {
-                                      setShowChapters(false);
-                                      if (ch?._id) {
-                                        // Update URL with chapterId to persist selection
-                                        navigate(`/learn?chapterId=${encodeURIComponent(ch._id)}`, { replace: false });
-                                        // Immediately update state to reflect the change
-                                        setChapterId(ch._id);
-                                        setChapterTitle(ch.title);
-                                        
-                                        // Update database with the selected chapter
-                                        if (user?._id) {
-                                          try {
-                                            const response = await authService.updateProfile({
-                                              userId: user._id,
-                                              chapter: ch.title, // Save chapter title to user profile
-                                            });
-                                            console.log('Chapter saved to database:', ch.title);
-                                            
-                                            // Update local user state to reflect the change immediately
-                                            const updatedUser = response?.data ? { ...user, ...response.data } : { ...user, chapter: ch.title, chapterId: ch._id };
-                                            try {
-                                              // Also save chapter ID to localStorage for quick retrieval
-                                              localStorage.setItem(`last_selected_chapter_${user._id}_${subjectName}`, ch._id);
-                                              // Update AuthContext user state immediately
-                                              if (updateUser) {
-                                                updateUser(updatedUser);
-                                              } else {
-                                                // Fallback to localStorage only
-                                                localStorage.setItem('user', JSON.stringify(updatedUser));
-                                              }
-                                            } catch (e) {
-                                              console.warn('Failed to update user state:', e);
-                                            }
-                                          } catch (error) {
-                                            console.error('Failed to save chapter to database:', error);
-                                            // Still save to localStorage as fallback
-                                            try {
-                                              localStorage.setItem(`last_selected_chapter_${user._id}_${subjectName}`, ch._id);
-                                            } catch (_) {}
-                                            // Don't block UI if save fails
-                                          }
-                                        } else {
-                                          // Save to localStorage even if not logged in
-                                          try {
-                                            localStorage.setItem(`last_selected_chapter_anon_${subjectName}`, ch._id);
-                                          } catch (_) {}
-                                        }
-                                      }
-                                    }}
-                                    className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 via-blue-600 to-indigo-600 hover:from-blue-700 hover:via-blue-700 hover:to-indigo-700 text-white font-extrabold text-sm md:text-base shadow-[0_6px_0_0_rgba(37,99,235,0.4)] hover:shadow-[0_8px_0_0_rgba(37,99,235,0.5)] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden group"
-                                  >
-                                    <span className="relative z-10 flex items-center justify-center gap-2">
-                                      <span>CONTINUE</span>
-                                      <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                      </svg>
-                                    </span>
-                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
-                                  </button>
-                                </div>
-                              </div>
-                              
-                              {/* Chapter illustration (right side) */}
-                              <div className="flex-shrink-0 pr-2 hidden md:block relative z-10">
-                                <div className="relative">
-                                  <img
-                                    src={chapterImg}
-                                    alt="Chapter"
-                                    className="w-36 h-36 md:w-44 md:h-44 object-contain opacity-95 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300"
-                                  />
-                                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center text-xl animate-bounce">
-                                    ❤️
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  {/* Center line (dynamic height) */}
-                  {/* Render each unit block one after another */}
-                  {(() => {
-                    if (unitsList.length === 0 && modulesList.length > 0) {
-                      return (
-                        <div 
-                          className="relative pt-12 pb-28"
-                          data-chapter-id={chapterId}
-                        >
-                      {/* Unit header card for direct modules */}
-                      <div className="sticky top-0 z-30 text-white px-6 py-5 rounded-3xl flex justify-between items-center mb-8 shadow-[0_10px_0_0_rgba(0,0,0,0.15)] max-w-3xl mx-auto border-4"
-                           style={{ background: `linear-gradient(90deg, #2C6DEF, #1E4A8C)`, borderColor: 'rgba(44, 109, 239, 0.25)' }}>
-                        <div>
-                          <p className="font-extrabold text-xl md:text-2xl">
-                            {chapterTitle || 'Learning Modules'}
-                          </p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <p className="opacity-95 text-base md:text-lg">
-                              {subjectName}
-                            </p>
-                            <button
-                              onClick={handleOpenSubjectModal}
-                              disabled={isLoading || subjectChanging}
-                              className={`flex items-center gap-2 py-2 px-4 rounded-2xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-sm font-extrabold ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                              title={subjectChanging ? "Switching Subject..." : "Change Subject"}
-                            >
-                              {subjectChanging ? "Switching..." : "Change"}
-                            </button>
+                        {statsLoading && (
+                          <div className="flex justify-center items-center py-10">
+                            <div className="animate-spin rounded-full h-12 w-12 border-4 border-white/30 border-t-white"></div>
+                            <span className="ml-3 font-extrabold text-lg">Loading chapter stats…</span>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <button 
-                            onClick={() => setShowChapters(true)} 
-                            className="flex items-center gap-2.5 py-2 px-4 rounded-xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-base"
-                          >
-                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-white/20 flex-shrink-0">
-                              <ChapterNavIcon />
-                            </span>
-                            <span className="font-bold hidden sm:inline leading-tight self-center">All Chapters</span>
-                          </button>
-                          {/* Debug button to clear false completions */}
-                          <button 
-                            onClick={clearFalseCompletions} 
-                            className="flex items-center gap-2 py-2 px-3 rounded-xl bg-red-500/20 hover:bg-red-500/30 transition-colors ring-1 ring-red-400/40 text-sm text-red-100"
-                            title="Clear false completions (Debug)"
-                          >
-                            <span className="text-xs">🔄</span>
-                            <span className="font-medium hidden sm:inline">Reset Progress</span>
-                          </button>
-                        </div>
-                      </div>
-                      
-                      {/* Render modules directly along the wavy path */}
-                      <div className="relative w-full mx-auto pb-32 pt-20 mt-24" style={{ minHeight: Math.max(modulesList.length * rowSpacing, 400) }}>
-                        <OrganicPathSvg 
-                          nodesCount={modulesList.length} 
-                          color={lighten("#2C6DEF", 0.3)} 
-                          rowSpacing={rowSpacing}
-                          isMobile={isMobileLayout}
-                        />
+                        )}
+                        <div className="grid grid-cols-1 gap-4 md:gap-6 max-h-[65vh] overflow-y-auto custom-scrollbar pr-2">
+                          {chaptersList.map((ch, index) => {
+                            const st = chapterStats[ch._id] || { total: 0, completed: 0 };
+                            const pct = st.total > 0 ? Math.min(100, Math.round((st.completed / st.total) * 100)) : 0;
 
-                        {modulesList.map((mod, index) => {
-                          const moduleIdHere = mod?._id;
-                          const chapterIdHere = chapterId;
-                          const compositeKey = progressKey(chapterIdHere, null, moduleIdHere);
-                          const isCompletedByCompositeKey = completedCompositeKeys.has(compositeKey);
-                          const isCompletedById = moduleIdHere && !isCompletedByCompositeKey 
-                            ? completedIdSet.has(String(moduleIdHere)) 
-                            : false;
-                          const isCompleted = isCompletedByCompositeKey || isCompletedById;
-
-                          const firstIncompleteGlobal = modulesList.findIndex((m) => {
-                            const id = m?._id;
-                            if (!id) return true;
-                            const key = progressKey(chapterIdHere, null, id);
-                            return !completedCompositeKeys.has(key) && !completedIdSet.has(String(id));
-                          });
-
-                          let status = "locked";
-                          if (isCompleted) {
-                            status = "completed";
-                          } else if (index === firstIncompleteGlobal) {
-                            status = "active";
-                          }
-                          const canClick = (status === 'active' || status === 'completed');
-                          const offset = getWaveOffset(index, isMobileLayout);
-                          
-                          return (
-                            <div
-                              key={index}
-                              className="absolute w-full flex justify-center items-center px-4"
-                              onMouseEnter={() => setHoveredIndex(index)}
-                              onMouseLeave={() => setHoveredIndex(null)}
-                              style={{ 
-                                top: index * rowSpacing + 40, 
-                                zIndex: 10 + modulesList.length - index,
-                                height: 0 
-                              }}
-                            >
-                              <div className="relative">
-                                {status === "active" && <StartBadge color="#2C6DEF" />}
-                                <PathNode
-                                  status={status}
-                                  disabled={!canClick}
-                                  color="#2C6DEF"
-                                  lightenFn={lighten}
-                                  darkenFn={darken}
-                                  isDifficult={mod?.isDifficult}
-                                  isDescriptive={mod?.isDescriptive}
-                                  offset={offset}
-                                  onClick={() => {
-                                    if (!canClick) return;
-                                    saveScrollPosition();
-                                    const params = new URLSearchParams();
-                                    if (chapterId) params.set('chapterId', chapterId);
-                                    const query = params.toString();
-                                    navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
-                                  }}
-                                />
-                                
-                                {/* Original-Style side tooltip */}
-                                <div
-                                  className={`absolute top-1/2 -translate-y-1/2 bg-white border border-blue-100 rounded-xl shadow-lg px-4 py-3 w-48 hidden md:block transition-all duration-300 ease-out transform ${
-                                    offset < 0 
-                                      ? `left-full ml-12 ${hoveredIndex === index ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 pointer-events-none"}` 
-                                      : `right-full mr-12 ${hoveredIndex === index ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 pointer-events-none"}`
-                                  }`}
-                                  style={{ zIndex: 50 }}
-                                >
-                                  {/* Tooltip arrow */}
-                                  <div className={`absolute top-1/2 -translate-y-1/2 border-8 border-transparent ${
-                                    offset < 0 ? "right-full border-r-white" : "left-full border-l-white"
-                                  }`}></div>
-                                  
-                                  <div className="text-[10px] uppercase tracking-wider font-bold text-blue-500 mb-0.5">Lesson {index + 1}</div>
-                                  <div className="text-sm font-bold text-gray-800 line-clamp-2">
-                                    {mod?.title || "—"}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                      );
-                    }
-                    if (unitsList.length > 0) {
-                      return (
-                        <>
-                        {unitsList.map((u, unitIdx) => {
-                    const unitMods = unitModulesMap[u._id] || modulesList;
-                    const localLevels = unitMods;
-                    // Make the center line span from the first star to the revision star
-                    // Start line a bit below the unit header and stop slightly above the next header
-                    const localLineHeight = Math.max(
-                      160,
-                      (localLevels.length) * rowSpacing + 120
-                    );
-                    return (
-                      <div
-                        key={u._id || unitIdx}
-                        className="relative pt-12 pb-28"
-                        data-chapter-id={chapterId}
-                        data-unit-id={String(u._id)}
-                      >
-                         {/* Unit header card - sticky until next unit */}
-                         {(() => { const color = unitPalette[unitIdx % unitPalette.length]; const gradFrom = color; const gradTo = darken(color, 0.15); return (
-                         <div className="sticky top-0 z-30 text-white px-6 py-5 rounded-3xl flex justify-between items-center mb-8 shadow-[0_10px_0_0_rgba(0,0,0,0.15)] max-w-3xl mx-auto border-4"
-                              style={{ background: `linear-gradient(90deg, ${gradFrom}, ${gradTo})`, borderColor: withAlpha(color, 0.25) }}>
-                           <div>
-                             <p className="font-extrabold text-base md:text-lg">
-                               {u.title || `Unit ${unitIdx + 1}`}
-                             </p>
-                             {chapterTitle && (
-                               <p className="opacity-95 text-base md:text-lg">
-                                 {chapterTitle}
-                               </p>
-                             )}
-                             <div className="flex items-center gap-2 mt-1">
-                               <p className="opacity-90 text-sm md:text-base">
-                                 {subjectName}
-                               </p>
-                              <button
-                                onClick={handleOpenSubjectModal}
-                                disabled={isLoading || subjectChanging}
-                                className={`flex items-center gap-2 py-2 px-3 rounded-2xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-xs font-extrabold ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                title={subjectChanging ? "Switching Subject..." : "Change Subject"}
-                              >
-                                {subjectChanging ? "Switching..." : "Change"}
-                              </button>
-                             </div>
-                           </div>
-                           <div className="flex items-center gap-2">
-                             <button 
-                               onClick={() => setShowChapters(true)} 
-                               className="flex items-center gap-2.5 py-2 px-4 rounded-xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-base"
-                             >
-                               <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-white/20 flex-shrink-0">
-                                 <ChapterNavIcon />
-                               </span>
-                               <span className="font-bold hidden sm:inline leading-tight self-center">All Chapters</span>
-                             </button>
-                           </div>
-                         </div>
-                         ); })()}
-                        <div className="relative w-full mx-auto pb-40 pt-20 mt-28" style={{ minHeight: Math.max((localLevels.length + 1) * rowSpacing, 400) }}>
-                          <OrganicPathSvg 
-                            nodesCount={localLevels.length + 1} 
-                            color={lighten(unitPalette[unitIdx % unitPalette.length], 0.25)} 
-                            rowSpacing={rowSpacing}
-                            isMobile={isMobileLayout}
-                          />
-
-                          {localLevels.map((mod, index) => {
-                            const moduleIdHere = mod?._id;
-                            const unitIdHere = u?._id;
-                            const chapterIdHere = chapterId;
-                            const compositeKey = progressKey(chapterIdHere, unitIdHere, moduleIdHere);
-                            const isCompletedByCompositeKey = completedCompositeKeys.has(compositeKey);
-                            const isCompletedById = moduleIdHere && !isCompletedByCompositeKey 
-                              ? completedIdSet.has(String(moduleIdHere)) 
-                              : false;
-                            const isCompleted = isCompletedByCompositeKey || isCompletedById;
-
-                            const firstIncompleteForUnit = localLevels.findIndex((m) => {
-                              const id = m?._id;
-                              if (!id) return true;
-                              const key = progressKey(chapterIdHere, unitIdHere, id);
-                              return !completedCompositeKeys.has(key) && !completedIdSet.has(String(id));
-                            });
-
-                            let status = "locked";
-                            if (isCompleted) {
-                              status = "completed";
-                            } else if (index === firstIncompleteForUnit) {
-                              status = "active";
-                            }
-                            const canClick = (status === 'active' || status === 'completed');
-                            const offset = getWaveOffset(index, isMobileLayout);
-                            
                             return (
                               <div
-                                key={index}
-                                id={`chapter-${mod._id}`}
-                                className="absolute w-full flex justify-center items-center px-4"
-                                onMouseEnter={() => {
-                                  setHoveredIndex(index);
-                                  setHoveredUnitModule(u._id);
-                                }}
-                                onMouseLeave={() => {
-                                  setHoveredIndex(null);
-                                  setHoveredUnitModule(null);
-                                }}
-                                style={{ 
-                                  top: index * rowSpacing + 40, 
-                                  zIndex: 10 + localLevels.length - index,
-                                  height: 0 
-                                }}
+                                key={ch._id}
+                                className="group w-full min-h-[200px] md:min-h-[220px] rounded-3xl p-5 md:p-6 bg-white text-blue-700 border-4 border-blue-200/50 shadow-[0_8px_0_0_rgba(59,130,246,0.2)] hover:shadow-[0_12px_0_0_rgba(59,130,246,0.3)] transition-all duration-300 hover:scale-[1.02] hover:border-blue-300 flex items-center gap-6 relative overflow-hidden"
+                                style={{ animationDelay: `${index * 50}ms` }}
                               >
-                                <div className="relative">
-                                  {status === "active" && <StartBadge color={unitPalette[unitIdx % unitPalette.length]} />}
-                                  <PathNode
-                                    status={status}
-                                    disabled={!canClick}
-                                    color={unitPalette[unitIdx % unitPalette.length]}
-                                    lightenFn={lighten}
-                                    darkenFn={darken}
-                                    isDifficult={mod?.isDifficult}
-                                    isDescriptive={mod?.isDescriptive}
-                                    offset={offset}
-                                    onClick={() => {
-                                      if (!canClick) return;
-                                      saveScrollPosition();
-                                      const params = new URLSearchParams();
-                                      if (chapterId) params.set('chapterId', chapterId);
-                                      if (u?._id) params.set('unitId', u._id);
-                                      const query = params.toString();
-                                      navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
-                                    }}
-                                  />
-                                  
-                                  {/* Original-Style side tooltip */}
-                                  <div
-                                    className={`absolute top-1/2 -translate-y-1/2 bg-white border border-gray-100 rounded-xl shadow-lg px-4 py-3 w-48 hidden md:block transition-all duration-300 ease-out transform ${
-                                      offset < 0 
-                                        ? `left-full ml-12 ${hoveredIndex === index && hoveredUnitModule === u._id ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 pointer-events-none"}` 
-                                        : `right-full mr-12 ${hoveredIndex === index && hoveredUnitModule === u._id ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 pointer-events-none"}`
-                                    }`}
-                                    style={{ zIndex: 50 }}
-                                  >
-                                    {/* Tooltip arrow */}
-                                    <div className={`absolute top-1/2 -translate-y-1/2 border-8 border-transparent ${
-                                      offset < 0 ? "right-full border-r-white" : "left-full border-l-white"
-                                    }`}></div>
+                                {/* Gradient background effect */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
-                                    <div className="text-[10px] uppercase tracking-wider font-bold mb-0.5" style={{ color: unitPalette[unitIdx % unitPalette.length] }}>Lesson {index + 1}</div>
-                                    <div className="text-sm font-bold text-gray-800 line-clamp-2">
-                                      {mod?.title || "—"}
+                                <div className="flex-1 relative z-10">
+                                  <div className="text-xl md:text-2xl font-extrabold leading-tight mb-3 text-blue-900 group-hover:text-blue-800 transition-colors">
+                                    {ch.title}
+                                  </div>
+
+                                  {/* Enhanced progress bar */}
+                                  <div className="mt-4 mb-2">
+                                    <div className="flex items-center justify-between mb-1">
+                                      <span className="text-xs font-bold text-blue-600/80">Progress</span>
+                                      <span className="text-xs font-extrabold text-blue-700">{st.completed} / {st.total || "?"}</span>
+                                    </div>
+                                    <div className="h-4 bg-blue-100 rounded-full overflow-hidden shadow-inner">
+                                      <div
+                                        className="h-full bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 rounded-full transition-all duration-500 ease-out relative overflow-hidden"
+                                        style={{ width: `${pct}%` }}
+                                      >
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="mt-5">
+                                    <button
+                                      onClick={async () => {
+                                        setShowChapters(false);
+                                        if (ch?._id) {
+                                          // Update URL with chapterId to persist selection
+                                          navigate(`/learn?chapterId=${encodeURIComponent(ch._id)}`, { replace: false });
+                                          // Immediately update state to reflect the change
+                                          setChapterId(ch._id);
+                                          setChapterTitle(ch.title);
+
+                                          // Update database with the selected chapter
+                                          if (user?._id) {
+                                            try {
+                                              const response = await authService.updateProfile({
+                                                userId: user._id,
+                                                chapter: ch.title, // Save chapter title to user profile
+                                              });
+                                              console.log('Chapter saved to database:', ch.title);
+
+                                              // Update local user state to reflect the change immediately
+                                              const updatedUser = response?.data ? { ...user, ...response.data } : { ...user, chapter: ch.title, chapterId: ch._id };
+                                              try {
+                                                // Also save chapter ID to localStorage for quick retrieval
+                                                localStorage.setItem(`last_selected_chapter_${user._id}_${subjectName}`, ch._id);
+                                                // Update AuthContext user state immediately
+                                                if (updateUser) {
+                                                  updateUser(updatedUser);
+                                                } else {
+                                                  // Fallback to localStorage only
+                                                  localStorage.setItem('user', JSON.stringify(updatedUser));
+                                                }
+                                              } catch (e) {
+                                                console.warn('Failed to update user state:', e);
+                                              }
+                                            } catch (error) {
+                                              console.error('Failed to save chapter to database:', error);
+                                              // Still save to localStorage as fallback
+                                              try {
+                                                localStorage.setItem(`last_selected_chapter_${user._id}_${subjectName}`, ch._id);
+                                              } catch (_) { }
+                                              // Don't block UI if save fails
+                                            }
+                                          } else {
+                                            // Save to localStorage even if not logged in
+                                            try {
+                                              localStorage.setItem(`last_selected_chapter_anon_${subjectName}`, ch._id);
+                                            } catch (_) { }
+                                          }
+                                        }
+                                      }}
+                                      className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 via-blue-600 to-indigo-600 hover:from-blue-700 hover:via-blue-700 hover:to-indigo-700 text-white font-extrabold text-sm md:text-base shadow-[0_6px_0_0_rgba(37,99,235,0.4)] hover:shadow-[0_8px_0_0_rgba(37,99,235,0.5)] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden group"
+                                    >
+                                      <span className="relative z-10 flex items-center justify-center gap-2">
+                                        <span>CONTINUE</span>
+                                        <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                        </svg>
+                                      </span>
+                                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                                    </button>
+                                  </div>
+                                </div>
+
+                                {/* Chapter illustration (right side) */}
+                                <div className="flex-shrink-0 pr-2 hidden md:block relative z-10">
+                                  <div className="relative">
+                                    <img
+                                      src={chapterImg}
+                                      alt="Chapter"
+                                      className="w-36 h-36 md:w-44 md:h-44 object-contain opacity-95 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300"
+                                    />
+                                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center text-xl animate-bounce">
+                                      ❤️
                                     </div>
                                   </div>
                                 </div>
+
                               </div>
                             );
                           })}
-
-                          {/* Revision star at the end of the wavy path */}
-                          <div 
-                             className="absolute w-full flex justify-center items-center px-4"
-                             style={{ top: localLevels.length * rowSpacing + 40, zIndex: 10, height: 0 }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* Center line (dynamic height) */}
+                    {/* Render each unit block one after another */}
+                    {(() => {
+                      if (unitsList.length === 0 && modulesList.length > 0) {
+                        return (
+                          <div
+                            className="relative pt-12 pb-28"
+                            data-chapter-id={chapterId}
                           >
-                             <div className="relative group" style={{ transform: `translateX(${getWaveOffset(localLevels.length, isMobileLayout)}px)` }}>
-                                <RevisionStar
-                                  align="center"
-                                  chapterId={chapterId}
-                                  unitId={u?._id}
-                                />
-                                {/* Optional tooltip for revision star */}
-                                <div className="absolute left-full ml-10 top-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-sm border-2 border-yellow-200 rounded-2xl shadow-xl px-5 py-4 w-56 hidden lg:block opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
-                                  <div className="text-[10px] uppercase tracking-wider font-black text-yellow-500 mb-1">Final Challenge</div>
-                                  <div className="text-base font-extrabold text-gray-800">Unit Revision</div>
+                            {/* Unit header card for direct modules */}
+                            <div className="sticky top-0 z-[100] text-white px-6 py-5 rounded-3xl flex justify-between items-center mb-8 shadow-[0_10px_0_0_rgba(0,0,0,0.15)] w-full border-4"
+                              style={{ background: `linear-gradient(90deg, #2C6DEF, #1E4A8C)`, borderColor: 'rgba(44, 109, 239, 0.25)' }}>
+                              <div>
+                                <p className="font-extrabold text-xl md:text-2xl">
+                                  {chapterTitle || 'Learning Modules'}
+                                </p>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <p className="opacity-95 text-base md:text-lg">
+                                    {subjectName}
+                                  </p>
+                                  <button
+                                    onClick={handleOpenSubjectModal}
+                                    disabled={isLoading || subjectChanging}
+                                    className={`flex items-center gap-2 py-2 px-4 rounded-2xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-sm font-extrabold ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    title={subjectChanging ? "Switching Subject..." : "Change Subject"}
+                                  >
+                                    {subjectChanging ? "Switching..." : "Change"}
+                                  </button>
                                 </div>
-                             </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                        </>
-                      );
-                    }
-                    // Skeleton unit tree while nothing has loaded
-                    return (
-                      <div className="relative pt-12 pb-28">
-                        <div className="sticky top-0 z-30 text-white px-6 py-5 rounded-3xl flex justify-between items-center mb-8 shadow-[0_10px_0_0_rgba(0,0,0,0.15)] max-w-3xl mx-auto border-4 animate-pulse"
-                             style={{ background: `linear-gradient(90deg, #93C5FD, #60A5FA)`, borderColor: 'rgba(147, 197, 253, 0.35)' }}>
-                          <div>
-                            <p className="font-extrabold text-xl md:text-2xl">Loading unit…</p>
-                            <p className="opacity-90 text-sm md:text-base">Please wait</p>
-                          </div>
-                        </div>
-                        <div className="relative flex flex-col items-center gap-20 pt-24 pb-6 px-12">
-                          {[0,1,2,3,4].map((idx) => (
-                            <div key={idx} className="relative w-full flex items-center justify-center px-8">
-                              {idx % 2 === 1 ? (
-                                <div className="absolute left-1/2 top-1/2 -translate-y-1/2 w-1/2">
-                                  <div className="flex items-center">
-                                    <div className="h-2 w-32 rounded-full bg-blue-100" />
-                                    <div className="w-16 h-16 rounded-full bg-yellow-200 border-4 border-yellow-300 shadow ml-3" />
-                                  </div>
-                                </div>
-                              ) : (
-                                <div className="absolute right-1/2 top-1/2 -translate-y-1/2 w-1/2">
-                                  <div className="flex items-center justify-end">
-                                    <div className="w-16 h-16 rounded-full bg-yellow-200 border-4 border-yellow-300 shadow mr-3" />
-                                    <div className="h-2 w-32 rounded-full bg-blue-100" />
-                                  </div>
-                                </div>
-                              )}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => setShowChapters(true)}
+                                  className="flex items-center gap-2.5 py-2 px-4 rounded-xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-base"
+                                >
+                                  <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-white/20 flex-shrink-0">
+                                    <ChapterNavIcon />
+                                  </span>
+                                  <span className="font-bold hidden sm:inline leading-tight self-center">All Chapters</span>
+                                </button>
+                                {/* Debug button to clear false completions */}
+                                <button
+                                  onClick={clearFalseCompletions}
+                                  className="flex items-center gap-2 py-2 px-3 rounded-xl bg-red-500/20 hover:bg-red-500/30 transition-colors ring-1 ring-red-400/40 text-sm text-red-100"
+                                  title="Clear false completions (Debug)"
+                                >
+                                  <span className="text-xs">🔄</span>
+                                  <span className="font-medium hidden sm:inline">Reset Progress</span>
+                                </button>
+                              </div>
                             </div>
-                          ))}
+
+                            {/* Render modules directly along the wavy path */}
+                            <div className="relative w-full mx-auto pb-32 pt-20 mt-24" style={{ minHeight: Math.max(modulesList.length * rowSpacing, 400) }}>
+                              <OrganicPathSvg
+                                nodesCount={modulesList.length}
+                                color={lighten("#2C6DEF", 0.3)}
+                                rowSpacing={rowSpacing}
+                                isMobile={isMobileLayout}
+                              />
+
+                              {modulesList.map((mod, index) => {
+                                const moduleIdHere = mod?._id;
+                                const chapterIdHere = chapterId;
+                                const compositeKey = progressKey(chapterIdHere, null, moduleIdHere);
+                                const isCompletedByCompositeKey = completedCompositeKeys.has(compositeKey);
+                                const isCompletedById = moduleIdHere && !isCompletedByCompositeKey
+                                  ? completedIdSet.has(String(moduleIdHere))
+                                  : false;
+                                const isCompleted = isCompletedByCompositeKey || isCompletedById;
+
+                                const firstIncompleteGlobal = modulesList.findIndex((m) => {
+                                  const id = m?._id;
+                                  if (!id) return true;
+                                  const key = progressKey(chapterIdHere, null, id);
+                                  return !completedCompositeKeys.has(key) && !completedIdSet.has(String(id));
+                                });
+
+                                let status = "locked";
+                                if (isCompleted) {
+                                  status = "completed";
+                                } else if (index === firstIncompleteGlobal) {
+                                  status = "active";
+                                }
+                                const canClick = (status === 'active' || status === 'completed');
+                                const offset = getWaveOffset(index, isMobileLayout);
+
+                                return (
+                                  <div
+                                    key={index}
+                                    className="absolute w-full flex justify-center items-center px-4"
+                                    onMouseEnter={() => setHoveredIndex(index)}
+                                    onMouseLeave={() => setHoveredIndex(null)}
+                                    style={{
+                                      top: index * rowSpacing + 40,
+                                      zIndex: status === "active" ? 50 : 10 + (modulesList.length - index),
+                                      height: 0
+                                    }}
+                                  >
+                                    <div className="relative">
+                                      <PathNode
+                                        status={status}
+                                        disabled={!canClick}
+                                        color="#2C6DEF"
+                                        lightenFn={lighten}
+                                        darkenFn={darken}
+                                        isDifficult={mod?.isDifficult}
+                                        isDescriptive={mod?.isDescriptive}
+                                        offset={offset}
+                                        onClick={() => {
+                                          if (!canClick) return;
+                                          saveScrollPosition();
+                                          const params = new URLSearchParams();
+                                          if (chapterId) params.set('chapterId', chapterId);
+                                          const query = params.toString();
+                                          navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
+                                        }}
+                                      >
+                                        {status === "active" && <StartBadge color="#2C6DEF" />}
+                                      </PathNode>
+
+                                      {/* Original-Style side tooltip */}
+                                      <div
+                                        className={`absolute top-1/2 -translate-y-1/2 bg-white border border-blue-100 rounded-xl shadow-lg px-4 py-3 w-48 hidden md:block transition-all duration-300 ease-out transform ${offset < 0
+                                          ? `left-full ml-12 ${hoveredIndex === index ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 pointer-events-none"}`
+                                          : `right-full mr-12 ${hoveredIndex === index ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 pointer-events-none"}`
+                                          }`}
+                                        style={{ zIndex: 50 }}
+                                      >
+                                        {/* Tooltip arrow */}
+                                        <div className={`absolute top-1/2 -translate-y-1/2 border-8 border-transparent ${offset < 0 ? "right-full border-r-white" : "left-full border-l-white"
+                                          }`}></div>
+
+                                        <div className="text-xs uppercase tracking-widest font-black text-blue-500 mb-1">Lesson {index + 1}</div>
+                                        <div className="text-base font-extrabold text-gray-800 line-clamp-2">
+                                          {mod?.title || "—"}
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    {/* Inject Lottie every 3 modules (Smart Curve-Aware Placement) */}
+                                    {(index + 1) % 3 === 0 && index < modulesList.length - 1 && (() => {
+                                      const waveOffset = getWaveOffset(index + 0.5, isMobileLayout);
+                                      // Position on the opposite side of the curve to balance the screen
+                                      const sideOffset = isMobileLayout 
+                                        ? (waveOffset > 0 ? -140 : 140) 
+                                        : (waveOffset > 0 ? -220 : 280);
+                                      return (
+                                        <PathAnimation
+                                          offset={waveOffset + sideOffset}
+                                          top={rowSpacing * 0.5}
+                                          isMobileLayout={isMobileLayout}
+                                        />
+                                      );
+                                    })()}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      }
+                      if (unitsList.length > 0) {
+                        return (
+                          <>
+                            {unitsList
+                              .filter(u => {
+                                const mods = unitModulesMap[u._id] || (u.virtual ? modulesList : []);
+                                return mods.length > 0;
+                              })
+                              .map((u, unitIdx) => {
+                                const unitMods = unitModulesMap[u._id] || modulesList;
+                                const localLevels = unitMods;
+                                const localLineHeight = Math.max(
+                                  160,
+                                  (localLevels.length) * rowSpacing + 120
+                                );
+                              return (
+                                <div
+                                  key={u._id || unitIdx}
+                                  className="relative pt-12 pb-28"
+                                  data-chapter-id={chapterId}
+                                  data-unit-id={String(u._id)}
+                                >
+                                  {/* Unit header card - sticky until next unit */}
+                                  {(() => {
+                                    const color = unitPalette[unitIdx % unitPalette.length]; const gradFrom = color; const gradTo = darken(color, 0.15); return (
+                                      <div className="sticky top-0 z-[100] text-white px-6 py-5 rounded-3xl flex justify-between items-center mb-8 shadow-[0_10px_0_0_rgba(0,0,0,0.15)] w-full border-4"
+                                        style={{ background: `linear-gradient(90deg, ${gradFrom}, ${gradTo})`, borderColor: withAlpha(color, 0.25) }}>
+                                        <div>
+                                          <p className="font-extrabold text-base md:text-lg">
+                                            {(u.title && u.title.toLowerCase() !== 'unit') ? u.title : `Unit ${unitIdx + 1}`}
+                                          </p>
+                                          {chapterTitle && (
+                                            <p className="opacity-95 text-base md:text-lg">
+                                              {chapterTitle}
+                                            </p>
+                                          )}
+                                          <div className="flex items-center gap-2 mt-1">
+                                            <p className="opacity-90 text-sm md:text-base">
+                                              {subjectName}
+                                            </p>
+                                            <button
+                                              onClick={handleOpenSubjectModal}
+                                              disabled={isLoading || subjectChanging}
+                                              className={`flex items-center gap-2 py-2 px-3 rounded-2xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-xs font-extrabold ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                              title={subjectChanging ? "Switching Subject..." : "Change Subject"}
+                                            >
+                                              {subjectChanging ? "Switching..." : "Change"}
+                                            </button>
+                                          </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                          <button
+                                            onClick={() => setShowChapters(true)}
+                                            className="flex items-center gap-2.5 py-2 px-4 rounded-xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-base"
+                                          >
+                                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-white/20 flex-shrink-0">
+                                              <ChapterNavIcon />
+                                            </span>
+                                            <span className="font-bold hidden sm:inline leading-tight self-center">All Chapters</span>
+                                          </button>
+                                        </div>
+                                      </div>
+                                    );
+                                  })()}
+                                  <div className="relative w-full mx-auto pb-40 pt-20 mt-28" style={{ minHeight: Math.max((localLevels.length + 1) * rowSpacing, 400) }}>
+                                    <OrganicPathSvg
+                                      nodesCount={localLevels.length + 1}
+                                      color={lighten(unitPalette[unitIdx % unitPalette.length], 0.25)}
+                                      rowSpacing={rowSpacing}
+                                      isMobile={isMobileLayout}
+                                    />
+
+                                    {localLevels.map((mod, index) => {
+                                      const moduleIdHere = mod?._id;
+                                      const unitIdHere = u?._id;
+                                      const chapterIdHere = chapterId;
+                                      const compositeKey = progressKey(chapterIdHere, unitIdHere, moduleIdHere);
+                                      const isCompletedByCompositeKey = completedCompositeKeys.has(compositeKey);
+                                      const isCompletedById = moduleIdHere && !isCompletedByCompositeKey
+                                        ? completedIdSet.has(String(moduleIdHere))
+                                        : false;
+                                      const isCompleted = isCompletedByCompositeKey || isCompletedById;
+
+                                      const firstIncompleteForUnit = localLevels.findIndex((m) => {
+                                        const id = m?._id;
+                                        if (!id) return true;
+                                        const key = progressKey(chapterIdHere, unitIdHere, id);
+                                        return !completedCompositeKeys.has(key) && !completedIdSet.has(String(id));
+                                      });
+
+                                      let status = "locked";
+                                      if (isCompleted) {
+                                        status = "completed";
+                                      } else if (index === firstIncompleteForUnit) {
+                                        status = "active";
+                                      }
+                                      const canClick = (status === 'active' || status === 'completed');
+                                      const offset = getWaveOffset(index, isMobileLayout);
+
+                                      return (
+                                        <div
+                                          key={index}
+                                          id={`chapter-${mod._id}`}
+                                          className="absolute w-full flex justify-center items-center px-4"
+                                          onMouseEnter={() => {
+                                            setHoveredIndex(index);
+                                            setHoveredUnitModule(u._id);
+                                          }}
+                                          onMouseLeave={() => {
+                                            setHoveredIndex(null);
+                                            setHoveredUnitModule(null);
+                                          }}
+                                          style={{
+                                            top: index * rowSpacing + 40,
+                                            zIndex: status === "active" ? 50 : 10 + (localLevels.length - index),
+                                            height: 0
+                                          }}
+                                        >
+                                          <div className="relative">
+                                            <PathNode
+                                              status={status}
+                                              disabled={!canClick}
+                                              color={unitPalette[unitIdx % unitPalette.length]}
+                                              lightenFn={lighten}
+                                              darkenFn={darken}
+                                              isDifficult={mod?.isDifficult}
+                                              isDescriptive={mod?.isDescriptive}
+                                              offset={offset}
+                                              onClick={() => {
+                                                if (!canClick) return;
+                                                saveScrollPosition();
+                                                const params = new URLSearchParams();
+                                                if (chapterId) params.set('chapterId', chapterId);
+                                                if (u?._id) params.set('unitId', u._id);
+                                                const query = params.toString();
+                                                navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
+                                              }}
+                                            >
+                                              {status === "active" && <StartBadge color={unitPalette[unitIdx % unitPalette.length]} />}
+                                            </PathNode>
+
+                                            {/* Original-Style side tooltip */}
+                                            <div
+                                              className={`absolute top-1/2 -translate-y-1/2 bg-white border border-gray-100 rounded-xl shadow-lg px-4 py-3 w-48 hidden md:block transition-all duration-300 ease-out transform ${offset < 0
+                                                ? `left-full ml-12 ${hoveredIndex === index && hoveredUnitModule === u._id ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 pointer-events-none"}`
+                                                : `right-full mr-12 ${hoveredIndex === index && hoveredUnitModule === u._id ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 pointer-events-none"}`
+                                                }`}
+                                              style={{ zIndex: 50 }}
+                                            >
+                                              {/* Tooltip arrow */}
+                                              <div className={`absolute top-1/2 -translate-y-1/2 border-8 border-transparent ${offset < 0 ? "right-full border-r-white" : "left-full border-l-white"
+                                                }`}></div>
+
+                                              <div className="text-xs uppercase tracking-widest font-black mb-1" style={{ color: unitPalette[unitIdx % unitPalette.length] }}>Lesson {index + 1}</div>
+                                              <div className="text-base font-extrabold text-gray-800 line-clamp-2">
+                                                {mod?.title || "—"}
+                                              </div>
+                                            </div>
+                                          </div>
+
+                                          {/* Inject Lottie every 3 modules (Smart Curve-Aware Placement) */}
+                                          {(index + 1) % 3 === 0 && index < localLevels.length - 1 && (() => {
+                                            const waveOffset = getWaveOffset(index + 0.5, isMobileLayout);
+                                            // Position on the opposite side of the curve to balance the screen
+                                            const sideOffset = isMobileLayout 
+                                              ? (waveOffset > 0 ? -140 : 140) 
+                                              : (waveOffset > 0 ? -220 : 280);
+                                            return (
+                                              <PathAnimation
+                                                offset={waveOffset + sideOffset}
+                                                top={rowSpacing * 0.5}
+                                                isMobileLayout={isMobileLayout}
+                                              />
+                                            );
+                                          })()}
+                                        </div>
+                                      );
+                                    })}
+
+                                    {/* Revision star at the end of the wavy path */}
+                                    <div
+                                      className="absolute w-full flex justify-center items-center px-4"
+                                      style={{ top: localLevels.length * rowSpacing + 40, zIndex: 10, height: 0 }}
+                                    >
+                                      <div className="relative group" style={{ transform: `translateX(${getWaveOffset(localLevels.length, isMobileLayout)}px)` }}>
+                                        <RevisionStar
+                                          align="center"
+                                          chapterId={chapterId}
+                                          unitId={u?._id}
+                                        />
+                                        {/* Optional tooltip for revision star */}
+                                        <div className="absolute left-full ml-10 top-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-sm border-2 border-yellow-200 rounded-2xl shadow-xl px-5 py-4 w-56 hidden lg:block opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
+                                          <div className="text-[10px] uppercase tracking-wider font-black text-yellow-500 mb-1">Final Challenge</div>
+                                          <div className="text-base font-extrabold text-gray-800">Unit Revision</div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </>
+                        );
+                      }
+                      // Skeleton unit tree while nothing has loaded
+                      return (
+                        <div className="relative pt-12 pb-28">
+                          <div className="sticky top-0 z-30 text-white px-6 py-5 rounded-3xl flex justify-between items-center mb-8 shadow-[0_10px_0_0_rgba(0,0,0,0.15)] max-w-3xl mx-auto border-4 animate-pulse"
+                            style={{ background: `linear-gradient(90deg, #93C5FD, #60A5FA)`, borderColor: 'rgba(147, 197, 253, 0.35)' }}>
+                            <div>
+                              <p className="font-extrabold text-xl md:text-2xl">Loading unit…</p>
+                              <p className="opacity-90 text-sm md:text-base">Please wait</p>
+                            </div>
+                          </div>
+                          <div className="relative flex flex-col items-center gap-20 pt-24 pb-6 px-12">
+                            {[0, 1, 2, 3, 4].map((idx) => (
+                              <div key={idx} className="relative w-full flex items-center justify-center px-8">
+                                {idx % 2 === 1 ? (
+                                  <div className="absolute left-1/2 top-1/2 -translate-y-1/2 w-1/2">
+                                    <div className="flex items-center">
+                                      <div className="h-2 w-32 rounded-full bg-blue-100" />
+                                      <div className="w-16 h-16 rounded-full bg-yellow-200 border-4 border-yellow-300 shadow ml-3" />
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="absolute right-1/2 top-1/2 -translate-y-1/2 w-1/2">
+                                    <div className="flex items-center justify-end">
+                                      <div className="w-16 h-16 rounded-full bg-yellow-200 border-4 border-yellow-300 shadow mr-3" />
+                                      <div className="h-2 w-32 rounded-full bg-blue-100" />
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })()}
-                </>
-              )}
-            </div>
-          )}
+                      );
+                    })()}
+                  </>
+                )}
+              </div>
+            )}
 
           {/* No Data State removed per request */}
         </main>
 
-        {/* Right Panel with Character */}
-        <aside className="hidden lg:flex w-80 p-6 items-center justify-center shrink-0 bg-transparent h-full relative">
+        {/* Right Panel - Leaderboard and Stats */}
+        <aside className="hidden lg:flex w-96 p-6 flex-col justify-start shrink-0 bg-transparent h-full overflow-y-auto no-scrollbar gap-6 relative">
           {/* Confetti burst when streak increases */}
           {showConfetti && (
             <div className="pointer-events-none absolute top-0 right-0 w-36 h-36">
@@ -2263,38 +2409,36 @@ const LearnDashboard = ({ onboardingData }) => {
               </div>
             </div>
           )}
-          <div className="w-full flex items-center justify-center">
-            <img
-              src={heroChar}
-              alt="Hoshi"
-              className="w-64 h-64 lg:w-72 lg:h-72 object-contain"
-            />
-          </div>
-          {/* Stars counter card */}
-          <div className="absolute top-6 right-4 w-[88%] bg-gradient-to-br from-yellow-50 to-orange-50 border-4 border-yellow-400 rounded-2xl px-4 py-3 shadow-[0_8px_0_0_rgba(0,0,0,0.10)] mb-2">
-            <div className="flex items-center justify-between">
+
+          {/* Stars counters cards - Single Row */}
+          <div className="flex flex-row gap-2">
+            <div className="flex-1 bg-gradient-to-br from-yellow-50 to-orange-50 border-4 border-yellow-400 rounded-2xl px-3 py-2 shadow-[0_6px_0_0_rgba(0,0,0,0.10)]">
               <div className="flex items-center gap-2">
-                <span className="text-2xl animate-pulse">⭐</span>
-                <div>
-                  <div className="text-xs font-extrabold text-yellow-700">
-                    Total Stars
-                  </div>
-                  <div className="text-lg font-extrabold text-yellow-600">
-                    {stars} stars
+                <span className="text-xl animate-pulse">⭐</span>
+                <div className="flex flex-col">
+                  <div className="text-[10px] font-black text-yellow-700 uppercase leading-none mb-0.5">Total</div>
+                  <div className="text-sm font-black text-yellow-600 leading-none">
+                    {stars}
                   </div>
                 </div>
               </div>
-              <div className="flex items-center">
-                <div className="flex items-center">
-                  <span className="text-sm">✨</span>
-                  <span className="text-xs font-bold text-yellow-600 ml-1">Earned!</span>
+            </div>
+
+            <div className="flex-1 bg-gradient-to-br from-blue-50 to-indigo-50 border-4 border-blue-400 rounded-2xl px-3 py-2 shadow-[0_6px_0_0_rgba(0,0,0,0.10)]">
+              <div className="flex items-center gap-2">
+                <span className="text-xl animate-bounce">⭐</span>
+                <div className="flex flex-col">
+                  <div className="text-[10px] font-black text-blue-700 uppercase leading-none mb-0.5">Weekly</div>
+                  <div className="text-sm font-black text-blue-600 leading-none">
+                    {weeklyStars}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          
+
           {/* Streak + Continue card */}
-          <div className="absolute top-32 right-4 w-[88%] bg-white border-4 border-blue-300 rounded-2xl px-4 py-3 shadow-[0_8px_0_0_rgba(0,0,0,0.10)]">
+          <div className="w-full bg-white border-4 border-blue-300 rounded-2xl px-4 py-3 shadow-[0_8px_0_0_rgba(0,0,0,0.10)]">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-xl">🔥</span>
@@ -2328,28 +2472,163 @@ const LearnDashboard = ({ onboardingData }) => {
               </button>
             </div>
           </div>
-          {/* Tip card to reduce emptiness */}
-          {!tipHidden && (
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[88%] bg-gradient-to-br from-green-50 to-emerald-50 border-4 border-green-400 rounded-2xl px-4 py-3 shadow-[0_8px_0_0_rgba(0,0,0,0.10)]">
-              <div className="flex items-center justify-between">
-                <div className="text-sm font-bold text-green-700 flex items-center gap-2">
-                  <span className="text-lg">💡</span>
-                  <span className="uppercase tracking-wide">Tip of the day</span>
+
+          <div className="w-full bg-white border-4 border-indigo-300 rounded-3xl px-4 py-4 shadow-[0_8px_0_0_rgba(0,0,0,0.10)] flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 overflow-hidden">
+                  <span className="text-xl">🏆</span>
+                  <div className="flex flex-col overflow-hidden">
+                    <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest leading-none mb-1">Your School</span>
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <span className="text-xs font-black text-white bg-indigo-500 px-2 py-0.5 rounded-lg truncate">
+                        {user?.school || "Not Set"}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <button
-                  onClick={() => setTipHidden(true)}
-                  className="text-green-600 hover:text-green-800 text-sm font-bold bg-green-100 hover:bg-green-200 px-2 py-1 rounded-lg transition-all duration-200"
+                <button 
+                  onClick={() => setIsChangingSchool(true)}
+                  className="shrink-0 px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl text-[10px] font-black transition-all active:scale-90 border border-indigo-100"
                 >
-                  ✕
+                  CHANGE
                 </button>
               </div>
-              <div className="text-sm text-green-700/90 mt-2 transition-opacity duration-300 font-medium">
-                {tips[tipIndex]}
+              
+              {/* Leaderboard Toggle */}
+              <div className="flex bg-indigo-50/50 p-1 rounded-xl border border-indigo-100">
+                <button 
+                  onClick={() => setLeaderboardTimeframe("weekly")}
+                  className={`flex-1 py-2 text-[10px] font-black rounded-lg transition-all ${leaderboardTimeframe === "weekly" ? "bg-white text-indigo-600 shadow-sm" : "text-indigo-400 hover:text-indigo-500"}`}
+                >
+                  WEEKLY
+                </button>
+                <button 
+                  onClick={() => setLeaderboardTimeframe("total")}
+                  className={`flex-1 py-2 text-[10px] font-black rounded-lg transition-all ${leaderboardTimeframe === "total" ? "bg-white text-indigo-600 shadow-sm" : "text-indigo-400 hover:text-indigo-500"}`}
+                >
+                  LIFETIME
+                </button>
               </div>
             </div>
-          )}
+
+            <div className="relative">
+              {(!user?.school || isChangingSchool) ? (
+                <div className="flex flex-col gap-2">
+                  <form onSubmit={handleLeaderboardSearch} className="flex gap-2">
+                    <div className="relative flex-grow">
+                      <input
+                        type="text"
+                        placeholder={isManualSchoolInput ? "Enter school name..." : "Search school name..."}
+                        className="w-full px-3 py-1.5 rounded-xl border-2 border-indigo-100 text-sm focus:outline-none focus:border-indigo-400 font-bold"
+                        value={leaderboardSchool}
+                        onChange={(e) => {
+                          setLeaderboardSchool(e.target.value);
+                          if (!isManualSchoolInput) setShowSuggestions(true);
+                        }}
+                        onFocus={() => { if (!isManualSchoolInput) setShowSuggestions(true); }}
+                      />
+                      {!isManualSchoolInput && showSuggestions && leaderboardSchool.length >= 2 && (
+                        <div className="absolute left-0 right-0 top-full mt-2 bg-white border-2 border-indigo-100 rounded-2xl shadow-[0_12px_24px_-8px_rgba(79,70,229,0.2)] z-[1000] overflow-hidden max-h-64 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200 no-scrollbar">
+                          {schoolSuggestions.length > 0 ? (
+                            schoolSuggestions.map((school, i) => (
+                              <div
+                                key={i}
+                                className="px-4 py-3 hover:bg-indigo-50 cursor-pointer text-[11px] font-bold text-gray-700 transition-all border-b border-indigo-50 last:border-0 flex items-center gap-3 group"
+                                onClick={async () => {
+                                  setLeaderboardSchool(school);
+                                  setShowSuggestions(false);
+                                  setLeaderboardLoading(true);
+                                  if (user?._id) {
+                                    try {
+                                      const resp = await authService.updateProfile({ userId: user._id, school });
+                                      if (resp.data && updateUser) updateUser({ ...user, school });
+                                      setIsChangingSchool(false);
+                                    } catch (err) {
+                                      console.error('Failed to update school:', err);
+                                    }
+                                  }
+                                  fetchLeaderboard(school);
+                                }}
+                              >
+                                <div className="w-6 h-6 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-500 group-hover:bg-indigo-200 transition-colors shrink-0">
+                                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                                  </svg>
+                                </div>
+                                <span className="line-clamp-2 leading-snug">{school}</span>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="px-4 py-6 text-center">
+                              {leaderboardLoading ? (
+                                <div className="animate-spin w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full mx-auto" />
+                              ) : (
+                                <div className="text-[11px] font-bold text-gray-400">
+                                  No schools found. Try manual input?
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={leaderboardLoading || !leaderboardSchool.trim()}
+                      className="px-3 py-1.5 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white rounded-xl text-xs font-black transition-all active:scale-95 shadow-[0_4px_0_0_#4338ca]"
+                    >
+                      {leaderboardLoading ? "..." : "OK"}
+                    </button>
+                  </form>
+                </div>
+              ) : null}
+            </div>
+
+            <div className="flex flex-col gap-2 max-h-[350px] overflow-y-auto pr-1 no-scrollbar">
+              {leaderboardLoading ? (
+                <div className="flex flex-col items-center py-6 gap-2">
+                  <div className="animate-spin rounded-full h-6 w-6 border-2 border-indigo-300 border-t-indigo-600"></div>
+                  <span className="text-xs font-bold text-indigo-400">Fetching leaderboard...</span>
+                </div>
+              ) : leaderboardData.length > 0 ? (
+                <div className="space-y-2">
+                  {leaderboardData.map((entry, i) => (
+                    <div key={i} className={`flex items-center justify-between p-2 rounded-xl border ${entry.username === user.username ? 'bg-indigo-100 border-indigo-300' : 'bg-indigo-50/30 border-indigo-100'}`}>
+                      <div className="flex items-center gap-3 overflow-hidden">
+                        <div className={`w-6 h-6 flex items-center justify-center rounded-full text-[10px] font-black shrink-0 ${i === 0 ? 'bg-yellow-400 text-white shadow-sm' : i === 1 ? 'bg-gray-300 text-white shadow-sm' : i === 2 ? 'bg-amber-600 text-white shadow-sm' : 'bg-indigo-100 text-indigo-500'}`}>
+                          {i + 1}
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-xs font-black text-gray-800 truncate">{entry.name || entry.username}</span>
+                          <span className="text-[10px] font-bold text-gray-400 truncate uppercase tracking-tighter">{entry.school || "No School Listed"}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0 bg-white/60 px-1.5 py-0.5 rounded-lg border border-indigo-50 shadow-sm">
+                        <span className="text-[10px] font-black text-indigo-600">{entry.totalPoints}</span>
+                        <span className="text-[10px]">⭐</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : leaderboardSearched ? (
+                <div className="flex flex-col items-center py-8 opacity-60">
+                  <span className="text-2xl mb-1">🔍</span>
+                  <span className="text-xs font-bold text-gray-400">No students found</span>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center py-8 opacity-40">
+                  <span className="text-2xl mb-1">🏫</span>
+                  <span className="text-xs font-bold text-gray-500 text-center px-4">See where you stand in your school!</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+        {/* Mobile Sticky Leaderboard Button removed - now in header */}
+
         </aside>
-        
+
         {/* Subject Change Modal */}
         {showSubjectModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -2368,11 +2647,10 @@ const LearnDashboard = ({ onboardingData }) => {
                   <button
                     key={subject}
                     onClick={() => handleSubjectChange(subject)}
-                    className={`w-full p-3 text-left rounded-lg border-2 transition-colors ${
-                      subject === subjectName
-                        ? 'bg-blue-100 border-blue-500 text-blue-700'
-                        : 'bg-white border-gray-300 hover:border-gray-400 text-gray-700'
-                    }`}
+                    className={`w-full p-3 text-left rounded-lg border-2 transition-colors ${subject === subjectName
+                      ? 'bg-blue-100 border-blue-500 text-blue-700'
+                      : 'bg-white border-gray-300 hover:border-gray-400 text-gray-700'
+                      }`}
                   >
                     <span className="font-medium">{subject}</span>
                     {subject === subjectName && (
@@ -2384,6 +2662,122 @@ const LearnDashboard = ({ onboardingData }) => {
               {subjectOptions.length === 0 && (
                 <p className="text-gray-500 text-center py-4">No subjects available</p>
               )}
+            </div>
+          </div>
+        )}
+        {/* Mobile Leaderboard Popup - Premium Redesign */}
+        {showMobileLeaderboard && (
+          <div className="fixed inset-0 z-[2000] bg-blue-900/40 backdrop-blur-md flex items-end justify-center sm:items-center p-0 sm:p-4 animate-in fade-in duration-300">
+            <div 
+              className="w-full sm:max-w-md bg-white rounded-t-[40px] sm:rounded-[32px] shadow-[0_-12px_40px_-12px_rgba(0,0,0,0.3)] flex flex-col max-h-[92vh] overflow-hidden animate-in slide-in-from-bottom duration-500 cubic-bezier(0.34, 1.56, 0.64, 1)"
+            >
+              {/* Handle Bar for Mobile Swipe Feel */}
+              <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mt-3 mb-1 shrink-0" />
+              
+              {/* Premium Header */}
+              <div className="px-6 py-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6">
+                    <span className="text-2xl">🏆</span>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-blue-900 uppercase tracking-tight leading-none mb-1">Rankings</h3>
+                    <p className="text-[10px] font-bold text-blue-500/60 uppercase tracking-widest truncate max-w-[200px]">
+                      {user?.school || "Hoshiyaar Global"}
+                    </p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setShowMobileLeaderboard(false)}
+                  className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-400 hover:bg-blue-100 transition-colors active:scale-90"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Stats & Toggle Section */}
+              <div className="px-6 py-2 flex flex-col gap-4">
+                <div className="flex bg-blue-50/50 p-1.5 rounded-2xl border border-blue-100">
+                  <button 
+                    onClick={() => setLeaderboardTimeframe("weekly")}
+                    className={`flex-1 py-3 text-[11px] font-black rounded-xl transition-all duration-300 ${leaderboardTimeframe === "weekly" ? "bg-white text-blue-600 shadow-sm scale-[1.02]" : "text-blue-300 hover:text-blue-400"}`}
+                  >
+                    WEEKLY
+                  </button>
+                  <button 
+                    onClick={() => setLeaderboardTimeframe("total")}
+                    className={`flex-1 py-3 text-[11px] font-black rounded-xl transition-all duration-300 ${leaderboardTimeframe === "total" ? "bg-white text-blue-600 shadow-sm scale-[1.02]" : "text-blue-300 hover:text-blue-400"}`}
+                  >
+                    LIFETIME
+                  </button>
+                </div>
+              </div>
+
+              {/* Leaderboard List */}
+              <div className="flex-grow overflow-y-auto px-6 py-4 no-scrollbar">
+                {leaderboardLoading ? (
+                  <div className="flex flex-col items-center py-20 gap-4">
+                    <div className="relative w-16 h-16">
+                      <div className="absolute inset-0 rounded-full border-4 border-blue-100"></div>
+                      <div className="absolute inset-0 rounded-full border-4 border-blue-500 border-t-transparent animate-spin"></div>
+                    </div>
+                    <span className="text-sm font-black text-blue-400 uppercase tracking-widest">Updating Stats...</span>
+                  </div>
+                ) : leaderboardData.length > 0 ? (
+                  <div className="space-y-3 pb-8">
+                    {leaderboardData.map((entry, i) => {
+                      const isMe = entry.username === user.username;
+                      const isTop3 = i < 3;
+                      const rankColor = i === 0 ? "text-yellow-500" : i === 1 ? "text-slate-400" : i === 2 ? "text-orange-600" : "text-blue-300";
+                      const rankBg = i === 0 ? "bg-yellow-100" : i === 1 ? "bg-slate-100" : i === 2 ? "bg-orange-100" : "bg-blue-50";
+                      const rankIconBg = isMe ? "bg-white/20" : rankBg;
+                      const bgColor = isMe ? "bg-blue-600 shadow-blue-200" : "bg-white border-blue-50";
+                      
+                      return (
+                        <div 
+                          key={i} 
+                          className={`flex items-center justify-between p-4 rounded-[24px] border-2 transition-all duration-300 ${bgColor} ${isMe ? "border-blue-500 shadow-xl" : "border-gray-50 hover:border-blue-100 shadow-sm"}`}
+                        >
+                          <div className="flex items-center gap-4 overflow-hidden">
+                            <div className={`w-10 h-10 flex items-center justify-center rounded-2xl text-sm font-black shrink-0 ${rankIconBg} ${rankColor}`}>
+                              {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1}
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                              <span className={`text-sm font-black truncate ${isMe ? "text-white" : "text-blue-900"}`}>
+                                {entry.name || entry.username}
+                                {isMe && <span className="ml-2 text-[8px] bg-white/20 px-1.5 py-0.5 rounded-full">YOU</span>}
+                              </span>
+                              <span className={`text-[9px] font-bold uppercase tracking-tight truncate ${isMe ? "text-blue-100" : "text-blue-300"}`}>
+                                {entry.school || "Anonymous Student"}
+                              </span>
+                            </div>
+                          </div>
+                          <div className={`flex items-center gap-1.5 shrink-0 px-3 py-1.5 rounded-2xl border ${isMe ? "bg-white/10 border-white/20" : "bg-blue-50/50 border-blue-100"}`}>
+                            <span className={`text-sm font-black ${isMe ? "text-white" : "text-blue-600"}`}>{entry.totalPoints}</span>
+                            <span className="text-xs">⭐</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center py-20 text-center opacity-40">
+                    <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                      <span className="text-4xl">🔎</span>
+                    </div>
+                    <span className="text-sm font-black text-gray-500 uppercase tracking-widest px-8">No rankings yet for your school!</span>
+                  </div>
+                )}
+              </div>
+              
+              {/* Bottom Decoration/Branding */}
+              <div className="p-6 bg-gradient-to-t from-blue-50/50 to-transparent shrink-0">
+                <div className="flex items-center justify-center gap-2 opacity-30">
+                  <span className="text-[10px] font-black text-blue-900 uppercase tracking-[0.2em]">Hoshiyaar Academy</span>
+                </div>
+              </div>
             </div>
           </div>
         )}

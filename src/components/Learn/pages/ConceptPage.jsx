@@ -660,7 +660,6 @@ export default function ConceptPage() {
         <div className="fixed inset-0 z-[9999]">
           <ConceptExitConfirm
             onQuit={() => {
-              // Preserve chapterId from URL when navigating back
               const urlParams = new URLSearchParams(window.location.search);
               const chapterId = urlParams.get('chapterId');
               const unitId = urlParams.get('unitId');
@@ -677,5 +676,4 @@ export default function ConceptPage() {
     </div>
   );
 }
-
 
