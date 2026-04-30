@@ -6,8 +6,13 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useModuleItems } from '../../../hooks/useModuleItems';
 import authService from '../../../services/authService.js';
 import { useAuth } from '../../../context/AuthContext.jsx';
+import { useStars } from '../../../context/StarsContext.jsx';
 import { useReview } from '../../../context/ReviewContext.jsx';
 import ConceptExitConfirm from '../../modals/ConceptExitConfirm.jsx';
+import Lottie from 'lottie-react';
+import hoshiMascot from '../../../assets/lottie/Hoshi.json';
+import popLottie from '../../../assets/lottie/pop.json';
+import backgroundLottie from '../../../assets/lottie/image2lottie-animation.json';
 
 export default function ConceptPage() {
   const navigate = useNavigate();
@@ -25,8 +30,16 @@ export default function ConceptPage() {
   const [videoAcknowledged, setVideoAcknowledged] = useState(false);
   const [showEndVideo, setShowEndVideo] = useState(false);
   const [comicSlideIndex, setComicSlideIndex] = useState(0);
+  const { stars: totalStars } = useStars();
   const [isZoomed, setIsZoomed] = useState(false);
   const [comicReadTimer, setComicReadTimer] = useState(0);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Allow temporary override via query param for testing
   const introVideoFromQuery = useMemo(() => {
@@ -480,7 +493,7 @@ export default function ConceptPage() {
                 <img
                   src={introComicUrls[comicSlideIndex]}
                   alt={`Comic slide ${comicSlideIndex + 1}`}
-                  className="max-w-full max-h-[65vh] object-contain rounded-lg cursor-zoom-in"
+                  className="max-w-full max-h-[65vh] object-contain cursor-zoom-in"
                   onClick={() => setIsZoomed(true)}
                 />
 
@@ -558,6 +571,161 @@ export default function ConceptPage() {
             />
           </div>
         )}
+
+        {showExitConfirm && (
+          <div className="fixed inset-0 z-[9999]">
+            <ConceptExitConfirm
+              onQuit={() => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const chapterId = urlParams.get('chapterId');
+                const unitId = urlParams.get('unitId');
+                const params = new URLSearchParams();
+                if (chapterId) params.set('chapterId', chapterId);
+                if (unitId) params.set('unitId', unitId);
+                const query = params.toString();
+                navigate(`/learn${query ? '?' + query : ''}`);
+              }}
+              onContinue={() => setShowExitConfirm(false)}
+            />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (isMobile) {
+    return (
+      <div className="h-screen w-full relative overflow-hidden bg-gradient-to-b from-[#4138a3] to-[#7b5ef0]">
+        {/* Background Starry Lottie */}
+        <div className="absolute inset-0 z-0">
+          <Lottie
+            animationData={backgroundLottie}
+            loop={true}
+            className="w-full h-full object-cover opacity-100"
+            rendererSettings={{
+              preserveAspectRatio: 'xMidYMid slice'
+            }}
+          />
+        </div>
+
+        {/* Floating Header */}
+        <div className="absolute top-0 left-0 right-0 p-5 flex flex-col gap-4 z-30">
+          <div className="flex items-center justify-between">
+            {!isInReviewOrRevision && (
+              <button
+                onClick={() => setShowExitConfirm(true)}
+                className="w-11 h-11 flex items-center justify-center rounded-full bg-[#6d5dfc] text-white shadow-lg active:scale-95 transition-all border-2 border-white/20"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                </svg>
+              </button>
+            )}
+            {isInReviewOrRevision && <div className="w-11 h-11"></div>}
+
+            <div className="flex-1 flex flex-col items-center px-4">
+              <div className="w-full max-w-[180px]">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-[11px] font-black text-white uppercase tracking-wider">Lesson Progress</span>
+                  <span className="text-[11px] font-black text-white tracking-widest">{index + 1}/{items.length}</span>
+                </div>
+                <div className="h-3 w-full bg-white/30 rounded-full overflow-hidden border border-white/20">
+                  <div 
+                    className="h-full bg-[#a166ff] transition-all duration-500 rounded-full" 
+                    style={{ width: `${((index + 1) / items.length) * 100}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center">
+              <div className="bg-white rounded-full p-1.5 px-3 shadow-lg flex items-center gap-2 h-10 border border-purple-100">
+                <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center text-white shadow-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                    <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <span className="text-sm font-black text-blue-900">{totalStars}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Mascot Section */}
+        <div className="absolute top-[5px] left-0 right-0 flex justify-center z-0">
+          <div className="relative w-full max-w-sm flex items-center justify-center px-4">
+            {/* Hoshi Lottie - Shifted right by 5% relative to previous position */}
+            <div className="w-64 h-64 -ml-10 -mb-16 opacity-100">
+              <Lottie animationData={hoshiMascot} loop={true} className="w-full h-full drop-shadow-2xl" />
+            </div>
+
+            {/* Pop Lottie - Shifted down relative to mascot */}
+            <div className="w-64 h-64 -ml-24 mt-10">
+              <Lottie animationData={popLottie} loop={true} className="w-full h-full" />
+            </div>
+          </div>
+        </div>
+
+        {/* Concept Card */}
+        <div className="absolute inset-x-8 top-[240px] bottom-[140px] z-10 scale-[1.02] origin-top">
+          <div className="h-full w-full bg-white rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.4)] flex flex-col overflow-hidden border border-white/50">
+            {/* Card Header */}
+            <div className="p-5 px-6 flex items-center justify-start gap-3 flex-shrink-0">
+              <img 
+                src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1777550585/img-to-link/rpxdtc6dw5kjgmrthpmn.png" 
+                alt="icon" 
+                className="w-10 h-10 object-contain"
+              />
+              <span className="text-xl font-black text-blue-900 uppercase tracking-tight">Concept Cards</span>
+            </div>
+
+            {/* Card Scrollable Content */}
+            <div className="flex-1 overflow-y-auto p-6 pt-2 flex flex-col items-center no-scrollbar">
+              {/* Text above images as requested */}
+              <div 
+                className="text-lg font-black text-gray-800 text-left leading-snug w-full mb-6"
+                dangerouslySetInnerHTML={{ __html: String(item.text || item.content || '') }}
+              />
+
+              {/* Images Grid inside Card - Adaptive for 1, 2, or 3+ images */}
+              {(() => {
+                const imgs = (item.images || []).filter(Boolean);
+                if (imgs.length === 0 && item.imageUrl) imgs.push(item.imageUrl);
+                if (imgs.length === 0) return null;
+
+                return (
+                  <div className={`grid ${imgs.length === 1 ? 'grid-cols-1' : 'grid-cols-2'} gap-4 w-full no-scrollbar`}>
+                    {imgs.slice(0, 4).map((src, i) => {
+                      const isLastOfThree = imgs.length === 3 && i === 2;
+                      return (
+                        <div 
+                          key={i} 
+                          className={`aspect-square bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm active:scale-95 transition-all p-2 flex items-center justify-center ${isLastOfThree ? 'col-span-2 max-w-[180px] mx-auto' : ''}`}
+                        >
+                          <img src={src} alt="concept" className="w-full h-full object-contain" />
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+        </div>
+
+        {/* Floating Bottom Button - No background container, just the button on starry bg */}
+        <div className="absolute bottom-8 left-0 right-0 px-10 z-20">
+          <button
+            onClick={goNext}
+            disabled={isComicActive && comicReadTimer > 0}
+            className={`w-full py-5 rounded-[24px] font-black text-2xl tracking-wide shadow-[0_8px_0_0_#4a3fcc] active:shadow-none active:translate-y-2 transition-all uppercase ${isComicActive && comicReadTimer > 0
+                ? 'bg-gray-400 text-gray-200 shadow-[0_8px_0_0_#4b5563]'
+                : 'bg-[#6d5dfc] text-white'
+              }`}
+          >
+            {isComicActive && comicReadTimer > 0 ? `Wait ${comicReadTimer}s` : 'Check'}
+          </button>
+        </div>
 
         {showExitConfirm && (
           <div className="fixed inset-0 z-[9999]">
