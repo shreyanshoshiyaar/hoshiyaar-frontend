@@ -1,1 +1,2 @@
 src/assets/lottie/*.json filter=lfs diff=lfs merge=lfs -text
+public/lottie/Hoshi.json filter=lfs diff=lfs merge=lfs -text
