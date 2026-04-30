@@ -676,14 +676,14 @@ export default function ConceptPage() {
                 alt="icon" 
                 className="w-10 h-10 object-contain"
               />
-              <span className="text-xl font-black text-blue-900 uppercase tracking-tight">Concept Cards</span>
+              <span className="text-[24px] font-black text-blue-900 uppercase tracking-tight">Concepts</span>
             </div>
 
             {/* Card Scrollable Content */}
             <div className="flex-1 overflow-y-auto p-6 pt-2 flex flex-col items-center no-scrollbar">
-              {/* Text above images as requested */}
+              {/* Text above images - Enlarged and Centered */}
               <div 
-                className="text-lg font-black text-gray-800 text-left leading-snug w-full mb-6"
+                className="text-[18px] font-black text-gray-800 text-center leading-snug w-full mb-6"
                 dangerouslySetInnerHTML={{ __html: String(item.text || item.content || '') }}
               />
 
