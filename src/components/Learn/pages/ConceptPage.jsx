@@ -10,9 +10,7 @@ import { useStars } from '../../../context/StarsContext.jsx';
 import { useReview } from '../../../context/ReviewContext.jsx';
 import ConceptExitConfirm from '../../modals/ConceptExitConfirm.jsx';
 import Lottie from 'lottie-react';
-import hoshiMascot from '../../../assets/lottie/Hoshi.json';
-import popLottie from '../../../assets/lottie/pop.json';
-import backgroundLottie from '../../../assets/lottie/image2lottie-animation.json';
+// Large Lottie files are now fetched from the public folder to avoid build issues
 
 export default function ConceptPage() {
   const navigate = useNavigate();
@@ -34,6 +32,18 @@ export default function ConceptPage() {
   const [isZoomed, setIsZoomed] = useState(false);
   const [comicReadTimer, setComicReadTimer] = useState(0);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  // States for fetched Lottie animations
+  const [hoshiAnim, setHoshiAnim] = useState(null);
+  const [popAnim, setPopAnim] = useState(null);
+  const [bgAnim, setBgAnim] = useState(null);
+
+  useEffect(() => {
+    // Fetch large animations from the public folder
+    fetch('/lottie/Hoshi2.json').then(res => res.json()).then(data => setHoshiAnim(data)).catch(console.error);
+    fetch('/lottie/pop.json').then(res => res.json()).then(data => setPopAnim(data)).catch(console.error);
+    fetch('/lottie/image2lottie-animation.json').then(res => res.json()).then(data => setBgAnim(data)).catch(console.error);
+  }, []);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -598,14 +608,16 @@ export default function ConceptPage() {
       <div className="h-screen w-full relative overflow-hidden bg-gradient-to-b from-[#4138a3] to-[#7b5ef0]">
         {/* Background Starry Lottie */}
         <div className="absolute inset-0 z-0">
-          <Lottie
-            animationData={backgroundLottie}
-            loop={true}
-            className="w-full h-full object-cover opacity-100"
-            rendererSettings={{
-              preserveAspectRatio: 'xMidYMid slice'
-            }}
-          />
+          {bgAnim && (
+            <Lottie
+              animationData={bgAnim}
+              loop={true}
+              className="w-full h-full object-cover opacity-100"
+              rendererSettings={{
+                preserveAspectRatio: 'xMidYMid slice'
+              }}
+            />
+          )}
         </div>
 
         {/* Floating Header */}
@@ -656,12 +668,12 @@ export default function ConceptPage() {
           <div className="relative w-full max-w-sm flex items-center justify-center px-4">
             {/* Hoshi Lottie - Shifted right by 5% relative to previous position */}
             <div className="w-64 h-64 -ml-10 -mb-16 opacity-100">
-              <Lottie animationData={hoshiMascot} loop={true} className="w-full h-full drop-shadow-2xl" />
+              {hoshiAnim && <Lottie animationData={hoshiAnim} loop={true} className="w-full h-full drop-shadow-2xl" />}
             </div>
 
             {/* Pop Lottie - Shifted down relative to mascot */}
             <div className="w-64 h-64 -ml-24 mt-10">
-              <Lottie animationData={popLottie} loop={true} className="w-full h-full" />
+              {popAnim && <Lottie animationData={popAnim} loop={true} className="w-full h-full" />}
             </div>
           </div>
         </div>
@@ -670,13 +682,15 @@ export default function ConceptPage() {
         <div className="absolute inset-x-8 top-[240px] bottom-[140px] z-10 scale-[1.02] origin-top">
           <div className="h-full w-full bg-white rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.4)] flex flex-col overflow-hidden border border-white/50">
             {/* Card Header */}
-            <div className="p-5 px-6 flex items-center justify-start gap-3 flex-shrink-0">
-              <img 
-                src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1777550585/img-to-link/rpxdtc6dw5kjgmrthpmn.png" 
-                alt="icon" 
-                className="w-10 h-10 object-contain"
-              />
-              <span className="text-[24px] font-black text-blue-900 uppercase tracking-tight">Concepts</span>
+            <div className="p-5 px-6 flex items-center justify-start gap-4 flex-shrink-0">
+              <div className="w-12 h-12 flex items-center justify-center flex-shrink-0 rounded-full border border-gray-100 shadow-sm p-2 bg-white overflow-hidden">
+                <img 
+                  src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1777550585/img-to-link/rpxdtc6dw5kjgmrthpmn.png" 
+                  alt="icon" 
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <span className="text-[26px] font-black text-blue-900 uppercase tracking-tight">Concept</span>
             </div>
 
             {/* Card Scrollable Content */}
