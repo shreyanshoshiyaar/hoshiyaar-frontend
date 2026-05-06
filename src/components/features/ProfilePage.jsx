@@ -4,10 +4,11 @@ import authService from '../../services/authService.js';
 import heroChar from '../../assets/images/heroChar.png';
 import BackButton from '../ui/BackButton.jsx';
 import ProgressPanel from './ProgressPanel.jsx';
+import { CalendarIcon } from '../ui/Icons';
 
 export default function ProfilePage() {
   const { user, logout } = useAuth();
-  const [form, setForm] = useState({ username: '', name: '', email: '', phone: '', board: '', classLevel: '', school: '', age: '', dateOfBirth: '' });
+  const [form, setForm] = useState({ username: '', name: '', email: '', phone: '', board: '', classLevel: '', school: '', dateOfBirth: '' });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState('');
@@ -29,7 +30,6 @@ export default function ProfilePage() {
           board: (dbUser.board ?? 'Not Defined'),
           classLevel: (dbUser.classLevel ?? 'Not Defined'),
           school: (dbUser.school ?? 'Not Defined'),
-          age: (dbUser.age ?? 'Not Defined'),
           dateOfBirth: dbUser.dateOfBirth ? String(dbUser.dateOfBirth).slice(0,10) : 'Not Defined',
         });
       } catch (_) {
@@ -42,7 +42,6 @@ export default function ProfilePage() {
           board: (user?.board ?? 'Not Defined'),
           classLevel: (user?.classLevel ?? 'Not Defined'),
           school: (user?.school ?? 'Not Defined'),
-          age: (user?.age ?? 'Not Defined'),
           dateOfBirth: user?.dateOfBirth ? String(user.dateOfBirth).slice(0,10) : 'Not Defined',
         });
       }
@@ -51,6 +50,29 @@ export default function ProfilePage() {
   }, [user]);
 
   const update = (k, v) => setForm(prev => ({ ...prev, [k]: v }));
+
+  const handleDobChange = (e) => {
+    let val = e.target.value;
+    const isDeleting = val.length < form.dateOfBirth.length;
+    
+    if (isDeleting) {
+      update('dateOfBirth', val);
+      return;
+    }
+
+    let cleaned = val.replace(/\D/g, '').slice(0, 8);
+    let res = '';
+    if (cleaned.length > 0) {
+      res = cleaned.slice(0, 2);
+      if (cleaned.length > 2) {
+        res += '/' + cleaned.slice(2, 4);
+        if (cleaned.length > 4) {
+          res += '/' + cleaned.slice(4, 8);
+        }
+      }
+    }
+    update('dateOfBirth', res);
+  };
 
   const handleSave = async () => {
     if (!user?._id) return;
@@ -61,8 +83,8 @@ export default function ProfilePage() {
       let dob = form.dateOfBirth;
       if (dob && dob !== 'Not Defined') {
         // Accept values like '30-10-2025' and convert to '2025-10-30'
-        if (/^\d{2}-\d{2}-\d{4}$/.test(dob)) {
-          const [dd, mm, yyyy] = dob.split('-');
+        if (/^\d{2}[/-]\d{2}[/-]\d{4}$/.test(dob)) {
+          const [dd, mm, yyyy] = dob.split(/[/-]/);
           dob = `${yyyy}-${mm}-${dd}`;
         }
       } else {
@@ -156,12 +178,30 @@ export default function ProfilePage() {
             <input placeholder={form.school || 'Not Defined'} value={form.school === 'Not Defined' ? '' : form.school} onChange={e=>update('school', e.target.value)} className="mt-1 w-full px-4 py-3 rounded-2xl border-2 border-blue-200 focus:outline-none focus:border-blue-400" />
           </label>
           <label className="block">
-            <span className="text-sm font-bold text-gray-700">Age</span>
-            <input placeholder={String(form.age || 'Not Defined')} value={form.age} onChange={e=>update('age', e.target.value)} disabled className="mt-1 w-full px-4 py-3 rounded-2xl border-2 bg-gray-50 border-blue-200" />
-          </label>
-          <label className="block">
             <span className="text-sm font-bold text-gray-700">Date of Birth</span>
-            <input type="date" placeholder={form.dateOfBirth || 'Not Defined'} value={form.dateOfBirth === 'Not Defined' ? '' : form.dateOfBirth} onChange={e=>update('dateOfBirth', e.target.value)} className="mt-1 w-full px-4 py-3 rounded-2xl border-2 border-blue-200 focus:outline-none focus:border-blue-400" />
+            <div className="relative">
+              <input 
+                type="text" 
+                placeholder="DD/MM/YYYY" 
+                value={form.dateOfBirth === 'Not Defined' ? '' : form.dateOfBirth} 
+                onChange={handleDobChange} 
+                className="mt-1 w-full px-4 py-3 rounded-2xl border-2 border-blue-200 focus:outline-none focus:border-blue-400 pr-12" 
+              />
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center w-10 h-10">
+                <CalendarIcon className="text-blue-400 w-6 h-6 pointer-events-none" />
+                <input
+                  type="date"
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  onChange={(e) => {
+                    const d = e.target.value; // YYYY-MM-DD
+                    if (d) {
+                      const [y, m, d_] = d.split('-');
+                      update('dateOfBirth', `${d_}/${m}/${y}`);
+                    }
+                  }}
+                />
+              </div>
+            </div>
           </label>
           </div>
           <div className="mt-8 text-center">

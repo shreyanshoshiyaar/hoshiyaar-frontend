@@ -6,7 +6,7 @@ export function getApiBase() {
     const hostname = window.location.hostname;
 
     // If it's local development on a laptop, return empty (uses Vite proxy)
-    if (hostname === 'localhost' && !navigator.userAgent.includes('Android')) {
+    if ((hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]') && !navigator.userAgent.includes('Android')) {
       // Check if we are in a production build even on localhost
       if (import.meta.env.PROD) return DEFAULT_PRODUCTION_API_BASE;
       return '';

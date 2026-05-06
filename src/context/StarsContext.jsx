@@ -18,6 +18,7 @@ export const StarsProvider = ({ children }) => {
   const [delta, setDelta] = useState(0); // for +5 / -2 flyout
   const [moduleStars, setModuleStars] = useState({});
   const [questionLedger, setQuestionLedger] = useState({});
+  const [sessionQuestionIds, setSessionQuestionIds] = useState([]);
   const timerRef = useRef(null);
 
   const getUserId = useCallback(() => {
@@ -162,6 +163,31 @@ export const StarsProvider = ({ children }) => {
     }
   };
 
+  const revertSession = async () => {
+    const uid = getUserId();
+    if (!uid || sessionQuestionIds.length === 0) return;
+
+    try {
+      const { data } = await pointsService.revert({ userId: uid, questionIds: sessionQuestionIds });
+      const serverTotal = Number(data?.totalPoints || 0);
+      if (Number.isFinite(serverTotal)) {
+        setStars(serverTotal);
+      }
+      setSessionQuestionIds([]);
+      // Also clean up local ledger for these questions
+      setQuestionLedger(prev => {
+        const next = { ...prev };
+        sessionQuestionIds.forEach(qid => delete next[qid]);
+        return next;
+      });
+    } catch (e) {
+      console.warn('[StarsContext] revertSession failed:', e);
+    }
+  };
+
+  const clearSession = () => setSessionQuestionIds([]);
+  const addToSession = (qid) => setSessionQuestionIds(prev => Array.from(new Set([...prev, qid])));
+
   const getModuleStars = (moduleId) => moduleStars[moduleId] || 0;
 
   const resetModuleLedger = (moduleId) => {
@@ -202,8 +228,11 @@ export const StarsProvider = ({ children }) => {
     resetModuleLedger, 
     resetAllStars, 
     syncFromServer,
+    revertSession,
+    clearSession,
+    addToSession,
     refresh: reloadFromStorage
-  }), [stars, delta, moduleStars, questionLedger, reloadFromStorage]);
+  }), [stars, delta, moduleStars, questionLedger, sessionQuestionIds, reloadFromStorage]);
 
   return <StarsContext.Provider value={value}>{children}</StarsContext.Provider>;
 };

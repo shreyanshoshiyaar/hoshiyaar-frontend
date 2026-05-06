@@ -15,7 +15,7 @@ import { useStars, StarCounter } from '../../../context/StarsContext.jsx';
 import pointsService from '../../../services/pointsService.js';
 import curriculumService from '../../../services/curriculumService.js';
 import { progressKey } from '../../../utils/progressKey.js';
-// Inline feedback bar instead of modal
+import Lottie from 'lottie-react';
 
 export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
   const navigate = useNavigate();
@@ -118,7 +118,24 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
     }
     return curriculumItem;
   }, [isRevisionModeFromUrl, revisionItem, curriculumItem]);
-  const { awardCorrect, awardWrong } = useStars();
+  const { stars: totalStars, awardCorrect, awardWrong, addToSession, clearSession } = useStars();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [hoshiAnim, setHoshiAnim] = useState(null);
+  const [popAnim, setPopAnim] = useState(null);
+  const [bgAnim, setBgAnim] = useState(null);
+
+  useEffect(() => {
+    fetch('/lottie/Hoshi2.json').then(res => res.json()).then(data => setHoshiAnim(data)).catch(console.error);
+    fetch('/lottie/pop.json').then(res => res.json()).then(data => setPopAnim(data)).catch(console.error);
+    fetch('/lottie/Myra-Background.json').then(res => res.json()).then(data => setBgAnim(data)).catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [feedback, setFeedback] = useState({ open: false, correct: false, expected: '' });
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [showResult, setShowResult] = useState(false);
@@ -296,6 +313,9 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         }
         recordCompletedId(moduleNumber);
         
+        // Clear session tracking when lesson is completed
+        clearSession();
+        
         const completionParams = new URLSearchParams();
         completionParams.set('moduleId', String(moduleNumber));
         completionParams.set('chapter', String(moduleNumber));
@@ -435,6 +455,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       case 'comic':
       case 'concept':
       case 'statement':
+      case 'video':
         return `/learn/module/${moduleNumber}/concept/${idx}`;
       case 'multiple-choice': return `/learn/module/${moduleNumber}/mcq/${idx}`;
       case 'fill-in-the-blank': return `/learn/module/${moduleNumber}/fillups/${idx}`;
@@ -471,9 +492,10 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       // Award only on first attempt
       if (isFirstAttempt) {
         const qid = `${moduleNumber}_${index}_mcq`;
-        const pts = 5;
+        const pts = 3;
         const type = isRevisionModeFromUrl ? 'revision' : 'curriculum';
         if (pts !== 0) awardCorrect(String(moduleNumber), qid, pts, { type });
+        addToSession(qid);
         try {
           await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: pts });
         } catch (_) {}
@@ -492,9 +514,10 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       if (isFirstAttempt && !actualReviewMode) {
         const qid = `${moduleNumber}_${index}_mcq`;
         const type = isRevisionModeFromUrl ? 'revision' : 'curriculum';
-        awardWrong(String(moduleNumber), qid, -2, { isRetry: false, type });
+        awardWrong(String(moduleNumber), qid, -3, { isRetry: false, type });
+        addToSession(qid);
         try {
-          await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: false, deltaScore: -2 });
+          await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: false, deltaScore: -3 });
         } catch (_) {}
       }
       const questionId = `${moduleNumber}_${index}_multiple-choice`;
@@ -664,6 +687,9 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
           markCompletedLocal(chapterIdForStorage, unitIdForStorage || '', moduleNumber);
         }
         recordCompletedId(moduleNumber);
+        
+        // Clear session tracking when lesson is completed
+        clearSession();
 
         if (chapterIdForStorage && unitIdForStorage) {
           try {
@@ -689,10 +715,11 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
     // If master, award correct silently and move next
     const qid = `${moduleNumber}_${index}_mcq`;
     const type = isRevisionModeFromUrl ? 'revision' : 'curriculum';
-    awardCorrect(String(moduleNumber), qid, 5, { type });
+    awardCorrect(String(moduleNumber), qid, 3, { type });
+    addToSession(qid);
     try {
       if (user?._id) {
-        await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: 5 });
+        await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: 3 });
       }
     } catch (_) {}
     handleNext(true);
@@ -817,6 +844,209 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
             />
           </div>
         )}
+      </div>
+    );
+  }
+
+  if (isMobile) {
+    return (
+      <div className="h-screen w-full relative overflow-hidden bg-gradient-to-b from-[#4138a3] to-[#7b5ef0]">
+        {/* Background Starry Lottie */}
+        <div className="absolute inset-0 z-0">
+          {bgAnim && (
+            <Lottie
+              animationData={bgAnim}
+              loop={true}
+              className="w-full h-full object-cover opacity-100"
+              rendererSettings={{
+                preserveAspectRatio: 'xMidYMid slice'
+              }}
+            />
+          )}
+        </div>
+
+        {/* Floating Header */}
+        <div className="absolute top-0 left-0 right-0 p-5 flex flex-col gap-4 z-30">
+          <div className="flex items-center justify-between">
+            {!actualReviewMode && (
+              <button
+                onClick={() => setShowExitConfirm(true)}
+                className="w-11 h-11 flex items-center justify-center rounded-full bg-[#6d5dfc] text-white shadow-lg active:scale-95 transition-all border-2 border-white/20"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                </svg>
+              </button>
+            )}
+            {actualReviewMode && <div className="w-11 h-11"></div>}
+
+            <div className="flex-1 flex flex-col items-center px-4">
+              <div className="w-full max-w-[180px]">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-[11px] font-black text-white uppercase tracking-wider">Lesson Progress</span>
+                  <span className="text-[11px] font-black text-white tracking-widest">{index + 1}/{items.length}</span>
+                </div>
+                <div className="h-3 w-full bg-white/30 rounded-full overflow-hidden border border-white/20">
+                  <div 
+                    className="h-full bg-[#a166ff] transition-all duration-500 rounded-full" 
+                    style={{ width: `${((index + 1) / items.length) * 100}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center">
+              <div className="bg-white rounded-full p-1.5 px-3 shadow-lg flex items-center gap-2 h-10 border border-purple-100">
+                <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center text-white shadow-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                    <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <span className="text-sm font-black text-blue-900">{totalStars}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Mascot Section */}
+        <div className="absolute top-[5px] left-0 right-0 flex justify-center z-0">
+          <div className="relative w-full max-w-sm flex items-center justify-center px-4">
+            <div className="w-64 h-64 -ml-10 -mb-16 opacity-100">
+              {hoshiAnim && <Lottie animationData={hoshiAnim} loop={true} className="w-full h-full drop-shadow-2xl" />}
+            </div>
+            <div className="w-64 h-64 -ml-24 mt-10">
+              {popAnim && <Lottie animationData={popAnim} loop={true} className="w-full h-full" />}
+            </div>
+          </div>
+        </div>
+
+        {/* Concept Card */}
+        <div className="absolute inset-x-8 top-[240px] bottom-[140px] z-10 scale-[1.02] origin-top">
+          <div className="h-full w-full bg-white rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.4)] flex flex-col overflow-hidden border border-white/50">
+            {/* Card Header */}
+            <div className="p-5 px-6 flex items-center justify-start gap-4 flex-shrink-0">
+              <div className="w-12 h-12 flex items-center justify-center flex-shrink-0 rounded-full border border-gray-100 shadow-sm p-2 bg-white overflow-hidden">
+                <img 
+                  src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1777550585/img-to-link/rpxdtc6dw5kjgmrthpmn.png" 
+                  alt="icon" 
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <span className="text-[26px] font-black text-blue-900 uppercase tracking-tight">MCQ</span>
+            </div>
+
+            {/* Card Scrollable Content */}
+            <div className="flex-1 overflow-y-auto p-6 pt-2 flex flex-col items-center no-scrollbar">
+              {/* Text above images - Enlarged and Centered */}
+              <div 
+                className="text-[18px] font-black text-gray-800 text-center leading-snug w-full mb-6"
+                dangerouslySetInnerHTML={{ __html: String(item.question || '') }}
+              />
+
+              {/* Images block BETWEEN question and input. */}
+              {(() => {
+                const hasImageOptions = item.options?.some(opt => typeof opt === 'string' && (opt.startsWith('http') || opt.startsWith('https')));
+                if (hasImageOptions) return null;
+
+                const imgs = (item.images || []).filter(Boolean);
+                const primary = item.imageUrl ? [item.imageUrl] : [];
+                const list = imgs.length > 0 ? imgs : primary;
+                if (list.length === 0) return null;
+
+                return (
+                  <div className="w-full max-w-xl mb-4 flex justify-center">
+                    <div className="flex flex-wrap justify-center gap-2">
+                      {list.slice(0, 5).map((src, i) => (
+                        <div key={i} className="border border-blue-300 rounded-xl sm:rounded-2xl p-1 bg-white shadow-sm">
+                          <img src={src} alt={`mcq-${i}`} className="h-28 w-20 object-contain rounded-lg sm:rounded-xl" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* MCQ Options */}
+              <div className="w-full flex flex-col gap-3">
+                {item.options?.map((opt, idx) => {
+                  const isSelected = selectedIndex === idx;
+                  const isCorrectOption = String(opt).trim().toLowerCase() === item.answer.trim().toLowerCase();
+                  const isImageUrl = typeof opt === 'string' && (opt.startsWith('http') || opt.startsWith('https'));
+
+                  let btnClass = "w-full p-4 rounded-3xl border-2 text-center transition-all duration-200 text-[18px] font-black tracking-wide flex items-center justify-center min-h-[64px] ";
+                  
+                  if (showResult) {
+                    if (isSelected) {
+                      btnClass += isCorrect ? "bg-green-100 border-green-500 text-green-800" : "bg-red-100 border-red-500 text-red-800";
+                    } else if (isCorrectOption) {
+                      btnClass += "bg-green-100 border-green-500 text-green-800";
+                    } else {
+                      btnClass += "bg-gray-100 border-gray-300 text-gray-400";
+                    }
+                  } else {
+                    btnClass += "bg-white border-gray-300 text-blue-900 active:border-blue-500 active:scale-95";
+                  }
+
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => handleOptionClick(idx)}
+                      disabled={showResult}
+                      className={btnClass}
+                    >
+                      {isImageUrl ? (
+                        <img 
+                          src={opt} 
+                          alt={`option-${idx}`} 
+                          className="h-20 w-20 object-contain rounded-xl"
+                        />
+                      ) : (
+                        <span>{opt}</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Floating Bottom Button */}
+        <div className="absolute bottom-8 left-0 right-0 px-10 z-20">
+          <button
+            onClick={() => showResult ? handleNext() : () => {}}
+            disabled={!showResult}
+            className={`w-full py-5 rounded-[24px] font-black text-2xl tracking-wide shadow-[0_8px_0_0_#4a3fcc] active:shadow-none active:translate-y-2 transition-all uppercase ${!showResult ? 'bg-gray-400 text-gray-200 shadow-none' : 'bg-[#6d5dfc] text-white'}`}
+          >
+            {showResult ? 'Continue' : 'Pick an answer'}
+          </button>
+        </div>
+
+        {showExitConfirm && (
+          <div className="fixed inset-0 z-[9999]">
+            <ConceptExitConfirm
+              onQuit={() => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const chapterId = urlParams.get('chapterId');
+                const unitId = urlParams.get('unitId');
+                const params = new URLSearchParams();
+                if (chapterId) params.set('chapterId', chapterId);
+                if (unitId) params.set('unitId', unitId);
+                const query = params.toString();
+                navigate(`/learn${query ? '?' + query : ''}`);
+              }}
+              onContinue={() => setShowExitConfirm(false)}
+            />
+          </div>
+        )}
+
+        <IncorrectAnswerModal 
+          isOpen={showIncorrectModal}
+          onClose={() => {}}
+          onTryAgain={handleTryAgain}
+          incorrectText={selectedIndex != null ? String(item.options[selectedIndex]) : ''}
+          correctAnswer={item?.answer}
+        />
       </div>
     );
   }

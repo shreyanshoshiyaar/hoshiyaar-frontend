@@ -26,7 +26,7 @@ export default function DescriptivePage() {
   const unitIdParam = searchParams.get('unitId');
   const actualReviewMode = isReviewModeFromUrl || isRevisionModeFromUrl;
   const { user } = useAuth();
-  const { awardCorrect, awardWrong } = useStars();
+  const { awardCorrect, awardWrong, addToSession, clearSession } = useStars();
   const { add: addToReview, removeActive, requeueActive, active: activeReviewItem } = useReview();
 
   const [userInput, setUserInput] = useState('');
@@ -123,25 +123,25 @@ export default function DescriptivePage() {
 
     if (scoreRatio === 1) {
       matchStatus = 'perfect';
-      pts = 10;
+      pts = 3;
       starsEarned = 3;
       dbResult = 'correct';
       isCorrectStatus = true;
     } else if (scoreRatio >= 0.6) {
       matchStatus = 'partial-high';
-      pts = 7;
+      pts = 3;
       starsEarned = 2;
       dbResult = 'correct';
       isCorrectStatus = true;
     } else if (scoreRatio >= 0.1) {
       matchStatus = 'partial-low';
-      pts = 5;
+      pts = 3;
       starsEarned = 1;
       dbResult = 'correct';
       isCorrectStatus = true;
     } else {
       matchStatus = 'incorrect';
-      pts = -2;
+      pts = -3;
       starsEarned = 0;
       dbResult = 'incorrect';
       isCorrectStatus = false;
@@ -168,6 +168,7 @@ export default function DescriptivePage() {
     const type = isRevisionModeFromUrl ? 'revision' : 'curriculum';
 
     if (isFirstAttempt) {
+      addToSession(qid);
       if (isCorrectStatus) {
         awardCorrect(String(moduleNumber), qid, pts, { type });
         try {
@@ -272,6 +273,7 @@ export default function DescriptivePage() {
       completionParams.set('moduleId', String(moduleNumber));
       if (chapterIdParam) completionParams.set('chapterId', chapterIdParam);
       if (unitIdParam) completionParams.set('unitId', unitIdParam);
+      clearSession();
       navigate(`/lesson-complete?${completionParams.toString()}`);
       return;
     }
@@ -296,10 +298,11 @@ export default function DescriptivePage() {
   const handleMasterSkip = async () => {
     const qid = `${moduleNumber}_${index}_descriptive`;
     const type = isRevisionModeFromUrl ? 'revision' : 'curriculum';
-    awardCorrect(String(moduleNumber), qid, 5, { type });
+    awardCorrect(String(moduleNumber), qid, 3, { type });
+    addToSession(qid);
     try {
       if (user?._id) {
-        await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: 5 });
+        await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: 3 });
       }
     } catch (_) {}
     handleNext(true);

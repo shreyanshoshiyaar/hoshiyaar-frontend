@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx'; 
-import HoshiyaarLogo from '../../assets/images/HoshiYaar-logo.jpg';
+const HoshiyaarLogo = "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1777997560/img-to-link/mfaw5t09dlayxlunzfas.png";
 
 const Header = () => {
   const { user, logout } = useAuth();

@@ -2,6 +2,72 @@ import React, { useState, useEffect } from 'react';
 import curriculumService from '../../services/curriculumService';
 import ContentEditor from './ContentEditor';
 
+const UnitEditRow = ({ unit, onUpdateUnit }) => {
+  const [title, setTitle] = useState(unit.title || '');
+  const [headerBgUrl, setHeaderBgUrl] = useState(unit.headerBgUrl || '');
+  const [timelineBgUrl, setTimelineBgUrl] = useState(unit.timelineBgUrl || '');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setTitle(unit.title || '');
+    setHeaderBgUrl(unit.headerBgUrl || '');
+    setTimelineBgUrl(unit.timelineBgUrl || '');
+  }, [unit]);
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      await onUpdateUnit(unit._id, { title, headerBgUrl, timelineBgUrl });
+      alert('Unit updated successfully!');
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="border border-gray-200 rounded-lg p-4 bg-gray-50 flex flex-col md:flex-row gap-4 items-end mb-3 last:mb-0">
+      <div className="flex-1">
+        <label className="block text-xs font-bold text-gray-600 mb-1">Unit Title</label>
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        />
+      </div>
+      <div className="flex-1">
+        <label className="block text-xs font-bold text-gray-600 mb-1">Header Background URL</label>
+        <input
+          type="text"
+          value={headerBgUrl}
+          onChange={(e) => setHeaderBgUrl(e.target.value)}
+          placeholder="e.g. Image URL or pattern"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        />
+      </div>
+      <div className="flex-1">
+        <label className="block text-xs font-bold text-gray-600 mb-1">Timeline Background URL</label>
+        <input
+          type="text"
+          value={timelineBgUrl}
+          onChange={(e) => setTimelineBgUrl(e.target.value)}
+          placeholder="e.g. Image URL or pattern"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        />
+      </div>
+      <button
+        onClick={handleSave}
+        disabled={saving}
+        className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-md shadow focus:outline-none transition-colors"
+      >
+        {saving ? 'Saving...' : 'Save Unit'}
+      </button>
+    </div>
+  );
+};
+
 const AdminPanel = () => {
   const [boards, setBoards] = useState([]);
   const [classes, setClasses] = useState([]);
@@ -123,14 +189,41 @@ const AdminPanel = () => {
     }
   };
 
-  // Fetch modules when chapter is selected
+  const [units, setUnits] = useState([]);
+
+  // Fetch modules and units when chapter is selected
   useEffect(() => {
     if (selectedChapter) {
       setSelectedModule('');
       setModules([]);
+      setUnits([]);
       fetchModules();
+      fetchUnits();
     }
   }, [selectedChapter]);
+
+  const fetchUnits = async () => {
+    if (!selectedChapter) return;
+    try {
+      const response = await curriculumService.listUnits(selectedChapter);
+      setUnits(response.data || []);
+    } catch (err) {
+      console.error('Failed to fetch units', err);
+    }
+  };
+
+  const handleUpdateUnit = async (unitId, updateData) => {
+    try {
+      await curriculumService.updateUnit(unitId, updateData);
+      try {
+        sessionStorage.removeItem(`unit_list_cache_v1__${selectedChapter}`);
+      } catch (_) {}
+      fetchUnits();
+    } catch (err) {
+      setError('Failed to update unit');
+      console.error(err);
+    }
+  };
 
   const fetchModules = async () => {
     if (!selectedChapter) return;
@@ -283,6 +376,18 @@ const AdminPanel = () => {
             </div>
           </div>
         </div>
+
+        {/* Unit Management section when chapter is selected */}
+        {selectedChapter && units.length > 0 && (
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Unit Image & Background Settings</h2>
+            <div className="grid grid-cols-1 gap-4">
+              {units.map((unit) => {
+                return <UnitEditRow key={unit._id} unit={unit} onUpdateUnit={handleUpdateUnit} />;
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Content Editor */}
         {selectedModule && (

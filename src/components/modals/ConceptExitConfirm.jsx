@@ -1,5 +1,6 @@
 import React from 'react';
 import exitImg from '../../assets/images/exit.png';
+import { useStars } from '../../context/StarsContext.jsx';
 
 const ExitConfirmCard = ({ onQuit, onContinue }) => (
   <div className="w-full max-w-md bg-white border-2 border-blue-200 rounded-2xl p-4 shadow-[0_8px_0_0_rgba(0,0,0,0.10)]">
@@ -17,9 +18,18 @@ const ExitConfirmCard = ({ onQuit, onContinue }) => (
 );
 
 export default function ConceptExitConfirm({ onQuit, onContinue }) {
+  const { revertSession } = useStars();
+  
+  const handleQuit = async () => {
+    try {
+      await revertSession();
+    } catch (_) {}
+    onQuit();
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-      <ExitConfirmCard onQuit={onQuit} onContinue={onContinue} />
+      <ExitConfirmCard onQuit={handleQuit} onContinue={onContinue} />
     </div>
   );
 }

@@ -46,6 +46,9 @@ const curriculumService = {
       return { data: null };
     });
   },
+  updateUnit(unitId, data, opts) {
+    return http.put(`/api/curriculum/units/${unitId}`, data, passOpts(opts));
+  }
 };
 
 export default curriculumService;

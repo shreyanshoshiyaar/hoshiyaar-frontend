@@ -9,7 +9,10 @@ import chapterImg from "../../../assets/images/chapterImg.png";
 import authService from "../../../services/authService.js";
 import { progressKey } from "../../../utils/progressKey.js";
 import Lottie from "lottie-react";
-import pathAnimationData from "../../../assets/lottie/Ruhaan2.json";
+// pathAnimationData will be fetched dynamically to avoid build/performance issues
+import MobileHome from "../../layout/MobileHome.jsx";
+import BottomNavigation from "../../layout/BottomNavigation.jsx";
+import MobileLeaderboard from "../../layout/MobileLeaderboard.jsx";
 const DASHBOARD_VERSION = "V5.1-FREQ-3";
 
 // --- SVG Icons for the Dashboard ---
@@ -38,6 +41,21 @@ const ProfileIcon = () => (
     fill="currentColor"
   >
     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
+  </svg>
+);
+const LogoutIcon = () => (
+  <svg
+    className="w-7 h-7 md:w-8 md:h-8"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    <polyline points="16 17 21 12 16 7" />
+    <line x1="21" y1="12" x2="9" y2="12" />
   </svg>
 );
 const StarIcon = () => (
@@ -104,25 +122,29 @@ const StartBadge = ({ color = "#2C6DEF" }) => (
 );
 
 // Decorative Lottie animation placed along the path with a 3D Base (like DuoLingo)
-const PathAnimation = ({ offset, top, isMobileLayout }) => {
+const PathAnimation = ({ data, offset, top, isMobileLayout }) => {
   const sizeBase = "w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 lg:w-22 lg:h-22";
   const depth = "6px";
+  
+  if (!data) return null;
+
   return (
     <div
       className="absolute pointer-events-none z-[200]"
       style={{
-        width: isMobileLayout ? '56px' : '180px',
+        width: isMobileLayout ? '56px' : '224px',
         left: isMobileLayout 
           ? `clamp(43px, calc(50% + ${offset}px), calc(100% - 43px))`
           : `calc(50% + ${offset}px)`,
         top: `${top}px`,
         transform: 'translate(-50%, -50%)',
+        // Center content on desktop to ensure mascot is perfectly aligned with the base
+        display: isMobileLayout ? 'block' : 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
       }}
     >
-      <div className={`relative ${sizeBase} scale-[1.1]`}>
-        {/* Decorative Atmosphere Glow */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 md:w-64 md:h-64 rounded-full bg-blue-50/20 -z-10 border border-blue-100/10" />
-
+      <div className={`relative ${sizeBase} scale-[1.1] ${!isMobileLayout ? 'flex items-center justify-center' : ''}`}>
         {/* 3D Base - Bottom Layer (Depth) */}
         <div
           className="absolute inset-0 rounded-full"
@@ -141,7 +163,7 @@ const PathAnimation = ({ offset, top, isMobileLayout }) => {
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="w-[224px] h-[224px] -translate-y-[94px]">
             <Lottie
-              animationData={pathAnimationData}
+              animationData={data}
               loop={true}
               style={{ width: '224px', height: '224px', backgroundColor: 'transparent' }}
             />
@@ -167,8 +189,8 @@ const PathNode = ({ status, onClick, disabled, color = "#2C6DEF", lightenFn, dar
     topColor = "#FACC15"; // Bright Yellow
     bottomColor = "#CA8A04"; // Darker Yellow/Gold
   } else if (isActive) {
-    topColor = baseColor;
-    bottomColor = darkenFn ? darkenFn(baseColor, 0.2) : baseColor;
+    topColor = "#2C6DEF"; // Bright Blue for Start
+    bottomColor = "#1D4ED8"; // Darker Blue
   } else {
     topColor = "#E5E7EB"; // Light Gray (locked)
     bottomColor = "#9CA3AF"; // Darker Gray (locked)
@@ -223,11 +245,10 @@ const PathNode = ({ status, onClick, disabled, color = "#2C6DEF", lightenFn, dar
   );
 };
 
-const getWaveOffset = (index, isMobile = false) => {
-  const amplitude = isMobile ? 35 : 85;
-  // Frequency reduced for a smoother "S" shape
-  const angle = (index * Math.PI) / 4;
-  return Math.sin(angle) * amplitude;
+// Helper to calculate wave offset for each node (NOW STRAIGHT)
+const getWaveOffset = (index, isMobile) => {
+  // User requested centered nodes (straight vertical line)
+  return 0;
 };
 
 const OrganicPathSvg = ({ nodesCount, color, rowSpacing, isMobile }) => {
@@ -240,7 +261,7 @@ const OrganicPathSvg = ({ nodesCount, color, rowSpacing, isMobile }) => {
   for (let i = 0; i < count; i++) {
     points.push({
       x: center + getWaveOffset(i, isMobile),
-      y: i * rowSpacing
+      y: i * rowSpacing + 40
     });
   }
 
@@ -267,6 +288,8 @@ const LearnDashboard = ({ onboardingData }) => {
   const location = useLocation();
 
   const [progress, setProgress] = useState([]);
+  const [pathAnimationData, setPathAnimationData] = useState(null);
+  const [activeTab, setActiveTab] = useState('home'); // 'home', 'practice', 'ranks', 'more'
   const [chapterTitle, setChapterTitle] = useState("");
   const [chapterId, setChapterId] = useState("");
   const [chaptersList, setChaptersList] = useState([]);
@@ -281,6 +304,7 @@ const LearnDashboard = ({ onboardingData }) => {
   // Leaderboard states
   const [leaderboardSchool, setLeaderboardSchool] = useState("");
   const [leaderboardData, setLeaderboardData] = useState([]);
+  const [weeklyLeaderboardData, setWeeklyLeaderboardData] = useState([]);
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
   const [leaderboardSearched, setLeaderboardSearched] = useState(false);
   const [schoolSuggestions, setSchoolSuggestions] = useState([]);
@@ -290,6 +314,17 @@ const LearnDashboard = ({ onboardingData }) => {
   const [weeklyStars, setWeeklyStars] = useState(0);
   const [leaderboardTimeframe, setLeaderboardTimeframe] = useState("weekly"); // "weekly" or "total"
   const [showMobileLeaderboard, setShowMobileLeaderboard] = useState(false);
+
+  // Fetch Lottie animation data from public folder
+  useEffect(() => {
+    fetch('/lottie/Ruhaan2.json')
+      .then(res => res.json())
+      .then(data => {
+        setPathAnimationData(data);
+        console.log('[Dashboard] Ruhaan2 Lottie loaded');
+      })
+      .catch(err => console.error('Failed to load Ruhaan2 Lottie:', err));
+  }, []);
 
   const rowSpacing = 110;
   const [isMobileLayout, setIsMobileLayout] = useState(window.innerWidth < 768);
@@ -992,6 +1027,7 @@ const LearnDashboard = ({ onboardingData }) => {
             const unitsPromise = cur.listUnits(ch._id, { signal: ac.signal }).catch(() => ({ data: units || [] }));
             const unitsResp = await unitsPromise;
             units = unitsResp?.data || [];
+            setUnitsList(units);
             if (units.length > 0) saveUnitsCache(ch._id, units);
             finalUnitsArr = units;
             console.log('Dashboard: Units found', units);
@@ -1413,6 +1449,27 @@ const LearnDashboard = ({ onboardingData }) => {
     } catch (_) { }
   };
 
+  const fetchWeeklyLeaderboard = useCallback(async (schoolName) => {
+    if (!schoolName?.trim()) return;
+    try {
+      const response = await authService.getLeaderboard(schoolName, 'weekly');
+      let data = response?.data?.leaderboard || [];
+      
+      if (user && !data.find(u => u.username === user.username)) {
+        data.push({
+          username: user.username,
+          name: user.name || user.username,
+          school: user.school || schoolName,
+          totalPoints: weeklyStarsRef.current || 0
+        });
+      }
+      data.sort((a, b) => (b.totalPoints || 0) - (a.totalPoints || 0));
+      setWeeklyLeaderboardData(data);
+    } catch (error) {
+      console.error('Weekly leaderboard fetch failed:', error);
+    }
+  }, [user?._id, user?.username, user?.school]);
+
   const fetchLeaderboard = useCallback(async (schoolName, timeframe) => {
     if (!schoolName?.trim()) return;
     
@@ -1501,8 +1558,9 @@ const LearnDashboard = ({ onboardingData }) => {
     const activeSchool = user?.school || leaderboardSchool;
     if (activeSchool && !isChangingSchool) {
       fetchLeaderboard(activeSchool);
+      fetchWeeklyLeaderboard(activeSchool);
     }
-  }, [user?.school, isChangingSchool, leaderboardTimeframe, fetchLeaderboard]);
+  }, [user?.school, isChangingSchool, leaderboardTimeframe, fetchLeaderboard, fetchWeeklyLeaderboard]);
 
 
 
@@ -1704,39 +1762,41 @@ const LearnDashboard = ({ onboardingData }) => {
     <ReviewProvider>
       <div className="bg-gradient-to-b from-[#E6F2FF] to-[#F7FBFF] h-screen flex flex-col md:flex-row overflow-hidden">
         {/* Mobile Header */}
-        <div className="md:hidden fixed top-0 left-0 right-0 z-[1001] bg-white border-b border-blue-200 p-4 flex items-center justify-between shadow-md">
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-extrabold text-blue-600">HoshiYaar</h1>
-            <button
-              onClick={() => setShowMobileLeaderboard(true)}
-              className="flex items-center gap-1.5 bg-indigo-50 px-3 py-1.5 rounded-full border border-indigo-100 active:scale-95 transition-transform"
-            >
-              <span className="text-sm">🏆</span>
-              <span className="text-[10px] font-black text-indigo-600 uppercase">Rankings</span>
+        {(!isMobileLayout || (activeTab !== 'home' && activeTab !== 'ranks')) && (
+          <div className="md:hidden fixed top-0 left-0 right-0 z-[1001] bg-white border-b border-blue-200 p-4 flex items-center justify-between shadow-md">
+            <div className="flex items-center gap-2">
+              <img 
+                src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1777997560/img-to-link/mfaw5t09dlayxlunzfas.png" 
+                alt="HoshiYaar Logo" 
+                className="h-8 w-auto" 
+              />
+            </div>
+            <button className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shadow-sm border border-blue-100">
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
+              </svg>
             </button>
           </div>
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2 rounded-lg hover:bg-blue-50 transition-colors"
-          >
-            {isMobileMenuOpen ? <CloseIcon /> : <HamburgerIcon />}
-          </button>
-        </div>
+        )}
 
         {/* Mobile Menu Overlay */}
         {isMobileMenuOpen && (
           <div
-            className="md:hidden fixed inset-0 z-50 bg-black bg-opacity-50"
+            className="md:hidden fixed inset-0 z-[1002] bg-black bg-opacity-50"
             onClick={() => setIsMobileMenuOpen(false)}
           />
         )}
 
         {/* Mobile Menu Sidebar */}
-        <nav className={`md:hidden fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        <nav className={`md:hidden fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-[1003] transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
           }`}>
           <div className="p-6 space-y-4">
             <div className="flex items-center justify-between mb-6">
-              <h1 className="text-2xl font-extrabold text-blue-600">HoshiYaar</h1>
+              <img 
+                src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1777997560/img-to-link/mfaw5t09dlayxlunzfas.png" 
+                alt="HoshiYaar Logo" 
+                className="h-8 w-auto" 
+              />
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="p-2 rounded-lg hover:bg-blue-50 transition-colors"
@@ -1776,14 +1836,30 @@ const LearnDashboard = ({ onboardingData }) => {
               <ProfileIcon />
               <span>Profile</span>
             </a>
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                setIsMobileMenuOpen(false);
+                handleLogout();
+              }}
+              className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors text-red-600 hover:bg-red-50 mt-auto`}
+            >
+              <LogoutIcon />
+              <span>Logout</span>
+            </a>
           </div>
         </nav>
 
         {/* Desktop Sidebar */}
         <nav className="hidden md:flex md:w-64 p-6 space-y-4 border-r border-blue-200 flex-col justify-start shrink-0 bg-white shadow-lg">
-          <h1 className="text-3xl font-extrabold text-blue-600 mb-6">
-            HoshiYaar
-          </h1>
+          <div className="mb-6">
+            <img 
+              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1777997560/img-to-link/mfaw5t09dlayxlunzfas.png" 
+              alt="HoshiYaar Logo" 
+              className="h-12 w-auto" 
+            />
+          </div>
           <a
             href="#"
             className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors bg-blue-500 text-white shadow-md`}
@@ -1813,10 +1889,56 @@ const LearnDashboard = ({ onboardingData }) => {
             <ProfileIcon />
             <span>Profile</span>
           </a>
+          <div className="mt-auto pt-6 border-t border-blue-100 w-full">
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                handleLogout();
+              }}
+              className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors text-red-600 hover:bg-red-50`}
+            >
+              <LogoutIcon />
+              <span>Logout</span>
+            </a>
+          </div>
         </nav>
 
-        <main className="flex-grow p-1 md:p-3 overflow-y-auto overflow-x-hidden no-scrollbar bg-transparent mt-16 md:mt-0">
-          {/* Mobile Score Display removed per request */}
+        {isMobileLayout && activeTab === 'home' ? (
+          <MobileHome 
+            user={user} 
+            stars={stars} 
+            weeklyStars={weeklyStars} 
+            leaderboardData={weeklyLeaderboardData} 
+            onNavigateToPractice={() => setActiveTab('practice')} 
+            onNavigateToRanks={() => setActiveTab('ranks')}
+          />
+        ) : isMobileLayout && activeTab === 'ranks' ? (
+          <MobileLeaderboard 
+            user={user}
+            leaderboardData={leaderboardData}
+            leaderboardLoading={leaderboardLoading}
+            leaderboardTimeframe={leaderboardTimeframe}
+            setLeaderboardTimeframe={setLeaderboardTimeframe}
+            isChangingSchool={isChangingSchool}
+            setIsChangingSchool={setIsChangingSchool}
+            leaderboardSchool={leaderboardSchool}
+            setLeaderboardSchool={setLeaderboardSchool}
+            handleLeaderboardSearch={handleLeaderboardSearch}
+            schoolSuggestions={schoolSuggestions}
+            showSuggestions={showSuggestions}
+            setShowSuggestions={setShowSuggestions}
+            isManualSchoolInput={isManualSchoolInput}
+            setIsManualSchoolInput={setIsManualSchoolInput}
+            fetchLeaderboard={fetchLeaderboard}
+            stars={stars}
+            weeklyStars={weeklyStars}
+            onNavigateToPractice={() => setActiveTab('practice')}
+          />
+        ) : (
+          <>
+            <main className={`flex-grow p-1 md:p-3 overflow-y-auto no-scrollbar bg-transparent mt-16 md:mt-0 ${isMobileLayout ? 'overflow-x-hidden pb-24' : 'overflow-x-visible'}`}>
+            {/* Mobile Score Display removed per request */}
 
           {/* Section Header (hide when viewing chapters list). If units exist, headers are shown per unit below, so hide this top one. */}
 
@@ -1986,47 +2108,91 @@ const LearnDashboard = ({ onboardingData }) => {
                             data-chapter-id={chapterId}
                           >
                             {/* Unit header card for direct modules */}
-                            <div className="sticky top-0 z-[100] text-white px-6 py-5 rounded-3xl flex justify-between items-center mb-8 shadow-[0_10px_0_0_rgba(0,0,0,0.15)] w-full border-4"
-                              style={{ background: `linear-gradient(90deg, #2C6DEF, #1E4A8C)`, borderColor: 'rgba(44, 109, 239, 0.25)' }}>
-                              <div>
-                                <p className="font-extrabold text-xl md:text-2xl">
-                                  {chapterTitle || 'Learning Modules'}
-                                </p>
-                                <div className="flex items-center gap-2 mt-1">
-                                  <p className="opacity-95 text-base md:text-lg">
-                                    {subjectName}
+                            {isMobileLayout ? (
+                              <div className="sticky top-0 z-[100] text-white px-5 py-5 rounded-3xl mb-8 shadow-2xl w-full border border-white/20 relative overflow-hidden flex flex-col md:flex-row justify-between"
+                                style={{ background: `linear-gradient(135deg, #2C6DEF, #1E4A8C)` }}>
+                                
+                                {/* Sparkling Stars background effect */}
+                                <div className="absolute inset-0 opacity-15 pointer-events-none overflow-hidden select-none">
+                                  <div className="absolute top-2 left-1/4 animate-pulse">✨</div>
+                                  <div className="absolute bottom-4 left-1/2">⭐</div>
+                                  <div className="absolute top-8 right-1/4 animate-pulse">✨</div>
+                                </div>
+
+                                <div className="relative z-10 flex flex-col gap-3">
+                                  <h2 className="text-[22px] font-extrabold leading-tight text-white drop-shadow-md">
+                                    {chapterTitle || 'Learning Modules'}
+                                  </h2>
+                                  
+                                  <div className="w-full h-[1px] bg-white/20 border-t border-dashed border-white/20 my-1" />
+
+                                  <div className="flex items-center justify-between gap-2 mt-3">
+                                    <button
+                                      onClick={handleOpenSubjectModal}
+                                      disabled={isLoading || subjectChanging}
+                                      className={`flex items-center gap-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 text-xs font-black shadow-inner active:scale-95 transition-all hover:bg-white/20 ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    >
+                                      <span className="text-sm">🧪</span>
+                                      <span className="text-white uppercase tracking-wider">{subjectName}</span>
+                                    </button>
+                                    
+                                    <div className="flex items-center gap-2">
+                                      <button
+                                        onClick={() => setShowChapters(true)}
+                                        className="flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-white/10 hover:bg-white/20 transition-colors border border-white/20 text-xs font-extrabold text-white"
+                                      >
+                                        <span className="inline-flex items-center justify-center flex-shrink-0">
+                                          <ChapterNavIcon />
+                                        </span>
+                                        <span>All Chapters</span>
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="sticky top-0 z-[100] text-white px-6 py-5 rounded-3xl flex justify-between items-center mb-8 shadow-[0_10px_0_0_rgba(0,0,0,0.15)] w-full border-4"
+                                style={{ background: `linear-gradient(90deg, #2C6DEF, #1E4A8C)`, borderColor: 'rgba(44, 109, 239, 0.25)' }}>
+                                <div>
+                                  <p className="font-extrabold text-xl md:text-2xl">
+                                    {chapterTitle || 'Learning Modules'}
                                   </p>
+                                  <div className="flex items-center gap-2 mt-1">
+                                    <p className="opacity-95 text-base md:text-lg">
+                                      {subjectName}
+                                    </p>
+                                    <button
+                                      onClick={handleOpenSubjectModal}
+                                      disabled={isLoading || subjectChanging}
+                                      className={`flex items-center gap-2 py-2 px-4 rounded-2xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-sm font-extrabold ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                      title={subjectChanging ? "Switching Subject..." : "Change Subject"}
+                                    >
+                                      {subjectChanging ? "Switching..." : "Change"}
+                                    </button>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
                                   <button
-                                    onClick={handleOpenSubjectModal}
-                                    disabled={isLoading || subjectChanging}
-                                    className={`flex items-center gap-2 py-2 px-4 rounded-2xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-sm font-extrabold ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                    title={subjectChanging ? "Switching Subject..." : "Change Subject"}
+                                    onClick={() => setShowChapters(true)}
+                                    className="flex items-center gap-2.5 py-2 px-4 rounded-xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-base"
                                   >
-                                    {subjectChanging ? "Switching..." : "Change"}
+                                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-white/20 flex-shrink-0">
+                                      <ChapterNavIcon />
+                                    </span>
+                                    <span className="font-bold hidden sm:inline leading-tight self-center">All Chapters</span>
+                                  </button>
+                                  {/* Debug button to clear false completions */}
+                                  <button
+                                    onClick={clearFalseCompletions}
+                                    className="flex items-center gap-2 py-2 px-3 rounded-xl bg-red-500/20 hover:bg-red-500/30 transition-colors ring-1 ring-red-400/40 text-sm text-red-100"
+                                    title="Clear false completions (Debug)"
+                                  >
+                                    <span className="text-xs">🔄</span>
+                                    <span className="font-medium hidden sm:inline">Reset Progress</span>
                                   </button>
                                 </div>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <button
-                                  onClick={() => setShowChapters(true)}
-                                  className="flex items-center gap-2.5 py-2 px-4 rounded-xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-base"
-                                >
-                                  <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-white/20 flex-shrink-0">
-                                    <ChapterNavIcon />
-                                  </span>
-                                  <span className="font-bold hidden sm:inline leading-tight self-center">All Chapters</span>
-                                </button>
-                                {/* Debug button to clear false completions */}
-                                <button
-                                  onClick={clearFalseCompletions}
-                                  className="flex items-center gap-2 py-2 px-3 rounded-xl bg-red-500/20 hover:bg-red-500/30 transition-colors ring-1 ring-red-400/40 text-sm text-red-100"
-                                  title="Clear false completions (Debug)"
-                                >
-                                  <span className="text-xs">🔄</span>
-                                  <span className="font-medium hidden sm:inline">Reset Progress</span>
-                                </button>
-                              </div>
-                            </div>
+                            )}
 
                             {/* Render modules directly along the wavy path */}
                             <div className="relative w-full mx-auto pb-32 pt-20 mt-24" style={{ minHeight: Math.max(modulesList.length * rowSpacing, 400) }}>
@@ -2096,41 +2262,41 @@ const LearnDashboard = ({ onboardingData }) => {
                                       >
                                         {status === "active" && <StartBadge color="#2C6DEF" />}
                                       </PathNode>
-
-                                      {/* Original-Style side tooltip */}
-                                      <div
-                                        className={`absolute top-1/2 -translate-y-1/2 bg-white border border-blue-100 rounded-xl shadow-lg px-4 py-3 w-48 hidden md:block transition-all duration-300 ease-out transform ${offset < 0
-                                          ? `left-full ml-12 ${hoveredIndex === index ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 pointer-events-none"}`
-                                          : `right-full mr-12 ${hoveredIndex === index ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 pointer-events-none"}`
-                                          }`}
-                                        style={{ zIndex: 50 }}
-                                      >
-                                        {/* Tooltip arrow */}
-                                        <div className={`absolute top-1/2 -translate-y-1/2 border-8 border-transparent ${offset < 0 ? "right-full border-r-white" : "left-full border-l-white"
-                                          }`}></div>
-
-                                        <div className="text-xs uppercase tracking-widest font-black text-blue-500 mb-1">Lesson {index + 1}</div>
-                                        <div className="text-base font-extrabold text-gray-800 line-clamp-2">
-                                          {mod?.title || "—"}
+                                      {/* Always-Visible Label (3D Box Styling) */}
+                                      <div className="absolute top-1/2 -translate-y-1/2 left-full pointer-events-none flex items-center ml-[16px] md:ml-[24px]">
+                                        <div className="relative w-[130px] md:w-[150px] min-h-[52px]">
+                                          {/* Bottom Layer (Depth) */}
+                                          <div className={`absolute inset-0 translate-y-[4px] rounded-2xl ${
+                                            status === "completed" ? "bg-[#CA8A04]" : status === "active" ? "bg-[#1D4ED8]" : "bg-[#CBD5E1]"
+                                          }`} />
+                                          {/* Top Layer (Surface) */}
+                                          <div className={`absolute inset-0 rounded-2xl flex items-center justify-between pl-4 pr-3 py-2 border shadow-sm transition-transform active:translate-y-[2px] ${
+                                            status === "completed" ? "bg-[#FACC15] border-[#EAB308]" : status === "active" ? "bg-[#2C6DEF] border-[#1E40AF]" : "bg-white border-slate-200"
+                                          }`}>
+                                            <div className={`text-[11px] md:text-xs font-black leading-tight text-left line-clamp-2 flex-1 pr-2 ${
+                                              status === "active" ? "text-white" : status === "completed" ? "text-yellow-900" : "text-slate-700"
+                                            }`}>
+                                              {mod?.title || "—"}
+                                            </div>
+                                            <svg className={`w-[14px] h-[14px] flex-shrink-0 ${
+                                              status === "active" ? "text-white/80" : status === "completed" ? "text-yellow-900/60" : "text-slate-400"
+                                            }`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                                            </svg>
+                                          </div>
                                         </div>
                                       </div>
                                     </div>
 
-                                    {/* Inject Lottie every 3 modules (Smart Curve-Aware Placement) */}
-                                    {(index + 1) % 3 === 0 && index < modulesList.length - 1 && (() => {
-                                      const waveOffset = getWaveOffset(index + 0.5, isMobileLayout);
-                                      // Position on the opposite side of the curve to balance the screen
-                                      const sideOffset = isMobileLayout 
-                                        ? (waveOffset > 0 ? -140 : 140) 
-                                        : (waveOffset > 0 ? -220 : 280);
-                                      return (
-                                        <PathAnimation
-                                          offset={waveOffset + sideOffset}
-                                          top={rowSpacing * 0.5}
-                                          isMobileLayout={isMobileLayout}
-                                        />
-                                      );
-                                    })()}
+                                    {/* Inject Lottie every 3 modules (Left Placement) */}
+                                    {(index + 1) % 3 === 0 && index < modulesList.length - 1 && (
+                                      <PathAnimation
+                                        data={pathAnimationData}
+                                        offset={isMobileLayout ? -140 : -160}
+                                        top={rowSpacing * 0.5}
+                                        isMobileLayout={isMobileLayout}
+                                      />
+                                    )}
                                   </div>
                                 );
                               })}
@@ -2156,53 +2322,113 @@ const LearnDashboard = ({ onboardingData }) => {
                               return (
                                 <div
                                   key={u._id || unitIdx}
-                                  className="relative pt-12 pb-28"
+                                  className={`relative pb-28 ${ (u.timelineBgUrl && isMobileLayout) ? 'pt-8 -mx-1 md:-mx-3 px-4 md:px-6 -mb-1 md:-mb-3' : 'pt-12'}`}
+                                  style={(u.timelineBgUrl && isMobileLayout) ? {
+                                    background: `url(${u.timelineBgUrl}) center/cover no-repeat`
+                                  } : {}}
                                   data-chapter-id={chapterId}
                                   data-unit-id={String(u._id)}
                                 >
                                   {/* Unit header card - sticky until next unit */}
                                   {(() => {
                                     const color = unitPalette[unitIdx % unitPalette.length]; const gradFrom = color; const gradTo = darken(color, 0.15); return (
-                                      <div className="sticky top-0 z-[100] text-white px-6 py-5 rounded-3xl flex justify-between items-center mb-8 shadow-[0_10px_0_0_rgba(0,0,0,0.15)] w-full border-4"
-                                        style={{ background: `linear-gradient(90deg, ${gradFrom}, ${gradTo})`, borderColor: withAlpha(color, 0.25) }}>
-                                        <div>
-                                          <p className="font-extrabold text-base md:text-lg">
-                                            {(u.title && u.title.toLowerCase() !== 'unit') ? u.title : `Unit ${unitIdx + 1}`}
-                                          </p>
-                                          {chapterTitle && (
-                                            <p className="opacity-95 text-base md:text-lg">
-                                              {chapterTitle}
-                                            </p>
+                                      isMobileLayout ? (
+                                        <div className="sticky top-0 z-[100] text-white px-5 py-5 rounded-3xl mb-8 shadow-2xl w-full border border-white/20 relative overflow-hidden flex flex-col md:flex-row justify-between backdrop-blur-md"
+                                          style={{ background: u.headerBgUrl ? `url(${u.headerBgUrl}) center/cover no-repeat` : (u.timelineBgUrl ? `rgba(255, 255, 255, 0.12)` : `linear-gradient(135deg, ${gradFrom}, ${gradTo})`) }}>
+                                          
+                                          {/* Sparkling Stars background effect */}
+                                          {!u.headerBgUrl && (
+                                            <div className="absolute inset-0 opacity-15 pointer-events-none overflow-hidden select-none">
+                                              <div className="absolute top-2 left-1/4 animate-pulse">✨</div>
+                                              <div className="absolute bottom-4 left-1/2">⭐</div>
+                                              <div className="absolute top-8 right-1/4 animate-pulse">✨</div>
+                                            </div>
                                           )}
-                                          <div className="flex items-center gap-2 mt-1">
-                                            <p className="opacity-90 text-sm md:text-base">
-                                              {subjectName}
+
+                                          <div className="relative z-10 flex flex-col gap-3">
+                                            <h2 className="text-[22px] font-extrabold leading-tight text-white drop-shadow-md">
+                                              {(u.title && u.title.toLowerCase() !== 'unit') ? u.title : `Unit ${unitIdx + 1}`}
+                                            </h2>
+                                            
+                                            <div className="w-full h-[1px] bg-white/20 border-t border-dashed border-white/20 my-1" />
+
+                                            {chapterTitle && (
+                                              <p className="opacity-90 font-bold text-sm text-blue-50">
+                                                {chapterTitle}
+                                              </p>
+                                            )}
+
+                                            <div className="flex items-center justify-between gap-2 mt-3">
+                                              <button
+                                                onClick={handleOpenSubjectModal}
+                                                disabled={isLoading || subjectChanging}
+                                                className={`flex items-center gap-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 text-xs font-black shadow-inner active:scale-95 transition-all hover:bg-white/20 ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                              >
+                                                <span className="text-sm">🧪</span>
+                                                <span className="text-white uppercase tracking-wider">{subjectName}</span>
+                                              </button>
+                                              
+                                              <div className="flex items-center gap-2">
+                                                <button
+                                                  onClick={() => setShowChapters(true)}
+                                                  className="flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-white/10 hover:bg-white/20 transition-colors border border-white/20 text-xs font-extrabold text-white"
+                                                >
+                                                  <span className="inline-flex items-center justify-center flex-shrink-0">
+                                                    <ChapterNavIcon />
+                                                  </span>
+                                                  <span>All Chapters</span>
+                                                </button>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <div className="sticky top-0 z-[100] text-white px-6 py-5 rounded-3xl flex justify-between items-center mb-8 shadow-[0_10px_0_0_rgba(0,0,0,0.15)] w-full border-4 backdrop-blur-md"
+                                          style={{ 
+                                            background: !isMobileLayout ? `linear-gradient(90deg, ${gradFrom}, ${gradTo})` : (u.headerBgUrl ? `url(${u.headerBgUrl}) center/cover no-repeat` : (u.timelineBgUrl ? `rgba(255, 255, 255, 0.12)` : `linear-gradient(135deg, ${gradFrom}, ${gradTo})`)), 
+                                            borderColor: withAlpha(color, 0.25) 
+                                          }}>
+                                          <div>
+                                            <p className="font-extrabold text-base md:text-lg">
+                                              {(u.title && u.title.toLowerCase() !== 'unit') ? u.title : `Unit ${unitIdx + 1}`}
                                             </p>
+                                            {chapterTitle && (
+                                              <p className="opacity-95 text-base md:text-lg">
+                                                {chapterTitle}
+                                              </p>
+                                            )}
+                                            <div className="flex items-center gap-2 mt-1">
+                                              <p className="opacity-90 text-sm md:text-base">
+                                                {subjectName}
+                                              </p>
+                                              <button
+                                                onClick={handleOpenSubjectModal}
+                                                disabled={isLoading || subjectChanging}
+                                                className={`flex items-center gap-2 py-2 px-3 rounded-2xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-xs font-extrabold ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                title={subjectChanging ? "Switching Subject..." : "Change Subject"}
+                                              >
+                                                {subjectChanging ? "Switching..." : "Change"}
+                                              </button>
+                                            </div>
+                                          </div>
+                                          <div className="flex items-center gap-2">
                                             <button
-                                              onClick={handleOpenSubjectModal}
-                                              disabled={isLoading || subjectChanging}
-                                              className={`flex items-center gap-2 py-2 px-3 rounded-2xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-xs font-extrabold ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                              title={subjectChanging ? "Switching Subject..." : "Change Subject"}
+                                              onClick={() => setShowChapters(true)}
+                                              className="flex items-center gap-2.5 py-2 px-4 rounded-xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-base"
                                             >
-                                              {subjectChanging ? "Switching..." : "Change"}
+                                              <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-white/20 flex-shrink-0">
+                                                <ChapterNavIcon />
+                                              </span>
+                                              <span className="font-bold hidden sm:inline leading-tight self-center">All Chapters</span>
                                             </button>
                                           </div>
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                          <button
-                                            onClick={() => setShowChapters(true)}
-                                            className="flex items-center gap-2.5 py-2 px-4 rounded-xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-base"
-                                          >
-                                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-white/20 flex-shrink-0">
-                                              <ChapterNavIcon />
-                                            </span>
-                                            <span className="font-bold hidden sm:inline leading-tight self-center">All Chapters</span>
-                                          </button>
-                                        </div>
-                                      </div>
+                                      )
                                     );
                                   })()}
-                                  <div className="relative w-full mx-auto pb-40 pt-20 mt-28" style={{ minHeight: Math.max((localLevels.length + 1) * rowSpacing, 400) }}>
+                                  <div className={`relative w-full mx-auto pb-40 pt-20 mt-28 rounded-3xl ${isMobileLayout ? 'overflow-hidden' : 'overflow-x-visible overflow-y-hidden'}`} style={{
+                                    minHeight: Math.max((localLevels.length + 1) * rowSpacing, 400)
+                                  }}>
                                     <OrganicPathSvg
                                       nodesCount={localLevels.length + 1}
                                       color={lighten(unitPalette[unitIdx % unitPalette.length], 0.25)}
@@ -2277,42 +2503,50 @@ const LearnDashboard = ({ onboardingData }) => {
                                               }}
                                             >
                                               {status === "active" && <StartBadge color={unitPalette[unitIdx % unitPalette.length]} />}
-                                            </PathNode>
-
-                                            {/* Original-Style side tooltip */}
-                                            <div
-                                              className={`absolute top-1/2 -translate-y-1/2 bg-white border border-gray-100 rounded-xl shadow-lg px-4 py-3 w-48 hidden md:block transition-all duration-300 ease-out transform ${offset < 0
-                                                ? `left-full ml-12 ${hoveredIndex === index && hoveredUnitModule === u._id ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 pointer-events-none"}`
-                                                : `right-full mr-12 ${hoveredIndex === index && hoveredUnitModule === u._id ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 pointer-events-none"}`
-                                                }`}
-                                              style={{ zIndex: 50 }}
-                                            >
-                                              {/* Tooltip arrow */}
-                                              <div className={`absolute top-1/2 -translate-y-1/2 border-8 border-transparent ${offset < 0 ? "right-full border-r-white" : "left-full border-l-white"
-                                                }`}></div>
-
-                                              <div className="text-xs uppercase tracking-widest font-black mb-1" style={{ color: unitPalette[unitIdx % unitPalette.length] }}>Lesson {index + 1}</div>
-                                              <div className="text-base font-extrabold text-gray-800 line-clamp-2">
-                                                {mod?.title || "—"}
-                                              </div>
-                                            </div>
-                                          </div>
-
-                                          {/* Inject Lottie every 3 modules (Smart Curve-Aware Placement) */}
-                                          {(index + 1) % 3 === 0 && index < localLevels.length - 1 && (() => {
-                                            const waveOffset = getWaveOffset(index + 0.5, isMobileLayout);
-                                            // Position on the opposite side of the curve to balance the screen
-                                            const sideOffset = isMobileLayout 
-                                              ? (waveOffset > 0 ? -140 : 140) 
-                                              : (waveOffset > 0 ? -220 : 280);
-                                            return (
-                                              <PathAnimation
-                                                offset={waveOffset + sideOffset}
-                                                top={rowSpacing * 0.5}
-                                                isMobileLayout={isMobileLayout}
-                                              />
-                                            );
-                                          })()}
+                                             </PathNode>
+                                                                         {/* Always-Visible Label (3D Box Styling - Alternating) */}
+                                             <div className={`absolute top-1/2 -translate-y-1/2 pointer-events-none flex items-center ${
+                                               unitIdx % 2 === 0 ? "left-full ml-[16px] md:ml-[24px]" : "right-full mr-[16px] md:mr-[24px]"
+                                             }`}>
+                                               <div className="relative w-[130px] md:w-[150px] min-h-[52px]">
+                                                 {/* Bottom Layer (Depth) */}
+                                                 <div className={`absolute inset-0 translate-y-[4px] rounded-2xl ${
+                                                   status === "completed" ? "bg-[#CA8A04]" : status === "active" ? "bg-[#1D4ED8]" : "bg-[#CBD5E1]"
+                                                 }`} />
+                                                 {/* Top Layer (Surface) */}
+                                                 <div className={`absolute inset-0 rounded-2xl flex items-center justify-between pl-4 pr-3 py-2 border shadow-sm ${
+                                                   unitIdx % 2 !== 0 ? "flex-row-reverse pl-3 pr-4" : ""
+                                                 } ${
+                                                   status === "completed" ? "bg-[#FACC15] border-[#EAB308]" : status === "active" ? "bg-[#2C6DEF] border-[#1E40AF]" : "bg-white border-slate-200"
+                                                 }`}>
+                                                   <div className={`text-[11px] md:text-xs font-black leading-tight flex-1 line-clamp-2 ${
+                                                     unitIdx % 2 === 0 ? "text-left pr-2" : "text-right pl-2"
+                                                   } ${
+                                                     status === "active" ? "text-white" : status === "completed" ? "text-yellow-900" : "text-slate-700"
+                                                   }`}>
+                                                     {mod?.title || "—"}
+                                                   </div>
+                                                   <svg className={`w-[14px] h-[14px] flex-shrink-0 ${
+                                                     unitIdx % 2 !== 0 ? "rotate-180" : ""
+                                                   } ${
+                                                     status === "active" ? "text-white/80" : status === "completed" ? "text-yellow-900/60" : "text-slate-400"
+                                                   }`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                                                   </svg>
+                                                 </div>
+                                               </div>
+                                             </div>
+                                           </div>
+ 
+                                           {/* Inject Lottie every 3 modules (Alternating sides) */}
+                                           {(index + 1) % 3 === 0 && index < localLevels.length - 1 && (
+                                             <PathAnimation
+                                               data={pathAnimationData}
+                                               offset={unitIdx % 2 === 0 ? (isMobileLayout ? -140 : -180) : (isMobileLayout ? 140 : 180)}
+                                               top={rowSpacing * 0.5}
+                                               isMobileLayout={isMobileLayout}
+                                             />
+                                           )}
                                         </div>
                                       );
                                     })}
@@ -2385,7 +2619,7 @@ const LearnDashboard = ({ onboardingData }) => {
         </main>
 
         {/* Right Panel - Leaderboard and Stats */}
-        <aside className="hidden lg:flex w-96 p-6 flex-col justify-start shrink-0 bg-transparent h-full overflow-y-auto no-scrollbar gap-6 relative">
+        <aside className="hidden md:flex w-80 p-6 flex-col justify-start shrink-0 bg-white border-l border-blue-200 shadow-lg h-full overflow-y-auto no-scrollbar gap-6 relative">
           {/* Confetti burst when streak increases */}
           {showConfetti && (
             <div className="pointer-events-none absolute top-0 right-0 w-36 h-36">
@@ -2786,6 +3020,12 @@ const LearnDashboard = ({ onboardingData }) => {
               </div>
             </div>
           </div>
+        )}
+        </>
+        )}
+
+        {isMobileLayout && (
+          <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
         )}
       </div>
     </ReviewProvider>

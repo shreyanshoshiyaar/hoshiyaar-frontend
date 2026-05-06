@@ -7,6 +7,7 @@ const API_URL = `${BASE}/api/points/`;
 const http = axios.create({ baseURL: API_URL, timeout: 12000, withCredentials: false });
 
 const award = (data, opts) => http.put('award', data, opts);
+const revert = (data, opts) => http.post('revert', data, opts);
 const summary = (params, opts) => http.get('summary', { params, ...(opts || {}) });
 
-export default { award, summary };
+export default { award, revert, summary };
