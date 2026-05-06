@@ -125,7 +125,7 @@ const StartBadge = React.memo(({ color = "#2C6DEF" }) => (
 // Decorative Lottie animation placed along the path with a 3D Base (like DuoLingo)
 // Decorative Lottie animation placed along the path with a 3D Base (like DuoLingo)
 const PathAnimation = React.memo(({ data, offset, top, isMobileLayout }) => {
-  const sizeBase = isMobileLayout ? "w-12 h-12" : "w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 lg:w-22 lg:h-22";
+  const sizeBase = isMobileLayout ? "w-[68px] h-[68px]" : "w-24 h-24 sm:w-26 sm:h-26 md:w-28 md:h-28 lg:w-32 lg:h-32";
   const depth = "6px";
   
   if (!data) return null;
