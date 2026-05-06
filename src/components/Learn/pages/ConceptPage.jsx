@@ -647,7 +647,7 @@ export default function ConceptPage() {
 
   if (isMobile) {
     return (
-      <div className="h-screen w-full relative overflow-hidden bg-gradient-to-b from-[#4138a3] to-[#7b5ef0]">
+      <div className="min-h-screen w-full relative overflow-y-auto bg-gradient-to-b from-[#4138a3] to-[#7b5ef0] pb-24">
         {/* Background Starry Lottie */}
         <div className="absolute inset-0 z-0">
           {(item?.type === 'comic' ? (myraBgAnim || bgAnim) : bgAnim) && (
@@ -720,8 +720,8 @@ export default function ConceptPage() {
           </div>
         </div>
 
-        {/* Concept Card (Maximized Height) */}
-        <div className={`absolute z-10 scale-[1.02] origin-top ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'inset-x-2 top-[160px] bottom-[100px]' : 'inset-x-4 top-[170px] bottom-[110px]'}`}>
+        {/* Concept Card (Responsive Positioning) */}
+        <div className={`relative z-10 scale-[1.02] origin-top mx-auto w-[90%] mt-[180px] mb-[100px] ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'max-w-md' : 'max-w-sm'}`}>
           <div className={`h-full w-full flex flex-col overflow-hidden ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'bg-transparent shadow-none border-none' : 'bg-white rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.4)] border border-white/50'}`}>
             {/* Card Header */}
             {!((itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic')) && (
@@ -739,8 +739,8 @@ export default function ConceptPage() {
               </div>
             )}
 
-            {/* Card Content (No internal scroll) */}
-            <div className={`flex-1 ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'p-0' : 'p-6 pt-2'} flex flex-col items-center no-scrollbar overflow-hidden`}>
+            {/* Card Content */}
+            <div className={`flex-1 ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'p-0' : 'p-6 pt-2'} flex flex-col items-center no-scrollbar`}>
               {shouldShowComic ? (
                 <div className="relative w-full h-full flex items-center justify-center">
                   <div className="relative w-full h-full max-h-[calc(100vh-210px)] rounded-3xl overflow-hidden bg-transparent flex flex-col items-center justify-center p-1 sm:p-2">
