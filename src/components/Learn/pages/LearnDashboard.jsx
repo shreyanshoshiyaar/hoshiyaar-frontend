@@ -2427,7 +2427,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                       )
                                     );
                                   })()}
-                                  <div className={`relative w-full mx-auto pb-40 pt-20 mt-28 rounded-3xl ${isMobileLayout ? 'overflow-hidden' : 'overflow-x-visible overflow-y-hidden'}`} style={{
+                                  <div className={`relative w-full mx-auto pb-40 pt-20 mt-28 rounded-3xl px-5 ${isMobileLayout ? 'overflow-hidden' : 'overflow-x-visible overflow-y-hidden'}`} style={{
                                     minHeight: Math.max((localLevels.length + 1) * rowSpacing, 400)
                                   }}>
                                     <OrganicPathSvg
@@ -2505,11 +2505,10 @@ const LearnDashboard = ({ onboardingData }) => {
                                             >
                                               {status === "active" && <StartBadge color={unitPalette[unitIdx % unitPalette.length]} />}
                                              </PathNode>
-                                                                         {/* Always-Visible Label (3D Box Styling - Alternating) */}
                                              <div className={`absolute top-1/2 -translate-y-1/2 pointer-events-none flex items-center ${
-                                               unitIdx % 2 === 0 ? "left-full ml-[16px] md:ml-[24px]" : "right-full mr-[16px] md:mr-[24px]"
+                                               unitIdx % 2 === 0 ? "left-full ml-[12px] md:ml-[24px]" : "right-full mr-[12px] md:mr-[24px]"
                                              }`}>
-                                               <div className="relative w-[130px] md:w-[150px] min-h-[52px]">
+                                               <div className="relative w-[110px] md:w-[150px] min-h-[52px]">
                                                  {/* Bottom Layer (Depth) */}
                                                  <div className={`absolute inset-0 translate-y-[4px] rounded-2xl ${
                                                    status === "completed" ? "bg-[#CA8A04]" : status === "active" ? "bg-[#1D4ED8]" : "bg-[#CBD5E1]"
@@ -2543,7 +2542,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                            {(index + 1) % 3 === 0 && index < localLevels.length - 1 && (
                                              <PathAnimation
                                                data={pathAnimationData}
-                                               offset={unitIdx % 2 === 0 ? (isMobileLayout ? -140 : -180) : (isMobileLayout ? 140 : 180)}
+                                               offset={unitIdx % 2 === 0 ? (isMobileLayout ? -120 : -180) : (isMobileLayout ? 120 : 180)}
                                                top={rowSpacing * 0.5}
                                                isMobileLayout={isMobileLayout}
                                              />
