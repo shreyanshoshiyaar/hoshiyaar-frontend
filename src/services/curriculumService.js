@@ -12,41 +12,59 @@ const http = axios.create({
 
 const passOpts = (opts) => (opts && typeof opts === 'object' ? opts : {});
 
+// Simple in-memory cache for curriculum data to avoid redundant network calls
+const cache = new Map();
+const CACHE_TTL = 300000; // 5 minutes for curriculum data
+
+const cachedGet = async (url, config = {}) => {
+  const cacheKey = JSON.stringify({ url, params: config.params });
+  const now = Date.now();
+  
+  if (cache.has(cacheKey)) {
+    const entry = cache.get(cacheKey);
+    if (now - entry.timestamp < CACHE_TTL) {
+      return entry.data;
+    }
+  }
+  
+  const response = await http.get(url, config);
+  cache.set(cacheKey, { data: response, timestamp: now });
+  return response;
+};
+
 const curriculumService = {
   listBoards(opts) {
-    return http.get(`/api/curriculum/boards`, passOpts(opts));
+    return cachedGet(`/api/curriculum/boards`, passOpts(opts));
   },
   listClasses(board = 'CBSE', opts) {
-    return http.get(`/api/curriculum/classes`, { params: { board }, ...passOpts(opts) });
+    return cachedGet(`/api/curriculum/classes`, { params: { board }, ...passOpts(opts) });
   },
   listSubjects(board = 'CBSE', opts) {
-    return http.get(`/api/curriculum/subjects`, { params: { board }, ...passOpts(opts) });
+    return cachedGet(`/api/curriculum/subjects`, { params: { board }, ...passOpts(opts) });
   },
   listChapters(board = 'CBSE', subject = 'Science', extraParams = {}, opts) {
-    // extraParams can include { userId, classTitle }
-    return http.get(`/api/curriculum/chapters`, { params: { board, subject, ...(extraParams || {}) }, ...passOpts(opts) });
+    return cachedGet(`/api/curriculum/chapters`, { params: { board, subject, ...(extraParams || {}) }, ...passOpts(opts) });
   },
   listUnits(chapterId, opts) {
-    return http.get(`/api/curriculum/units`, { params: { chapterId }, ...passOpts(opts) });
+    return cachedGet(`/api/curriculum/units`, { params: { chapterId }, ...passOpts(opts) });
   },
   listModules(chapterId, opts) {
-    return http.get(`/api/curriculum/modules`, { params: { chapterId }, ...passOpts(opts) });
+    return cachedGet(`/api/curriculum/modules`, { params: { chapterId }, ...passOpts(opts) });
   },
   listModulesByUnit(unitId, opts) {
-    return http.get(`/api/curriculum/modules`, { params: { unitId }, ...passOpts(opts) });
+    return cachedGet(`/api/curriculum/modules`, { params: { unitId }, ...passOpts(opts) });
   },
   listItems(moduleId, opts) {
-    return http.get(`/api/curriculum/items`, { params: { moduleId }, ...passOpts(opts) });
+    return cachedGet(`/api/curriculum/items`, { params: { moduleId }, ...passOpts(opts) });
   },
   getModule(moduleId, opts) {
-    // Fetch module details by ID - we'll search through chapters if no direct endpoint exists
-    // For now, return a promise that can be resolved by the caller
-    return http.get(`/api/curriculum/module`, { params: { moduleId }, ...passOpts(opts) }).catch(() => {
-      // Fallback: return null if endpoint doesn't exist yet
+    return cachedGet(`/api/curriculum/module`, { params: { moduleId }, ...passOpts(opts) }).catch(() => {
       return { data: null };
     });
   },
   updateUnit(unitId, data, opts) {
+    // Clear cache when updating
+    cache.clear();
     return http.put(`/api/curriculum/units/${unitId}`, data, passOpts(opts));
   }
 };
