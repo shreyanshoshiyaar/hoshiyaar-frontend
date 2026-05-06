@@ -720,8 +720,8 @@ export default function ConceptPage() {
           </div>
         </div>
 
-        {/* Concept Card */}
-        <div className={`absolute z-10 scale-[1.02] origin-top ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'inset-x-2 top-[185px] bottom-[115px]' : 'inset-x-8 top-[240px] bottom-[140px]'}`}>
+        {/* Concept Card (Maximized Height) */}
+        <div className={`absolute z-10 scale-[1.02] origin-top ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'inset-x-2 top-[160px] bottom-[100px]' : 'inset-x-4 top-[170px] bottom-[110px]'}`}>
           <div className={`h-full w-full flex flex-col overflow-hidden ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'bg-transparent shadow-none border-none' : 'bg-white rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.4)] border border-white/50'}`}>
             {/* Card Header */}
             {!((itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic')) && (
@@ -739,8 +739,8 @@ export default function ConceptPage() {
               </div>
             )}
 
-            {/* Card Content */}
-            <div className={`flex-1 ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'overflow-hidden p-0' : 'overflow-y-auto p-6 pt-2'} flex flex-col items-center no-scrollbar`}>
+            {/* Card Content (No internal scroll) */}
+            <div className={`flex-1 ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'p-0' : 'p-6 pt-2'} flex flex-col items-center no-scrollbar overflow-hidden`}>
               {shouldShowComic ? (
                 <div className="relative w-full h-full flex items-center justify-center">
                   <div className="relative w-full h-full max-h-[calc(100vh-210px)] rounded-3xl overflow-hidden bg-transparent flex flex-col items-center justify-center p-1 sm:p-2">
