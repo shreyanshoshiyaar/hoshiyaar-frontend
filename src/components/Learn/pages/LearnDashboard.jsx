@@ -123,7 +123,7 @@ const StartBadge = ({ color = "#2C6DEF" }) => (
 
 // Decorative Lottie animation placed along the path with a 3D Base (like DuoLingo)
 const PathAnimation = ({ data, offset, top, isMobileLayout }) => {
-  const sizeBase = "w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 lg:w-22 lg:h-22";
+  const sizeBase = isMobileLayout ? "w-12 h-12" : "w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 lg:w-22 lg:h-22";
   const depth = "6px";
   
   if (!data) return null;
@@ -132,19 +132,18 @@ const PathAnimation = ({ data, offset, top, isMobileLayout }) => {
     <div
       className="absolute pointer-events-none z-[200]"
       style={{
-        width: isMobileLayout ? '56px' : '224px',
+        width: isMobileLayout ? '120px' : '224px',
         left: isMobileLayout 
-          ? `clamp(43px, calc(50% + ${offset}px), calc(100% - 43px))`
+          ? `clamp(60px, calc(50% + ${offset}px), calc(100% - 60px))`
           : `calc(50% + ${offset}px)`,
         top: `${top}px`,
         transform: 'translate(-50%, -50%)',
-        // Center content on desktop to ensure mascot is perfectly aligned with the base
-        display: isMobileLayout ? 'block' : 'flex',
+        display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'
       }}
     >
-      <div className={`relative ${sizeBase} scale-[1.1] ${!isMobileLayout ? 'flex items-center justify-center' : ''}`}>
+      <div className={`relative ${sizeBase} scale-[1.1] flex items-center justify-center`}>
         {/* 3D Base - Bottom Layer (Depth) */}
         <div
           className="absolute inset-0 rounded-full"
@@ -159,13 +158,17 @@ const PathAnimation = ({ data, offset, top, isMobileLayout }) => {
           style={{ backgroundColor: '#d1dae1' }}
         />
 
-        {/* Lottie Animation (Balanced Hero Size - 224px) */}
+        {/* Lottie Animation */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-[224px] h-[224px] -translate-y-[94px]">
+          <div className={`${isMobileLayout ? 'w-[120px] h-[120px] -translate-y-[50px]' : 'w-[224px] h-[224px] -translate-y-[94px]'}`}>
             <Lottie
               animationData={data}
               loop={true}
-              style={{ width: '224px', height: '224px', backgroundColor: 'transparent' }}
+              style={{ 
+                width: isMobileLayout ? '120px' : '224px', 
+                height: isMobileLayout ? '120px' : '224px', 
+                backgroundColor: 'transparent' 
+              }}
             />
           </div>
         </div>
@@ -2506,9 +2509,9 @@ const LearnDashboard = ({ onboardingData }) => {
                                              </PathNode>
                                                                          {/* Always-Visible Label (3D Box Styling - Alternating) */}
                                              <div className={`absolute top-1/2 -translate-y-1/2 pointer-events-none flex items-center ${
-                                               unitIdx % 2 === 0 ? "left-full ml-[16px] md:ml-[24px]" : "right-full mr-[16px] md:mr-[24px]"
+                                               unitIdx % 2 === 0 ? "left-full ml-[10px] md:ml-[24px]" : "right-full mr-[10px] md:mr-[24px]"
                                              }`}>
-                                               <div className="relative w-[130px] md:w-[150px] min-h-[52px]">
+                                               <div className="relative w-[115px] md:w-[150px] min-h-[52px]">
                                                  {/* Bottom Layer (Depth) */}
                                                  <div className={`absolute inset-0 translate-y-[4px] rounded-2xl ${
                                                    status === "completed" ? "bg-[#CA8A04]" : status === "active" ? "bg-[#1D4ED8]" : "bg-[#CBD5E1]"
@@ -2542,7 +2545,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                            {(index + 1) % 3 === 0 && index < localLevels.length - 1 && (
                                              <PathAnimation
                                                data={pathAnimationData}
-                                               offset={unitIdx % 2 === 0 ? (isMobileLayout ? -140 : -180) : (isMobileLayout ? 140 : 180)}
+                                               offset={unitIdx % 2 === 0 ? (isMobileLayout ? -95 : -180) : (isMobileLayout ? 95 : 180)}
                                                top={rowSpacing * 0.5}
                                                isMobileLayout={isMobileLayout}
                                              />
