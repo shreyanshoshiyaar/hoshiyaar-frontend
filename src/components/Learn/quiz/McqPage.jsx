@@ -850,7 +850,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
 
   if (isMobile) {
     return (
-      <div className="h-screen w-full relative overflow-hidden bg-gradient-to-b from-[#4138a3] to-[#7b5ef0]">
+      <div className="min-h-screen w-full relative overflow-y-auto bg-gradient-to-b from-[#4138a3] to-[#7b5ef0] pb-24">
         {/* Background Starry Lottie */}
         <div className="absolute inset-0 z-0">
           {bgAnim && (
@@ -920,8 +920,8 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
           </div>
         </div>
 
-        {/* Concept Card (Maximized Height) */}
-        <div className="absolute inset-x-4 top-[170px] bottom-[110px] z-10 scale-[1.02] origin-top">
+        {/* Concept Card (Responsive Positioning) */}
+        <div className="relative z-10 scale-[1.02] origin-top mx-auto w-[90%] mt-[180px] mb-[120px] max-w-sm">
           <div className="h-full w-full bg-white rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.4)] flex flex-col overflow-hidden border border-white/50">
             {/* Card Header */}
             <div className="p-5 px-6 flex items-center justify-start gap-4 flex-shrink-0">
@@ -935,8 +935,8 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
               <span className="text-[26px] font-black text-blue-900 uppercase tracking-tight">MCQ</span>
             </div>
 
-            {/* Card Content (No internal scroll) */}
-            <div className="flex-1 overflow-hidden p-6 pt-2 flex flex-col items-center no-scrollbar">
+            {/* Card Scrollable Content */}
+            <div className="flex-1 overflow-y-auto p-6 pt-2 flex flex-col items-center no-scrollbar">
               {/* Text above images - Enlarged and Centered */}
               <div 
                 className="text-[18px] font-black text-gray-800 text-center leading-snug w-full mb-6"
@@ -1011,8 +1011,8 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
           </div>
         </div>
 
-        {/* Floating Bottom Button */}
-        <div className="absolute bottom-6 left-0 right-0 px-10 z-20">
+        {/* Floating Bottom Button (End of Content) */}
+        <div className="relative mt-4 mb-8 px-10 z-20">
           <button
             onClick={() => showResult ? handleNext() : () => {}}
             disabled={!showResult}
