@@ -105,10 +105,10 @@ const ChapterNavIcon = () => (
 // Cute bouncing "START" badge used above the active node
 const StartBadge = ({ color = "#2C6DEF" }) => (
   <div className="absolute -top-16 left-1/2 -translate-x-1/2 z-[100] select-none pointer-events-none">
-    <div className="relative animate-bounce">
+    <div className="relative animate-bounce -mt-2">
       {/* DuoLingo Style Speech Bubble - White Background */}
       <div
-        className="px-5 py-2 rounded-2xl font-black tracking-widest bg-white shadow-[0_4px_0_0_rgba(0,0,0,0.1)] flex items-center justify-center border-2 border-gray-100 min-w-[100px]"
+        className="px-4 py-1.5 rounded-xl font-black tracking-widest bg-white shadow-[0_4px_0_0_rgba(0,0,0,0.1)] flex items-center justify-center border-2 border-gray-100 min-w-[90px] text-sm"
         style={{ color: color }}
       >
         START
@@ -2109,7 +2109,7 @@ const LearnDashboard = ({ onboardingData }) => {
                           >
                             {/* Unit header card for direct modules */}
                             {isMobileLayout ? (
-                              <div className="sticky top-0 z-[100] text-white px-5 py-5 rounded-3xl mb-8 shadow-2xl w-full border border-white/20 relative overflow-hidden flex flex-col md:flex-row justify-between"
+                              <div className="sticky top-0 z-[100] text-white px-5 py-3.5 rounded-3xl mb-6 shadow-xl w-full border border-white/20 relative overflow-hidden flex flex-col md:flex-row justify-between"
                                 style={{ background: `linear-gradient(135deg, #2C6DEF, #1E4A8C)` }}>
                                 
                                 {/* Sparkling Stars background effect */}
@@ -2120,13 +2120,13 @@ const LearnDashboard = ({ onboardingData }) => {
                                 </div>
 
                                 <div className="relative z-10 flex flex-col gap-3">
-                                  <h2 className="text-[22px] font-extrabold leading-tight text-white drop-shadow-md">
+                                  <h2 className="text-[20px] font-extrabold leading-tight text-white drop-shadow-md">
                                     {chapterTitle || 'Learning Modules'}
                                   </h2>
                                   
                                   <div className="w-full h-[1px] bg-white/20 border-t border-dashed border-white/20 my-1" />
 
-                                  <div className="flex items-center justify-between gap-2 mt-3">
+                                  <div className="flex items-center justify-between gap-2 mt-2">
                                     <button
                                       onClick={handleOpenSubjectModal}
                                       disabled={isLoading || subjectChanging}
