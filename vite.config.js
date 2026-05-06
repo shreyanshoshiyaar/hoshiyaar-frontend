@@ -2,7 +2,7 @@ import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
 // Production backend URL (Railway)
-const PRODUCTION_API = 'https://hoshiyaar-backend-production.up.railway.app';
+const PRODUCTION_API = 'https://hoshiyaar-backend-production-976e.up.railway.app';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');

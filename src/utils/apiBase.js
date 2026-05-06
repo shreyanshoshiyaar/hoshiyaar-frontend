@@ -1,4 +1,4 @@
-const DEFAULT_PRODUCTION_API_BASE = 'https://hoshiyaar-backend-production.up.railway.app';
+const DEFAULT_PRODUCTION_API_BASE = 'https://hoshiyaar-backend-production-976e.up.railway.app';
 
 export function getApiBase() {
   // If we are in the browser/phone
