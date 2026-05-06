@@ -24,6 +24,7 @@ import UploadTest from './components/features/UploadTest.jsx';
 import ProfilePage from './components/features/ProfilePage.jsx';
 import OnboardingFlow from './components/Learn/selectors/OnboardingFlow.jsx';
 import AdminPanel from './components/admin/AdminPanel.jsx';
+import AdminProtectedRoute from './components/layout/AdminProtectedRoute.jsx';
 
 const MainLayout = ({ children }) => (
   <div className="font-sans">
@@ -81,9 +82,9 @@ function App() {
           <Route 
             path="/admin" 
             element={
-              <ProtectedRoute>
+              <AdminProtectedRoute>
                 <AdminPanel />
-              </ProtectedRoute>
+              </AdminProtectedRoute>
             } 
           />
           <Route 
@@ -146,7 +147,14 @@ function App() {
           <Route path="/review-round" element={<ReviewRound />} />
           <Route path="/revision" element={<RevisionList />} />
             
-          <Route path="/admin/upload-test" element={<UploadTest />} />
+          <Route 
+            path="/admin/upload-test" 
+            element={
+              <AdminProtectedRoute>
+                <UploadTest />
+              </AdminProtectedRoute>
+            } 
+          />
         </Routes>
         </Router>
       </ReviewProvider>

@@ -39,6 +39,7 @@ export default function ModuleEntryRedirect() {
       case 'concept':
       case 'statement':
       case 'comic':
+      case 'video':
         navigate(`/learn/module/${moduleNumber}/concept/${idx}${searchSuffix}`, { replace: true });
         break;
       case 'multiple-choice':

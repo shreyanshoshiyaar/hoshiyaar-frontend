@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 // Import the logo
-import FooterLogo from '../../assets/images/HoshiYaar (1).webp';
+const FooterLogo = "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1777997560/img-to-link/mfaw5t09dlayxlunzfas.png";
 
 const Footer = () => {
     const currentYear = new Date().getFullYear();

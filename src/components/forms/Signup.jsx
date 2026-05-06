@@ -3,11 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import AuthLayout from './AuthLayout';
 import authService from '../../services/authService.js';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { CalendarIcon } from '../ui/Icons';
 
 const Signup = () => {
-  const [step, setStep] = useState(1); // 1: age, 2: profile
   const [formData, setFormData] = useState({
-    age: '',
     username: '',
     name: '',
     dateOfBirth: '',
@@ -20,6 +19,29 @@ const Signup = () => {
 
   const onChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleDobChange = (e) => {
+    let val = e.target.value;
+    const isDeleting = val.length < formData.dateOfBirth.length;
+    
+    if (isDeleting) {
+      setFormData(prev => ({ ...prev, dateOfBirth: val }));
+      return;
+    }
+
+    let cleaned = val.replace(/\D/g, '').slice(0, 8);
+    let res = '';
+    if (cleaned.length > 0) {
+      res = cleaned.slice(0, 2);
+      if (cleaned.length > 2) {
+        res += '/' + cleaned.slice(2, 4);
+        if (cleaned.length > 4) {
+          res += '/' + cleaned.slice(4, 8);
+        }
+      }
+    }
+    setFormData(prev => ({ ...prev, dateOfBirth: res }));
   };
 
   // Debounced username availability check
@@ -41,20 +63,21 @@ const Signup = () => {
     return () => clearTimeout(id);
   }, [formData.username]);
 
-  const handleNext = () => {
-    if (!formData.age) return;
-    setStep(2);
-  };
-
   const onSubmit = async (e) => {
     e.preventDefault();
     setError('');
     try {
+      // Parse dateOfBirth if it's in DD/MM/YYYY or DD-MM-YYYY format
+      let dob = formData.dateOfBirth;
+      if (dob && /^\d{2}[/-]\d{2}[/-]\d{4}$/.test(dob)) {
+        const parts = dob.split(/[/-]/);
+        dob = `${parts[2]}-${parts[1]}-${parts[0]}`; // YYYY-MM-DD
+      }
+
       const response = await authService.register({
         username: formData.username.trim(),
         name: formData.name,
-        age: Number(formData.age),
-        dateOfBirth: formData.dateOfBirth ? new Date(formData.dateOfBirth) : null,
+        dateOfBirth: dob ? new Date(dob) : null,
         classLevel: formData.classLevel || null,
       });
       if (response.data && response.data.token) {
@@ -79,34 +102,6 @@ const Signup = () => {
     return (
     <AuthLayout title="Sign up" linkTo="/login" linkText="Log in">
       <div className="text-center w-full max-w-sm sm:max-w-md">
-        {step === 1 ? (
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">How old are you?</h1>
-            {error && <p className="bg-red-500 text-white p-3 rounded-md mb-4 text-sm sm:text-base text-overflow-fix">{error}</p>}
-            <div className="space-y-3 sm:space-y-4">
-              <input
-                type="number"
-                name="age"
-                value={formData.age}
-                onChange={onChange}
-                placeholder="Age"
-                className="w-full bg-[#3c3c3c] border-2 border-[#585858] rounded-xl sm:rounded-2xl p-3 sm:p-4 focus:outline-none focus:border-duo-blue text-sm sm:text-base"
-              />
-              <p className="text-xs sm:text-sm text-gray-400 text-left text-overflow-fix">
-                Providing your age helps us tailor the right learning experience. For more
-                details, please see our <span className="text-duo-blue font-bold">Privacy Policy</span>.
-              </p>
-              <button
-                type="button"
-                onClick={handleNext}
-                disabled={!formData.age}
-                className="w-full bg-[#1E65FA] text-gray-300 disabled:cursor-not-allowed font-bold uppercase tracking-wider py-3 sm:py-4 rounded-xl sm:rounded-2xl hover:bg-blue-500' transition btn-responsive"
-              >
-                Next
-                        </button>
-                        </div>
-                    </div>
-        ) : (
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">Create your profile</h1>
             {error && <p className="bg-red-500 text-white p-3 rounded-md mb-4 text-sm sm:text-base text-overflow-fix">{error}</p>}
@@ -136,15 +131,31 @@ const Signup = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="text-left">
                   <label className="text-xs sm:text-sm text-gray-300 mb-2 block">Date of Birth</label>
-                  <input
-                    type="date"
-                    name="dateOfBirth"
-                    value={formData.dateOfBirth}
-                    onChange={onChange}
-                    placeholder="Date of Birth"
-                    className="w-full bg-[#3c3c3c] border-2 border-[#585858] rounded-xl sm:rounded-2xl p-3 sm:p-4 focus:outline-none focus:border-duo-blue text-sm sm:text-base text-white"
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      type="text"
+                      name="dateOfBirth"
+                      value={formData.dateOfBirth}
+                      onChange={handleDobChange}
+                      placeholder="DD/MM/YYYY"
+                      className="w-full bg-[#3c3c3c] border-2 border-[#585858] rounded-xl sm:rounded-2xl p-3 sm:p-4 focus:outline-none focus:border-duo-blue text-sm sm:text-base text-white pr-12"
+                      required
+                    />
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center w-10 h-10">
+                      <CalendarIcon className="text-gray-400 w-6 h-6 pointer-events-none" />
+                      <input
+                        type="date"
+                        className="absolute inset-0 opacity-0 cursor-pointer"
+                        onChange={(e) => {
+                          const d = e.target.value; // YYYY-MM-DD
+                          if (d) {
+                            const [y, m, d_] = d.split('-');
+                            setFormData(prev => ({ ...prev, dateOfBirth: `${d_}/${m}/${y}` }));
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
                 </div>
                 <div className="text-left">
                   <label className="text-xs sm:text-sm text-gray-300 mb-2 block">Class</label>
@@ -174,7 +185,6 @@ const Signup = () => {
               </p>
             </form>
                 </div>
-        )}
                             </div>
     </AuthLayout>
   );

@@ -37,12 +37,14 @@ export default function ConceptPage() {
   const [hoshiAnim, setHoshiAnim] = useState(null);
   const [popAnim, setPopAnim] = useState(null);
   const [bgAnim, setBgAnim] = useState(null);
+  const [myraBgAnim, setMyraBgAnim] = useState(null);
 
   useEffect(() => {
     // Fetch large animations from the public folder
     fetch('/lottie/Hoshi2.json').then(res => res.json()).then(data => setHoshiAnim(data)).catch(console.error);
     fetch('/lottie/pop.json').then(res => res.json()).then(data => setPopAnim(data)).catch(console.error);
-    fetch('/lottie/image2lottie-animation.json').then(res => res.json()).then(data => setBgAnim(data)).catch(console.error);
+    fetch('/lottie/Hoshi-Background.json').then(res => res.json()).then(data => setBgAnim(data)).catch(console.error);
+    fetch('/lottie/Myra-Background.json').then(res => res.json()).then(data => setMyraBgAnim(data)).catch(console.error);
   }, []);
 
   useEffect(() => {
@@ -59,25 +61,27 @@ export default function ConceptPage() {
 
   // Lightweight YouTube -> embed converter; other URLs pass through
   const isYouTubeUrl = useCallback((rawUrl) => {
-    if (!rawUrl) return '';
+    if (!rawUrl || typeof rawUrl !== 'string') return '';
+    const str = rawUrl.trim();
+    const vMatch = str.match(/(?:v=|embed\/|shorts\/|\.be\/)([^?&/\s]+)/i);
+    if (vMatch && vMatch[1]) return vMatch[1];
+    
+    const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+    const match = str.match(regex);
+    if (match && match[1]) return match[1];
+
     try {
-      const url = new URL(rawUrl);
-      const host = url.hostname.replace(/^www\./, '');
-      if (host === 'youtu.be') return url.pathname.replace('/', '') || '';
-      if (host === 'youtube.com' || host === 'm.youtube.com') {
-        // Standard watch URLs: ?v=ID
-        const vid = url.searchParams.get('v');
+      const u = new URL(str.startsWith('http') ? str : `https://${str}`);
+      if (u.hostname.includes('youtube.com') || u.hostname.includes('youtu.be')) {
+        const vid = u.searchParams.get('v');
         if (vid) return vid;
-        // Embed URLs: /embed/ID
-        const parts = url.pathname.split('/');
+        const parts = u.pathname.split('/');
         const embedIdx = parts.indexOf('embed');
         if (embedIdx !== -1 && parts[embedIdx + 1]) {
           return parts[embedIdx + 1];
         }
       }
-    } catch (_) {
-      // fall through
-    }
+    } catch (_) {}
     return '';
   }, []);
 
@@ -214,6 +218,43 @@ export default function ConceptPage() {
     return null;
   }, [moduleNumber, index, showEndVideo, item, revisionItem, isRevisionModeFromUrl]);
 
+  const itemVideoUrl = useMemo(() => {
+    const sources = [
+      introVideoUrl,
+      item?.imageUrl,
+      item?.videoUrl,
+      item?.introVideoUrl,
+      item?.text,
+      item?.content,
+      item?.title,
+      ...(item?.images || []),
+    ];
+    for (const src of sources) {
+      if (typeof src === 'string' && (src.includes('youtube.com') || src.includes('youtu.be') || isYouTubeUrl(src))) {
+        const normalized = normalizeVideoUrl(src);
+        if (normalized) return normalized;
+      }
+    }
+    return '';
+  }, [item, introVideoUrl, normalizeVideoUrl, isYouTubeUrl]);
+
+  const isShortVideo = useMemo(() => {
+    const sources = [
+      item?.imageUrl,
+      item?.videoUrl,
+      item?.text,
+      ...(item?.images || []),
+    ];
+    for (const src of sources) {
+      if (typeof src === 'string' && (src.includes('shorts/') || src.toLowerCase().includes('shorts'))) {
+        return true;
+      }
+    }
+    return false;
+  }, [item]);
+
+
+
   // Reset gate when starting a new module (index 0) or reaching a card with mid-lesson video
   // Reset comicSlideIndex whenever advancing so new comics start at slide 0
   useEffect(() => {
@@ -295,6 +336,7 @@ export default function ConceptPage() {
       case 'comic':
       case 'concept':
       case 'statement':
+      case 'video':
         return `/learn/module/${moduleNumber}/concept/${idx}`;
       case 'multiple-choice': return `/learn/module/${moduleNumber}/mcq/${idx}`;
       case 'fill-in-the-blank': return `/learn/module/${moduleNumber}/fillups/${idx}`;
@@ -448,7 +490,7 @@ export default function ConceptPage() {
   if (error) return <div className="p-6 text-red-600">{error}</div>;
   if (!item) return <SimpleLoading />;
 
-  const isConceptOrStatement = actualType === 'concept' || actualType === 'statement' || actualType === 'comic';
+  const isConceptOrStatement = actualType === 'concept' || actualType === 'statement' || actualType === 'comic' || actualType === 'video';
   if (!isConceptOrStatement) {
     return <div className="p-6">No concept at this step.</div>;
   }
@@ -467,7 +509,7 @@ export default function ConceptPage() {
     });
   }
 
-  if (shouldShowVideo || shouldShowComic) {
+  if ((shouldShowVideo || shouldShowComic) && !isMobile) {
     return (
       <div className="h-screen bg-white flex flex-col overflow-hidden">
         <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
@@ -608,9 +650,9 @@ export default function ConceptPage() {
       <div className="h-screen w-full relative overflow-hidden bg-gradient-to-b from-[#4138a3] to-[#7b5ef0]">
         {/* Background Starry Lottie */}
         <div className="absolute inset-0 z-0">
-          {bgAnim && (
+          {(item?.type === 'comic' ? (myraBgAnim || bgAnim) : bgAnim) && (
             <Lottie
-              animationData={bgAnim}
+              animationData={item?.type === 'comic' ? (myraBgAnim || bgAnim) : bgAnim}
               loop={true}
               className="w-full h-full object-cover opacity-100"
               rendererSettings={{
@@ -664,7 +706,7 @@ export default function ConceptPage() {
         </div>
 
         {/* Mascot Section */}
-        <div className="absolute top-[5px] left-0 right-0 flex justify-center z-0">
+        <div className="absolute top-[-15px] left-0 right-0 flex justify-center z-0">
           <div className="relative w-full max-w-sm flex items-center justify-center px-4">
             {/* Hoshi Lottie - Shifted right by 5% relative to previous position */}
             <div className="w-64 h-64 -ml-10 -mb-16 opacity-100">
@@ -679,65 +721,123 @@ export default function ConceptPage() {
         </div>
 
         {/* Concept Card */}
-        <div className="absolute inset-x-8 top-[240px] bottom-[140px] z-10 scale-[1.02] origin-top">
-          <div className="h-full w-full bg-white rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.4)] flex flex-col overflow-hidden border border-white/50">
+        <div className={`absolute z-10 scale-[1.02] origin-top ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'inset-x-2 top-[185px] bottom-[115px]' : 'inset-x-8 top-[240px] bottom-[140px]'}`}>
+          <div className={`h-full w-full flex flex-col overflow-hidden ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'bg-transparent shadow-none border-none' : 'bg-white rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.4)] border border-white/50'}`}>
             {/* Card Header */}
-            <div className="p-5 px-6 flex items-center justify-start gap-4 flex-shrink-0">
-              <div className="w-12 h-12 flex items-center justify-center flex-shrink-0 rounded-full border border-gray-100 shadow-sm p-2 bg-white overflow-hidden">
-                <img 
-                  src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1777550585/img-to-link/rpxdtc6dw5kjgmrthpmn.png" 
-                  alt="icon" 
-                  className="w-full h-full object-contain"
-                />
+            {!((itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic')) && (
+              <div className="p-5 px-6 flex items-center justify-start gap-4 flex-shrink-0">
+                <div className="w-12 h-12 flex items-center justify-center flex-shrink-0 rounded-full border border-gray-100 shadow-sm p-2 bg-white overflow-hidden">
+                  <img 
+                    src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1777550585/img-to-link/rpxdtc6dw5kjgmrthpmn.png" 
+                    alt="icon" 
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <span className="text-[26px] font-black text-blue-900 uppercase tracking-tight">
+                  {shouldShowComic || item?.type === 'comic' ? 'Comic' : (actualType === 'video' || itemVideoUrl ? 'Video' : 'Concept')}
+                </span>
               </div>
-              <span className="text-[26px] font-black text-blue-900 uppercase tracking-tight">Concept</span>
-            </div>
+            )}
 
-            {/* Card Scrollable Content */}
-            <div className="flex-1 overflow-y-auto p-6 pt-2 flex flex-col items-center no-scrollbar">
-              {/* Text above images - Enlarged and Centered */}
-              <div 
-                className="text-[18px] font-black text-gray-800 text-center leading-snug w-full mb-6"
-                dangerouslySetInnerHTML={{ __html: String(item.text || item.content || '') }}
-              />
-
-              {/* Images Grid inside Card - Adaptive for 1, 2, or 3+ images */}
-              {(() => {
-                const imgs = (item.images || []).filter(Boolean);
-                if (imgs.length === 0 && item.imageUrl) imgs.push(item.imageUrl);
-                if (imgs.length === 0) return null;
-
-                return (
-                  <div className={`grid ${imgs.length === 1 ? 'grid-cols-1' : 'grid-cols-2'} gap-4 w-full no-scrollbar`}>
-                    {imgs.slice(0, 4).map((src, i) => {
-                      const isLastOfThree = imgs.length === 3 && i === 2;
-                      return (
-                        <div 
-                          key={i} 
-                          className={`aspect-square bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm active:scale-95 transition-all p-2 flex items-center justify-center ${isLastOfThree ? 'col-span-2 max-w-[180px] mx-auto' : ''}`}
-                        >
-                          <img src={src} alt="concept" className="w-full h-full object-contain" />
-                        </div>
-                      );
-                    })}
+            {/* Card Content */}
+            <div className={`flex-1 ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'overflow-hidden p-0' : 'overflow-y-auto p-6 pt-2'} flex flex-col items-center no-scrollbar`}>
+              {shouldShowComic ? (
+                <div className="relative w-full h-full flex items-center justify-center">
+                  <div className="relative w-full h-full max-h-[calc(100vh-210px)] rounded-3xl overflow-hidden bg-transparent flex flex-col items-center justify-center p-1 sm:p-2">
+                    <img
+                      src={introComicUrls[comicSlideIndex]}
+                      alt={`Comic slide ${comicSlideIndex + 1}`}
+                      className="max-w-full max-h-full object-contain cursor-zoom-in"
+                      onClick={() => setIsZoomed(true)}
+                    />
+                    {/* Zoom button on top right */}
+                    <button
+                      onClick={() => setIsZoomed(true)}
+                      className="absolute top-4 right-4 bg-white/80 backdrop-blur text-gray-800 p-2 rounded-lg shadow-md border border-gray-200 hover:bg-white transition-colors"
+                      title="Zoom In"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
+                      </svg>
+                    </button>
                   </div>
-                );
-              })()}
+                </div>
+              ) : (itemVideoUrl || actualType === 'video') ? (
+                <div className="relative w-full h-full flex items-center justify-center">
+                  <div className={`${isShortVideo ? 'aspect-[9/16] h-[65vh] max-h-[calc(100vh-240px)]' : 'w-full aspect-video'} rounded-3xl overflow-hidden shadow-2xl bg-black flex-shrink-0`}>
+                    <iframe
+                      src={itemVideoUrl || (introVideoUrl || 'https://www.youtube.com/embed/i59cR7MPD5M')}
+                      title="Concept video"
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen={true}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Text above images - Enlarged and Centered */}
+                  <div 
+                    className="text-[18px] font-black text-gray-800 text-center leading-snug w-full mb-6"
+                    dangerouslySetInnerHTML={{ __html: String(item.text || item.content || '') }}
+                  />
+
+                  {/* Images Grid inside Card - Adaptive for 1, 2, or 3+ images */}
+                  {(() => {
+                    const imgs = (item.images || []).filter(Boolean);
+                    if (imgs.length === 0 && item.imageUrl) imgs.push(item.imageUrl);
+                    if (imgs.length === 0) return null;
+
+                    return (
+                      <div className={`grid ${imgs.length === 1 ? 'grid-cols-1' : 'grid-cols-2'} gap-4 w-full no-scrollbar`}>
+                        {imgs.slice(0, 4).map((src, i) => {
+                          const isLastOfThree = imgs.length === 3 && i === 2;
+                          return (
+                            <div 
+                              key={i} 
+                              className={`aspect-square bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm active:scale-95 transition-all p-2 flex items-center justify-center ${isLastOfThree ? 'col-span-2 max-w-[180px] mx-auto' : ''}`}
+                            >
+                              <img src={src} alt="concept" className="w-full h-full object-contain" />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
+                </>
+              )}
             </div>
           </div>
         </div>
 
+
         {/* Floating Bottom Button - No background container, just the button on starry bg */}
         <div className="absolute bottom-8 left-0 right-0 px-10 z-20">
           <button
-            onClick={goNext}
+            onClick={() => {
+              if (shouldShowComic) {
+                if (comicSlideIndex < introComicUrls.length - 1) {
+                  setComicSlideIndex(prev => prev + 1);
+                } else {
+                  if (actualType === 'comic') {
+                    goNext();
+                  } else {
+                    setVideoAcknowledged(true);
+                  }
+                }
+              } else {
+                goNext();
+              }
+            }}
             disabled={isComicActive && comicReadTimer > 0}
             className={`w-full py-5 rounded-[24px] font-black text-2xl tracking-wide shadow-[0_8px_0_0_#4a3fcc] active:shadow-none active:translate-y-2 transition-all uppercase ${isComicActive && comicReadTimer > 0
                 ? 'bg-gray-400 text-gray-200 shadow-[0_8px_0_0_#4b5563]'
                 : 'bg-[#6d5dfc] text-white'
               }`}
           >
-            {isComicActive && comicReadTimer > 0 ? `Wait ${comicReadTimer}s` : 'Check'}
+            {isComicActive && comicReadTimer > 0 
+              ? `Wait ${comicReadTimer}s` 
+              : (shouldShowComic && comicSlideIndex < introComicUrls.length - 1 ? 'Next' : (shouldShowComic ? 'Continue' : 'Check'))}
           </button>
         </div>
 
@@ -755,6 +855,24 @@ export default function ConceptPage() {
                 navigate(`/learn${query ? '?' + query : ''}`);
               }}
               onContinue={() => setShowExitConfirm(false)}
+            />
+          </div>
+        )}
+        {isZoomed && shouldShowComic && (
+          <div className="fixed inset-0 z-[10000] bg-black/95 flex flex-col items-center justify-center p-4">
+            <button
+              onClick={() => setIsZoomed(false)}
+              className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <img
+              src={introComicUrls[comicSlideIndex]}
+              alt={`Zoomed Comic ${comicSlideIndex + 1}`}
+              className="max-w-[95%] max-h-[90vh] object-contain cursor-zoom-out"
+              onClick={() => setIsZoomed(false)}
             />
           </div>
         )}
@@ -792,34 +910,50 @@ export default function ConceptPage() {
       </div>
 
       {/* Main Content - mobile optimized, desktop unchanged */}
-      <div className="flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 80px)' }}>
-        {/* Title and Text - mobile optimized, desktop unchanged */}
-        {item.title && (
-          <h2 className="text-2xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-extrabold text-gray-900 text-center mt-2 sm:mt-6 md:mt-8 text-overflow-fix px-1 sm:px-2">
-            {item.title}
-          </h2>
-        )}
-        <div className="w-full max-w-2xl sm:max-w-3xl md:max-w-4xl mt-2 sm:mt-6 md:mt-8 lg:mt-10">
-          <p
-            className="text-lg sm:text-base md:text-lg lg:text-xl xl:text-2xl font-extrabold text-gray-900 leading-relaxed whitespace-pre-wrap text-center text-overflow-fix px-1 sm:px-2"
-            dangerouslySetInnerHTML={{ __html: String(item.text || item.content || '') }}
-          />
-        </div>
-
-        {/* Images block - mobile optimized, desktop unchanged */}
-        {(() => {
-          const imgs = (item.images || []).filter(Boolean); if (imgs.length === 0 && item.imageUrl) imgs.push(item.imageUrl); return imgs.length > 0 ? (
-            <div className="w-full max-w-2xl sm:max-w-3xl md:max-w-4xl mt-2 sm:mt-6 md:mt-8 flex justify-center">
-              <div className="flex flex-wrap justify-center gap-1 sm:gap-3 md:gap-5">
-                {((item.images && item.images.filter(Boolean)) || (item.imageUrl ? [item.imageUrl] : [])).slice(0, 5).map((src, i) => (
-                  <div key={i} className="border border-blue-300 rounded-lg sm:rounded-2xl p-1 sm:p-3 bg-white shadow-sm">
-                    <img src={src} alt={'concept-' + i} className="h-40 w-32 sm:h-32 sm:w-24 md:h-48 md:w-36 lg:h-60 lg:w-44 xl:h-80 xl:w-60 object-contain rounded-md sm:rounded-xl" />
-                  </div>
-                ))}
-              </div>
+      <div className={`flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 ${(itemVideoUrl || actualType === 'video') ? 'overflow-hidden' : 'overflow-y-auto'}`} style={{ maxHeight: 'calc(100vh - 80px)' }}>
+        {(itemVideoUrl || actualType === 'video') ? (
+          <div className="flex-1 flex flex-col items-center justify-center p-4">
+            <div className={`${isShortVideo ? 'aspect-[9/16] h-[74vh] max-h-[calc(100vh-230px)]' : 'w-full max-w-4xl aspect-video'} rounded-3xl overflow-hidden border border-gray-100 shadow-lg bg-black flex-shrink-0 mt-2 sm:mt-6`}>
+              <iframe
+                src={itemVideoUrl || (introVideoUrl || 'https://www.youtube.com/embed/i59cR7MPD5M')}
+                title="Concept video"
+                className="w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen={true}
+              />
             </div>
-          ) : null
-        })()}
+          </div>
+        ) : (
+          <>
+            {/* Title and Text - mobile optimized, desktop unchanged */}
+            {item.title && (
+              <h2 className="text-2xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-extrabold text-gray-900 text-center mt-2 sm:mt-6 md:mt-8 text-overflow-fix px-1 sm:px-2">
+                {item.title}
+              </h2>
+            )}
+            <div className="w-full max-w-2xl sm:max-w-3xl md:max-w-4xl mt-2 sm:mt-6 md:mt-8 lg:mt-10">
+              <p
+                className="text-lg sm:text-base md:text-lg lg:text-xl xl:text-2xl font-extrabold text-gray-900 leading-relaxed whitespace-pre-wrap text-center text-overflow-fix px-1 sm:px-2"
+                dangerouslySetInnerHTML={{ __html: String(item.text || item.content || '') }}
+              />
+            </div>
+
+            {/* Images block - mobile optimized, desktop unchanged */}
+            {(() => {
+              const imgs = (item.images || []).filter(Boolean); if (imgs.length === 0 && item.imageUrl) imgs.push(item.imageUrl); return imgs.length > 0 ? (
+                <div className="w-full max-w-2xl sm:max-w-3xl md:max-w-4xl mt-2 sm:mt-6 md:mt-8 flex justify-center">
+                  <div className="flex flex-wrap justify-center gap-1 sm:gap-3 md:gap-5">
+                    {((item.images && item.images.filter(Boolean)) || (item.imageUrl ? [item.imageUrl] : [])).slice(0, 5).map((src, i) => (
+                      <div key={i} className="border border-blue-300 rounded-lg sm:rounded-2xl p-1 sm:p-3 bg-white shadow-sm">
+                        <img src={src} alt={'concept-' + i} className="h-40 w-32 sm:h-32 sm:w-24 md:h-48 md:w-36 lg:h-60 lg:w-44 xl:h-80 xl:w-60 object-contain rounded-md sm:rounded-xl" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null
+            })()}
+          </>
+        )}
 
         {/* Bottom padding - mobile only for fixed button */}
         <div className="h-16 sm:h-0 md:h-0"></div>
