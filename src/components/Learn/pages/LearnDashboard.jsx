@@ -104,18 +104,18 @@ const ChapterNavIcon = () => (
 
 // Cute bouncing "START" badge used above the active node
 const StartBadge = ({ color = "#2C6DEF" }) => (
-  <div className="absolute -top-12 left-1/2 -translate-x-1/2 z-[100] select-none pointer-events-none">
-    <div className="relative animate-bounce -mt-1">
+  <div className="absolute -top-16 left-1/2 -translate-x-1/2 z-[100] select-none pointer-events-none">
+    <div className="relative animate-bounce -mt-2">
       {/* DuoLingo Style Speech Bubble - White Background */}
       <div
-        className="px-3 py-1 rounded-xl font-black tracking-widest bg-white shadow-[0_4px_0_0_rgba(0,0,0,0.1)] flex items-center justify-center border-2 border-gray-100 min-w-[80px] text-[12px]"
+        className="px-4 py-1.5 rounded-xl font-black tracking-widest bg-white shadow-[0_4px_0_0_rgba(0,0,0,0.1)] flex items-center justify-center border-2 border-gray-100 min-w-[90px] text-sm"
         style={{ color: color }}
       >
         START
       </div>
       {/* Triangle pointer */}
       <div
-        className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-0 h-0 border-l-[8px] border-r-[8px] border-t-[8px] border-l-transparent border-r-transparent border-t-white"
+        className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-0 h-0 border-l-[10px] border-r-[10px] border-t-[10px] border-l-transparent border-r-transparent border-t-white"
       />
     </div>
   </div>
@@ -123,10 +123,8 @@ const StartBadge = ({ color = "#2C6DEF" }) => (
 
 // Decorative Lottie animation placed along the path with a 3D Base (like DuoLingo)
 const PathAnimation = ({ data, offset, top, isMobileLayout }) => {
-  const sizeBase = isMobileLayout ? "w-14 h-14" : "w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 lg:w-22 lg:h-22";
+  const sizeBase = "w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 lg:w-22 lg:h-22";
   const depth = "6px";
-  const lottieSize = isMobileLayout ? '160px' : '224px';
-  const lottieY = isMobileLayout ? '-65px' : '-94px';
   
   if (!data) return null;
 
@@ -140,6 +138,7 @@ const PathAnimation = ({ data, offset, top, isMobileLayout }) => {
           : `calc(50% + ${offset}px)`,
         top: `${top}px`,
         transform: 'translate(-50%, -50%)',
+        // Center content on desktop to ensure mascot is perfectly aligned with the base
         display: isMobileLayout ? 'block' : 'flex',
         alignItems: 'center',
         justifyContent: 'center'
@@ -160,13 +159,13 @@ const PathAnimation = ({ data, offset, top, isMobileLayout }) => {
           style={{ backgroundColor: '#d1dae1' }}
         />
 
-        {/* Lottie Animation (Balanced Hero Size) */}
+        {/* Lottie Animation (Balanced Hero Size - 224px) */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <div style={{ width: lottieSize, height: lottieSize, transform: `translateY(${lottieY})` }}>
+          <div className="w-[224px] h-[224px] -translate-y-[94px]">
             <Lottie
               animationData={data}
               loop={true}
-              style={{ width: lottieSize, height: lottieSize, backgroundColor: 'transparent' }}
+              style={{ width: '224px', height: '224px', backgroundColor: 'transparent' }}
             />
           </div>
         </div>
@@ -327,8 +326,8 @@ const LearnDashboard = ({ onboardingData }) => {
       .catch(err => console.error('Failed to load Ruhaan2 Lottie:', err));
   }, []);
 
+  const rowSpacing = 110;
   const [isMobileLayout, setIsMobileLayout] = useState(window.innerWidth < 768);
-  const rowSpacing = isMobileLayout ? 160 : 110;
   const [progressUpdateTrigger, setProgressUpdateTrigger] = useState(0);
   
   // Refs for stable identity in callbacks
@@ -2334,7 +2333,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                   {(() => {
                                     const color = unitPalette[unitIdx % unitPalette.length]; const gradFrom = color; const gradTo = darken(color, 0.15); return (
                                       isMobileLayout ? (
-                                        <div className="sticky top-0 z-[100] text-white px-5 py-4 rounded-3xl mb-4 shadow-xl w-full border border-white/20 relative overflow-hidden flex flex-col md:flex-row justify-between backdrop-blur-md"
+                                        <div className="sticky top-0 z-[100] text-white px-5 py-5 rounded-3xl mb-8 shadow-2xl w-full border border-white/20 relative overflow-hidden flex flex-col md:flex-row justify-between backdrop-blur-md"
                                           style={{ background: u.headerBgUrl ? `url(${u.headerBgUrl}) center/cover no-repeat` : (u.timelineBgUrl ? `rgba(255, 255, 255, 0.12)` : `linear-gradient(135deg, ${gradFrom}, ${gradTo})`) }}>
                                           
                                           {/* Sparkling Stars background effect */}
@@ -2346,12 +2345,12 @@ const LearnDashboard = ({ onboardingData }) => {
                                             </div>
                                           )}
 
-                                          <div className="relative z-10 flex flex-col gap-2">
-                                            <h2 className="text-[18px] font-extrabold leading-tight text-white drop-shadow-md">
+                                          <div className="relative z-10 flex flex-col gap-3">
+                                            <h2 className="text-[22px] font-extrabold leading-tight text-white drop-shadow-md">
                                               {(u.title && u.title.toLowerCase() !== 'unit') ? u.title : `Unit ${unitIdx + 1}`}
                                             </h2>
                                             
-                                            <div className="w-full h-[1px] bg-white/20 border-t border-dashed border-white/20 my-0.5" />
+                                            <div className="w-full h-[1px] bg-white/20 border-t border-dashed border-white/20 my-1" />
 
                                             {chapterTitle && (
                                               <p className="opacity-90 font-bold text-sm text-blue-50">
@@ -2359,7 +2358,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                               </p>
                                             )}
 
-                                            <div className="flex items-center justify-between gap-2 mt-2">
+                                            <div className="flex items-center justify-between gap-2 mt-3">
                                               <button
                                                 onClick={handleOpenSubjectModal}
                                                 disabled={isLoading || subjectChanging}
@@ -2427,7 +2426,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                       )
                                     );
                                   })()}
-                                  <div className={`relative w-full mx-auto pb-40 pt-20 mt-28 rounded-3xl px-5 ${isMobileLayout ? 'overflow-hidden' : 'overflow-x-visible overflow-y-hidden'}`} style={{
+                                  <div className={`relative w-full mx-auto pb-40 pt-20 mt-28 rounded-3xl ${isMobileLayout ? 'overflow-hidden' : 'overflow-x-visible overflow-y-hidden'}`} style={{
                                     minHeight: Math.max((localLevels.length + 1) * rowSpacing, 400)
                                   }}>
                                     <OrganicPathSvg
@@ -2505,10 +2504,11 @@ const LearnDashboard = ({ onboardingData }) => {
                                             >
                                               {status === "active" && <StartBadge color={unitPalette[unitIdx % unitPalette.length]} />}
                                              </PathNode>
+                                                                         {/* Always-Visible Label (3D Box Styling - Alternating) */}
                                              <div className={`absolute top-1/2 -translate-y-1/2 pointer-events-none flex items-center ${
-                                               unitIdx % 2 === 0 ? "left-full ml-[12px] md:ml-[24px]" : "right-full mr-[12px] md:mr-[24px]"
+                                               unitIdx % 2 === 0 ? "left-full ml-[16px] md:ml-[24px]" : "right-full mr-[16px] md:mr-[24px]"
                                              }`}>
-                                               <div className="relative w-[110px] md:w-[150px] min-h-[52px]">
+                                               <div className="relative w-[130px] md:w-[150px] min-h-[52px]">
                                                  {/* Bottom Layer (Depth) */}
                                                  <div className={`absolute inset-0 translate-y-[4px] rounded-2xl ${
                                                    status === "completed" ? "bg-[#CA8A04]" : status === "active" ? "bg-[#1D4ED8]" : "bg-[#CBD5E1]"
@@ -2542,7 +2542,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                            {(index + 1) % 3 === 0 && index < localLevels.length - 1 && (
                                              <PathAnimation
                                                data={pathAnimationData}
-                                               offset={unitIdx % 2 === 0 ? (isMobileLayout ? -120 : -180) : (isMobileLayout ? 120 : 180)}
+                                               offset={unitIdx % 2 === 0 ? (isMobileLayout ? -140 : -180) : (isMobileLayout ? 140 : 180)}
                                                top={rowSpacing * 0.5}
                                                isMobileLayout={isMobileLayout}
                                              />
