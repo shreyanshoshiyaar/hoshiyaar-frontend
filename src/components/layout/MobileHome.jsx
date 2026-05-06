@@ -54,7 +54,7 @@ const MobileHome = ({
   }, [leaderboardData, user?.username, userIndex, hasSchool]);
 
   return (
-    <div className="w-full h-screen bg-[#F0F6FF] font-sans flex flex-col overflow-hidden block md:hidden relative pb-[80px]">
+    <div className="w-full min-h-screen bg-[#F0F6FF] font-sans flex flex-col overflow-y-auto block md:hidden relative pb-[180px]">
 
       {/* Seamless Top Background (Reduced Height) */}
       <div className="absolute top-0 left-0 right-0 h-[30vh] bg-gradient-to-b from-[#D4E8FF] to-[#F0F6FF] z-0 pointer-events-none">
@@ -81,15 +81,15 @@ const MobileHome = ({
           </button>
         </div>
 
-        {/* Hero Section (Ultra Compact) */}
-        <div className="relative w-full h-[110px] mt-1 mb-1 flex items-center">
-          <div className="relative z-10 w-[70%] pl-2">
-            <h1 className="text-[28px] font-black text-gray-900 leading-[0.9] tracking-tighter">
+        {/* Hero Section (Responsive) */}
+        <div className="relative w-full min-h-[130px] mt-1 mb-2 flex items-center">
+          <div className="relative z-10 w-[65%] pl-2">
+            <h1 className="text-[26px] sm:text-[28px] font-black text-gray-900 leading-[0.95] tracking-tighter">
               Don't memorize <span className="text-blue-600">science.</span><br />
               Solve it. Remember it.
             </h1>
           </div>
-          <div className="absolute bottom-[-10px] right-[-10px] w-[60%] h-[120%] z-0 flex items-end justify-end pointer-events-none">
+          <div className="absolute bottom-[-5px] right-[-5px] w-[55%] h-[115%] z-0 flex items-end justify-end pointer-events-none">
             <img src={heroChar} alt="Characters" className="object-contain h-full w-full object-bottom drop-shadow-[0_8px_12px_rgba(0,0,0,0.15)] scale-110 origin-bottom" />
           </div>
         </div>
@@ -136,7 +136,7 @@ const MobileHome = ({
         <div className="grid grid-cols-12 gap-2 mb-3">
 
           {/* Today's Mission (Left Col) */}
-          <div className="col-span-7 bg-[#3B82F6] rounded-[24px] p-1 overflow-hidden relative shadow-md flex flex-col min-h-[200px] border border-blue-400">
+          <div className="col-span-7 bg-[#3B82F6] rounded-[24px] p-1 overflow-hidden relative shadow-md flex flex-col min-h-[180px] border border-blue-400">
             <div className="flex justify-center items-center py-2 text-white text-[14px] font-black tracking-widest uppercase">
               <span className="mr-1 text-yellow-300 text-[16px]">⭐</span> TODAY'S MISSION <span className="ml-1 text-yellow-300 text-[16px]">⭐</span>
             </div>
@@ -151,7 +151,7 @@ const MobileHome = ({
           </div>
 
           {/* Right Column Stack */}
-          <div className="col-span-5 flex flex-col gap-3 min-h-[220px]">
+          <div className="col-span-5 flex flex-col gap-3 min-h-[180px]">
 
             {/* Calendar Card (Exact Match) */}
             <div className="bg-[#F9F8FF] rounded-[24px] p-4 shadow-sm border border-[#E9D8FF] flex-1 flex flex-col items-center justify-center relative overflow-hidden">
