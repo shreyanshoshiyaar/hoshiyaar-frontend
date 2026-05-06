@@ -647,7 +647,7 @@ export default function ConceptPage() {
 
   if (isMobile) {
     return (
-      <div className="min-h-screen w-full relative overflow-y-auto bg-gradient-to-b from-[#4138a3] to-[#7b5ef0] pb-24">
+      <div className="h-[100dvh] w-full relative overflow-hidden bg-gradient-to-b from-[#4138a3] to-[#7b5ef0]">
         {/* Background Starry Lottie */}
         <div className="absolute inset-0 z-0">
           {(item?.type === 'comic' ? (myraBgAnim || bgAnim) : bgAnim) && (
@@ -706,8 +706,8 @@ export default function ConceptPage() {
         </div>
 
         {/* Mascot Section */}
-        <div className="absolute top-[-15px] left-0 right-0 flex justify-center z-0">
-          <div className="relative w-full max-w-sm flex items-center justify-center px-4">
+        <div className="absolute top-[-15px] left-0 right-0 flex justify-center z-0 pointer-events-none">
+          <div className="relative w-full max-w-sm flex items-center justify-center px-4 scale-[0.85]">
             {/* Hoshi Lottie - Shifted right by 5% relative to previous position */}
             <div className="w-64 h-64 -ml-10 -mb-16 opacity-100">
               {hoshiAnim && <Lottie animationData={hoshiAnim} loop={true} className="w-full h-full drop-shadow-2xl" />}
@@ -721,7 +721,7 @@ export default function ConceptPage() {
         </div>
 
         {/* Concept Card (Responsive Positioning) */}
-        <div className={`relative z-10 scale-[1.02] origin-top mx-auto w-[90%] mt-[180px] mb-[100px] ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'max-w-md' : 'max-w-sm'}`}>
+        <div className={`relative z-10 scale-[1.0] origin-top mx-auto w-[90%] mt-[210px] h-[calc(100dvh-320px)] ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'max-w-md' : 'max-w-sm'}`}>
           <div className={`h-full w-full flex flex-col overflow-hidden ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'bg-transparent shadow-none border-none' : 'bg-white rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.4)] border border-white/50'}`}>
             {/* Card Header */}
             {!((itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic')) && (
@@ -740,7 +740,7 @@ export default function ConceptPage() {
             )}
 
             {/* Card Content */}
-            <div className={`flex-1 ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'p-0' : 'p-6 pt-2'} flex flex-col items-center no-scrollbar`}>
+            <div className={`flex-1 ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'p-0' : 'p-6 pt-2'} flex flex-col items-center overflow-y-auto no-scrollbar`}>
               {shouldShowComic ? (
                 <div className="relative w-full h-full flex items-center justify-center">
                   <div className="relative w-full h-full max-h-[calc(100vh-210px)] rounded-3xl overflow-hidden bg-transparent flex flex-col items-center justify-center p-1 sm:p-2">
@@ -812,7 +812,7 @@ export default function ConceptPage() {
 
 
         {/* Floating Bottom Button - No background container, just the button on starry bg */}
-        <div className="absolute bottom-8 left-0 right-0 px-10 z-20">
+        <div className="absolute bottom-6 left-0 right-0 px-10 z-20">
           <button
             onClick={() => {
               if (shouldShowComic) {

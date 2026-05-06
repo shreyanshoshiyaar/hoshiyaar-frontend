@@ -850,7 +850,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
 
   if (isMobile) {
     return (
-      <div className="min-h-screen w-full relative overflow-y-auto bg-gradient-to-b from-[#4138a3] to-[#7b5ef0] pb-24">
+      <div className="h-[100dvh] w-full relative overflow-hidden bg-gradient-to-b from-[#4138a3] to-[#7b5ef0]">
         {/* Background Starry Lottie */}
         <div className="absolute inset-0 z-0">
           {bgAnim && (
@@ -909,8 +909,8 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         </div>
 
         {/* Mascot Section */}
-        <div className="absolute top-[5px] left-0 right-0 flex justify-center z-0">
-          <div className="relative w-full max-w-sm flex items-center justify-center px-4">
+        <div className="absolute top-[-15px] left-0 right-0 flex justify-center z-0 pointer-events-none">
+          <div className="relative w-full max-w-sm flex items-center justify-center px-4 scale-[0.85]">
             <div className="w-64 h-64 -ml-10 -mb-16 opacity-100">
               {hoshiAnim && <Lottie animationData={hoshiAnim} loop={true} className="w-full h-full drop-shadow-2xl" />}
             </div>
@@ -921,7 +921,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         </div>
 
         {/* Concept Card (Responsive Positioning) */}
-        <div className="relative z-10 scale-[1.02] origin-top mx-auto w-[90%] mt-[180px] mb-[120px] max-w-sm">
+        <div className="relative z-10 scale-[1.0] origin-top mx-auto w-[90%] mt-[210px] h-[calc(100dvh-320px)] max-w-sm">
           <div className="h-full w-full bg-white rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.4)] flex flex-col overflow-hidden border border-white/50">
             {/* Card Header */}
             <div className="p-5 px-6 flex items-center justify-start gap-4 flex-shrink-0">
@@ -1012,7 +1012,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         </div>
 
         {/* Floating Bottom Button (End of Content) */}
-        <div className="relative mt-4 mb-8 px-10 z-20">
+        <div className="absolute bottom-6 left-0 right-0 px-10 z-20">
           <button
             onClick={() => showResult ? handleNext() : () => {}}
             disabled={!showResult}
