@@ -706,8 +706,8 @@ export default function ConceptPage() {
         </div>
 
         {/* Mascot Section */}
-        <div className="absolute top-[-15px] left-0 right-0 flex justify-center z-0 pointer-events-none">
-          <div className="relative w-full max-w-sm flex items-center justify-center px-4 scale-[0.85]">
+        <div className="absolute top-[-30px] left-0 right-0 flex justify-center z-0 pointer-events-none">
+          <div className="relative w-full max-w-sm flex items-center justify-center px-4 scale-[0.9]">
             {/* Hoshi Lottie - Shifted right by 5% relative to previous position */}
             <div className="w-64 h-64 -ml-10 -mb-16 opacity-100">
               {hoshiAnim && <Lottie animationData={hoshiAnim} loop={true} className="w-full h-full drop-shadow-2xl" />}
@@ -721,11 +721,11 @@ export default function ConceptPage() {
         </div>
 
         {/* Concept Card (Responsive Positioning) */}
-        <div className={`relative z-10 scale-[1.0] origin-top mx-auto w-[90%] mt-[210px] h-[calc(100dvh-320px)] ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'max-w-md' : 'max-w-sm'}`}>
+        <div className={`relative z-10 scale-[1.0] origin-top mx-auto w-[90%] mt-[120px] max-h-[calc(100dvh-220px)] ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'max-w-md' : 'max-w-sm'}`}>
           <div className={`h-full w-full flex flex-col overflow-hidden ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'bg-transparent shadow-none border-none' : 'bg-white rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.4)] border border-white/50'}`}>
             {/* Card Header */}
             {!((itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic')) && (
-              <div className="p-5 px-6 flex items-center justify-start gap-4 flex-shrink-0">
+              <div className="p-4 px-6 flex items-center justify-start gap-4 flex-shrink-0">
                 <div className="w-12 h-12 flex items-center justify-center flex-shrink-0 rounded-full border border-gray-100 shadow-sm p-2 bg-white overflow-hidden">
                   <img 
                     src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1777550585/img-to-link/rpxdtc6dw5kjgmrthpmn.png" 
@@ -740,7 +740,7 @@ export default function ConceptPage() {
             )}
 
             {/* Card Content */}
-            <div className={`flex-1 ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'p-0' : 'p-6 pt-2'} flex flex-col items-center overflow-y-auto no-scrollbar`}>
+            <div className={`flex-1 ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'p-0' : 'p-6 pt-0'} flex flex-col items-center no-scrollbar`}>
               {shouldShowComic ? (
                 <div className="relative w-full h-full flex items-center justify-center">
                   <div className="relative w-full h-full max-h-[calc(100vh-210px)] rounded-3xl overflow-hidden bg-transparent flex flex-col items-center justify-center p-1 sm:p-2">
