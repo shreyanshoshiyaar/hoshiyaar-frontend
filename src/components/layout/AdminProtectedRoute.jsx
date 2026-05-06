@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import AuthLayout from '../forms/AuthLayout';
 import { CalendarIcon } from '../ui/Icons';
 
 const AdminProtectedRoute = ({ children }) => {
+  const location = useLocation();
   const [isAdmin, setIsAdmin] = useState(sessionStorage.getItem('isAdmin') === 'true');
   const [formData, setFormData] = useState({ username: '', dob: '' });
   const [error, setError] = useState('');
@@ -41,7 +43,11 @@ const AdminProtectedRoute = ({ children }) => {
     }
   };
 
-  if (isAdmin) {
+  // Check if we are actually on an admin path
+  const isExplicitAdminPath = location.pathname === '/admin' || location.pathname.startsWith('/admin/');
+
+  // If we're already an admin, or if we're NOT on an admin path, just render the content
+  if (isAdmin || !isExplicitAdminPath) {
     return children;
   }
 

@@ -13,6 +13,7 @@ import Lottie from "lottie-react";
 import MobileHome from "../../layout/MobileHome.jsx";
 import BottomNavigation from "../../layout/BottomNavigation.jsx";
 import MobileLeaderboard from "../../layout/MobileLeaderboard.jsx";
+import MobileMore from "../../layout/MobileMore.jsx";
 const DASHBOARD_VERSION = "V5.1-FREQ-3";
 
 // --- SVG Icons for the Dashboard ---
@@ -132,7 +133,7 @@ const PathAnimation = ({ data, offset, top, isMobileLayout }) => {
     <div
       className="absolute pointer-events-none z-[200]"
       style={{
-        width: isMobileLayout ? '120px' : '224px',
+        width: isMobileLayout ? '190px' : '224px',
         left: isMobileLayout 
           ? `clamp(60px, calc(50% + ${offset}px), calc(100% - 60px))`
           : `calc(50% + ${offset}px)`,
@@ -160,13 +161,13 @@ const PathAnimation = ({ data, offset, top, isMobileLayout }) => {
 
         {/* Lottie Animation */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className={`${isMobileLayout ? 'w-[120px] h-[120px] -translate-y-[50px]' : 'w-[224px] h-[224px] -translate-y-[94px]'}`}>
+          <div className={`${isMobileLayout ? 'w-[190px] h-[190px] -translate-y-[80px]' : 'w-[224px] h-[224px] -translate-y-[94px]'}`}>
             <Lottie
               animationData={data}
               loop={true}
               style={{ 
-                width: isMobileLayout ? '120px' : '224px', 
-                height: isMobileLayout ? '120px' : '224px', 
+                width: isMobileLayout ? '190px' : '224px', 
+                height: isMobileLayout ? '190px' : '224px', 
                 backgroundColor: 'transparent' 
               }}
             />
@@ -1938,6 +1939,8 @@ const LearnDashboard = ({ onboardingData }) => {
             weeklyStars={weeklyStars}
             onNavigateToPractice={() => setActiveTab('practice')}
           />
+        ) : isMobileLayout && activeTab === 'more' ? (
+          <MobileMore stars={stars} weeklyStars={weeklyStars} />
         ) : (
           <>
             <main className={`flex-grow p-1 md:p-3 overflow-y-auto no-scrollbar bg-transparent mt-16 md:mt-0 ${isMobileLayout ? 'overflow-x-hidden pb-24' : 'overflow-x-visible'}`}>
@@ -2266,8 +2269,8 @@ const LearnDashboard = ({ onboardingData }) => {
                                         {status === "active" && <StartBadge color="#2C6DEF" />}
                                       </PathNode>
                                       {/* Always-Visible Label (3D Box Styling) */}
-                                      <div className="absolute top-1/2 -translate-y-1/2 left-full pointer-events-none flex items-center ml-[16px] md:ml-[24px]">
-                                        <div className="relative w-[130px] md:w-[150px] min-h-[52px]">
+                                      <div className="absolute top-1/2 -translate-y-1/2 left-full pointer-events-none flex items-center ml-[10px] md:ml-[24px]">
+                                        <div className="relative w-[115px] md:w-[150px] min-h-[52px]">
                                           {/* Bottom Layer (Depth) */}
                                           <div className={`absolute inset-0 translate-y-[4px] rounded-2xl ${
                                             status === "completed" ? "bg-[#CA8A04]" : status === "active" ? "bg-[#1D4ED8]" : "bg-[#CBD5E1]"
@@ -2295,7 +2298,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                     {(index + 1) % 3 === 0 && index < modulesList.length - 1 && (
                                       <PathAnimation
                                         data={pathAnimationData}
-                                        offset={isMobileLayout ? -140 : -160}
+                                        offset={(isMobileLayout ? -80 : -160)}
                                         top={rowSpacing * 0.5}
                                         isMobileLayout={isMobileLayout}
                                       />
@@ -2545,7 +2548,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                            {(index + 1) % 3 === 0 && index < localLevels.length - 1 && (
                                              <PathAnimation
                                                data={pathAnimationData}
-                                               offset={unitIdx % 2 === 0 ? (isMobileLayout ? -95 : -180) : (isMobileLayout ? 95 : 180)}
+                                               offset={unitIdx % 2 === 0 ? (isMobileLayout ? -80 : -180) : (isMobileLayout ? 80 : 180)}
                                                top={rowSpacing * 0.5}
                                                isMobileLayout={isMobileLayout}
                                              />

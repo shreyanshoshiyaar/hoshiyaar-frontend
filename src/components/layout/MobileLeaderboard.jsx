@@ -112,31 +112,27 @@ const MobileLeaderboard = ({
       </div>
 
       {/* 3. Main Content Container */}
-      <div className="mt-6 px-4 pb-12 bg-white">
+      <div className="mt-4 px-4 pb-12 bg-white">
         {/* Simple Leaderboard Title */}
-        <div className="flex items-center justify-center gap-2 mb-5">
+        <div className="flex items-center justify-center gap-2 mb-2">
            <span className="text-yellow-400 text-base">★</span>
            <h2 className="text-[14px] font-black text-[#2563EB] uppercase tracking-[0.2em]">Leaderboard</h2>
            <span className="text-yellow-400 text-base">★</span>
         </div>
 
         {/* School Card (Blue) */}
-        <div className="bg-[#1E65FA] rounded-[20px] p-4 shadow-[0_6px_15px_-5px_rgba(30,101,250,0.3)] mb-2 flex items-center border-2 border-white/20 gap-3">
-          <div className="flex items-center gap-3 min-w-0 flex-1">
-            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-xl shrink-0">🏫</div>
-            <div className="w-px h-8 bg-white/20 shrink-0"></div>
-            <h2 className="text-white font-black text-[18px] tracking-tight truncate">{user?.school || "Don Bosco Borivali"}</h2>
+        <div className="bg-[#1E65FA] rounded-[20px] p-3 md:p-4 shadow-[0_6px_15px_-5px_rgba(30,101,250,0.3)] mb-4 flex justify-between items-center border-2 border-white/20 gap-2">
+          <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
+            <div className="w-9 h-9 md:w-10 md:h-10 bg-white/20 rounded-xl flex items-center justify-center text-lg md:text-xl shrink-0">🏫</div>
+            <div className="w-px h-7 md:h-8 bg-white/20 shrink-0"></div>
+            <h2 className="text-white font-black text-[15px] md:text-[18px] tracking-tight truncate">{user?.school || "Don Bosco Borivali"}</h2>
           </div>
-        </div>
-
-        {/* Change School Button */}
-        <div className="flex justify-end px-1 mb-4">
-           <button 
-             onClick={() => setIsChangingSchool(!isChangingSchool)}
-             className="flex items-center gap-1.5 px-3 py-1.5 bg-white border-2 border-blue-100 rounded-xl text-[#2563EB] text-[12px] font-black shadow-sm active:scale-95 transition-all"
-           >
-             <span className="text-base">🔄</span> Change
-           </button>
+          <button 
+            onClick={() => setIsChangingSchool(!isChangingSchool)}
+            className="flex items-center shrink-0 gap-1 px-2 py-1.5 bg-white border border-blue-100 rounded-xl text-[#2563EB] text-[11px] font-black shadow-sm active:scale-95 transition-all"
+          >
+            <span className="text-sm">🔄</span> Change
+          </button>
         </div>
 
         {/* Change School Form */}
@@ -233,13 +229,7 @@ const MobileLeaderboard = ({
                        )}
                     </div>
                     
-                    <div className="w-10 h-10 rounded-full border-2 border-white shadow-sm overflow-hidden shrink-0">
-                      <img 
-                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${entry.username}`} 
-                        alt="Avatar" 
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
+
                     
                     <span className={`text-[15px] font-black truncate ${isMe ? 'text-[#1E40AF]' : 'text-gray-800'}`}>
                       {isMe ? 'You' : (entry.name || entry.username)}
