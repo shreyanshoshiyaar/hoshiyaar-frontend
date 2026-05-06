@@ -28,7 +28,7 @@ const MobileLeaderboard = ({
   return (
     <div className="fixed inset-0 bg-white overflow-y-auto no-scrollbar pb-32">
       {/* 1. Hero Section - Today's Rank Booster */}
-      <div className="relative bg-[#F3E8FF] pt-2 pb-10 px-6 overflow-hidden">
+      <div className="relative bg-[#F3E8FF] pt-2 pb-6 px-6 overflow-hidden">
         {/* Transparent Header Inside Hero */}
         <div className="flex items-center justify-between w-full z-20 mb-[26px] mt-1">
           <div className="flex items-center">
@@ -61,11 +61,11 @@ const MobileLeaderboard = ({
           </div>
 
           <div className="flex flex-col">
-            <h1 className="text-[20px] font-black text-[#5829D1] leading-tight mb-0.5">Today's Rank Booster</h1>
-            <p className="text-[12px] font-bold text-gray-500 mb-3 leading-tight">
+            <h1 className="text-[18px] font-black text-[#5829D1] leading-tight mb-0.5">Today's Rank Booster</h1>
+            <p className="text-[11px] font-bold text-gray-500 mb-2 leading-tight">
               Complete 3 science quests and earn <span className="text-[#5829D1] font-extrabold">+150 XP</span>
             </p>
-            <button className="bg-[#6D28D9] text-white px-5 py-2.5 rounded-full text-[13px] font-black shadow-[0_3px_0_0_#4C1D95] active:translate-y-0.5 active:shadow-none transition-all flex items-center justify-center gap-2 w-fit group">
+            <button className="bg-[#6D28D9] text-white px-4 py-2 rounded-full text-[12px] font-black shadow-[0_3px_0_0_#4C1D95] active:translate-y-0.5 active:shadow-none transition-all flex items-center justify-center gap-2 w-fit group">
               Start Challenge 
               <span className="text-lg transform group-hover:translate-x-1 transition-transform">›</span>
             </button>
@@ -74,37 +74,37 @@ const MobileLeaderboard = ({
       </div>
 
       {/* 2. Stats Ribbon (Floating) */}
-      <div className="px-6 -mt-6 relative z-20">
-        <div className="bg-white rounded-[20px] p-4 shadow-[0_8px_25px_-5px_rgba(0,0,0,0.08)] flex justify-around items-center border border-gray-50">
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 bg-gradient-to-b from-[#A855F7] to-[#7E22CE] rounded-xl flex items-center justify-center shadow-md transform -rotate-3 border border-white/20">
-               <span className="text-white text-base">👑</span>
+      <div className="px-6 -mt-5 relative z-20">
+        <div className="bg-white rounded-[16px] p-2.5 shadow-[0_8px_25px_-5px_rgba(0,0,0,0.08)] flex justify-around items-center border border-gray-50">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-b from-[#A855F7] to-[#7E22CE] rounded-lg flex items-center justify-center shadow-md transform -rotate-3 border border-white/20">
+               <span className="text-white text-sm">👑</span>
             </div>
             <div className="flex flex-col">
-               <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Rank</span>
-               <span className="text-[18px] font-black text-gray-800 leading-none">{currentRank}</span>
+               <span className="text-[8px] font-bold text-gray-400 uppercase tracking-tighter">Rank</span>
+               <span className="text-[16px] font-black text-gray-800 leading-none">{currentRank}</span>
             </div>
           </div>
-          <div className="w-px h-6 bg-gray-100"></div>
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 flex items-center justify-center transform hover:scale-110 transition-transform">
-               <span className="text-3xl drop-shadow-sm">⭐</span>
+          <div className="w-px h-5 bg-gray-100"></div>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 flex items-center justify-center transform hover:scale-110 transition-transform">
+               <span className="text-2xl drop-shadow-sm">⭐</span>
             </div>
             <div className="flex flex-col">
-               <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Stars</span>
-               <span className="text-[18px] font-black text-gray-800 leading-none">{stars || 363}</span>
+               <span className="text-[8px] font-bold text-gray-400 uppercase tracking-tighter">Stars</span>
+               <span className="text-[16px] font-black text-gray-800 leading-none">{stars || 363}</span>
             </div>
           </div>
-          <div className="w-px h-6 bg-gray-100"></div>
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 flex items-center justify-center">
-               <span className="text-3xl drop-shadow-sm">🔥</span>
+          <div className="w-px h-5 bg-gray-100"></div>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 flex items-center justify-center">
+               <span className="text-2xl drop-shadow-sm">🔥</span>
             </div>
             <div className="flex flex-col">
-               <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Streak</span>
-               <div className="flex items-baseline gap-1">
-                 <span className="text-[18px] font-black text-gray-800 leading-none">{currentStreak}</span>
-                 <span className="text-[9px] font-bold text-gray-500 uppercase">Days</span>
+               <span className="text-[8px] font-bold text-gray-400 uppercase tracking-tighter">Streak</span>
+               <div className="flex items-baseline gap-0.5">
+                 <span className="text-[16px] font-black text-gray-800 leading-none">{currentStreak}</span>
+                 <span className="text-[8px] font-bold text-gray-500 uppercase">Days</span>
                </div>
             </div>
           </div>
@@ -112,7 +112,7 @@ const MobileLeaderboard = ({
       </div>
 
       {/* 3. Main Content Container */}
-      <div className="mt-4 px-4 pb-12 bg-white">
+      <div className="mt-3 px-4 pb-8 bg-white">
         {/* Simple Leaderboard Title */}
         <div className="flex items-center justify-center gap-2 mb-2">
            <span className="text-yellow-400 text-base">★</span>
@@ -121,17 +121,17 @@ const MobileLeaderboard = ({
         </div>
 
         {/* School Card (Blue) */}
-        <div className="bg-[#1E65FA] rounded-[20px] p-3 md:p-4 shadow-[0_6px_15px_-5px_rgba(30,101,250,0.3)] mb-4 flex justify-between items-center border-2 border-white/20 gap-2">
-          <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
-            <div className="w-9 h-9 md:w-10 md:h-10 bg-white/20 rounded-xl flex items-center justify-center text-lg md:text-xl shrink-0">🏫</div>
-            <div className="w-px h-7 md:h-8 bg-white/20 shrink-0"></div>
-            <h2 className="text-white font-black text-[15px] md:text-[18px] tracking-tight truncate">{user?.school || "Don Bosco Borivali"}</h2>
+        <div className="bg-[#1E65FA] rounded-[16px] p-2.5 shadow-[0_6px_15px_-5px_rgba(30,101,250,0.3)] mb-3 flex justify-between items-center border border-white/20 gap-2">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-base shrink-0">🏫</div>
+            <div className="w-px h-6 bg-white/20 shrink-0"></div>
+            <h2 className="text-white font-black text-[14px] tracking-tight truncate">{user?.school || "Don Bosco Borivali"}</h2>
           </div>
           <button 
             onClick={() => setIsChangingSchool(!isChangingSchool)}
-            className="flex items-center shrink-0 gap-1 px-2 py-1.5 bg-white border border-blue-100 rounded-xl text-[#2563EB] text-[11px] font-black shadow-sm active:scale-95 transition-all"
+            className="flex items-center shrink-0 gap-1 px-2 py-1 bg-white border border-blue-100 rounded-lg text-[#2563EB] text-[10px] font-black shadow-sm active:scale-95 transition-all"
           >
-            <span className="text-sm">🔄</span> Change
+            <span className="text-xs">🔄</span> Change
           </button>
         </div>
 
@@ -175,19 +175,19 @@ const MobileLeaderboard = ({
         )}
 
         {/* Time Filters */}
-        <div className="flex gap-2 mb-5 px-1">
+        <div className="flex gap-2 mb-4 px-1">
           <button 
             onClick={() => setLeaderboardTimeframe('weekly')}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[11px] font-black transition-all ${leaderboardTimeframe === 'weekly' ? 'bg-[#2563EB] text-white shadow-md' : 'bg-gray-100 text-gray-500'}`}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black transition-all ${leaderboardTimeframe === 'weekly' ? 'bg-[#2563EB] text-white shadow-md' : 'bg-gray-100 text-gray-500'}`}
           >
-            📅 This Week
+            📅 Week
           </button>
-          <button className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[11px] font-black bg-gray-100 text-gray-500">
-            📅 This Month
+          <button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black bg-gray-100 text-gray-500">
+            📅 Month
           </button>
           <button 
              onClick={() => setLeaderboardTimeframe('total')}
-             className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[11px] font-black transition-all ${leaderboardTimeframe === 'total' ? 'bg-[#2563EB] text-white shadow-md' : 'bg-gray-100 text-gray-500'}`}
+             className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black transition-all ${leaderboardTimeframe === 'total' ? 'bg-[#2563EB] text-white shadow-md' : 'bg-gray-100 text-gray-500'}`}
           >
             📊 All Time
           </button>
@@ -208,13 +208,13 @@ const MobileLeaderboard = ({
               return (
                 <div 
                   key={i} 
-                  className={`flex items-center justify-between p-3 rounded-[20px] border-2 transition-all ${
+                  className={`flex items-center justify-between p-2 rounded-[16px] border transition-all ${
                     isMe ? 'bg-[#F0F7FF] border-[#2563EB] shadow-sm' : 'bg-white border-transparent hover:bg-gray-50'
                   }`}
                 >
-                  <div className="flex items-center gap-3.5 min-w-0">
+                  <div className="flex items-center gap-2.5 min-w-0">
                     <div className="relative shrink-0">
-                       <div className={`w-9 h-9 flex items-center justify-center rounded-full text-xs font-black ${
+                       <div className={`w-7 h-7 flex items-center justify-center rounded-full text-[10px] font-black ${
                          rank === 1 ? 'bg-yellow-400 text-white shadow-sm' : 
                          rank === 2 ? 'bg-gray-300 text-white shadow-sm' : 
                          rank === 3 ? 'bg-orange-400 text-white shadow-sm' : 
@@ -222,23 +222,18 @@ const MobileLeaderboard = ({
                        }`}>
                          {rank}
                        </div>
-                       {rank <= 3 && (
-                         <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-3.5 h-1.5 rounded-b-sm ${
-                            rank === 1 ? 'bg-yellow-500' : rank === 2 ? 'bg-gray-400' : 'bg-orange-500'
-                         }`} />
-                       )}
                     </div>
                     
 
                     
-                    <span className={`text-[15px] font-black truncate ${isMe ? 'text-[#1E40AF]' : 'text-gray-800'}`}>
+                    <span className={`text-[13px] font-black truncate ${isMe ? 'text-[#1E40AF]' : 'text-gray-800'}`}>
                       {isMe ? 'You' : (entry.name || entry.username)}
                     </span>
                   </div>
                   
-                  <div className="flex items-center gap-1.5 shrink-0 px-2.5 py-1 bg-white rounded-xl shadow-sm border border-gray-100">
-                    <span className="text-[14px] font-black text-gray-700">{entry.totalPoints?.toLocaleString() || 0}</span>
-                    <span className="text-yellow-400 text-base">★</span>
+                  <div className="flex items-center gap-1 shrink-0 px-2 py-0.5 bg-white rounded-lg shadow-sm border border-gray-100">
+                    <span className="text-[12px] font-black text-gray-700">{entry.totalPoints?.toLocaleString() || 0}</span>
+                    <span className="text-yellow-400 text-sm">★</span>
                   </div>
                 </div>
               );
