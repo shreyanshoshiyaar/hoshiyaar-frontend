@@ -873,8 +873,8 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
         </div>
 
         {/* Mascot Section */}
-        <div className="absolute top-[-15px] left-0 right-0 flex justify-center z-0 pointer-events-none">
-          <div className="relative w-full max-sm flex items-center justify-center px-4 scale-[0.85]">
+        <div className="absolute top-[-30px] left-0 right-0 flex justify-center z-0 pointer-events-none">
+          <div className="relative w-full max-sm flex items-center justify-center px-4 scale-[0.9]">
             <div className="w-64 h-64 -ml-10 -mb-16 opacity-100">
               {hoshiAnim && <Lottie animationData={hoshiAnim} loop={true} className="w-full h-full drop-shadow-2xl" />}
             </div>
@@ -885,10 +885,10 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
         </div>
 
         {/* Concept Card (Responsive Positioning) */}
-        <div className="relative z-10 scale-[1.0] origin-top mx-auto w-[90%] mt-[210px] h-[calc(100dvh-320px)] max-w-sm">
+        <div className="relative z-10 scale-[1.0] origin-top mx-auto w-[90%] mt-[120px] max-h-[calc(100dvh-220px)] max-w-sm">
           <div className="h-full w-full bg-white rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.4)] flex flex-col overflow-hidden border border-white/50">
             {/* Card Header */}
-            <div className="p-5 px-6 flex items-center justify-start gap-4 flex-shrink-0">
+            <div className="p-4 px-6 flex items-center justify-start gap-4 flex-shrink-0">
               <div className="w-12 h-12 flex items-center justify-center flex-shrink-0 rounded-full border border-gray-100 shadow-sm p-2 bg-white overflow-hidden">
                 <img 
                   src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1777550585/img-to-link/rpxdtc6dw5kjgmrthpmn.png" 
@@ -900,7 +900,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
             </div>
 
             {/* Card Scrollable Content */}
-            <div className="flex-1 overflow-y-auto p-6 pt-2 flex flex-col items-center no-scrollbar">
+            <div className="flex-1 p-6 pt-0 flex flex-col items-center no-scrollbar">
               {/* Text above images - Enlarged and Centered */}
               <div 
                 className="text-[18px] font-black text-gray-800 text-center leading-snug w-full mb-6"
