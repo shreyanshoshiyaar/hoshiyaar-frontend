@@ -104,7 +104,7 @@ const ChapterNavIcon = () => (
 );
 
 // Cute bouncing "START" badge used above the active node
-const StartBadge = ({ color = "#2C6DEF" }) => (
+const StartBadge = React.memo(({ color = "#2C6DEF" }) => (
   <div className="absolute -top-16 left-1/2 -translate-x-1/2 z-[100] select-none pointer-events-none">
     <div className="relative animate-bounce -mt-2">
       {/* DuoLingo Style Speech Bubble - White Background */}
@@ -120,10 +120,11 @@ const StartBadge = ({ color = "#2C6DEF" }) => (
       />
     </div>
   </div>
-);
+));
 
 // Decorative Lottie animation placed along the path with a 3D Base (like DuoLingo)
-const PathAnimation = ({ data, offset, top, isMobileLayout }) => {
+// Decorative Lottie animation placed along the path with a 3D Base (like DuoLingo)
+const PathAnimation = React.memo(({ data, offset, top, isMobileLayout }) => {
   const sizeBase = isMobileLayout ? "w-12 h-12" : "w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 lg:w-22 lg:h-22";
   const depth = "6px";
   
@@ -176,9 +177,9 @@ const PathAnimation = ({ data, offset, top, isMobileLayout }) => {
       </div>
     </div>
   );
-};
+});
 
-const PathNode = ({ status, onClick, disabled, color = "#2C6DEF", lightenFn, darkenFn, isDifficult = false, isDescriptive = false, offset = 0, children }) => {
+const PathNode = React.memo(({ status, onClick, disabled, color = "#2C6DEF", lightenFn, darkenFn, isDifficult = false, isDescriptive = false, offset = 0, children }) => {
   const isCompleted = status === "completed";
   const isActive = status === "active";
   const isLocked = status === "locked";
@@ -247,7 +248,7 @@ const PathNode = ({ status, onClick, disabled, color = "#2C6DEF", lightenFn, dar
       {children}
     </div>
   );
-};
+});
 
 // Helper to calculate wave offset for each node (NOW STRAIGHT)
 const getWaveOffset = (index, isMobile) => {

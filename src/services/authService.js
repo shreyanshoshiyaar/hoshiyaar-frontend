@@ -40,6 +40,27 @@ const updateOnboarding = (data, opts) => {
 // Update profile (alias to onboarding update for now)
 const updateProfile = (data, opts) => http.put('onboarding', data, opts);
 
+// Simple in-memory cache for GET requests to reduce redundant network calls
+const cache = new Map();
+const CACHE_TTL = 30000; // 30 seconds
+
+const cachedGet = async (url, config = {}) => {
+  const cacheKey = JSON.stringify({ url, params: config.params });
+  const now = Date.now();
+  
+  if (cache.has(cacheKey)) {
+    const entry = cache.get(cacheKey);
+    if (now - entry.timestamp < CACHE_TTL) {
+      console.log(`[Cache Hit] ${url}`);
+      return entry.data;
+    }
+  }
+  
+  const response = await axios.get(url, config);
+  cache.set(cacheKey, { data: response, timestamp: now });
+  return response;
+};
+
 // Get user data
 const getUser = (userId, opts) => {
   return http.get('user/' + userId, opts);
@@ -55,20 +76,17 @@ const checkUsername = (username, opts) => http.get('check-username', { params: {
 
 // Leaderboard API (calls pointsRoutes mounted at /api/points/leaderboard)
 const getLeaderboard = (school, timeframe = 'total', opts) => {
-  // Use absolute URL or relative to BASE if needed, but BASE depends on getApiBase()
-  // authService's http instance uses API_URL which is `${BASE}/api/auth/`
-  // We need to call `${BASE}/api/points/leaderboard`
-  return axios.get(`${BASE}/api/points/leaderboard`, { params: { school, timeframe }, ...(opts || {}) });
+  return cachedGet(`${BASE}/api/points/leaderboard`, { params: { school, timeframe }, ...(opts || {}) });
 };
 
 // Get points summary (calls pointsRoutes mounted at /api/points/summary)
 const getSummary = (params, opts) => {
-  return axios.get(`${BASE}/api/points/summary`, { params, ...(opts || {}) });
+  return cachedGet(`${BASE}/api/points/summary`, { params, ...(opts || {}) });
 };
 
 // Get list of unique school names for autocomplete
 const getSchoolNames = (query, opts) => {
-  return axios.get(`${BASE}/api/points/schools`, { params: { q: query }, ...(opts || {}) });
+  return cachedGet(`${BASE}/api/points/schools`, { params: { q: query }, ...(opts || {}) });
 };
 
 // Get school suggestions from Ola Maps API
@@ -79,14 +97,11 @@ const getOlaSchoolSuggestions = async (query) => {
     return { data: { predictions: [] } };
   }
   
+  const url = 'https://api.olamaps.io/places/v1/autocomplete';
+  const params = { input: query, api_key: apiKey };
+  
   try {
-    const response = await axios.get('https://api.olamaps.io/places/v1/autocomplete', {
-      params: {
-        input: query,
-        api_key: apiKey,
-      }
-    });
-    return response;
+    return await cachedGet(url, { params });
   } catch (error) {
     console.error('Ola Maps Autocomplete Error:', error);
     return { data: { predictions: [] } };
