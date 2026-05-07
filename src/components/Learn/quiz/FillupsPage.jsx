@@ -851,10 +851,16 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
 
           {/* Feedback Section - Fixed at bottom of panel */}
           {showResult && (
-            <div className={`absolute bottom-0 left-0 right-0 p-6 pt-10 bg-gradient-to-t via-white to-transparent ${isCorrect ? 'from-[#d7ffb8]' : 'from-[#1a2b3c]'}`}>
+            <div className={`absolute bottom-0 left-0 right-0 p-6 pt-10 border-t-2 ${
+              isCorrect 
+                ? 'bg-[#d7ffb8] border-green-200' 
+                : 'bg-[#ffedeb] border-red-200'
+            }`}>
               <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isCorrect ? 'bg-white text-green-600' : 'bg-red-500 text-white'}`}>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-sm ${
+                    isCorrect ? 'bg-white text-green-600' : 'bg-red-500 text-white'
+                  }`}>
                     <span className="text-xl font-bold">{isCorrect ? '✓' : '✕'}</span>
                   </div>
                   <div>
@@ -862,7 +868,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
                       {isCorrect ? 'Correct!' : 'Incorrect'}
                     </p>
                     {!isCorrect && (
-                      <p className="text-white text-sm font-bold opacity-80">
+                      <p className="text-gray-700 text-sm font-bold line-clamp-2">
                         {Array.isArray(item?.answer) ? item?.answer[0] : item?.answer}
                       </p>
                     )}
@@ -870,8 +876,8 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
                 </div>
                 <button
                   onClick={isCorrect ? handleNext : handleTryAgain}
-                  className={`w-full py-4 rounded-[24px] font-black text-xl tracking-wide shadow-[0_6px_0_0_rgba(0,0,0,0.2)] active:shadow-none active:translate-y-2 transition-all uppercase ${
-                    isCorrect ? 'bg-[#58cc02] text-white' : 'bg-[#ff4b4b] text-white'
+                  className={`w-full py-4 rounded-[24px] font-black text-xl tracking-wide shadow-[0_6px_0_0_rgba(0,0,0,0.15)] active:shadow-none active:translate-y-1 transition-all uppercase ${
+                    isCorrect ? 'bg-[#58cc02] text-white hover:bg-[#61e002]' : 'bg-[#ff4b4b] text-white hover:bg-[#ff5f5f]'
                   }`}
                 >
                   {isCorrect ? 'CONTINUE' : 'TRY AGAIN'}

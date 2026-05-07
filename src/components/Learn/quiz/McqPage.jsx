@@ -840,231 +840,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
     );
   }
 
-  if (isMobile) {
-    return (
-      <div className="h-[100dvh] w-full relative overflow-hidden bg-gradient-to-b from-[#4138a3] to-[#7b5ef0]">
-        {/* Background Starry Lottie */}
-        <div className="absolute inset-0 z-0">
-          {bgAnim && (
-            <Lottie
-              animationData={bgAnim}
-              loop={true}
-              className="w-full h-full object-cover opacity-100"
-              rendererSettings={{
-                preserveAspectRatio: 'xMidYMid slice'
-              }}
-            />
-          )}
-        </div>
 
-        {/* Floating Header */}
-        <div className="absolute top-0 left-0 right-0 p-5 flex flex-col gap-4 z-30">
-          <div className="flex items-center justify-between">
-            {!actualReviewMode && (
-              <button
-                onClick={() => setShowExitConfirm(true)}
-                className="w-11 h-11 flex items-center justify-center rounded-full bg-[#6d5dfc] text-white shadow-lg active:scale-95 transition-all border-2 border-white/20"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                </svg>
-              </button>
-            )}
-            {actualReviewMode && <div className="w-11 h-11"></div>}
-
-            <div className="flex-1 flex flex-col items-center px-4">
-              <div className="w-full max-w-[180px]">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-[11px] font-black text-white uppercase tracking-wider">Lesson Progress</span>
-                  <span className="text-[11px] font-black text-white tracking-widest">{index + 1}/{items.length}</span>
-                </div>
-                <div className="h-3 w-full bg-white/30 rounded-full overflow-hidden border border-white/20">
-                  <div 
-                    className="h-full bg-[#a166ff] transition-all duration-500 rounded-full" 
-                    style={{ width: `${((index + 1) / items.length) * 100}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center">
-              <div className="bg-white rounded-full p-1.5 px-3 shadow-lg flex items-center gap-2 h-10 border border-purple-100">
-                <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center text-white shadow-sm">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                    <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <span className="text-sm font-black text-blue-900">{totalStars}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Mascot Section */}
-        <div className="absolute top-[-45px] left-0 right-0 flex justify-center z-0 pointer-events-none">
-          <div className="relative w-full max-w-sm flex items-center justify-center px-4 scale-[0.75]">
-            <div className="w-64 h-64 -ml-10 -mb-16 opacity-100">
-              {hoshiAnim && <Lottie animationData={hoshiAnim} loop={true} className="w-full h-full drop-shadow-2xl" />}
-            </div>
-            <div className="w-64 h-64 -ml-24 mt-10">
-              {popAnim && <Lottie animationData={popAnim} loop={true} className="w-full h-full" />}
-            </div>
-          </div>
-        </div>
-
-        {/* Concept Card (Responsive Positioning) */}
-        <div className="relative z-10 scale-[1.0] origin-top mx-auto w-[90%] mt-[165px] h-[calc(100dvh-250px)] max-w-sm">
-          <div className="h-full w-full bg-white rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.4)] flex flex-col overflow-hidden border border-white/50">
-            {/* Removed Header for more space */}
-
-            {/* Card Content (No internal scroll) */}
-            <div className="flex-1 p-8 pt-6 flex flex-col items-center no-scrollbar">
-              {/* Text above images - Enlarged and Centered */}
-              <div 
-                className="text-[16px] font-black text-gray-800 text-center leading-snug w-full mb-4"
-                dangerouslySetInnerHTML={{ __html: String(item.question || '') }}
-              />
-
-              {/* Images block BETWEEN question and input. */}
-              {(() => {
-                const hasImageOptions = item.options?.some(opt => typeof opt === 'string' && (opt.startsWith('http') || opt.startsWith('https')));
-                if (hasImageOptions) return null;
-
-                const imgs = (item.images || []).filter(Boolean);
-                const primary = item.imageUrl ? [item.imageUrl] : [];
-                const list = imgs.length > 0 ? imgs : primary;
-                if (list.length === 0) return null;
-
-                return (
-                  <div className="w-full max-w-xl mb-4 flex justify-center">
-                    <div className="flex flex-wrap justify-center gap-2">
-                      {list.slice(0, 5).map((src, i) => (
-                        <div key={i} className="border border-blue-300 rounded-xl sm:rounded-2xl p-1 bg-white shadow-sm">
-                          <img src={src} alt={`mcq-${i}`} className="h-28 w-20 object-contain rounded-lg sm:rounded-xl" />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {/* MCQ Options */}
-              <div className="w-full flex flex-col gap-3">
-                {item.options?.map((opt, idx) => {
-                  const isSelected = selectedIndex === idx;
-                  const isCorrectOption = String(opt).trim().toLowerCase() === item.answer.trim().toLowerCase();
-                  const isImageUrl = typeof opt === 'string' && (opt.startsWith('http') || opt.startsWith('https'));
-
-                  let btnClass = "w-full p-3.5 rounded-3xl border-2 text-center transition-all duration-200 text-[16px] font-black tracking-wide flex items-center justify-center min-h-[56px] ";
-                  
-                  if (showResult) {
-                    if (isSelected) {
-                      btnClass += isCorrect ? "bg-green-100 border-green-500 text-green-800" : "bg-red-100 border-red-500 text-red-800";
-                    } else if (isCorrectOption) {
-                      btnClass += "bg-green-100 border-green-500 text-green-800";
-                    } else {
-                      btnClass += "bg-gray-100 border-gray-300 text-gray-400";
-                    }
-                  } else {
-                    btnClass += "bg-white border-gray-300 text-blue-900 active:border-blue-500 active:scale-95";
-                  }
-
-                  return (
-                    <button
-                      key={idx}
-                      onClick={() => handleOptionClick(idx)}
-                      disabled={showResult}
-                      className={btnClass}
-                    >
-                      {isImageUrl ? (
-                        <img 
-                          src={opt} 
-                          alt={`option-${idx}`} 
-                          className="h-20 w-20 object-contain rounded-xl"
-                        />
-                      ) : (
-                        <span>{opt}</span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Floating Bottom Button (End of Content) */}
-        {!showResult && (
-          <div className="absolute bottom-3 left-0 right-0 px-12 z-20">
-            <button
-              onClick={() => handleSubmit()}
-              className="w-full py-2.5 rounded-[20px] bg-[#6d5dfc] text-white font-black text-lg tracking-wide shadow-[0_4px_0_0_#4a3fcc] active:shadow-none active:translate-y-1 transition-all uppercase"
-            >
-              Check
-            </button>
-          </div>
-        )}
-
-        {/* Duolingo Style Feedback Bar for Mobile - Refined Classy Theme */}
-        {showResult && (
-          <div className={`fixed left-0 right-0 bottom-0 z-[100] animate-in slide-in-from-bottom duration-300 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.2)] ${
-            isCorrect ? 'bg-[#d7ffb8]' : 'bg-[#1a2b3c]'
-          }`}>
-            <div className="max-w-sm mx-auto px-6 py-4 flex flex-col gap-3">
-              <div className="flex items-center gap-4">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-inner ${
-                  isCorrect ? 'bg-white text-[#58a700]' : 'bg-[#ff4b4b] text-white'
-                }`}>
-                  <span className="text-xl">{isCorrect ? '✓' : '✕'}</span>
-                </div>
-                <div className="flex flex-col">
-                  <p className={`text-[18px] font-black tracking-tight leading-tight ${
-                    isCorrect ? 'text-[#58a700]' : 'text-[#ff4b4b]'
-                  }`}>
-                    {isCorrect ? 'You are correct!' : 'Correct solution:'}
-                  </p>
-                  {!isCorrect && (
-                    <p className="text-[15px] font-bold text-white mt-0.5 opacity-90">
-                      {item?.answer}
-                    </p>
-                  )}
-                </div>
-              </div>
-              
-              <button
-                onClick={isCorrect ? handleNext : handleTryAgain}
-                className={`w-full py-3 rounded-[16px] text-[16px] font-black tracking-widest shadow-[0_4px_0_rgba(0,0,0,0.2)] transform active:translate-y-1 active:shadow-none transition-all uppercase ${
-                  isCorrect 
-                    ? 'bg-[#58cc02] text-white hover:bg-[#61e002]' 
-                    : 'bg-[#ff4b4b] text-white hover:bg-[#ff5f5f]'
-                }`}
-              >
-                CONTINUE
-              </button>
-            </div>
-          </div>
-        )}
-
-        {showExitConfirm && (
-          <div className="fixed inset-0 z-[9999]">
-            <ConceptExitConfirm
-              onQuit={() => {
-                const urlParams = new URLSearchParams(window.location.search);
-                const chapterId = urlParams.get('chapterId');
-                const unitId = urlParams.get('unitId');
-                const params = new URLSearchParams();
-                if (chapterId) params.set('chapterId', chapterId);
-                if (unitId) params.set('unitId', unitId);
-                const query = params.toString();
-                navigate(`/learn${query ? '?' + query : ''}`);
-              }}
-              onContinue={() => setShowExitConfirm(false)}
-            />
-          </div>
-        )}
-      </div>
-    );
-  }
 
   if (isMobile) {
     return (
@@ -1218,10 +994,16 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
 
           {/* Feedback Section - Fixed at bottom of panel */}
           {showResult && (
-            <div className={`absolute bottom-0 left-0 right-0 p-6 pt-10 bg-gradient-to-t via-white to-transparent ${isCorrect ? 'from-[#d7ffb8]' : 'from-[#1a2b3c]'}`}>
+            <div className={`absolute bottom-0 left-0 right-0 p-6 pt-10 border-t-2 ${
+              isCorrect 
+                ? 'bg-[#d7ffb8] border-green-200' 
+                : 'bg-[#ffedeb] border-red-200'
+            }`}>
               <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isCorrect ? 'bg-white text-green-600' : 'bg-red-500 text-white'}`}>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-sm ${
+                    isCorrect ? 'bg-white text-green-600' : 'bg-red-500 text-white'
+                  }`}>
                     <span className="text-xl font-bold">{isCorrect ? '✓' : '✕'}</span>
                   </div>
                   <div>
@@ -1229,13 +1011,15 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
                       {isCorrect ? 'Correct!' : 'Incorrect'}
                     </p>
                     {!isCorrect && (
-                      <p className="text-white text-sm font-bold opacity-80 line-clamp-1">{item.answer}</p>
+                      <p className="text-gray-700 text-sm font-bold line-clamp-2">
+                        {String(item.answer || '')}
+                      </p>
                     )}
                   </div>
                 </div>
                 <button
                   onClick={isCorrect ? handleNext : handleTryAgain}
-                  className={`w-full py-4 rounded-[24px] font-black text-xl tracking-wide shadow-[0_6px_0_0_rgba(0,0,0,0.2)] active:shadow-none active:translate-y-2 transition-all uppercase ${
+                  className={`w-full py-4 rounded-[24px] font-black text-xl tracking-wide shadow-[0_6px_0_0_rgba(0,0,0,0.15)] active:shadow-none active:translate-y-1 transition-all uppercase ${
                     isCorrect ? 'bg-[#58cc02] text-white hover:bg-[#61e002]' : 'bg-[#ff4b4b] text-white hover:bg-[#ff5f5f]'
                   }`}
                 >
