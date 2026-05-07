@@ -174,9 +174,8 @@ const MobileHome = ({
 
             {/* Social Card (Exact Match) */}
             <div className="bg-[#EBF5FF] rounded-[24px] p-2 shadow-sm border border-[#D6E4FF] flex-1 flex flex-col items-center justify-center">
-              <div className="flex items-center gap-2 mb-2 bg-white/50 px-3 py-1 rounded-full border border-white/40 shadow-sm">
+              <div className="flex items-center justify-center mb-2 bg-white/50 px-3 py-1 rounded-full border border-white/40 shadow-sm">
                 <h3 className="text-[#2C4A86] font-black text-[8px] whitespace-nowrap">Stay Connected</h3>
-                <div className="w-px h-3 bg-[#2C4A86] opacity-20"></div>
               </div>
 
               <div className="flex gap-2 w-full px-1">

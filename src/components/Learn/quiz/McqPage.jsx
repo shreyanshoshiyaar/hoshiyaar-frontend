@@ -909,8 +909,8 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         </div>
 
         {/* Mascot Section */}
-        <div className="absolute top-[-30px] left-0 right-0 flex justify-center z-0 pointer-events-none">
-          <div className="relative w-full max-w-sm flex items-center justify-center px-4 scale-[0.9]">
+        <div className="absolute top-[-45px] left-0 right-0 flex justify-center z-0 pointer-events-none">
+          <div className="relative w-full max-w-sm flex items-center justify-center px-4 scale-[0.8]">
             <div className="w-64 h-64 -ml-10 -mb-16 opacity-100">
               {hoshiAnim && <Lottie animationData={hoshiAnim} loop={true} className="w-full h-full drop-shadow-2xl" />}
             </div>
@@ -921,7 +921,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         </div>
 
         {/* Concept Card (Responsive Positioning) */}
-        <div className="relative z-10 scale-[1.0] origin-top mx-auto w-[90%] mt-[120px] max-h-[calc(100dvh-220px)] max-w-sm">
+        <div className="relative z-10 scale-[1.0] origin-top mx-auto w-[90%] mt-[105px] max-h-[calc(100dvh-245px)] max-w-sm">
           <div className="h-full w-full bg-white rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.4)] flex flex-col overflow-hidden border border-white/50">
             {/* Card Header */}
             <div className="p-4 px-6 flex items-center justify-start gap-4 flex-shrink-0">
@@ -932,14 +932,14 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
                   className="w-full h-full object-contain"
                 />
               </div>
-              <span className="text-[26px] font-black text-blue-900 uppercase tracking-tight">MCQ</span>
+              <span className="text-[22px] font-black text-blue-900 uppercase tracking-tight">MCQ</span>
             </div>
 
             {/* Card Scrollable Content */}
-            <div className="flex-1 p-6 pt-0 flex flex-col items-center no-scrollbar">
+            <div className="flex-1 p-5 pt-0 flex flex-col items-center no-scrollbar">
               {/* Text above images - Enlarged and Centered */}
               <div 
-                className="text-[18px] font-black text-gray-800 text-center leading-snug w-full mb-6"
+                className="text-[16px] font-black text-gray-800 text-center leading-snug w-full mb-4"
                 dangerouslySetInnerHTML={{ __html: String(item.question || '') }}
               />
 
@@ -973,7 +973,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
                   const isCorrectOption = String(opt).trim().toLowerCase() === item.answer.trim().toLowerCase();
                   const isImageUrl = typeof opt === 'string' && (opt.startsWith('http') || opt.startsWith('https'));
 
-                  let btnClass = "w-full p-4 rounded-3xl border-2 text-center transition-all duration-200 text-[18px] font-black tracking-wide flex items-center justify-center min-h-[64px] ";
+                  let btnClass = "w-full p-3.5 rounded-3xl border-2 text-center transition-all duration-200 text-[16px] font-black tracking-wide flex items-center justify-center min-h-[56px] ";
                   
                   if (showResult) {
                     if (isSelected) {
@@ -1012,11 +1012,11 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         </div>
 
         {/* Floating Bottom Button (End of Content) */}
-        <div className="absolute bottom-6 left-0 right-0 px-10 z-20">
+        <div className="absolute bottom-4 left-0 right-0 px-10 z-20">
           <button
             onClick={() => showResult ? handleNext() : () => {}}
             disabled={!showResult}
-            className={`w-full py-5 rounded-[24px] font-black text-2xl tracking-wide shadow-[0_8px_0_0_#4a3fcc] active:shadow-none active:translate-y-2 transition-all uppercase ${!showResult ? 'bg-gray-400 text-gray-200 shadow-none' : 'bg-[#6d5dfc] text-white'}`}
+            className={`w-full py-4 rounded-[24px] font-black text-xl tracking-wide shadow-[0_6px_0_0_#4a3fcc] active:shadow-none active:translate-y-2 transition-all uppercase ${!showResult ? 'bg-gray-400 text-gray-200 shadow-none' : 'bg-[#6d5dfc] text-white'}`}
           >
             {showResult ? 'Continue' : 'Pick an answer'}
           </button>

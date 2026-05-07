@@ -706,8 +706,8 @@ export default function ConceptPage() {
         </div>
 
         {/* Mascot Section */}
-        <div className="absolute top-[-30px] left-0 right-0 flex justify-center z-0 pointer-events-none">
-          <div className="relative w-full max-w-sm flex items-center justify-center px-4 scale-[0.9]">
+        <div className="absolute top-[-45px] left-0 right-0 flex justify-center z-0 pointer-events-none">
+          <div className="relative w-full max-sm flex items-center justify-center px-4 scale-[0.8]">
             {/* Hoshi Lottie - Shifted right by 5% relative to previous position */}
             <div className="w-64 h-64 -ml-10 -mb-16 opacity-100">
               {hoshiAnim && <Lottie animationData={hoshiAnim} loop={true} className="w-full h-full drop-shadow-2xl" />}
@@ -721,7 +721,7 @@ export default function ConceptPage() {
         </div>
 
         {/* Concept Card (Responsive Positioning) */}
-        <div className={`relative z-10 scale-[1.0] origin-top mx-auto w-[90%] mt-[120px] max-h-[calc(100dvh-220px)] ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'max-w-md' : 'max-w-sm'}`}>
+        <div className={`relative z-10 scale-[1.0] origin-top mx-auto w-[90%] mt-[105px] max-h-[calc(100dvh-245px)] ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'max-w-md' : 'max-w-sm'}`}>
           <div className={`h-full w-full flex flex-col overflow-hidden ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'bg-transparent shadow-none border-none' : 'bg-white rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.4)] border border-white/50'}`}>
             {/* Card Header */}
             {!((itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic')) && (
@@ -733,14 +733,14 @@ export default function ConceptPage() {
                     className="w-full h-full object-contain"
                   />
                 </div>
-                <span className="text-[26px] font-black text-blue-900 uppercase tracking-tight">
+                <span className="text-[22px] font-black text-blue-900 uppercase tracking-tight">
                   {shouldShowComic || item?.type === 'comic' ? 'Comic' : (actualType === 'video' || itemVideoUrl ? 'Video' : 'Concept')}
                 </span>
               </div>
             )}
 
             {/* Card Content */}
-            <div className={`flex-1 ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'p-0' : 'p-6 pt-0'} flex flex-col items-center no-scrollbar`}>
+            <div className={`flex-1 ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'p-0' : 'p-5 pt-0'} flex flex-col items-center no-scrollbar`}>
               {shouldShowComic ? (
                 <div className="relative w-full h-full flex items-center justify-center">
                   <div className="relative w-full h-full max-h-[calc(100vh-210px)] rounded-3xl overflow-hidden bg-transparent flex flex-col items-center justify-center p-1 sm:p-2">
@@ -778,7 +778,7 @@ export default function ConceptPage() {
                 <>
                   {/* Text above images - Enlarged and Centered */}
                   <div 
-                    className="text-[18px] font-black text-gray-800 text-center leading-snug w-full mb-6"
+                    className="text-[16px] font-black text-gray-800 text-center leading-snug w-full mb-4"
                     dangerouslySetInnerHTML={{ __html: String(item.text || item.content || '') }}
                   />
 
@@ -812,7 +812,7 @@ export default function ConceptPage() {
 
 
         {/* Floating Bottom Button - No background container, just the button on starry bg */}
-        <div className="absolute bottom-6 left-0 right-0 px-10 z-20">
+        <div className="absolute bottom-4 left-0 right-0 px-10 z-20">
           <button
             onClick={() => {
               if (shouldShowComic) {
@@ -830,8 +830,8 @@ export default function ConceptPage() {
               }
             }}
             disabled={isComicActive && comicReadTimer > 0}
-            className={`w-full py-5 rounded-[24px] font-black text-2xl tracking-wide shadow-[0_8px_0_0_#4a3fcc] active:shadow-none active:translate-y-2 transition-all uppercase ${isComicActive && comicReadTimer > 0
-                ? 'bg-gray-400 text-gray-200 shadow-[0_8px_0_0_#4b5563]'
+            className={`w-full py-4 rounded-[24px] font-black text-xl tracking-wide shadow-[0_6px_0_0_#4a3fcc] active:shadow-none active:translate-y-2 transition-all uppercase ${isComicActive && comicReadTimer > 0
+                ? 'bg-gray-400 text-gray-200 shadow-[0_6px_0_0_#4b5563]'
                 : 'bg-[#6d5dfc] text-white'
               }`}
           >
