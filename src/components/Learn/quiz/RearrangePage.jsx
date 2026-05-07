@@ -514,7 +514,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
       playWrongSound();
       // Immediate feedback and enqueue for review
       setShowTryAgainOption(false);
-      setShowIncorrectModal(true);
+      // setShowIncorrectModal(true); // Modal disabled per user request
       if (isFirstAttempt && !actualReviewMode) {
         const qid = `${moduleNumber}_${index}_rearrange`;
         const type = isRevisionModeFromUrl ? 'revision' : 'curriculum';
@@ -962,14 +962,56 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
         </div>
 
         {/* Floating Bottom Button (End of Content) */}
-        <div className="absolute bottom-4 left-0 right-0 px-10 z-20">
-          <button
-            onClick={() => showResult ? handleNext() : handleSubmit()}
-            className="w-full py-4 rounded-[24px] bg-[#6d5dfc] text-white font-black text-xl tracking-wide shadow-[0_6px_0_0_#4a3fcc] active:shadow-none active:translate-y-2 transition-all uppercase"
-          >
-            {showResult ? 'Continue' : 'Check'}
-          </button>
-        </div>
+        {!showResult && (
+          <div className="absolute bottom-4 left-0 right-0 px-10 z-20">
+            <button
+              onClick={() => handleSubmit()}
+              className="w-full py-4 rounded-[24px] bg-[#6d5dfc] text-white font-black text-xl tracking-wide shadow-[0_6px_0_0_#4a3fcc] active:shadow-none active:translate-y-2 transition-all uppercase"
+            >
+              Check
+            </button>
+          </div>
+        )}
+
+        {/* Duolingo Style Feedback Bar for Mobile - Refined Classy Theme */}
+        {showResult && !actualReviewMode && (
+          <div className={`fixed left-0 right-0 bottom-0 z-[100] animate-in slide-in-from-bottom duration-300 pb-safe shadow-[0_-15px_50px_rgba(0,0,0,0.25)] ${
+            isCorrect ? 'bg-[#d7ffb8]' : 'bg-[#1a2b3c]'
+          }`}>
+            <div className="max-w-sm mx-auto px-6 py-8 flex flex-col gap-6">
+              <div className="flex items-center gap-5">
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-inner ${
+                  isCorrect ? 'bg-white text-[#58a700]' : 'bg-[#ff4b4b] text-white'
+                }`}>
+                  <span className="text-3xl">{isCorrect ? '✓' : '✕'}</span>
+                </div>
+                <div className="flex flex-col">
+                  <p className={`text-[22px] font-black tracking-tight leading-tight ${
+                    isCorrect ? 'text-[#58a700]' : 'text-[#ff4b4b]'
+                  }`}>
+                    {isCorrect ? 'You are correct!' : 'Correct solution:'}
+                  </p>
+                  {!isCorrect && (
+                    <p className="text-[19px] font-bold text-white mt-1 opacity-90">
+                      {Array.isArray(item?.answer) ? item?.answer[0] : item?.answer}
+                    </p>
+                  )}
+                </div>
+              </div>
+              
+              <button
+                onClick={isCorrect ? handleNext : handleTryAgain}
+                className={`w-full py-4 rounded-[20px] text-[19px] font-black tracking-widest shadow-[0_5px_0_rgba(0,0,0,0.2)] transform active:translate-y-1 active:shadow-none transition-all uppercase ${
+                  isCorrect 
+                    ? 'bg-[#58cc02] text-white hover:bg-[#61e002]' 
+                    : 'bg-[#ff4b4b] text-white hover:bg-[#ff5f5f]'
+                }`}
+              >
+                CONTINUE
+              </button>
+            </div>
+          </div>
+        )}
 
         {showExitConfirm && (
           <div className="fixed inset-0 z-[9999]">
@@ -980,7 +1022,6 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
                 const unitId = urlParams.get('unitId');
                 const params = new URLSearchParams();
                 if (chapterId) params.set('chapterId', chapterId);
-                if (unitId) params.set('unitId', unitId);
                 const query = params.toString();
                 navigate(`/learn${query ? '?' + query : ''}`);
               }}
@@ -988,17 +1029,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
             />
           </div>
         )}
-
-        <IncorrectAnswerModal 
-          isOpen={showIncorrectModal}
-          onClose={() => {}}
-          onTryAgain={handleModalTryAgain}
-          onContinue={() => handleNext(true)}
-          showContinueButton={false}
-          showTryAgainButton={true}
-          incorrectText={arrangedWords.join(' ')}
-          correctAnswer={Array.isArray(item?.answer) ? item?.answer[0] : item?.answer}
-        />
+        {/* Modal removed */}
       </div>
     );
   }
@@ -1153,44 +1184,42 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
         </div>
       )}
 
-      {/* Inline feedback bar - show for both correct and incorrect results */}
+      {/* Inline feedback bar - Duolingo Style (Refined Classy Theme) */}
       {showResult && !actualReviewMode && (
-        <div className={`fixed left-0 right-0 bottom-0 z-50 border-t-4 shadow-2xl ${
-          isCorrect ? 'bg-green-50 border-green-400' : 'bg-red-50 border-red-400'
+        <div className={`fixed left-0 right-0 bottom-0 z-[100] animate-in slide-in-from-bottom duration-300 pb-safe shadow-[0_-15px_50px_rgba(0,0,0,0.25)] ${
+          isCorrect ? 'bg-[#d7ffb8]' : 'bg-[#1a2b3c]'
         }`}>
-          <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isCorrect ? 'bg-green-100' : 'bg-red-100'}`}>
-                <span className="text-2xl">{isCorrect ? '✨' : '✖️'}</span>
+          <div className="max-w-sm mx-auto px-6 py-8 flex flex-col gap-6">
+            <div className="flex items-center gap-5">
+              <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-inner ${
+                isCorrect ? 'bg-white text-[#58a700]' : 'bg-[#ff4b4b] text-white'
+              }`}>
+                <span className="text-3xl">{isCorrect ? '✓' : '✕'}</span>
               </div>
-              <div>
-                <p className={`text-xl font-black ${isCorrect ? 'text-green-800' : 'text-red-800'}`}>
-                  {isCorrect ? 'Great job!' : 'Not quite right'}
+              <div className="flex flex-col">
+                <p className={`text-[22px] font-black tracking-tight leading-tight ${
+                  isCorrect ? 'text-[#58a700]' : 'text-[#ff4b4b]'
+                }`}>
+                  {isCorrect ? 'You are correct!' : 'Correct solution:'}
                 </p>
                 {!isCorrect && (
-                  <p className="text-sm font-bold text-red-600">
-                    Correct: {Array.isArray(item?.answer) ? item?.answer[0] : item?.answer}
+                  <p className="text-[19px] font-bold text-white mt-1 opacity-90">
+                    {Array.isArray(item?.answer) ? item?.answer[0] : item?.answer}
                   </p>
                 )}
               </div>
             </div>
-            <div className="flex gap-3">
-              {!isCorrect ? (
-                <button
-                  onClick={handleTryAgain}
-                  className="px-6 py-3 rounded-2xl text-white font-extrabold text-lg bg-red-600 hover:bg-red-700 transition-colors shadow-lg"
-                >
-                  Try Again
-                </button>
-              ) : (
-                <button
-                  onClick={handleNext}
-                  className="px-8 py-3 rounded-2xl text-white font-extrabold text-xl bg-green-600 hover:bg-green-700 transition-colors shadow-lg"
-                >
-                  Continue
-                </button>
-              )}
-            </div>
+            
+            <button
+              onClick={isCorrect ? handleNext : handleTryAgain}
+              className={`w-full py-4 rounded-[20px] text-[19px] font-black tracking-widest shadow-[0_5px_0_rgba(0,0,0,0.2)] transform active:translate-y-1 active:shadow-none transition-all uppercase ${
+                isCorrect 
+                  ? 'bg-[#58cc02] text-white hover:bg-[#61e002]' 
+                  : 'bg-[#ff4b4b] text-white hover:bg-[#ff5f5f]'
+              }`}
+            >
+              CONTINUE
+            </button>
           </div>
         </div>
       )}
