@@ -710,7 +710,14 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
     handleNext();
   };
 
-  const handleTryAgain = () => {};
+  const handleTryAgain = () => {
+    setShowResult(false);
+    setIsCorrect(false);
+    setHasAnsweredCorrectly(false);
+    // Reshuffle and return arranged words to pool
+    setAvailableWords(prev => [...prev, ...arrangedWords].sort(() => Math.random() - 0.5));
+    setArrangedWords([]);
+  };
 
   const handleTryAgainClose = () => {
     setShowTryAgainModal(false);
@@ -1116,7 +1123,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
                     draggable
                     onDragStart={(e) => handleDragStart(e, word, 'arranged', idx)}
                     data-index={idx}
-                    className={`px-3 py-2 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl border-2 font-semibold transition-all text-sm sm:text-base ${
+                    className={`px-3 py-2 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl border-2 font-semibold transition-all text-sm sm:text-base break-words whitespace-normal max-w-full ${
                       showResult
                         ? isCorrect
                           ? 'bg-green-500 border-green-500 text-white'
@@ -1140,10 +1147,8 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
                   ↻
                 </button>
               )}
-            </div>
-
-            {/* Word bank and Check button on the right column */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3 mt-4 sm:mt-6 md:mt-8">
+              {/* Word bank and Check button on the right column */}
+            <div className="flex flex-wrap gap-2 sm:gap-3 mt-4 sm:mt-6 md:mt-8 justify-center lg:justify-start">
               {availableWords.length > 0 ? (
                 availableWords.map((word, idx) => (
                   <button
@@ -1152,7 +1157,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
                     draggable
                     onDragStart={(e) => handleDragStart(e, word, 'available', idx)}
                     disabled={showResult}
-                    className={`p-2 sm:p-3 rounded-lg sm:rounded-xl border-2 font-semibold transition-all text-sm sm:text-base ${
+                    className={`p-2 sm:p-3 rounded-lg sm:rounded-xl border-2 font-semibold transition-all text-sm sm:text-base break-words whitespace-normal max-w-full ${
                       showResult
                         ? 'bg-gray-100 border-gray-300 text-gray-500 cursor-not-allowed'
                         : 'bg-white border-gray-300 text-gray-700 hover:border-blue-400 hover:scale-105 cursor-move'
@@ -1161,11 +1166,8 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
                     {word}
                   </button>
                 ))
-              ) : (
-                <div className="col-span-full text-center text-gray-500 py-6">No words available.</div>
               )}
             </div>
-
           </div>
         </div>
       </div>
@@ -1218,7 +1220,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
                   : 'bg-[#ff4b4b] text-white hover:bg-[#ff5f5f]'
               }`}
             >
-              CONTINUE
+              {isCorrect ? 'CONTINUE' : 'TRY AGAIN'}
             </button>
           </div>
         </div>

@@ -541,7 +541,12 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       expected: item.answer
     });
   }
-
+  const handleTryAgain = () => {
+    setShowResult(false);
+    setSelectedIndex(null);
+    setIsCorrect(false);
+    setHasAnsweredCorrectly(false);
+  };
   async function handleNext(force = false) {
     console.log('[MCQ] handleNext called', { force, hasAnsweredCorrectly, isCorrect });
     // Allow forced advance (from incorrect modal). Otherwise require correct.
@@ -1323,7 +1328,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
                   : 'bg-[#ff4b4b] text-white hover:bg-[#ff5f5f]'
               }`}
             >
-              CONTINUE
+              {isCorrect ? 'CONTINUE' : 'TRY AGAIN'}
             </button>
           </div>
         </div>
