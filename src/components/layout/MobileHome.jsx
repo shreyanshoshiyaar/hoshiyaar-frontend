@@ -152,6 +152,8 @@ const MobileHome = ({
                 >
                   <source src="https://res.cloudinary.com/dcxlzfyfp/video/upload/v1777997560/video/mission_v1.mp4" type="video/mp4" />
                 </video>
+                {/* Dark overlay to make text pop if needed */}
+                <div className="absolute inset-0 bg-black/5"></div>
               </div>
 
               {/* Mute Toggle Overlay */}
@@ -275,16 +277,16 @@ const MobileHome = ({
 
 
         {/* Sticky Bottom CTA (X-Large Text) */}
-        <div className="fixed bottom-[80px] left-0 right-0 px-10 z-[100] pb-2 pointer-events-none">
+        <div className="fixed bottom-[80px] left-0 right-0 px-10 z-[100] pb-2 pt-3 bg-gradient-to-t from-[#F0F6FF] via-[#F0F6FF]/90 to-transparent pointer-events-none">
           <button
             onClick={onNavigateToPractice}
-            className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-black text-[15px] shadow-lg active:scale-95 transition-all pointer-events-auto flex items-center justify-center gap-3"
+            className="w-full py-2.5 bg-[#FFC107] hover:bg-[#FFD54F] text-gray-900 rounded-full font-black text-[14px] shadow-[0_4px_0_0_#F57F17] active:translate-y-1 active:shadow-none flex items-center justify-center gap-2 transition-all pointer-events-auto group"
           >
-            <div className="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-               <span className="text-white text-[12px] ml-0.5">▶</span>
+            <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform shrink-0">
+               <span className="text-[#2563EB] text-[10px] ml-0.5">▶</span>
             </div>
             Continue Adventure
-            <span className="ml-1 text-[18px] font-bold">›</span>
+            <span className="ml-1 text-[17px] font-bold">›</span>
           </button>
         </div>
       </div>
