@@ -821,9 +821,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
         )}
       </div>
     );
-  }
-
-  if (isMobile) {
+  }  if (isMobile) {
     return (
       <div className="h-[100dvh] w-full relative overflow-hidden bg-gradient-to-b from-[#4138a3] to-[#7b5ef0]">
         {/* Background Starry Lottie */}
@@ -883,9 +881,9 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
           </div>
         </div>
 
-        {/* Mascot Section */}
-        <div className="absolute top-[-45px] left-0 right-0 flex justify-center z-0 pointer-events-none">
-          <div className="relative w-full max-sm flex items-center justify-center px-4 scale-[0.75]">
+        {/* Mascot Section - Positioned to sit on top of the panel */}
+        <div className="absolute top-[-30px] left-0 right-0 flex justify-center z-0 pointer-events-none">
+          <div className="relative w-full max-sm flex items-center justify-center px-4 scale-[0.65]">
             <div className="w-64 h-64 -ml-10 -mb-16 opacity-100">
               {hoshiAnim && <Lottie animationData={hoshiAnim} loop={true} className="w-full h-full drop-shadow-2xl" />}
             </div>
@@ -895,51 +893,27 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
           </div>
         </div>
 
-        {/* Concept Card (Responsive Positioning) */}
-        <div className="relative z-10 scale-[1.0] origin-top mx-auto w-[90%] mt-[165px] h-[calc(100dvh-250px)] max-w-sm">
-          <div className="h-full w-full bg-white rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.4)] flex flex-col overflow-hidden border border-white/50">
-            {/* Removed Header for more space */}
-
-            {/* Card Content (Internal scroll enabled for Rearrange) */}
-            <div className="flex-1 p-8 pt-6 flex flex-col items-center overflow-y-auto no-scrollbar">
-              {/* Text above images - Enlarged and Centered */}
-              <div 
-                className="text-[16px] font-black text-gray-800 text-center leading-snug w-full mb-4"
-                dangerouslySetInnerHTML={{ __html: String(item.question || '') }}
-              />
-
-              {(() => {
-                const imgs = (item.images || []).filter(Boolean);
-                const primary = item.imageUrl ? [item.imageUrl] : [];
-                const list = imgs.length > 0 ? imgs : primary;
-                if (list.length === 0) return null;
-
-                return (
-                  <div className="w-full max-w-xl mb-4 flex justify-center">
-                    <div className="flex flex-wrap justify-center gap-2">
-                      {list.slice(0, 5).map((src, i) => (
-                        <div key={i} className="border border-blue-300 rounded-xl sm:rounded-2xl p-1 bg-white shadow-sm">
-                          <img src={src} alt={`rearrange-${i}`} className="h-28 w-20 object-contain rounded-lg sm:rounded-xl" />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })()}
+        {/* Minimal Bottom Panel */}
+        <div className="absolute bottom-0 left-0 right-0 h-[calc(100dvh-165px)] bg-white rounded-t-[40px] shadow-[0_-20px_50px_rgba(0,0,0,0.15)] z-10 flex flex-col overflow-hidden border-t border-white/50">
+          <div className="flex-1 overflow-y-auto no-scrollbar p-6 pt-10 pb-24">
+            <div className="w-full max-w-md mx-auto">
+              <h2 className="text-xl font-black text-gray-800 text-center leading-tight mb-6">
+                {item.question}
+              </h2>
 
               {/* Arranged Words Area */}
-              <div className="w-full relative bg-gray-50 border-2 border-dashed border-gray-300 rounded-3xl p-4 min-h-[90px] mb-4 flex flex-wrap gap-2 content-start">
+              <div className="w-full relative bg-gray-50 border-2 border-dashed border-gray-200 rounded-[24px] p-4 min-h-[100px] mb-6 flex flex-wrap gap-2 content-start shadow-inner">
                 {arrangedWords.map((word, idx) => (
                   <button
                     key={`arranged-${word}-${idx}`}
                     onClick={() => handleWordClick(word, 'arranged', idx)}
                     disabled={showResult}
-                    className={`px-4 py-2 rounded-xl border-2 font-black text-[16px] tracking-wide transition-all ${
+                    className={`px-4 py-2 rounded-xl border-2 font-black text-base tracking-wide transition-all ${
                       showResult
                         ? isCorrect
                           ? 'bg-green-100 border-green-500 text-green-800'
                           : 'bg-red-100 border-red-500 text-red-800'
-                        : 'bg-white border-gray-300 text-blue-900 active:scale-95'
+                        : 'bg-white border-gray-300 text-blue-900 active:scale-95 shadow-sm'
                     }`}
                   >
                     {word}
@@ -948,7 +922,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
                 {!showResult && arrangedWords.length > 0 && (
                   <button
                     onClick={handleResetWords}
-                    className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center font-black active:scale-95 transition-all"
+                    className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center font-black active:scale-95 transition-all shadow-md"
                   >
                     ↻
                   </button>
@@ -962,7 +936,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
                     key={`available-${word}-${idx}`}
                     onClick={() => handleWordClick(word, 'available', idx)}
                     disabled={showResult}
-                    className="px-4 py-2 rounded-xl border-2 bg-white border-gray-300 text-blue-900 font-black text-[16px] tracking-wide active:border-blue-500 active:scale-95 transition-all"
+                    className="px-4 py-2 rounded-xl border-2 bg-white border-gray-200 text-blue-900 font-black text-base tracking-wide active:border-[#6d5dfc] active:scale-95 transition-all shadow-sm"
                   >
                     {word}
                   </button>
@@ -970,59 +944,50 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Floating Bottom Button (End of Content) */}
-        {!showResult && (
-          <div className="absolute bottom-3 left-0 right-0 px-12 z-20">
-            <button
-              onClick={() => handleSubmit()}
-              className="w-full py-2.5 rounded-[20px] bg-[#6d5dfc] text-white font-black text-lg tracking-wide shadow-[0_4px_0_0_#4a3fcc] active:shadow-none active:translate-y-1 transition-all uppercase"
-            >
-              Check
-            </button>
-          </div>
-        )}
-
-        {/* Duolingo Style Feedback Bar for Mobile - Refined Classy Theme */}
-        {showResult && !actualReviewMode && (
-          <div className={`fixed left-0 right-0 bottom-0 z-[100] animate-in slide-in-from-bottom duration-300 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.2)] ${
-            isCorrect ? 'bg-[#d7ffb8]' : 'bg-[#1a2b3c]'
-          }`}>
-            <div className="max-w-sm mx-auto px-6 py-4 flex flex-col gap-3">
-              <div className="flex items-center gap-4">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-inner ${
-                  isCorrect ? 'bg-white text-[#58a700]' : 'bg-[#ff4b4b] text-white'
-                }`}>
-                  <span className="text-xl">{isCorrect ? '✓' : '✕'}</span>
-                </div>
-                <div className="flex flex-col">
-                  <p className={`text-[18px] font-black tracking-tight leading-tight ${
-                    isCorrect ? 'text-[#58a700]' : 'text-[#ff4b4b]'
-                  }`}>
-                    {isCorrect ? 'You are correct!' : 'Correct solution:'}
-                  </p>
-                  {!isCorrect && (
-                    <p className="text-[15px] font-bold text-white mt-0.5 opacity-90">
-                      {Array.isArray(item?.answer) ? item?.answer[0] : item?.answer}
-                    </p>
-                  )}
-                </div>
-              </div>
-              
+          {/* Action Button Section - Fixed at bottom of panel */}
+          {!showResult && (
+            <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white via-white to-transparent pt-10">
               <button
-                onClick={isCorrect ? handleNext : handleTryAgain}
-                className={`w-full py-3 rounded-[16px] text-[16px] font-black tracking-widest shadow-[0_4px_0_rgba(0,0,0,0.2)] transform active:translate-y-1 active:shadow-none transition-all uppercase ${
-                  isCorrect 
-                    ? 'bg-[#58cc02] text-white hover:bg-[#61e002]' 
-                    : 'bg-[#ff4b4b] text-white hover:bg-[#ff5f5f]'
-                }`}
+                onClick={() => handleSubmit()}
+                className="w-full py-4 rounded-[24px] font-black text-xl tracking-wide shadow-[0_6px_0_0_#4a3fcc] active:shadow-none active:translate-y-2 transition-all uppercase bg-[#6d5dfc] text-white"
               >
-                CONTINUE
+                Check
               </button>
             </div>
-          </div>
-        )}
+          )}
+
+          {/* Feedback Section - Fixed at bottom of panel */}
+          {showResult && (
+            <div className={`absolute bottom-0 left-0 right-0 p-6 pt-10 bg-gradient-to-t via-white to-transparent ${isCorrect ? 'from-[#d7ffb8]' : 'from-[#1a2b3c]'}`}>
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isCorrect ? 'bg-white text-green-600' : 'bg-red-500 text-white'}`}>
+                    <span className="text-xl font-bold">{isCorrect ? '✓' : '✕'}</span>
+                  </div>
+                  <div>
+                    <p className={`text-lg font-black ${isCorrect ? 'text-green-700' : 'text-red-500'}`}>
+                      {isCorrect ? 'Correct!' : 'Incorrect'}
+                    </p>
+                    {!isCorrect && (
+                      <p className="text-white text-sm font-bold opacity-80 line-clamp-2">
+                        {Array.isArray(item?.answer) ? item?.answer[0] : item?.answer}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <button
+                  onClick={isCorrect ? handleNext : handleTryAgain}
+                  className={`w-full py-4 rounded-[24px] font-black text-xl tracking-wide shadow-[0_6px_0_0_rgba(0,0,0,0.2)] active:shadow-none active:translate-y-2 transition-all uppercase ${
+                    isCorrect ? 'bg-[#58cc02] text-white' : 'bg-[#ff4b4b] text-white'
+                  }`}
+                >
+                  {isCorrect ? 'CONTINUE' : 'TRY AGAIN'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
         {showExitConfirm && (
           <div className="fixed inset-0 z-[9999]">
@@ -1033,6 +998,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
                 const unitId = urlParams.get('unitId');
                 const params = new URLSearchParams();
                 if (chapterId) params.set('chapterId', chapterId);
+                if (unitId) params.set('unitId', unitId);
                 const query = params.toString();
                 navigate(`/learn${query ? '?' + query : ''}`);
               }}
@@ -1040,7 +1006,6 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
             />
           </div>
         )}
-        {/* Modal removed */}
       </div>
     );
   }
