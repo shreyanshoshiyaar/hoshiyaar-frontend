@@ -151,9 +151,10 @@ const LessonComplete = () => {
   return (
     <div className="h-screen bg-white relative flex flex-col items-center justify-between px-6 sm:px-10 md:px-12 py-4 text-center overflow-hidden">
       
+      {/* Force success screen - Re-attempt disabled per user request */}
+      {/* 
       {hasItems ? (
         <>
-          {/* Character + speech bubble */}
           <div className="mt-6 w-full max-w-3xl flex flex-col items-center">
             <img src={reattemptImg} alt="Reattempt" className="w-56 h-56 md:w-64 md:h-64 object-contain select-none" />
             <p className="mt-4 text-2xl md:text-4xl text-gray-900 font-extrabold">Let's correct the exercises you missed!</p>
@@ -168,6 +169,7 @@ const LessonComplete = () => {
           </div>
         </>
       ) : (
+      */}
         <>
           {/* Finish character above sentence (Duolingo-style) */}
           <img src={finishImg} alt="Finish" className="max-h-[28vh] w-auto object-contain select-none mt-2" />
@@ -202,7 +204,8 @@ const LessonComplete = () => {
             <button onClick={handleContinue} className="py-4 px-6 rounded-2xl bg-blue-600 text-white font-extrabold text-xl hover:bg-blue-700 transition-colors shadow-[0_6px_0_0_rgba(0,0,0,0.15)] whitespace-nowrap">Continue Learning</button>
           </div>
         </>
-      )}
+      {/* ) */}
+      {/* } */}
     </div>
   );
 };

@@ -28,7 +28,7 @@ const MobileLeaderboard = ({
   return (
     <div className="fixed inset-0 bg-white overflow-y-auto no-scrollbar pb-32">
       {/* 1. Hero Section - Today's Rank Booster */}
-      <div className="relative bg-[#F3E8FF] pt-2 pb-6 px-6 overflow-hidden">
+      <div className="relative bg-[#F3E8FF] pt-2 pb-2 px-6 overflow-hidden">
         {/* Transparent Header Inside Hero */}
         <div className="flex items-center justify-between w-full z-20 mb-[26px] mt-1">
           <div className="flex items-center">
@@ -51,7 +51,7 @@ const MobileLeaderboard = ({
         
         <div className="flex items-center gap-4 relative z-10">
           {/* Character */}
-          <div className="w-28 h-28 relative flex-shrink-0">
+          <div className="w-20 h-20 relative flex-shrink-0">
              <img 
                src={heroChar} 
                className="w-full h-full object-contain drop-shadow-xl scale-125 origin-bottom" 
@@ -61,7 +61,7 @@ const MobileLeaderboard = ({
           </div>
 
           <div className="flex flex-col">
-            <h1 className="text-[18px] font-black text-[#5829D1] leading-tight mb-0.5">Today's Rank Booster</h1>
+            <h1 className="text-[16px] font-black text-[#5829D1] leading-tight mb-0.5">Today's Rank Booster</h1>
             <p className="text-[11px] font-bold text-gray-500 mb-2 leading-tight">
               Complete 3 science quests and earn <span className="text-[#5829D1] font-extrabold">+150 XP</span>
             </p>
@@ -182,9 +182,7 @@ const MobileLeaderboard = ({
           >
             📅 Week
           </button>
-          <button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black bg-gray-100 text-gray-500">
-            📅 Month
-          </button>
+          {/* Month removed */}
           <button 
              onClick={() => setLeaderboardTimeframe('total')}
              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black transition-all ${leaderboardTimeframe === 'total' ? 'bg-[#2563EB] text-white shadow-md' : 'bg-gray-100 text-gray-500'}`}
@@ -248,16 +246,16 @@ const MobileLeaderboard = ({
       </div>
 
       {/* 4. Sticky Footer CTA */}
-      <div className="fixed bottom-[80px] left-0 right-0 px-5 pb-4 bg-gradient-to-t from-white via-white/95 to-transparent pointer-events-none z-[100]">
+      <div className="fixed bottom-[80px] left-0 right-0 px-10 pb-4 bg-gradient-to-t from-white via-white/95 to-transparent pointer-events-none z-[100]">
         <button 
           onClick={onNavigateToPractice}
-          className="w-full py-4 bg-[#FFC107] hover:bg-[#FFD54F] text-gray-900 rounded-full font-black text-[18px] shadow-[0_5px_0_0_#F57F17] active:translate-y-1 active:shadow-none flex items-center justify-center gap-3 transition-all pointer-events-auto group"
+          className="w-full py-2.5 bg-[#FFC107] hover:bg-[#FFD54F] text-gray-900 rounded-full font-black text-[14px] shadow-[0_4px_0_0_#F57F17] active:translate-y-1 active:shadow-none flex items-center justify-center gap-2 transition-all pointer-events-auto group"
         >
-          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-             <span className="text-[#2563EB] text-lg ml-0.5">▶</span>
+          <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform shrink-0">
+             <span className="text-[#2563EB] text-[10px] ml-0.5">▶</span>
           </div>
           Continue Your Adventure
-          <span className="text-xl font-bold ml-1">›</span>
+          <span className="text-lg font-bold ml-1">›</span>
         </button>
       </div>
     </div>

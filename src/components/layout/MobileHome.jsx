@@ -32,6 +32,8 @@ const MobileHome = ({
   const userIndex = leaderboardData?.findIndex(d => d.username === user?.username || d.userId === user?._id);
   const myRank = userIndex !== -1 ? userIndex + 1 : '-';
   const myStreak = localStorage.getItem('daily_streak_count') || user?.streak || 0;
+  const [isMuted, setIsMuted] = React.useState(true);
+  const videoRef = React.useRef(null);
 
   // Prepare leaderboard subset (1 above, self, 1 below)
   const lbItems = React.useMemo(() => {
@@ -74,11 +76,7 @@ const MobileHome = ({
               className="h-12 w-auto drop-shadow-sm" 
             />
           </div>
-          <button className="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-blue-500 shadow-sm border border-blue-100 relative">
-            <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-              <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z" />
-            </svg>
-          </button>
+          <div className="w-10 h-10"></div> {/* Bell icon removed */}
         </div>
 
         {/* Hero Section (Responsive & Immersive) */}
@@ -141,11 +139,42 @@ const MobileHome = ({
               <span className="mr-1 text-yellow-300 text-[11px]">⭐</span> TODAY'S MISSION <span className="ml-1 text-yellow-300 text-[11px]">⭐</span>
             </div>
 
-            <div className="bg-white rounded-[28px] p-4 flex-1 flex flex-col items-center justify-center relative shadow-inner">
-              {/* Panel space blank per request */}
-              <div className="flex flex-col items-center opacity-10">
-                <div className="text-5xl mb-4">🚀</div>
-                <div className="text-[9px] font-black uppercase tracking-widest text-blue-900">Next Mission Loading...</div>
+            <div className="bg-white rounded-[28px] overflow-hidden flex-1 flex flex-col items-center justify-center relative shadow-inner">
+              {/* Mission Video with Sound Toggle */}
+              <div className="absolute inset-0 z-0">
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  loop
+                  muted={isMuted}
+                  playsInline
+                  className="w-full h-full object-cover"
+                >
+                  <source src="https://res.cloudinary.com/dcxlzfyfp/video/upload/v1777997560/video/mission_v1.mp4" type="video/mp4" />
+                </video>
+                {/* Dark overlay to make text pop if needed */}
+                <div className="absolute inset-0 bg-black/5"></div>
+              </div>
+
+              {/* Mute Toggle Overlay */}
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsMuted(!isMuted);
+                }}
+                className="absolute top-2 right-2 z-20 w-8 h-8 bg-black/20 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/20 active:scale-90 transition-all"
+              >
+                <span className="text-xs">{isMuted ? '🔇' : '🔊'}</span>
+              </button>
+
+              {/* Character pointer - overlaid on video */}
+              <div className="absolute bottom-[-10px] right-[-10px] w-24 h-24 z-10 pointer-events-none">
+                <img src={heroChar} className="w-full h-full object-contain drop-shadow-lg" alt="Mission char" />
+              </div>
+
+              <div className="z-10 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full border border-white/50 shadow-sm mt-auto mb-3 flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-[10px] font-black text-blue-900 tracking-wider">LIVE MISSION</span>
               </div>
             </div>
           </div>
@@ -258,11 +287,14 @@ const MobileHome = ({
 
 
         {/* Sticky Bottom CTA (X-Large Text) */}
-        <div className="fixed bottom-[80px] left-0 right-0 px-5 z-[100] pb-2 pt-3 bg-gradient-to-t from-[#F0F6FF] via-[#F0F6FF]/90 to-transparent pointer-events-none">
+        <div className="fixed bottom-[80px] left-0 right-0 px-10 z-[100] pb-2 pt-3 bg-gradient-to-t from-[#F0F6FF] via-[#F0F6FF]/90 to-transparent pointer-events-none">
           <button
             onClick={onNavigateToPractice}
-            className="w-full py-3 bg-[#FFC107] hover:bg-[#FFD54F] text-gray-900 rounded-full font-black text-[15px] shadow-[0_4px_0_0_#F57F17] active:translate-y-1 active:shadow-[0_0px_0_0_#F57F17] flex items-center justify-center gap-2 transition-all pointer-events-auto"
+            className="w-full py-2.5 bg-[#FFC107] hover:bg-[#FFD54F] text-gray-900 rounded-full font-black text-[14px] shadow-[0_4px_0_0_#F57F17] active:translate-y-1 active:shadow-none flex items-center justify-center gap-2 transition-all pointer-events-auto group"
           >
+            <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform shrink-0">
+               <span className="text-[#2563EB] text-[10px] ml-0.5">▶</span>
+            </div>
             Continue Adventure
             <span className="ml-1 text-[17px] font-bold">›</span>
           </button>
