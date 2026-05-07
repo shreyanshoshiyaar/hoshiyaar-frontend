@@ -1058,7 +1058,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
           </button>
         )}
         <div className="flex-1 mx-1 sm:mx-2 md:mx-4">
-      <ProgressBar currentIndex={index} total={items.length} />
+          <ProgressBar currentIndex={index} total={items.length} />
         </div>
         <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
           {(user?.role === 'master' || user?.username === 'Host') && (
@@ -1070,7 +1070,6 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
             </button>
           )}
           
-          {/* Show flagged status */}
           {isFlagged && (
             <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-50 border border-green-200 text-green-700">
               <span className="text-lg">✅</span>
@@ -1085,7 +1084,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
       {/* Main Content - optimized for mobile with reduced spacing */}
       <div className="flex-1 w-full px-2 sm:px-4 md:px-6 max-w-6xl mx-auto overflow-y-auto pb-20 sm:pb-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 items-start mt-2 sm:mt-4 md:mt-6">
-          {/* Image (Left) - render uploaded images if available */}
+          {/* Image (Left) */}
           {(() => {
             const imgs = (item.images || []).filter(Boolean);
             const primary = item.imageUrl ? [item.imageUrl] : [];
@@ -1111,8 +1110,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
           {/* Question + Arranged (Right) */}
           <div className="flex flex-col">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-gray-900 mb-2 sm:mb-4 md:mb-6">{item.question}</h2>
-            {/* Removed dotted placeholder lines to declutter UI */}
-            {/* Arranged Words Area with in-box reset */}
+            
             <div className="relative w-full">
               <div
                 className={`w-full h-auto min-h-[120px] sm:min-h-[140px] border-2 border-dashed border-gray-300 rounded-[20px] sm:rounded-2xl p-3 sm:p-4 bg-gray-50 flex flex-wrap gap-2 items-start content-start ${isResetting ? 'transition-opacity opacity-50' : ''}`}
@@ -1139,6 +1137,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
                   </button>
                 ))}
               </div>
+              
               {!showResult && (
                 <button
                   onClick={handleResetWords}
@@ -1149,7 +1148,9 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
                   ↻
                 </button>
               )}
-            {/* Word bank and Check button on the right column */}
+            </div>
+
+            {/* Word bank */}
             <div className="flex flex-wrap gap-2 sm:gap-3 mt-4 sm:mt-6 md:mt-8 justify-center lg:justify-start w-full">
               {availableWords.length > 0 ? (
                 availableWords.map((word, idx) => (
@@ -1168,13 +1169,15 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
                     {word}
                   </button>
                 ))
+              ) : (
+                <div className="w-full text-center text-gray-500 py-6">No words available.</div>
               )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Sticky Check Button - Always visible at bottom when not showing result */}
+      {/* Sticky Check Button */}
       {!showResult && (
         <div className="fixed left-0 right-0 bottom-0 z-50 bg-white border-t-2 border-gray-200 shadow-lg">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
@@ -1188,7 +1191,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
         </div>
       )}
 
-      {/* Inline feedback bar - Duolingo Style (Refined Classy Theme) */}
+      {/* Inline feedback bar */}
       {showResult && (
         <div className={`fixed left-0 right-0 bottom-0 z-[100] animate-in slide-in-from-bottom duration-300 pb-safe shadow-[0_-15px_50px_rgba(0,0,0,0.25)] ${
           isCorrect ? 'bg-[#d7ffb8]' : 'bg-[#1a2b3c]'
@@ -1239,8 +1242,6 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
         </div>
       )}
 
-      {/* Modal disabled per user request */}
-
       {/* Exit confirmation overlay */}
       {showExitConfirm && (
         <div className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center">
@@ -1248,7 +1249,6 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
             <ConceptExitConfirm
               progress={Math.round(((index+1)/Math.max(1, items.length))*100)}
               onQuit={() => {
-                // Preserve chapterId from URL when navigating back
                 const urlParams = new URLSearchParams(window.location.search);
                 const chapterId = urlParams.get('chapterId');
                 const unitId = urlParams.get('unitId');
