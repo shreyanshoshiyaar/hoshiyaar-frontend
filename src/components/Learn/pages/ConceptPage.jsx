@@ -721,24 +721,12 @@ export default function ConceptPage() {
         </div>
 
         {/* Concept Card (Responsive Positioning) */}
-        <div className={`relative z-10 scale-[1.0] origin-top mx-auto w-[90%] mt-[165px] h-[calc(100dvh-305px)] ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'max-w-md' : 'max-w-sm'}`}>
-          <div className="h-full w-full flex flex-col overflow-hidden bg-white rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.4)] border border-white/50">
-            {/* Card Header */}
-            <div className="p-4 px-6 flex items-center justify-start gap-4 flex-shrink-0">
-              <div className="w-12 h-12 flex items-center justify-center flex-shrink-0 rounded-full border border-gray-100 shadow-sm p-2 bg-white overflow-hidden">
-                <img 
-                  src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1777550585/img-to-link/rpxdtc6dw5kjgmrthpmn.png" 
-                  alt="icon" 
-                  className="w-full h-full object-contain"
-                />
-              </div>
-              <span className="text-[22px] font-black text-blue-900 uppercase tracking-tight">
-                {shouldShowComic || item?.type === 'comic' ? 'Comic' : (actualType === 'video' || itemVideoUrl ? 'Video' : 'Concept')}
-              </span>
-            </div>
+        <div className={`relative z-10 scale-[1.0] origin-top mx-auto w-[90%] mt-[165px] h-[calc(100dvh-250px)] ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'max-w-md' : 'max-w-sm'}`}>
+          <div className={`h-full w-full flex flex-col overflow-hidden ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'bg-transparent shadow-none border-none' : 'bg-white rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.4)] border border-white/50'}`}>
+            {/* Removed Header for more space */}
 
             {/* Card Content */}
-            <div className={`flex-1 ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'p-2' : 'p-5 pt-0'} flex flex-col items-center overflow-y-auto no-scrollbar`}>
+            <div className={`flex-1 ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'p-2' : 'p-8 pt-10'} flex flex-col items-center no-scrollbar`}>
               {shouldShowComic ? (
                 <div className="relative w-full h-full flex items-center justify-center">
                   <div className="relative w-full h-full max-h-[calc(100vh-210px)] rounded-3xl overflow-hidden bg-transparent flex flex-col items-center justify-center p-1 sm:p-2">
@@ -761,8 +749,8 @@ export default function ConceptPage() {
                   </div>
                 </div>
               ) : (itemVideoUrl || actualType === 'video') ? (
-                <div className="relative w-full h-full flex items-center justify-center p-2">
-                  <div className={`${isShortVideo ? 'aspect-[9/16] h-full max-h-[400px]' : 'w-full aspect-video'} rounded-2xl overflow-hidden shadow-lg bg-black flex-shrink-0`}>
+                <div className="relative w-full h-full flex items-center justify-center">
+                  <div className={`${isShortVideo ? 'aspect-[9/16] h-[65vh] max-h-[calc(100vh-240px)]' : 'w-full aspect-video'} rounded-3xl overflow-hidden shadow-2xl bg-black flex-shrink-0`}>
                     <iframe
                       src={itemVideoUrl || (introVideoUrl || 'https://www.youtube.com/embed/i59cR7MPD5M')}
                       title="Concept video"
