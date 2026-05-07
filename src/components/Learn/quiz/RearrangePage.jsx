@@ -885,22 +885,12 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
         </div>
 
         {/* Concept Card (Responsive Positioning) */}
-        <div className="relative z-10 scale-[1.0] origin-top mx-auto w-[90%] mt-[165px] h-[calc(100dvh-305px)] max-w-sm">
+        <div className="relative z-10 scale-[1.0] origin-top mx-auto w-[90%] mt-[165px] h-[calc(100dvh-250px)] max-w-sm">
           <div className="h-full w-full bg-white rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.4)] flex flex-col overflow-hidden border border-white/50">
-            {/* Card Header */}
-            <div className="p-4 px-6 flex items-center justify-start gap-4 flex-shrink-0">
-              <div className="w-12 h-12 flex items-center justify-center flex-shrink-0 rounded-full border border-gray-100 shadow-sm p-2 bg-white overflow-hidden">
-                <img 
-                  src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1777550585/img-to-link/rpxdtc6dw5kjgmrthpmn.png" 
-                  alt="icon" 
-                  className="w-full h-full object-contain"
-                />
-              </div>
-              <span className="text-[22px] font-black text-blue-900 uppercase tracking-tight">Re-arrange</span>
-            </div>
+            {/* Removed Header for more space */}
 
-            {/* Card Scrollable Content */}
-            <div className="flex-1 p-5 pt-0 flex flex-col items-center overflow-y-auto no-scrollbar">
+            {/* Card Content (No internal scroll) */}
+            <div className="flex-1 p-8 pt-12 flex flex-col items-center no-scrollbar">
               {/* Text above images - Enlarged and Centered */}
               <div 
                 className="text-[16px] font-black text-gray-800 text-center leading-snug w-full mb-4"
