@@ -873,7 +873,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
         </div>
 
         {/* Mascot Section */}
-        <div className="absolute top-[10px] left-0 right-0 flex justify-center z-0 pointer-events-none">
+        <div className="absolute top-[-80px] left-0 right-0 flex justify-center z-0 pointer-events-none">
           <div className="relative w-full max-sm flex items-center justify-center px-4 scale-[0.75]">
             <div className="w-64 h-64 -ml-10 -mb-16 opacity-100">
               {hoshiAnim && <Lottie animationData={hoshiAnim} loop={true} className="w-full h-full drop-shadow-2xl" />}
@@ -1153,35 +1153,39 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
         </div>
       )}
 
-      {/* Inline Duolingo-style feedback bar - show for both correct and incorrect answers */}
+      {/* Inline feedback bar - show for both correct and incorrect results */}
       {showResult && !actualReviewMode && (
         <div className={`fixed left-0 right-0 bottom-0 z-50 border-t-4 shadow-2xl ${
           isCorrect ? 'bg-green-50 border-green-400' : 'bg-red-50 border-red-400'
         }`}>
           <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-            <div className={`text-xl font-extrabold ${
-              isCorrect ? 'text-green-700' : 'text-red-700'
-            }`}>
-              {isCorrect ? 'Great job!' : 'Not quite right. Try again!'}
+            <div className="flex items-center gap-4">
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isCorrect ? 'bg-green-100' : 'bg-red-100'}`}>
+                <span className="text-2xl">{isCorrect ? '✨' : '✖️'}</span>
+              </div>
+              <div>
+                <p className={`text-xl font-black ${isCorrect ? 'text-green-800' : 'text-red-800'}`}>
+                  {isCorrect ? 'Great job!' : 'Not quite right'}
+                </p>
+                {!isCorrect && (
+                  <p className="text-sm font-bold text-red-600">
+                    Correct: {Array.isArray(item?.answer) ? item?.answer[0] : item?.answer}
+                  </p>
+                )}
+              </div>
             </div>
             <div className="flex gap-3">
-              {/* Show Try Again button ONLY for incorrect answers */}
-              {!isCorrect && showTryAgainOption && (
+              {!isCorrect ? (
                 <button
-                  onClick={() => {
-                    console.log('[Rearrange DEBUG] Try Again button clicked');
-                    handleTryAgain();
-                  }}
-                  className="px-6 py-3 rounded-2xl text-white font-extrabold text-lg bg-orange-600 hover:bg-orange-700 transition-colors"
+                  onClick={handleTryAgain}
+                  className="px-6 py-3 rounded-2xl text-white font-extrabold text-lg bg-red-600 hover:bg-red-700 transition-colors shadow-lg"
                 >
                   Try Again
                 </button>
-              )}
-              {/* Show Continue button ONLY for correct answers */}
-              {isCorrect && (
+              ) : (
                 <button
                   onClick={handleNext}
-                  className="px-8 py-3 rounded-2xl text-white font-extrabold text-xl bg-green-600 hover:bg-green-700 transition-colors"
+                  className="px-8 py-3 rounded-2xl text-white font-extrabold text-xl bg-green-600 hover:bg-green-700 transition-colors shadow-lg"
                 >
                   Continue
                 </button>
@@ -1202,17 +1206,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
         </div>
       )}
 
-      {/* Incorrect Answer Modal (Continue only) */}
-      <IncorrectAnswerModal 
-        isOpen={showIncorrectModal}
-        onClose={() => {}}
-        onTryAgain={handleModalTryAgain}
-        onContinue={() => handleNext(true)}
-        showContinueButton={false}
-        showTryAgainButton={true}
-        incorrectText={arrangedWords.join(' ')}
-        correctAnswer={Array.isArray(item?.answer) ? item?.answer[0] : item?.answer}
-      />
+      {/* Modal disabled per user request */}
 
       {/* Exit confirmation overlay */}
       {showExitConfirm && (
