@@ -1768,7 +1768,7 @@ const LearnDashboard = ({ onboardingData }) => {
       <div className="bg-gradient-to-b from-[#E6F2FF] to-[#F7FBFF] h-screen flex flex-col md:flex-row overflow-hidden">
         {/* Mobile Header */}
         {(!isMobileLayout || (activeTab !== 'home' && activeTab !== 'ranks')) && (
-          <div className="md:hidden fixed top-0 left-0 right-0 z-[1001] bg-white border-b border-blue-200 p-4 flex items-center justify-between shadow-md">
+          <div className="md:hidden fixed top-0 left-0 right-0 z-[1001] bg-transparent p-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <img 
                 src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1777997560/img-to-link/mfaw5t09dlayxlunzfas.png" 
@@ -1776,11 +1776,7 @@ const LearnDashboard = ({ onboardingData }) => {
                 className="h-8 w-auto" 
               />
             </div>
-            <button className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shadow-sm border border-blue-100">
-              <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
-              </svg>
-            </button>
+            <div className="w-10 h-10"></div> {/* Bell removed */}
           </div>
         )}
 
@@ -2116,8 +2112,8 @@ const LearnDashboard = ({ onboardingData }) => {
                           >
                             {/* Unit header card for direct modules */}
                             {isMobileLayout ? (
-                              <div className="sticky top-0 z-[100] text-white px-5 py-3.5 rounded-3xl mb-6 shadow-xl w-full border border-white/20 relative overflow-hidden flex flex-col md:flex-row justify-between"
-                                style={{ background: `linear-gradient(135deg, #2C6DEF, #1E4A8C)` }}>
+                              <div className="sticky top-0 z-[100] text-white px-5 py-3.5 mb-6 w-full relative overflow-hidden flex flex-col md:flex-row justify-between backdrop-blur-sm"
+                                style={{ background: 'transparent' }}>
                                 
                                 {/* Sparkling Stars background effect */}
                                 <div className="absolute inset-0 opacity-15 pointer-events-none overflow-hidden select-none">
@@ -2341,8 +2337,8 @@ const LearnDashboard = ({ onboardingData }) => {
                                     const color = unitPalette[unitIdx % unitPalette.length]; const gradFrom = color; const gradTo = darken(color, 0.15); return (
                                       isMobileLayout ? (
                                         <div className="sticky top-0 z-[100] px-3 pt-4 pb-4 w-full backdrop-blur-sm">
-                                          <div className="bg-white/10 rounded-[24px] p-3 border border-white/20" style={{
-                                             background: u.headerBgUrl ? `url(${u.headerBgUrl}) center/cover no-repeat` : 'rgba(255, 255, 255, 0.05)'
+                                          <div className="bg-transparent rounded-[24px] p-3" style={{
+                                             background: u.headerBgUrl ? `url(${u.headerBgUrl}) center/cover no-repeat` : 'transparent'
                                           }}>
                                           
                                           {/* Sparkling Stars background effect */}
