@@ -14,7 +14,7 @@ const Header = () => {
 
   return (
     // UPDATED: Header height set to h-16 (mobile) and md:h-20 (desktop) for a sleeker look
-    <header className="sticky top-0 bg-white border-b border-duo-gray h-16 md:h-20 flex items-center z-50 transition-all duration-300">
+    <header className="sticky top-0 bg-transparent md:bg-white md:border-b border-duo-gray h-16 md:h-20 flex items-center z-50 transition-all duration-300">
       <div className="container mx-auto px-3 sm:px-4 flex justify-between items-center">
         
         {/* LOGO SECTION */}

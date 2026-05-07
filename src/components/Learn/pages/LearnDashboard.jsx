@@ -136,7 +136,7 @@ const PathAnimation = React.memo(({ data, offset, top, isMobileLayout }) => {
       style={{
         width: isMobileLayout ? '190px' : '224px',
         left: isMobileLayout 
-          ? `clamp(60px, calc(50% + ${offset}px), calc(100% - 60px))`
+          ? `clamp(60px, calc(45% + ${offset}px), calc(100% - 60px))`
           : `calc(50% + ${offset}px)`,
         top: `${top}px`,
         transform: 'translate(-50%, -50%)',
@@ -1768,12 +1768,12 @@ const LearnDashboard = ({ onboardingData }) => {
       <div className="bg-gradient-to-b from-[#E6F2FF] to-[#F7FBFF] h-screen flex flex-col md:flex-row overflow-hidden">
         {/* Mobile Header */}
         {(!isMobileLayout || (activeTab !== 'home' && activeTab !== 'ranks')) && (
-          <div className="md:hidden fixed top-0 left-0 right-0 z-[1001] bg-transparent p-4 flex items-center justify-between">
+          <div className="md:hidden fixed top-0 left-0 right-0 z-[1001] backdrop-blur-md bg-white/10 border-b border-white/10 p-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <img 
                 src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1777997560/img-to-link/mfaw5t09dlayxlunzfas.png" 
                 alt="HoshiYaar Logo" 
-                className="h-8 w-auto" 
+                className="h-8 w-auto drop-shadow-sm" 
               />
             </div>
             <div className="w-10 h-10"></div> {/* Bell removed */}
@@ -2112,8 +2112,7 @@ const LearnDashboard = ({ onboardingData }) => {
                           >
                             {/* Unit header card for direct modules */}
                             {isMobileLayout ? (
-                              <div className="sticky top-0 z-[100] text-white px-5 py-3.5 mb-6 w-full relative overflow-hidden flex flex-col md:flex-row justify-between backdrop-blur-sm"
-                                style={{ background: 'transparent' }}>
+                              <div className="sticky top-0 z-[100] text-white px-5 py-3.5 rounded-[24px] mb-6 shadow-xl w-full border border-white/20 relative overflow-hidden flex flex-col md:flex-row justify-between backdrop-blur-md bg-white/5">
                                 
                                 {/* Sparkling Stars background effect */}
                                 <div className="absolute inset-0 opacity-15 pointer-events-none overflow-hidden select-none">
@@ -2336,10 +2335,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                   {(() => {
                                     const color = unitPalette[unitIdx % unitPalette.length]; const gradFrom = color; const gradTo = darken(color, 0.15); return (
                                       isMobileLayout ? (
-                                        <div className="sticky top-0 z-[100] px-3 pt-4 pb-4 w-full backdrop-blur-sm">
-                                          <div className="bg-transparent rounded-[24px] p-3" style={{
-                                             background: u.headerBgUrl ? `url(${u.headerBgUrl}) center/cover no-repeat` : 'transparent'
-                                          }}>
+                                        <div className="sticky top-0 z-[100] text-white px-5 py-5 rounded-[24px] mb-8 shadow-2xl w-full border border-white/20 relative overflow-hidden flex flex-col md:flex-row justify-between backdrop-blur-md bg-white/5">
                                           
                                           {/* Sparkling Stars background effect */}
                                           {!u.headerBgUrl && (
@@ -2547,7 +2543,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                            {(index + 1) % 3 === 0 && index < localLevels.length - 1 && (
                                              <PathAnimation
                                                data={pathAnimationData}
-                                               offset={unitIdx % 2 === 0 ? (isMobileLayout ? -95 : -180) : (isMobileLayout ? 65 : 180)}
+                                               offset={unitIdx % 2 === 0 ? (isMobileLayout ? -80 : -180) : (isMobileLayout ? 80 : 180)}
                                                top={rowSpacing * 0.5}
                                                isMobileLayout={isMobileLayout}
                                              />
