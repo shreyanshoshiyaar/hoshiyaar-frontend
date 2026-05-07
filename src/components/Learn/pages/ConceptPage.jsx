@@ -706,7 +706,7 @@ export default function ConceptPage() {
         </div>
 
         {/* Mascot Section */}
-        <div className="absolute top-[-60px] left-0 right-0 flex justify-center z-0 pointer-events-none">
+        <div className="absolute top-[10px] left-0 right-0 flex justify-center z-0 pointer-events-none">
           <div className="relative w-full max-sm flex items-center justify-center px-4 scale-[0.75]">
             {/* Hoshi Lottie - Shifted right by 5% relative to previous position */}
             <div className="w-64 h-64 -ml-10 -mb-16 opacity-100">
@@ -726,7 +726,7 @@ export default function ConceptPage() {
             {/* Removed Header for more space */}
 
             {/* Card Content */}
-            <div className={`flex-1 ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'p-2' : 'p-8 pt-10'} flex flex-col items-center no-scrollbar`}>
+            <div className={`flex-1 ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'p-2' : 'p-8 pt-6'} flex flex-col items-center no-scrollbar`}>
               {shouldShowComic ? (
                 <div className="relative w-full h-full flex items-center justify-center">
                   <div className="relative w-full h-full max-h-[calc(100vh-210px)] rounded-3xl overflow-hidden bg-transparent flex flex-col items-center justify-center p-1 sm:p-2">

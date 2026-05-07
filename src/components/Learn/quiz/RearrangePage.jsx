@@ -873,7 +873,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
         </div>
 
         {/* Mascot Section */}
-        <div className="absolute top-[-60px] left-0 right-0 flex justify-center z-0 pointer-events-none">
+        <div className="absolute top-[10px] left-0 right-0 flex justify-center z-0 pointer-events-none">
           <div className="relative w-full max-sm flex items-center justify-center px-4 scale-[0.75]">
             <div className="w-64 h-64 -ml-10 -mb-16 opacity-100">
               {hoshiAnim && <Lottie animationData={hoshiAnim} loop={true} className="w-full h-full drop-shadow-2xl" />}
@@ -889,8 +889,8 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
           <div className="h-full w-full bg-white rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.4)] flex flex-col overflow-hidden border border-white/50">
             {/* Removed Header for more space */}
 
-            {/* Card Content (No internal scroll) */}
-            <div className="flex-1 p-8 pt-12 flex flex-col items-center no-scrollbar">
+            {/* Card Content (Internal scroll enabled for Rearrange) */}
+            <div className="flex-1 p-8 pt-6 flex flex-col items-center overflow-y-auto no-scrollbar">
               {/* Text above images - Enlarged and Centered */}
               <div 
                 className="text-[16px] font-black text-gray-800 text-center leading-snug w-full mb-4"
