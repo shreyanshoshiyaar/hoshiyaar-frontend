@@ -845,11 +845,11 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
 
         {/* Floating Bottom Button (End of Content) */}
         {!showResult && (
-          <div className="absolute bottom-4 left-0 right-0 px-10 z-20">
+          <div className="absolute bottom-3 left-0 right-0 px-12 z-20">
             <button
               onClick={() => handleSubmit()}
               disabled={!userAnswer.trim()}
-              className={`w-full py-4 rounded-[24px] font-black text-xl tracking-wide shadow-[0_6px_0_0_#4a3fcc] active:shadow-none active:translate-y-2 transition-all uppercase ${!userAnswer.trim() ? 'bg-gray-400 text-gray-200 shadow-none' : 'bg-[#6d5dfc] text-white'}`}
+              className={`w-full py-2.5 rounded-[20px] font-black text-lg tracking-wide shadow-[0_4px_0_0_#4a3fcc] active:shadow-none active:translate-y-1 transition-all uppercase ${!userAnswer.trim() ? 'bg-gray-400 text-gray-200 shadow-none' : 'bg-[#6d5dfc] text-white'}`}
             >
               Check
             </button>
@@ -858,24 +858,24 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
 
         {/* Duolingo Style Feedback Bar for Mobile - Refined Classy Theme */}
         {showResult && !actualReviewMode && (
-          <div className={`fixed left-0 right-0 bottom-0 z-[100] animate-in slide-in-from-bottom duration-300 pb-safe shadow-[0_-15px_50px_rgba(0,0,0,0.25)] ${
+          <div className={`fixed left-0 right-0 bottom-0 z-[100] animate-in slide-in-from-bottom duration-300 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.2)] ${
             isCorrect ? 'bg-[#d7ffb8]' : 'bg-[#1a2b3c]'
           }`}>
-            <div className="max-w-sm mx-auto px-6 py-8 flex flex-col gap-6">
-              <div className="flex items-center gap-5">
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-inner ${
+            <div className="max-w-sm mx-auto px-6 py-4 flex flex-col gap-3">
+              <div className="flex items-center gap-4">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-inner ${
                   isCorrect ? 'bg-white text-[#58a700]' : 'bg-[#ff4b4b] text-white'
                 }`}>
-                  <span className="text-3xl">{isCorrect ? '✓' : '✕'}</span>
+                  <span className="text-xl">{isCorrect ? '✓' : '✕'}</span>
                 </div>
                 <div className="flex flex-col">
-                  <p className={`text-[22px] font-black tracking-tight leading-tight ${
+                  <p className={`text-[18px] font-black tracking-tight leading-tight ${
                     isCorrect ? 'text-[#58a700]' : 'text-[#ff4b4b]'
                   }`}>
                     {isCorrect ? 'You are correct!' : 'Correct solution:'}
                   </p>
                   {!isCorrect && (
-                    <p className="text-[19px] font-bold text-white mt-1 opacity-90">
+                    <p className="text-[15px] font-bold text-white mt-0.5 opacity-90">
                       {Array.isArray(item?.answer) ? item?.answer[0] : item?.answer}
                     </p>
                   )}
@@ -884,7 +884,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
               
               <button
                 onClick={isCorrect ? handleNext : handleTryAgain}
-                className={`w-full py-4 rounded-[20px] text-[19px] font-black tracking-widest shadow-[0_5px_0_rgba(0,0,0,0.2)] transform active:translate-y-1 active:shadow-none transition-all uppercase ${
+                className={`w-full py-3 rounded-[16px] text-[16px] font-black tracking-widest shadow-[0_4px_0_rgba(0,0,0,0.2)] transform active:translate-y-1 active:shadow-none transition-all uppercase ${
                   isCorrect 
                     ? 'bg-[#58cc02] text-white hover:bg-[#61e002]' 
                     : 'bg-[#ff4b4b] text-white hover:bg-[#ff5f5f]'
@@ -1003,11 +1003,11 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
 
       {/* Continue Button - fixed on mobile, normal on desktop */}
       {!showResult && (
-        <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white border-t-2 border-blue-300 sm:border-t-0 shadow-lg sm:shadow-none px-2 sm:px-3 md:px-6 py-3 sm:py-4 z-50 sm:z-auto">
+        <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white border-t-2 border-blue-300 sm:border-t-0 shadow-lg sm:shadow-none px-2 sm:px-3 md:px-6 py-2 sm:py-3 z-50 sm:z-auto">
           <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto">
             <button
               onClick={() => showResult ? handleNext() : handleSubmit()}
-              className="w-full py-3 sm:py-4 md:py-5 rounded-lg sm:rounded-xl bg-blue-600 text-white font-extrabold text-xl sm:text-base md:text-lg hover:bg-blue-700 transition-colors shadow-lg sm:shadow-none"
+              className="w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-blue-600 text-white font-extrabold text-lg sm:text-base hover:bg-blue-700 transition-colors shadow-lg sm:shadow-none"
             >
               Check
             </button>
@@ -1017,24 +1017,24 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
 
       {/* Inline feedback bar - Duolingo Style (Refined Classy Theme) */}
       {showResult && (
-        <div className={`fixed left-0 right-0 bottom-0 z-[100] animate-in slide-in-from-bottom duration-300 pb-safe shadow-[0_-15px_50px_rgba(0,0,0,0.25)] ${
+        <div className={`fixed left-0 right-0 bottom-0 z-[100] animate-in slide-in-from-bottom duration-300 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.2)] ${
           isCorrect ? 'bg-[#d7ffb8]' : 'bg-[#1a2b3c]'
         }`}>
-          <div className="max-w-sm mx-auto px-6 py-8 flex flex-col gap-6">
-            <div className="flex items-center gap-5">
-              <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-inner ${
+          <div className="max-w-sm mx-auto px-6 py-4 flex flex-col gap-3">
+            <div className="flex items-center gap-4">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-inner ${
                 isCorrect ? 'bg-white text-[#58a700]' : 'bg-[#ff4b4b] text-white'
               }`}>
-                <span className="text-3xl">{isCorrect ? '✓' : '✕'}</span>
+                <span className="text-xl">{isCorrect ? '✓' : '✕'}</span>
               </div>
               <div className="flex flex-col">
-                <p className={`text-[22px] font-black tracking-tight leading-tight ${
+                <p className={`text-[18px] font-black tracking-tight leading-tight ${
                   isCorrect ? 'text-[#58a700]' : 'text-[#ff4b4b]'
                 }`}>
                   {isCorrect ? 'You are correct!' : 'Correct solution:'}
                 </p>
                 {!isCorrect && (
-                  <p className="text-[19px] font-bold text-white mt-1 opacity-90">
+                  <p className="text-[15px] font-bold text-white mt-0.5 opacity-90">
                     {Array.isArray(item?.answer) ? item?.answer[0] : item?.answer}
                   </p>
                 )}
@@ -1043,7 +1043,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
             
             <button
               onClick={isCorrect ? handleNext : handleTryAgain}
-              className={`w-full py-4 rounded-[20px] text-[19px] font-black tracking-widest shadow-[0_5px_0_rgba(0,0,0,0.2)] transform active:translate-y-1 active:shadow-none transition-all uppercase ${
+              className={`w-full py-3 rounded-[16px] text-[16px] font-black tracking-widest shadow-[0_4px_0_rgba(0,0,0,0.2)] transform active:translate-y-1 active:shadow-none transition-all uppercase ${
                 isCorrect 
                   ? 'bg-[#58cc02] text-white hover:bg-[#61e002]' 
                   : 'bg-[#ff4b4b] text-white hover:bg-[#ff5f5f]'

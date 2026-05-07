@@ -995,37 +995,36 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
 
         {/* Floating Bottom Button (End of Content) */}
         {!showResult && (
-          <div className="absolute bottom-4 left-0 right-0 px-10 z-20">
+          <div className="absolute bottom-3 left-0 right-0 px-12 z-20">
             <button
-              onClick={() => {}}
-              disabled={true}
-              className="w-full py-4 rounded-[24px] font-black text-xl tracking-wide bg-gray-400 text-gray-200 cursor-not-allowed uppercase"
+              onClick={() => handleSubmit()}
+              className="w-full py-2.5 rounded-[20px] bg-[#6d5dfc] text-white font-black text-lg tracking-wide shadow-[0_4px_0_0_#4a3fcc] active:shadow-none active:translate-y-1 transition-all uppercase"
             >
-              Pick an answer
+              Check
             </button>
           </div>
         )}
 
         {/* Duolingo Style Feedback Bar for Mobile - Refined Classy Theme */}
-      {showResult && (
-          <div className={`fixed left-0 right-0 bottom-0 z-[100] animate-in slide-in-from-bottom duration-300 pb-safe shadow-[0_-15px_50px_rgba(0,0,0,0.25)] ${
+        {showResult && (
+          <div className={`fixed left-0 right-0 bottom-0 z-[100] animate-in slide-in-from-bottom duration-300 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.2)] ${
             isCorrect ? 'bg-[#d7ffb8]' : 'bg-[#1a2b3c]'
           }`}>
-            <div className="max-w-sm mx-auto px-6 py-8 flex flex-col gap-6">
-              <div className="flex items-center gap-5">
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-inner ${
+            <div className="max-w-sm mx-auto px-6 py-4 flex flex-col gap-3">
+              <div className="flex items-center gap-4">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-inner ${
                   isCorrect ? 'bg-white text-[#58a700]' : 'bg-[#ff4b4b] text-white'
                 }`}>
-                  <span className="text-3xl">{isCorrect ? '✓' : '✕'}</span>
+                  <span className="text-xl">{isCorrect ? '✓' : '✕'}</span>
                 </div>
                 <div className="flex flex-col">
-                  <p className={`text-[22px] font-black tracking-tight leading-tight ${
+                  <p className={`text-[18px] font-black tracking-tight leading-tight ${
                     isCorrect ? 'text-[#58a700]' : 'text-[#ff4b4b]'
                   }`}>
                     {isCorrect ? 'You are correct!' : 'Correct solution:'}
                   </p>
                   {!isCorrect && (
-                    <p className="text-[19px] font-bold text-white mt-1 opacity-90">
+                    <p className="text-[15px] font-bold text-white mt-0.5 opacity-90">
                       {item?.answer}
                     </p>
                   )}
@@ -1034,7 +1033,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
               
               <button
                 onClick={isCorrect ? handleNext : handleTryAgain}
-                className={`w-full py-4 rounded-[20px] text-[19px] font-black tracking-widest shadow-[0_5px_0_rgba(0,0,0,0.2)] transform active:translate-y-1 active:shadow-none transition-all uppercase ${
+                className={`w-full py-3 rounded-[16px] text-[16px] font-black tracking-widest shadow-[0_4px_0_rgba(0,0,0,0.2)] transform active:translate-y-1 active:shadow-none transition-all uppercase ${
                   isCorrect 
                     ? 'bg-[#58cc02] text-white hover:bg-[#61e002]' 
                     : 'bg-[#ff4b4b] text-white hover:bg-[#ff5f5f]'
@@ -1300,24 +1299,24 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
 
       {/* Inline feedback bar - Duolingo Style (Refined Classy Theme) */}
       {showResult && (
-        <div className={`fixed left-0 right-0 bottom-0 z-[100] animate-in slide-in-from-bottom duration-300 pb-safe shadow-[0_-15px_50px_rgba(0,0,0,0.25)] ${
+        <div className={`fixed left-0 right-0 bottom-0 z-[100] animate-in slide-in-from-bottom duration-300 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.2)] ${
           isCorrect ? 'bg-[#d7ffb8]' : 'bg-[#1a2b3c]'
         }`}>
-          <div className="max-w-sm mx-auto px-6 py-8 flex flex-col gap-6">
-            <div className="flex items-center gap-5">
-              <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-inner ${
+          <div className="max-w-sm mx-auto px-6 py-4 flex flex-col gap-3">
+            <div className="flex items-center gap-4">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-inner ${
                 isCorrect ? 'bg-white text-[#58a700]' : 'bg-[#ff4b4b] text-white'
               }`}>
-                <span className="text-3xl">{isCorrect ? '✓' : '✕'}</span>
+                <span className="text-xl">{isCorrect ? '✓' : '✕'}</span>
               </div>
               <div className="flex flex-col">
-                <p className={`text-[22px] font-black tracking-tight leading-tight ${
+                <p className={`text-[18px] font-black tracking-tight leading-tight ${
                   isCorrect ? 'text-[#58a700]' : 'text-[#ff4b4b]'
                 }`}>
                   {isCorrect ? 'You are correct!' : 'Correct solution:'}
                 </p>
                 {!isCorrect && (
-                  <p className="text-[19px] font-bold text-white mt-1 opacity-90">
+                  <p className="text-[15px] font-bold text-white mt-0.5 opacity-90">
                     {item?.answer ? (Array.isArray(item.answer) ? String(item.answer[0] || '') : String(item.answer)) : 'Not available'}
                   </p>
                 )}
@@ -1326,7 +1325,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
             
             <button
               onClick={isCorrect ? handleNext : handleTryAgain}
-              className={`w-full py-4 rounded-[20px] text-[19px] font-black tracking-widest shadow-[0_5px_0_rgba(0,0,0,0.2)] transform active:translate-y-1 active:shadow-none transition-all uppercase ${
+              className={`w-full py-3 rounded-[16px] text-[16px] font-black tracking-widest shadow-[0_4px_0_rgba(0,0,0,0.2)] transform active:translate-y-1 active:shadow-none transition-all uppercase ${
                 isCorrect 
                   ? 'bg-[#58cc02] text-white hover:bg-[#61e002]' 
                   : 'bg-[#ff4b4b] text-white hover:bg-[#ff5f5f]'
