@@ -11,6 +11,7 @@ const Signup = () => {
     name: '',
     dateOfBirth: '',
     classLevel: '',
+    phone: '',
   });
   const [error, setError] = useState('');
   const [usernameStatus, setUsernameStatus] = useState({ checking: false, available: null, message: '' });
@@ -79,6 +80,7 @@ const Signup = () => {
         name: formData.name,
         dateOfBirth: dob ? new Date(dob) : null,
         classLevel: formData.classLevel || null,
+        phone: formData.phone || null,
       });
       if (response.data && response.data.token) {
         login(response.data);
@@ -172,6 +174,17 @@ const Signup = () => {
                   </select>
                 </div>
               </div>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                  setFormData(prev => ({ ...prev, phone: val }));
+                }}
+                placeholder="Phone Number (10 digits)"
+                className="w-full bg-[#3c3c3c] border-2 border-[#585858] rounded-xl sm:rounded-2xl p-3 sm:p-4 focus:outline-none focus:border-duo-blue text-sm sm:text-base text-white"
+              />
               <button
                 type="submit"
                 disabled={usernameStatus.available === false || usernameStatus.checking}
