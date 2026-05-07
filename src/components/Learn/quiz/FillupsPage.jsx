@@ -1043,7 +1043,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
                   : 'bg-[#ff4b4b] text-white hover:bg-[#ff5f5f]'
               }`}
             >
-              CONTINUE
+              {isCorrect ? 'CONTINUE' : 'TRY AGAIN'}
             </button>
           </div>
         </div>
