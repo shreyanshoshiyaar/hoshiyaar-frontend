@@ -706,8 +706,8 @@ export default function ConceptPage() {
         </div>
 
         {/* Mascot Section */}
-        <div className="absolute top-[-45px] left-0 right-0 flex justify-center z-0 pointer-events-none">
-          <div className="relative w-full max-sm flex items-center justify-center px-4 scale-[0.8]">
+        <div className="absolute top-[-60px] left-0 right-0 flex justify-center z-0 pointer-events-none">
+          <div className="relative w-full max-sm flex items-center justify-center px-4 scale-[0.75]">
             {/* Hoshi Lottie - Shifted right by 5% relative to previous position */}
             <div className="w-64 h-64 -ml-10 -mb-16 opacity-100">
               {hoshiAnim && <Lottie animationData={hoshiAnim} loop={true} className="w-full h-full drop-shadow-2xl" />}
@@ -721,7 +721,7 @@ export default function ConceptPage() {
         </div>
 
         {/* Concept Card (Responsive Positioning) */}
-        <div className={`relative z-10 scale-[1.0] origin-top mx-auto w-[90%] mt-[105px] h-[calc(100dvh-245px)] ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'max-w-md' : 'max-w-sm'}`}>
+        <div className={`relative z-10 scale-[1.0] origin-top mx-auto w-[90%] mt-[165px] h-[calc(100dvh-305px)] ${(itemVideoUrl || actualType === 'video' || shouldShowComic || actualType === 'comic') ? 'max-w-md' : 'max-w-sm'}`}>
           <div className="h-full w-full flex flex-col overflow-hidden bg-white rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.4)] border border-white/50">
             {/* Card Header */}
             <div className="p-4 px-6 flex items-center justify-start gap-4 flex-shrink-0">
