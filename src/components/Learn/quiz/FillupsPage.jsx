@@ -998,16 +998,18 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
       </div>
 
       {/* Continue Button - fixed on mobile, normal on desktop */}
-      <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white border-t-2 border-blue-300 sm:border-t-0 shadow-lg sm:shadow-none px-2 sm:px-3 md:px-6 py-3 sm:py-4 z-50 sm:z-auto">
-        <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto">
-          <button
-            onClick={() => showResult ? handleNext() : handleSubmit()}
-            className="w-full py-3 sm:py-4 md:py-5 rounded-lg sm:rounded-xl bg-blue-600 text-white font-extrabold text-xl sm:text-base md:text-lg hover:bg-blue-700 transition-colors shadow-lg sm:shadow-none"
-          >
-            {showResult ? 'Continue' : 'Check'}
-          </button>
+      {!showResult && (
+        <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white border-t-2 border-blue-300 sm:border-t-0 shadow-lg sm:shadow-none px-2 sm:px-3 md:px-6 py-3 sm:py-4 z-50 sm:z-auto">
+          <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto">
+            <button
+              onClick={() => showResult ? handleNext() : handleSubmit()}
+              className="w-full py-3 sm:py-4 md:py-5 rounded-lg sm:rounded-xl bg-blue-600 text-white font-extrabold text-xl sm:text-base md:text-lg hover:bg-blue-700 transition-colors shadow-lg sm:shadow-none"
+            >
+              Check
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Inline feedback bar - Duolingo Style (Refined Classy Theme) */}
       {showResult && !actualReviewMode && (
@@ -1043,7 +1045,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
                   : 'bg-[#ff4b4b] text-white hover:bg-[#ff5f5f]'
               }`}
             >
-              {isCorrect ? 'CONTINUE' : 'TRY AGAIN'}
+              CONTINUE
             </button>
           </div>
         </div>

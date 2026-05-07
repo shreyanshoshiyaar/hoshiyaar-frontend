@@ -1102,7 +1102,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       </div>
 
       {/* Main Content - mobile optimized, desktop unchanged */}
-      <div className="flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 80px)' }}>
+      <div className="flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 overflow-y-auto pb-24">
         <h2 className="text-xl sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-extrabold text-gray-900 text-center mt-2 sm:mt-6 md:mt-8 mb-2 sm:mb-3 md:mb-4 text-overflow-fix px-1 sm:px-2">
           {item.question}
         </h2>
@@ -1328,7 +1328,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
                   : 'bg-[#ff4b4b] text-white hover:bg-[#ff5f5f]'
               }`}
             >
-              {isCorrect ? 'CONTINUE' : 'TRY AGAIN'}
+              CONTINUE
             </button>
           </div>
         </div>
