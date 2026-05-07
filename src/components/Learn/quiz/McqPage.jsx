@@ -469,8 +469,8 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
     if (showResult) return;
     
     setSelectedIndex(optionIndex);
-    const selectedOption = item.options[optionIndex];
-    const correct = String(selectedOption).trim().toLowerCase() === item.answer.trim().toLowerCase();
+    const selectedOption = item?.options?.[optionIndex];
+    const correct = String(selectedOption || '').trim().toLowerCase() === String(item?.answer || '').trim().toLowerCase();
     setIsCorrect(correct);
     setShowResult(true);
     const isFirstAttempt = !hasAttempted;
@@ -497,7 +497,9 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         if (pts !== 0) awardCorrect(String(moduleNumber), qid, pts, { type });
         addToSession(qid);
         try {
-          await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: pts });
+          if (user?._id) {
+            await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user?.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: pts });
+          }
         } catch (_) {}
       }
       
@@ -516,7 +518,9 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         awardWrong(String(moduleNumber), qid, -3, { isRetry: false, type });
         addToSession(qid);
         try {
-          await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: false, deltaScore: -3 });
+          if (user?._id) {
+            await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user?.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: false, deltaScore: -3 });
+          }
         } catch (_) {}
       }
       const questionId = `${moduleNumber}_${index}_multiple-choice`;
@@ -1003,7 +1007,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         )}
 
         {/* Duolingo Style Feedback Bar for Mobile - Refined Classy Theme */}
-        {showResult && !actualReviewMode && (
+      {showResult && (
           <div className={`fixed left-0 right-0 bottom-0 z-[100] animate-in slide-in-from-bottom duration-300 pb-safe shadow-[0_-15px_50px_rgba(0,0,0,0.25)] ${
             isCorrect ? 'bg-[#d7ffb8]' : 'bg-[#1a2b3c]'
           }`}>
@@ -1216,7 +1220,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
                 <div className={containerClass}>
                   {item.options?.map((opt, idx) => {
                     const isSelected = selectedIndex === idx;
-                    const isCorrectOption = String(opt).trim().toLowerCase() === item.answer.trim().toLowerCase();
+                    const isCorrectOption = String(opt || '').trim().toLowerCase() === String(item?.answer || '').trim().toLowerCase();
                     const isImageUrl = typeof opt === 'string' && (opt.startsWith('http') || opt.startsWith('https'));
                     
                     let buttonClass = hasImageOptions 
@@ -1295,7 +1299,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       </div>
 
       {/* Inline feedback bar - Duolingo Style (Refined Classy Theme) */}
-      {showResult && !actualReviewMode && (
+      {showResult && (
         <div className={`fixed left-0 right-0 bottom-0 z-[100] animate-in slide-in-from-bottom duration-300 pb-safe shadow-[0_-15px_50px_rgba(0,0,0,0.25)] ${
           isCorrect ? 'bg-[#d7ffb8]' : 'bg-[#1a2b3c]'
         }`}>
@@ -1314,7 +1318,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
                 </p>
                 {!isCorrect && (
                   <p className="text-[19px] font-bold text-white mt-1 opacity-90">
-                    {Array.isArray(item?.answer) ? item?.answer[0] : item?.answer}
+                    {item?.answer ? (Array.isArray(item.answer) ? String(item.answer[0] || '') : String(item.answer)) : 'Not available'}
                   </p>
                 )}
               </div>

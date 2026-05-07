@@ -405,7 +405,9 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
         if (pts !== 0) awardCorrect(String(moduleNumber), qid, pts, { type });
         addToSession(qid);
         try {
-          await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: pts });
+          if (user?._id) {
+            await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user?.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: pts });
+          }
         } catch (_) {}
       }
       
@@ -422,7 +424,9 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
         awardWrong(String(moduleNumber), qid, -3, { isRetry: false, type });
         addToSession(qid);
         try {
-          await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: false, deltaScore: -3 });
+          if (user?._id) {
+            await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user?.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: false, deltaScore: -3 });
+          }
         } catch (_) {}
       }
       const questionId = `${moduleNumber}_${index}_fill-in-the-blank`;
@@ -1012,7 +1016,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
       )}
 
       {/* Inline feedback bar - Duolingo Style (Refined Classy Theme) */}
-      {showResult && !actualReviewMode && (
+      {showResult && (
         <div className={`fixed left-0 right-0 bottom-0 z-[100] animate-in slide-in-from-bottom duration-300 pb-safe shadow-[0_-15px_50px_rgba(0,0,0,0.25)] ${
           isCorrect ? 'bg-[#d7ffb8]' : 'bg-[#1a2b3c]'
         }`}>
