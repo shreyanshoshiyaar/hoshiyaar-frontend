@@ -2340,8 +2340,10 @@ const LearnDashboard = ({ onboardingData }) => {
                                   {(() => {
                                     const color = unitPalette[unitIdx % unitPalette.length]; const gradFrom = color; const gradTo = darken(color, 0.15); return (
                                       isMobileLayout ? (
-                                        <div className="sticky top-0 z-[100] text-white px-5 py-5 rounded-3xl mb-8 shadow-2xl w-full border border-white/20 relative overflow-hidden flex flex-col md:flex-row justify-between backdrop-blur-md"
-                                          style={{ background: u.headerBgUrl ? `url(${u.headerBgUrl}) center/cover no-repeat` : (u.timelineBgUrl ? `rgba(255, 255, 255, 0.12)` : `linear-gradient(135deg, ${gradFrom}, ${gradTo})`) }}>
+                                        <div className="sticky top-0 z-[100] px-3 pt-4 pb-4 w-full backdrop-blur-sm">
+                                          <div className="bg-white/10 rounded-[24px] p-3 border border-white/20" style={{
+                                             background: u.headerBgUrl ? `url(${u.headerBgUrl}) center/cover no-repeat` : 'rgba(255, 255, 255, 0.05)'
+                                          }}>
                                           
                                           {/* Sparkling Stars background effect */}
                                           {!u.headerBgUrl && (
@@ -2549,7 +2551,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                            {(index + 1) % 3 === 0 && index < localLevels.length - 1 && (
                                              <PathAnimation
                                                data={pathAnimationData}
-                                               offset={unitIdx % 2 === 0 ? (isMobileLayout ? -80 : -180) : (isMobileLayout ? 80 : 180)}
+                                               offset={unitIdx % 2 === 0 ? (isMobileLayout ? -95 : -180) : (isMobileLayout ? 65 : 180)}
                                                top={rowSpacing * 0.5}
                                                isMobileLayout={isMobileLayout}
                                              />

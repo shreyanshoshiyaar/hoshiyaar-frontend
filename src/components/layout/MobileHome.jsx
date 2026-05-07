@@ -152,8 +152,6 @@ const MobileHome = ({
                 >
                   <source src="https://res.cloudinary.com/dcxlzfyfp/video/upload/v1777997560/video/mission_v1.mp4" type="video/mp4" />
                 </video>
-                {/* Dark overlay to make text pop if needed */}
-                <div className="absolute inset-0 bg-black/5"></div>
               </div>
 
               {/* Mute Toggle Overlay */}
@@ -166,16 +164,6 @@ const MobileHome = ({
               >
                 <span className="text-xs">{isMuted ? '🔇' : '🔊'}</span>
               </button>
-
-              {/* Character pointer - overlaid on video */}
-              <div className="absolute bottom-[-10px] right-[-10px] w-24 h-24 z-10 pointer-events-none">
-                <img src={heroChar} className="w-full h-full object-contain drop-shadow-lg" alt="Mission char" />
-              </div>
-
-              <div className="z-10 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full border border-white/50 shadow-sm mt-auto mb-3 flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-[10px] font-black text-blue-900 tracking-wider">LIVE MISSION</span>
-              </div>
             </div>
           </div>
 
@@ -287,16 +275,16 @@ const MobileHome = ({
 
 
         {/* Sticky Bottom CTA (X-Large Text) */}
-        <div className="fixed bottom-[80px] left-0 right-0 px-10 z-[100] pb-2 pt-3 bg-gradient-to-t from-[#F0F6FF] via-[#F0F6FF]/90 to-transparent pointer-events-none">
+        <div className="fixed bottom-[80px] left-0 right-0 px-10 z-[100] pb-2 pointer-events-none">
           <button
             onClick={onNavigateToPractice}
-            className="w-full py-2.5 bg-[#FFC107] hover:bg-[#FFD54F] text-gray-900 rounded-full font-black text-[14px] shadow-[0_4px_0_0_#F57F17] active:translate-y-1 active:shadow-none flex items-center justify-center gap-2 transition-all pointer-events-auto group"
+            className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-black text-[15px] shadow-lg active:scale-95 transition-all pointer-events-auto flex items-center justify-center gap-3"
           >
-            <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform shrink-0">
-               <span className="text-[#2563EB] text-[10px] ml-0.5">▶</span>
+            <div className="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+               <span className="text-white text-[12px] ml-0.5">▶</span>
             </div>
             Continue Adventure
-            <span className="ml-1 text-[17px] font-bold">›</span>
+            <span className="ml-1 text-[18px] font-bold">›</span>
           </button>
         </div>
       </div>
