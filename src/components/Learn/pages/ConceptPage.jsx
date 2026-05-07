@@ -706,7 +706,7 @@ export default function ConceptPage() {
         </div>
 
         {/* Mascot Section */}
-        <div className="absolute top-[-80px] left-0 right-0 flex justify-center z-0 pointer-events-none">
+        <div className="absolute top-[-45px] left-0 right-0 flex justify-center z-0 pointer-events-none">
           <div className="relative w-full max-sm flex items-center justify-center px-4 scale-[0.75]">
             {/* Hoshi Lottie - Shifted right by 5% relative to previous position */}
             <div className="w-64 h-64 -ml-10 -mb-16 opacity-100">
