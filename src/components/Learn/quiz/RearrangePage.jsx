@@ -1079,7 +1079,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
       </div>
 
       {/* Main Content - optimized for mobile with reduced spacing */}
-      <div className="flex-1 w-full px-2 sm:px-4 md:px-6 max-w-6xl mx-auto overflow-y-auto pb-20 sm:pb-24" style={{ maxHeight: 'calc(100vh - 80px)' }}>
+      <div className="flex-1 w-full px-2 sm:px-4 md:px-6 max-w-6xl mx-auto overflow-y-auto pb-20 sm:pb-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 items-start mt-2 sm:mt-4 md:mt-6">
           {/* Image (Left) - render uploaded images if available */}
           {(() => {
@@ -1109,13 +1109,12 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
             <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-gray-900 mb-2 sm:mb-4 md:mb-6">{item.question}</h2>
             {/* Removed dotted placeholder lines to declutter UI */}
             {/* Arranged Words Area with in-box reset */}
-            <div className="relative">
+            <div className="relative w-full">
               <div
-                className={`min-h-[100px] sm:min-h-[120px] border-2 border-dashed border-gray-300 rounded-xl sm:rounded-2xl p-2 sm:p-4 bg-gray-50 ${isResetting ? 'transition-opacity opacity-50' : ''}`}
+                className={`w-full h-auto min-h-[120px] sm:min-h-[140px] border-2 border-dashed border-gray-300 rounded-[20px] sm:rounded-2xl p-3 sm:p-4 bg-gray-50 flex flex-wrap gap-2 items-start content-start ${isResetting ? 'transition-opacity opacity-50' : ''}`}
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, 'arranged')}
               >
-                <div className="flex flex-wrap gap-1 sm:gap-2 min-h-[60px] sm:min-h-[80px]">
                 {arrangedWords.map((word, idx) => (
                   <button
                     key={`arranged-${word}-${idx}`}
@@ -1135,7 +1134,6 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
                     {word}
                   </button>
                 ))}
-                </div>
               </div>
               {!showResult && (
                 <button
@@ -1147,8 +1145,8 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
                   ↻
                 </button>
               )}
-              {/* Word bank and Check button on the right column */}
-            <div className="flex flex-wrap gap-2 sm:gap-3 mt-4 sm:mt-6 md:mt-8 justify-center lg:justify-start">
+            {/* Word bank and Check button on the right column */}
+            <div className="flex flex-wrap gap-2 sm:gap-3 mt-4 sm:mt-6 md:mt-8 justify-center lg:justify-start w-full">
               {availableWords.length > 0 ? (
                 availableWords.map((word, idx) => (
                   <button
@@ -1220,7 +1218,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
                   : 'bg-[#ff4b4b] text-white hover:bg-[#ff5f5f]'
               }`}
             >
-              {isCorrect ? 'CONTINUE' : 'TRY AGAIN'}
+              CONTINUE
             </button>
           </div>
         </div>
