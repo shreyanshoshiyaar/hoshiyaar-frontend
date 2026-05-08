@@ -485,18 +485,22 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
     }
   }, [index, items, navigate, moduleNumber]);
 
-  async function handleOptionClick(optionIndex) {
+  function handleOptionClick(optionIndex) {
     if (showResult) return;
-    
     setSelectedIndex(optionIndex);
-    const selectedOption = item?.options?.[optionIndex];
+  }
+
+  async function handleSubmit() {
+    if (selectedIndex === null || showResult) return;
+    
+    const selectedOption = item?.options?.[selectedIndex];
     const correct = String(selectedOption || '').trim().toLowerCase() === String(item?.answer || '').trim().toLowerCase();
     setIsCorrect(correct);
     setShowResult(true);
     const isFirstAttempt = !hasAttempted;
     if (!hasAttempted) setHasAttempted(true);
 
-    // Play feedback sound (user gesture triggered)
+    // Play feedback sound
     try {
       const src = correct ? correctAudio.current : errorAudio.current;
       if (src) {
@@ -508,13 +512,12 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
 
     if (correct) {
       setHasAnsweredCorrectly(true);
-      setShowTryAgainOption(false); // Hide try again when correct
-      // Award only on first attempt
+      setShowTryAgainOption(false);
       if (isFirstAttempt) {
         const qid = `${moduleNumber}_${index}_mcq`;
         const pts = 3;
         const type = isRevisionModeFromUrl ? 'revision' : 'curriculum';
-        if (pts !== 0) awardCorrect(String(moduleNumber), qid, pts, { type });
+        awardCorrect(String(moduleNumber), qid, pts, { type });
         addToSession(qid);
         try {
           if (user?._id) {
@@ -523,15 +526,12 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         } catch (_) {}
       }
       
-      // If in review mode, notify and go back to module
       if (actualReviewMode) {
         removeActive();
         navigate('/review-round');
       }
     } else {
-      // Immediate feedback and enqueue for review
       setShowTryAgainOption(false);
-      // scoring penalty (first attempt only; none in review/revision)
       if (isFirstAttempt && !actualReviewMode) {
         const qid = `${moduleNumber}_${index}_mcq`;
         const type = isRevisionModeFromUrl ? 'revision' : 'curriculum';
@@ -547,18 +547,10 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       if (!actualReviewMode) {
         addToReview({ questionId, moduleNumber, index, type: 'multiple-choice' });
       } else {
-        // In review mode, keep it in rotation by moving to end
         requeueActive();
       }
-      try {
-        if (user?._id) {
-          const reviewSvc = (await import('../../../services/reviewService.js')).default;
-          await reviewSvc.saveIncorrect({ userId: user._id, questionId, moduleId: String(moduleNumber) });
-        }
-      } catch (_) {}
     }
 
-    // Show feedback modal
     setFeedback({
       open: true,
       correct: correct,
@@ -927,172 +919,101 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
           ) : null 
         })()}
 
-        {!showResult && (
-          <div className="w-full max-w-2xl sm:max-w-3xl md:max-w-4xl mb-2 sm:mb-4">
-            {(() => {
-              // Check if any options are image URLs
-              const hasImageOptions = item.options?.some(opt => typeof opt === 'string' && (opt.startsWith('http') || opt.startsWith('https')));
-              
-              // Use horizontal layout for image options, horizontal for text options
-              const containerClass = hasImageOptions 
-                ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4 md:gap-6" 
-                : "flex flex-col sm:flex-row gap-2 sm:gap-4 w-full";
-              
-              return (
-                <div className={containerClass}>
-                  {item.options?.map((opt, idx) => {
-                    const isSelected = selectedIndex === idx;
-                    const isCorrectOption = String(opt).trim().toLowerCase() === item.answer.trim().toLowerCase();
-                    const isImageUrl = typeof opt === 'string' && (opt.startsWith('http') || opt.startsWith('https'));
-                    
-                    let buttonClass = hasImageOptions 
-                      ? "p-2 sm:p-3 md:p-4 rounded-xl sm:rounded-2xl border-2 text-center transition-all duration-200 hover:scale-[1.02] " 
-                      : "p-2 sm:p-3 md:p-4 rounded-xl sm:rounded-2xl border-2 text-center transition-all duration-200 hover:scale-[1.01] flex-1 ";
-              
-              if (showResult) {
-                if (isSelected) {
-                  buttonClass += isCorrect ? "bg-green-200 border-green-400" : "bg-red-200 border-red-400";
-                } else if (isCorrectOption) {
-                  buttonClass += "bg-green-200 border-green-400";
-                } else {
-                  buttonClass += "bg-gray-100 border-gray-300";
-                }
-              } else {
-                buttonClass += "bg-white border-gray-300 hover:border-blue-400";
-              }
+        <div className="w-full max-w-2xl sm:max-w-3xl md:max-w-4xl mb-2 sm:mb-4">
+          {(() => {
+            const hasImageOptions = item.options?.some(opt => typeof opt === 'string' && (opt.startsWith('http') || opt.startsWith('https')));
+            const containerClass = hasImageOptions 
+              ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4 md:gap-6" 
+              : "flex flex-col sm:flex-row gap-2 sm:gap-4 w-full";
+            
+            return (
+              <div className={containerClass}>
+                {item.options?.map((opt, idx) => {
+                  const isSelected = selectedIndex === idx;
+                  const isCorrectOption = String(opt).trim().toLowerCase() === item.answer.trim().toLowerCase();
+                  const isImageUrl = typeof opt === 'string' && (opt.startsWith('http') || opt.startsWith('https'));
+                  
+                  let buttonClass = hasImageOptions 
+                    ? "p-2 sm:p-3 md:p-4 rounded-xl sm:rounded-2xl border-2 text-center transition-all duration-200 " 
+                    : "p-2 sm:p-3 md:p-4 rounded-xl sm:rounded-2xl border-2 text-center transition-all duration-200 flex-1 ";
+            
+                  if (showResult) {
+                    if (isSelected) {
+                      buttonClass += isCorrect ? "bg-green-100 border-green-500 text-green-800" : "bg-red-100 border-red-500 text-red-800";
+                    } else if (isCorrectOption) {
+                      buttonClass += "bg-green-50 border-green-300 text-green-600";
+                    } else {
+                      buttonClass += "bg-gray-50 border-gray-100 text-gray-400";
+                    }
+                  } else {
+                    if (isSelected) {
+                      buttonClass += "bg-blue-50 border-blue-400 ring-2 ring-blue-100 shadow-sm";
+                    } else {
+                      buttonClass += "bg-white border-gray-200 hover:border-blue-400 text-gray-700 active:scale-[0.98]";
+                    }
+                  }
 
-              return (
-                <button
-                  key={idx}
-                  onClick={() => handleOptionClick(idx)}
-                  className={buttonClass}
-                  disabled={showResult}
-                  tabIndex={-1}
-                  onKeyDown={(e) => { e.preventDefault(); }}
-                >
-                  {isImageUrl ? (
-                    <div className="flex flex-col items-center">
-                      <img 
-                        src={opt} 
-                        alt={`Option ${idx + 1}`}
-                        className="w-full h-20 sm:h-20 md:h-24 lg:h-28 object-contain rounded-lg mb-1 sm:mb-2"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          e.target.nextSibling.style.display = 'block';
-                        }}
-                      />
-                      <div className="text-xs sm:text-xs text-gray-600 font-medium" style={{display: 'none'}}>
-                        Option {idx + 1}
-                      </div>
-                      <div className="text-xs sm:text-xs md:text-sm font-semibold text-gray-700">
-                        Option {idx + 1}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-xs sm:text-xs md:text-sm lg:text-base font-bold text-gray-700 text-overflow-fix">{opt}</div>
-                  )}
-                </button>
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => handleOptionClick(idx)}
+                      className={buttonClass}
+                      disabled={showResult}
+                    >
+                      {isImageUrl ? (
+                        <div className="flex flex-col items-center">
+                          <img 
+                            src={opt} 
+                            alt={`Option ${idx + 1}`}
+                            className="w-full h-20 sm:h-20 md:h-24 lg:h-28 object-contain rounded-lg mb-1 sm:mb-2"
+                          />
+                          <div className="text-xs sm:text-xs md:text-sm font-semibold text-gray-700 flex items-center justify-center gap-2">
+                            <span>Option {idx + 1}</span>
+                            {showResult && (
+                              <span>
+                                {isSelected ? (isCorrect ? '✓' : '✕') : (isCorrectOption ? '✓' : '')}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between gap-2 px-2">
+                          <div className="text-xs sm:text-xs md:text-sm lg:text-base font-bold text-overflow-fix">{opt}</div>
+                          {showResult && (
+                            <div className="flex-shrink-0 font-black text-lg">
+                              {isSelected ? (isCorrect ? '✓' : '✕') : (isCorrectOption ? '✓' : '')}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </button>
                   );
                 })}
-                </div>
-              );
-            })()}
-          </div>
-        )}
-
-        {/* Show results when answered */}
-        {showResult && (
-          <div className="w-full max-w-4xl mb-4">
-            {(() => {
-              // Check if any options are image URLs
-              const hasImageOptions = item.options?.some(opt => typeof opt === 'string' && (opt.startsWith('http') || opt.startsWith('https')));
-              
-              // Use horizontal layout for image options, horizontal for text options
-              const containerClass = hasImageOptions 
-                ? "grid grid-cols-1 md:grid-cols-3 gap-6" 
-                : "flex flex-col sm:flex-row gap-4 w-full";
-              
-              return (
-                <div className={containerClass}>
-                  {item.options?.map((opt, idx) => {
-                    const isSelected = selectedIndex === idx;
-                    const isCorrectOption = String(opt || '').trim().toLowerCase() === String(item?.answer || '').trim().toLowerCase();
-                    const isImageUrl = typeof opt === 'string' && (opt.startsWith('http') || opt.startsWith('https'));
-                    
-                    let buttonClass = hasImageOptions 
-                      ? "p-4 rounded-2xl border-2 text-center transition-all duration-200 " 
-                      : "p-4 rounded-2xl border-2 text-center transition-all duration-200 flex-1 ";
-              
-              if (isSelected) {
-                buttonClass += isCorrect ? "bg-green-200 border-green-400" : "bg-red-200 border-red-400";
-              } else if (isCorrectOption) {
-                buttonClass += "bg-green-200 border-green-400";
-              } else {
-                buttonClass += "bg-gray-100 border-gray-300";
-              }
-
-              return (
-                <div
-                  key={idx}
-                  className={buttonClass}
-                >
-                  {isImageUrl ? (
-                    <div className="flex flex-col items-center">
-                      <img 
-                        src={opt} 
-                        alt={`Option ${idx + 1}`}
-                        className="w-full h-48 object-contain rounded-lg mb-2"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          e.target.nextSibling.style.display = 'block';
-                        }}
-                      />
-                      <div className="text-sm text-gray-600 font-medium" style={{display: 'none'}}>
-                        Option {idx + 1}
-                      </div>
-                      <div className="text-lg font-semibold text-gray-700 mb-2">
-                        Option {idx + 1}
-                      </div>
-                      {/* Show checkmark or X for selected/correct options */}
-                      <div>
-                        {isSelected && (
-                          <span className={`text-2xl ${isCorrect ? 'text-green-600' : 'text-red-600'}`}>
-                            {isCorrect ? '✓' : '✗'}
-                          </span>
-                        )}
-                        {!isSelected && isCorrectOption && (
-                          <span className="text-2xl text-green-600">✓</span>
-                        )}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between">
-                      <div className="text-xl font-bold text-gray-700">{opt}</div>
-                      {/* Show checkmark or X for selected/correct options */}
-                      <div>
-                        {isSelected && (
-                          <span className={`text-2xl ${isCorrect ? 'text-green-600' : 'text-red-600'}`}>
-                            {isCorrect ? '✓' : '✗'}
-                          </span>
-                        )}
-                        {!isSelected && isCorrectOption && (
-                          <span className="text-2xl text-green-600">✓</span>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-                  );
-                })}
-                </div>
-              );
-            })()}
-          </div>
-        )}
+              </div>
+            );
+          })()}
+        </div>
         
         {/* Bottom padding - mobile only for fixed button */}
         <div className="h-4 sm:h-0 md:h-0"></div>
       </div>
+
+      {/* Check Button - fixed on mobile, normal on desktop */}
+      {!showResult && (
+        <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white border-t-2 border-blue-300 sm:border-t-0 shadow-lg sm:shadow-none px-2 sm:px-3 md:px-6 py-2 sm:py-3 z-50 sm:z-auto">
+          <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto">
+            <button
+              onClick={handleSubmit}
+              disabled={selectedIndex === null}
+              className={`w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-white font-extrabold text-lg sm:text-base transition-colors shadow-lg sm:shadow-none ${
+                selectedIndex === null ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+              }`}
+            >
+              Check
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Inline feedback bar - Duolingo Style (Refined Classy Theme) */}
       {showResult && (
