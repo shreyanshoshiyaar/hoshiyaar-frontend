@@ -346,6 +346,26 @@ export default function ConceptPage() {
     }
   }
 
+  const handleBack = useCallback(() => {
+    if (index > 0) {
+      const prevIndex = index - 1;
+      const prevItem = items[prevIndex];
+      if (!prevItem) return;
+      const params = new URLSearchParams(window.location.search);
+      const suffix = params.toString() ? `?${params.toString()}` : '';
+      navigate(`${routeForType(prevItem.type, prevIndex)}${suffix}`);
+    } else {
+      const urlParams = new URLSearchParams(window.location.search);
+      const chapterId = urlParams.get('chapterId');
+      const unitId = urlParams.get('unitId');
+      const params = new URLSearchParams();
+      if (chapterId) params.set('chapterId', chapterId);
+      if (unitId) params.set('unitId', unitId);
+      const query = params.toString();
+      navigate(`/learn${query ? '?' + query : ''}`);
+    }
+  }, [index, items, navigate, moduleNumber]);
+
   const goNext = useCallback(async () => {
     // If in review or revision mode, navigate back to review-round instead of next sequential item
     if (isInReviewOrRevision) {
@@ -515,10 +535,13 @@ export default function ConceptPage() {
         <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
           {!isInReviewOrRevision && (
             <button
-              onClick={() => setShowExitConfirm(true)}
-              className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-sm sm:text-base"
+              onClick={handleBack}
+              className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-600"
+              title="Back"
             >
-              ✕
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+              </svg>
             </button>
           )}
           {isInReviewOrRevision && <div className="w-6 h-6 sm:w-8 sm:h-8"></div>}
@@ -645,223 +668,28 @@ export default function ConceptPage() {
     );
   }
 
-  if (isMobile) {
-    return (
-      <div className="h-[100dvh] w-full relative overflow-hidden bg-gradient-to-b from-[#4138a3] to-[#7b5ef0]">
-        {/* Background Starry Lottie */}
-        <div className="absolute inset-0 z-0">
-          {(item?.type === 'comic' ? (myraBgAnim || bgAnim) : bgAnim) && (
-            <Lottie
-              animationData={item?.type === 'comic' ? (myraBgAnim || bgAnim) : bgAnim}
-              loop={true}
-              className="w-full h-full object-cover opacity-100"
-              rendererSettings={{
-                preserveAspectRatio: 'xMidYMid slice'
-              }}
-            />
-          )}
-        </div>
 
-        {/* Floating Header */}
-        <div className="absolute top-0 left-0 right-0 p-5 flex flex-col gap-4 z-30">
-          <div className="flex items-center justify-between">
-            {!isInReviewOrRevision && (
-              <button
-                onClick={() => setShowExitConfirm(true)}
-                className="w-11 h-11 flex items-center justify-center rounded-full bg-[#6d5dfc] text-white shadow-lg active:scale-95 transition-all border-2 border-white/20"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                </svg>
-              </button>
-            )}
-            {isInReviewOrRevision && <div className="w-11 h-11"></div>}
-
-            <div className="flex-1 flex flex-col items-center px-4">
-              <div className="w-full max-w-[180px]">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-[11px] font-black text-white uppercase tracking-wider">Lesson Progress</span>
-                  <span className="text-[11px] font-black text-white tracking-widest">{index + 1}/{items.length}</span>
-                </div>
-                <div className="h-3 w-full bg-white/30 rounded-full overflow-hidden border border-white/20">
-                  <div 
-                    className="h-full bg-[#a166ff] transition-all duration-500 rounded-full" 
-                    style={{ width: `${((index + 1) / items.length) * 100}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center">
-              <div className="bg-white rounded-full p-1.5 px-3 shadow-lg flex items-center gap-2 h-10 border border-purple-100">
-                <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center text-white shadow-sm">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                    <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <span className="text-sm font-black text-blue-900">{totalStars}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Mascot Section - Positioned to sit on top of the panel */}
-        <div className="absolute top-[-30px] left-0 right-0 flex justify-center z-0 pointer-events-none">
-          <div className="relative w-full max-sm flex items-center justify-center px-4 scale-[0.65]">
-            <div className="w-64 h-64 -ml-10 -mb-16 opacity-100">
-              {hoshiAnim && <Lottie animationData={hoshiAnim} loop={true} className="w-full h-full drop-shadow-2xl" />}
-            </div>
-            <div className="w-64 h-64 -ml-24 mt-10">
-              {popAnim && <Lottie animationData={popAnim} loop={true} className="w-full h-full" />}
-            </div>
-          </div>
-        </div>
-
-        {/* Minimal Bottom Panel */}
-        <div className="absolute bottom-0 left-0 right-0 h-[calc(100dvh-165px)] bg-white rounded-t-[40px] shadow-[0_-20px_50px_rgba(0,0,0,0.15)] z-10 flex flex-col overflow-hidden border-t border-white/50">
-          {/* Panel Content - Scrollable */}
-          <div className="flex-1 overflow-y-auto no-scrollbar p-6 pt-10 pb-24">
-            <div className="w-full max-w-md mx-auto flex flex-col items-center">
-              {shouldShowComic ? (
-                <div className="relative w-full aspect-[4/5] rounded-3xl overflow-hidden bg-gray-50 flex items-center justify-center border border-gray-100 mb-6">
-                  <img
-                    src={introComicUrls[comicSlideIndex]}
-                    alt={`Comic slide ${comicSlideIndex + 1}`}
-                    className="w-full h-full object-contain cursor-zoom-in"
-                    onClick={() => setIsZoomed(true)}
-                  />
-                  <button
-                    onClick={() => setIsZoomed(true)}
-                    className="absolute top-4 right-4 bg-white/80 backdrop-blur p-2 rounded-lg shadow-sm border border-gray-200"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
-                    </svg>
-                  </button>
-                </div>
-              ) : (itemVideoUrl || actualType === 'video') ? (
-                <div className="w-full mb-6">
-                  <div className={`${isShortVideo ? 'aspect-[9/16] h-[55vh]' : 'w-full aspect-video'} rounded-3xl overflow-hidden shadow-xl bg-black mx-auto`}>
-                    <iframe
-                      src={itemVideoUrl || introVideoUrl}
-                      title="Concept video"
-                      className="w-full h-full"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen={true}
-                    />
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div 
-                    className="text-[18px] font-black text-gray-800 text-center leading-snug w-full mb-8"
-                    dangerouslySetInnerHTML={{ __html: String(item.text || item.content || '') }}
-                  />
-
-                  {(() => {
-                    const imgs = (item.images || []).filter(Boolean);
-                    if (imgs.length === 0 && item.imageUrl) imgs.push(item.imageUrl);
-                    if (imgs.length === 0) return null;
-
-                    return (
-                      <div className={`grid ${imgs.length === 1 ? 'grid-cols-1' : 'grid-cols-2'} gap-4 w-full`}>
-                        {imgs.slice(0, 4).map((src, i) => (
-                          <div 
-                            key={i} 
-                            className="aspect-square bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm p-2 flex items-center justify-center"
-                          >
-                            <img src={src} alt="concept" className="w-full h-full object-contain" />
-                          </div>
-                        ))}
-                      </div>
-                    );
-                  })()}
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* Action Button Section - Fixed at bottom of panel */}
-          <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white via-white to-transparent pt-10">
-            <button
-              onClick={() => {
-                if (shouldShowComic) {
-                  if (comicSlideIndex < introComicUrls.length - 1) {
-                    setComicSlideIndex(prev => prev + 1);
-                  } else {
-                    if (actualType === 'comic') goNext(); else setVideoAcknowledged(true);
-                  }
-                } else {
-                  goNext();
-                }
-              }}
-              disabled={isComicActive && comicReadTimer > 0}
-              className={`w-full py-4 rounded-[24px] font-black text-xl tracking-wide shadow-[0_6px_0_0_#4a3fcc] active:shadow-none active:translate-y-2 transition-all uppercase ${isComicActive && comicReadTimer > 0
-                  ? 'bg-gray-400 text-gray-200 shadow-[0_6px_0_0_#4b5563]'
-                  : 'bg-[#6d5dfc] text-white'
-                }`}
-            >
-              {isComicActive && comicReadTimer > 0 
-                ? `Wait ${comicReadTimer}s` 
-                : (shouldShowComic && comicSlideIndex < introComicUrls.length - 1 ? 'Next' : (shouldShowComic ? 'Continue' : 'Check'))}
-            </button>
-          </div>
-        </div>
-
-
-        {showExitConfirm && (
-          <div className="fixed inset-0 z-[9999]">
-            <ConceptExitConfirm
-              onQuit={() => {
-                const urlParams = new URLSearchParams(window.location.search);
-                const chapterId = urlParams.get('chapterId');
-                const unitId = urlParams.get('unitId');
-                const params = new URLSearchParams();
-                if (chapterId) params.set('chapterId', chapterId);
-                if (unitId) params.set('unitId', unitId);
-                const query = params.toString();
-                navigate(`/learn${query ? '?' + query : ''}`);
-              }}
-              onContinue={() => setShowExitConfirm(false)}
-            />
-          </div>
-        )}
-        {isZoomed && shouldShowComic && (
-          <div className="fixed inset-0 z-[10000] bg-black/95 flex flex-col items-center justify-center p-4">
-            <button
-              onClick={() => setIsZoomed(false)}
-              className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            <img
-              src={introComicUrls[comicSlideIndex]}
-              alt={`Zoomed Comic ${comicSlideIndex + 1}`}
-              className="max-w-[95%] max-h-[90vh] object-contain cursor-zoom-out"
-              onClick={() => setIsZoomed(false)}
-            />
-          </div>
-        )}
-      </div>
-    );
-  }
 
   return (
-    <div className="h-screen bg-white flex flex-col overflow-hidden">
+    <div className="fixed inset-0 bg-white flex flex-col overflow-hidden">
       {/* Header - reduced padding for mobile */}
       <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
         {!isInReviewOrRevision && (
           <button
-            onClick={() => setShowExitConfirm(true)}
-            className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-sm sm:text-base"
+            onClick={handleBack}
+            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-600"
+            title="Back"
           >
-            ✕
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
           </button>
         )}
         {isInReviewOrRevision && <div className="w-6 h-6 sm:w-8 sm:h-8"></div>}
-        <div className="flex-1 mx-1 sm:mx-2 md:mx-4">
+        <div className="flex-1 mx-1 sm:mx-2 md:mx-4 flex flex-col items-center">
+          <span className="text-[10px] sm:text-xs font-black text-blue-600/80 uppercase tracking-widest mb-0.5">
+            LEARN PROGRESS: {index + 1} / {items.length}
+          </span>
           <ProgressBar currentIndex={index} total={items.length} />
         </div>
         <div className="flex items-center gap-1 sm:gap-2 md:gap-3">

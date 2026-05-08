@@ -282,18 +282,43 @@ export default function DescriptivePage() {
     const params = new URLSearchParams(window.location.search);
     const suffix = params.toString() ? `?${params.toString()}` : '';
 
-    let route = '/learn';
-    switch (nextItem.type) {
+    navigate(`${routeForType(nextItem.type, nextIndex)}${suffix}`);
+  };
+
+  function routeForType(type, idx) {
+    switch (type) {
       case 'comic':
       case 'concept':
-      case 'statement': route = `/learn/module/${moduleNumber}/concept/${nextIndex}`; break;
-      case 'multiple-choice': route = `/learn/module/${moduleNumber}/mcq/${nextIndex}`; break;
-      case 'fill-in-the-blank': route = `/learn/module/${moduleNumber}/fillups/${nextIndex}`; break;
-      case 'rearrange': route = `/learn/module/${moduleNumber}/rearrange/${nextIndex}`; break;
-      case 'descriptive': route = `/learn/module/${moduleNumber}/descriptive/${nextIndex}`; break;
+      case 'statement':
+      case 'video':
+        return `/learn/module/${moduleNumber}/concept/${idx}`;
+      case 'multiple-choice': return `/learn/module/${moduleNumber}/mcq/${idx}`;
+      case 'fill-in-the-blank': return `/learn/module/${moduleNumber}/fillups/${idx}`;
+      case 'rearrange': return `/learn/module/${moduleNumber}/rearrange/${idx}`;
+      case 'descriptive': return `/learn/module/${moduleNumber}/descriptive/${idx}`;
+      default: return `/learn`;
     }
-    navigate(`${route}${suffix}`);
-  };
+  }
+
+  const handleBack = useCallback(() => {
+    if (index > 0) {
+      const prevIndex = index - 1;
+      const prevItem = items[prevIndex];
+      if (!prevItem) return;
+      const params = new URLSearchParams(window.location.search);
+      const suffix = params.toString() ? `?${params.toString()}` : '';
+      navigate(`${routeForType(prevItem.type, prevIndex)}${suffix}`);
+    } else {
+      const urlParams = new URLSearchParams(window.location.search);
+      const chapterId = urlParams.get('chapterId');
+      const unitId = urlParams.get('unitId');
+      const params = new URLSearchParams();
+      if (chapterId) params.set('chapterId', chapterId);
+      if (unitId) params.set('unitId', unitId);
+      const query = params.toString();
+      navigate(`/learn${query ? '?' + query : ''}`);
+    }
+  }, [index, items, navigate, moduleNumber]);
 
   const handleMasterSkip = async () => {
     const qid = `${moduleNumber}_${index}_descriptive`;
@@ -313,17 +338,23 @@ export default function DescriptivePage() {
   if (!item) return <SimpleLoading />;
 
   return (
-    <div className="h-screen bg-white flex flex-col overflow-hidden">
+    <div className="fixed inset-0 bg-white flex flex-col overflow-hidden">
       <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
         {!actualReviewMode && (
           <button
-            onClick={() => setShowExitConfirm(true)}
-            className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-sm sm:text-base"
+            onClick={handleBack}
+            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-600"
+            title="Back"
           >
-            ✕
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
           </button>
         )}
-        <div className="flex-1 mx-1 sm:mx-2 md:mx-4">
+        <div className="flex-1 mx-1 sm:mx-2 md:mx-4 flex flex-col items-center">
+          <span className="text-[10px] sm:text-xs font-black text-blue-600/80 uppercase tracking-widest mb-0.5">
+            LEARN PROGRESS: {index + 1} / {items.length}
+          </span>
           <ProgressBar currentIndex={index} total={items.length} />
         </div>
         <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
@@ -496,7 +527,16 @@ export default function DescriptivePage() {
       {showExitConfirm && (
         <div className="fixed inset-0 z-[9999]">
           <ConceptExitConfirm
-            onQuit={() => navigate('/learn')}
+            onQuit={() => {
+              const urlParams = new URLSearchParams(window.location.search);
+              const chapterId = urlParams.get('chapterId');
+              const unitId = urlParams.get('unitId');
+              const params = new URLSearchParams();
+              if (chapterId) params.set('chapterId', chapterId);
+              if (unitId) params.set('unitId', unitId);
+              const query = params.toString();
+              navigate(`/learn${query ? '?' + query : ''}`);
+            }}
             onContinue={() => setShowExitConfirm(false)}
           />
         </div>

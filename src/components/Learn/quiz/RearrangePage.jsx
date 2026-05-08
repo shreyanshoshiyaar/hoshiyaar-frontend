@@ -383,6 +383,26 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
     }
   }
 
+  const handleBack = useCallback(() => {
+    if (index > 0) {
+      const prevIndex = index - 1;
+      const prevItem = items[prevIndex];
+      if (!prevItem) return;
+      const params = new URLSearchParams(window.location.search);
+      const suffix = params.toString() ? `?${params.toString()}` : '';
+      navigate(`${routeForType(prevItem.type, prevIndex)}${suffix}`);
+    } else {
+      const urlParams = new URLSearchParams(window.location.search);
+      const chapterId = urlParams.get('chapterId');
+      const unitId = urlParams.get('unitId');
+      const params = new URLSearchParams();
+      if (chapterId) params.set('chapterId', chapterId);
+      if (unitId) params.set('unitId', unitId);
+      const query = params.toString();
+      navigate(`/learn${query ? '?' + query : ''}`);
+    }
+  }, [index, items, navigate, moduleNumber]);
+
   const handleDragStart = (e, word, source, index) => {
     setDraggedItem({ word, source, index });
     e.dataTransfer.effectAllowed = 'move';
@@ -818,10 +838,13 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
       <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
         {!actualReviewMode && (
           <button 
-            onClick={() => setShowExitConfirm(true)}
-            className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+            onClick={handleBack}
+            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-600"
+            title="Back"
           >
-            ✕
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
           </button>
         )}
         <div className="flex-1 mx-1 sm:mx-2 md:mx-4 flex flex-col items-center">
