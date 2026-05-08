@@ -5,6 +5,7 @@ import reviewService from '../../../services/reviewService.js';
 import curriculumService from '../../../services/curriculumService.js';
 import { useReview } from '../../../context/ReviewContext.jsx';
 import BackButton from '../../ui/BackButton.jsx';
+import SimpleLoading from '../../ui/SimpleLoading.jsx';
 
 export default function RevisionList() {
   const [params] = useSearchParams();
@@ -412,7 +413,7 @@ export default function RevisionList() {
           </p>
         </div>
       {loading ? (
-        <div>Loading…</div>
+        <SimpleLoading />
       ) : (!moduleId && !chapterId) ? (
         // Subject-level index: show chapters (blue UI)
         (() => {

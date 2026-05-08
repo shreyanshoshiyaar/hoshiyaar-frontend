@@ -27,10 +27,16 @@ const MobileLeaderboard = ({
 
   return (
     <div className="fixed inset-0 bg-white overflow-y-auto no-scrollbar pb-32">
-      {/* 1. Hero Section - Today's Rank Booster */}
-      <div className="relative bg-[#F3E8FF] pt-2 pb-2 px-6 overflow-hidden">
-        {/* Transparent Header Inside Hero */}
-        <div className="flex items-center justify-between w-full z-20 mb-[26px] mt-1">
+      {/* Full Width Hero Banner with Logo Overlay */}
+      <div className="relative w-full overflow-hidden">
+        <img 
+          src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778246958/img-to-link/r2bkh4ou7qxpl8nsekj6.webp" 
+          alt="Rank Banner" 
+          className="w-full h-auto object-cover"
+        />
+        
+        {/* Logo Overlay */}
+        <div className="absolute top-0 left-0 right-0 z-20 px-6 pt-5 flex items-center justify-between w-full">
           <div className="flex items-center">
             <img 
               src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1777997560/img-to-link/mfaw5t09dlayxlunzfas.png" 
@@ -38,38 +44,8 @@ const MobileLeaderboard = ({
               className="h-9 w-auto drop-shadow-sm" 
             />
           </div>
-          <div className="w-9 h-9"></div> {/* Bell removed */}
         </div>
-
-        {/* Subtle Background Elements */}
-        <div className="absolute top-2 right-8 text-purple-300/30 text-2xl">✦</div>
-        <div className="absolute bottom-6 right-4 text-purple-300/20 text-3xl">⚗️</div>
-        
-        <div className="flex items-center gap-4 relative z-10">
-          {/* Character */}
-          <div className="w-20 h-20 relative flex-shrink-0">
-             <img 
-               src={heroChar} 
-               className="w-full h-full object-contain drop-shadow-xl scale-125 origin-bottom" 
-               alt="Character"
-             />
-             <div className="absolute bottom-2 left-0 bg-yellow-400 text-white rounded-full w-5 h-5 flex items-center justify-center text-[8px] shadow-md border-2 border-white">👍</div>
-          </div>
-
-          <div className="flex flex-col">
-            <h1 className="text-[16px] font-black text-[#5829D1] leading-tight mb-0.5">Today's Rank Booster</h1>
-            <p className="text-[11px] font-bold text-gray-500 mb-2 leading-tight">
-              Complete 3 science quests and earn <span className="text-[#5829D1] font-extrabold">+150 XP</span>
-            </p>
-            <button className="bg-[#6D28D9] text-white px-4 py-2 rounded-full text-[12px] font-black shadow-[0_3px_0_0_#4C1D95] active:translate-y-0.5 active:shadow-none transition-all flex items-center justify-center gap-2 w-fit group">
-              Start Challenge 
-              <span className="text-lg transform group-hover:translate-x-1 transition-transform">›</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* 2. Stats Ribbon (Floating) */}
+      </div>      {/* 2. Stats Ribbon (Floating) */}
       <div className="px-6 -mt-5 relative z-20">
         <div className="bg-white rounded-[16px] p-2.5 shadow-[0_8px_25px_-5px_rgba(0,0,0,0.08)] flex justify-around items-center border border-gray-50">
           <div className="flex items-center gap-2">
