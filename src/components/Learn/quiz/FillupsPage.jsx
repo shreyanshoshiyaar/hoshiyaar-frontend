@@ -709,45 +709,32 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
   return (
 
     <div className="min-h-[100dvh] bg-white flex flex-col">
-      <div className="p-4 sm:p-5 flex flex-col gap-4 flex-shrink-0">
-        <div className="flex items-center justify-between">
-          {!actualReviewMode && (
+      {/* Header - reduced padding for mobile */}
+      <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
+        {!actualReviewMode && (
+          <button 
+            onClick={() => setShowExitConfirm(true)}
+            className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-sm sm:text-base"
+          >
+            ✕
+          </button>
+        )}
+        <div className="flex-1 mx-1 sm:mx-2 md:mx-4 flex flex-col items-center">
+          <span className="text-[10px] sm:text-xs font-black text-blue-600/80 uppercase tracking-widest mb-0.5">
+            LEARN PROGRESS: {index + 1} / {items.length}
+          </span>
+          <ProgressBar currentIndex={index} total={items.length} />
+        </div>
+        <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
+          {(user?.role === 'master' || user?.username === 'Host') && (
             <button
-              onClick={() => setShowExitConfirm(true)}
-              className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center rounded-full bg-[#6d5dfc] text-white shadow-lg active:scale-95 transition-all border-2 border-white/20"
+              onClick={handleMasterSkip}
+              className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-black rounded-lg shadow-sm border-b-4 border-yellow-700 active:border-b-0 active:translate-y-1 transition-all mr-2 uppercase"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-5 h-5 sm:w-6 sm:h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              Skip ⚡️
             </button>
           )}
-          {actualReviewMode && <div className="w-10 h-10 sm:w-11 sm:h-11"></div>}
-
-          <div className="flex-1 flex flex-col items-center px-4">
-            <div className="w-full max-w-[160px] sm:max-w-[200px]">
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-[10px] sm:text-[11px] font-black text-gray-400 uppercase tracking-wider">Progress</span>
-                <span className="text-[10px] sm:text-[11px] font-black text-gray-400 tracking-widest">{index + 1}/{items.length}</span>
-              </div>
-              <div className="h-2.5 sm:h-3 w-full bg-gray-100 rounded-full overflow-hidden border border-gray-200">
-                <div 
-                  className="h-full bg-[#a166ff] transition-all duration-500 rounded-full" 
-                  style={{ width: `${((index + 1) / items.length) * 100}%` }}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center">
-            <div className="bg-white rounded-full p-1 sm:p-1.5 px-2.5 sm:px-4 shadow-md flex items-center gap-1.5 sm:gap-2 h-9 sm:h-11 border border-purple-100">
-              <div className="w-5 h-5 sm:w-6 sm:h-6 bg-yellow-400 rounded-full flex items-center justify-center text-white shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3 sm:w-4 sm:h-4">
-                  <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <span className="text-xs sm:text-sm font-black text-blue-900">{totalStars}</span>
-            </div>
-          </div>
+          <StarCounter />
         </div>
       </div>
 
