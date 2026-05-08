@@ -110,6 +110,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
 
   const [feedback, setFeedback] = useState({ open: false, correct: false, expected: '' });
   const [userAnswer, setUserAnswer] = useState('');
+  const [isInputFocused, setIsInputFocused] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [showTryAgainModal, setShowTryAgainModal] = useState(false);
@@ -708,7 +709,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
 
   return (
 
-    <div className="min-h-[100dvh] bg-white flex flex-col">
+    <div className="fixed inset-0 bg-white flex flex-col overflow-hidden">
       {/* Header - reduced padding for mobile */}
       <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
         {!actualReviewMode && (
@@ -739,15 +740,15 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
       </div>
 
       {/* Main Content - optimized for mobile with reduced spacing */}
-      <div className="flex-1 flex flex-col items-center px-2 sm:px-3 md:px-6 pb-20">
-        <div className="w-full max-w-4xl mt-4 sm:mt-6 md:mt-8 mb-4 sm:mb-6 px-2">
+      <div className="flex-1 flex flex-col items-center px-2 sm:px-3 md:px-6 overflow-y-auto pb-32">
+        <div className={`w-full max-w-4xl px-2 transition-all duration-300 ${isInputFocused ? 'mt-2 mb-2' : 'mt-4 sm:mt-6 md:mt-8 mb-4 sm:mb-6'}`}>
           <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 text-center leading-tight">
             {item.question}
           </h2>
         </div>
 
-        {/* Image block BETWEEN question and input. If no image, reserve space */}
-        {(() => {
+        {/* Image block - Hidden when focused on mobile to save space */}
+        {!isInputFocused && (() => {
           const imgs = (item.images || []).filter(Boolean);
           const primary = item.imageUrl ? [item.imageUrl] : [];
           const list = imgs.length > 0 ? imgs : primary;
@@ -780,6 +781,8 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
               onChange={(e) => setUserAnswer(e.target.value)}
               placeholder="Type the full word here..."
               disabled={showResult}
+              onFocus={() => setIsInputFocused(true)}
+              onBlur={() => setIsInputFocused(false)}
               autoFocus
               className={`w-full p-3 sm:p-3.5 md:p-4 text-lg sm:text-sm md:text-base lg:text-lg border-2 rounded-xl sm:rounded-2xl font-bold transition-all ${
                 showResult
