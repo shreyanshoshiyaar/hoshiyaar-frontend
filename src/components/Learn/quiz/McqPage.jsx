@@ -988,7 +988,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
                         </div>
                       ) : (
                         <div className="flex items-center justify-between gap-2 px-2">
-                          <div className="text-xs sm:text-xs md:text-sm lg:text-base font-bold text-overflow-fix">{opt}</div>
+                          <div className="text-base sm:text-base md:text-lg lg:text-xl font-bold text-overflow-fix">{opt}</div>
                           {showResult && (
                             <div className="flex-shrink-0 font-black text-lg">
                               {isSelected ? (isCorrect ? '✓' : '✕') : (isCorrectOption ? '✓' : '')}

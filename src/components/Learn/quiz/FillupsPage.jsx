@@ -821,7 +821,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
               autoCorrect="off"
               autoCapitalize="none"
               spellCheck="false"
-              className={`w-full p-3 sm:p-3.5 md:p-4 text-lg sm:text-sm md:text-base lg:text-lg border-2 rounded-xl sm:rounded-2xl font-bold transition-all ${
+              className={`w-full p-3 sm:p-3.5 md:p-4 text-base sm:text-base md:text-lg lg:text-xl border-2 rounded-xl sm:rounded-2xl font-bold transition-all ${
                 showResult
                   ? isCorrect
                     ? 'bg-green-100 border-green-500 text-green-800'
@@ -841,7 +841,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
           <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto">
             <button
               onClick={() => showResult ? handleNext() : handleSubmit()}
-              className="w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-blue-600 text-white font-extrabold text-lg sm:text-base hover:bg-blue-700 transition-colors shadow-lg sm:shadow-none"
+              className="w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-blue-600 text-white font-extrabold text-lg sm:text-lg transition-colors shadow-lg sm:shadow-none"
             >
               Check
             </button>
