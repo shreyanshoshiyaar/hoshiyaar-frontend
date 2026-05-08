@@ -66,9 +66,8 @@ const MobileHome = ({
       </div>
 
       <div className="relative z-10 w-full flex flex-col px-4 pt-4">
-
         {/* Header - Transparent */}
-        <div className="flex items-center justify-between w-full z-20 mb-4">
+        <div className="flex items-center justify-between w-full z-20 mb-1">
           <div className="flex items-center">
             <img 
               src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1777997560/img-to-link/mfaw5t09dlayxlunzfas.png" 
@@ -76,13 +75,13 @@ const MobileHome = ({
               className="h-12 w-auto drop-shadow-sm" 
             />
           </div>
-          <div className="w-10 h-10"></div> {/* Bell icon removed */}
+          <div className="w-10 h-10"></div>
         </div>
 
         {/* Hero Banner Section */}
-        <div className="relative w-full mt-2 mb-4 overflow-hidden rounded-[24px] shadow-md border border-white/50">
+        <div className="relative w-full mt-0 mb-4 overflow-hidden rounded-[24px] shadow-md border border-white/50">
           <img 
-            src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778243529/img-to-link/cvjqidu0cuu3qiy0h4ed.webp" 
+            src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778245600/img-to-link/rqhpzqnjvb7lwofkj3v7.webp" 
             alt="Hero Banner" 
             className="w-full h-auto object-cover"
           />
