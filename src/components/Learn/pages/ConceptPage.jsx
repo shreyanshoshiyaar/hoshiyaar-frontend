@@ -348,6 +348,16 @@ export default function ConceptPage() {
   }
 
   const handleBack = useCallback(() => {
+    // Double press detection for quit popup
+    const lastPress = Number(sessionStorage.getItem('last_back_press_time') || 0);
+    const now = Date.now();
+    if (now - lastPress < 2000) { // 2 seconds threshold
+      setShowExitConfirm(true);
+      sessionStorage.removeItem('last_back_press_time'); // Clear to allow normal back if they stay
+      return;
+    }
+    sessionStorage.setItem('last_back_press_time', String(now));
+
     if (index > 0) {
       const prevIndex = index - 1;
       const prevItem = items[prevIndex];
@@ -550,7 +560,7 @@ export default function ConceptPage() {
             <ProgressBar currentIndex={index} total={items.length} />
           </div>
           <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
-            {(user?.role === 'master' || user?.username === 'Host') && (
+            {(user?.role === 'master' || user?.username === 'Host' || user?.username === 'hostcbse') && (
               <button
                 onClick={handleMasterSkip}
                 className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-black rounded-lg shadow-sm border-b-4 border-yellow-700 active:border-b-0 active:translate-y-1 transition-all mr-2 uppercase"
@@ -583,10 +593,6 @@ export default function ConceptPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
                   </svg>
                 </button>
-                
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur px-3 py-1 rounded-full text-white text-[10px] font-black tracking-widest uppercase z-10">
-                  Slide {comicSlideIndex + 1} / {introComicUrls.length}
-                </div>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center w-full">
@@ -700,7 +706,7 @@ export default function ConceptPage() {
           <ProgressBar currentIndex={index} total={items.length} />
         </div>
         <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
-          {(user?.role === 'master' || user?.username === 'Host') && (
+          {(user?.role === 'master' || user?.username === 'Host' || user?.username === 'hostcbse') && (
             <button
               onClick={handleMasterSkip}
               className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-black rounded-lg shadow-sm border-b-4 border-yellow-700 active:border-b-0 active:translate-y-1 transition-all mr-2 uppercase"
@@ -743,10 +749,6 @@ export default function ConceptPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
                 </svg>
               </button>
-              
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur px-3 py-1 rounded-full text-white text-[10px] font-black tracking-widest uppercase z-10">
-                Slide {comicSlideIndex + 1} / {introComicUrls.length}
-              </div>
             </div>
           </div>
         ) : (
