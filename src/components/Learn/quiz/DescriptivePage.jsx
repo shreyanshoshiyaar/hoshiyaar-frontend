@@ -419,13 +419,8 @@ export default function DescriptivePage() {
             />
 
             {!showResult ? (
-              <button
-                onClick={handleSubmit}
-                disabled={!userInput.trim()}
-                className="w-full py-4 bg-blue-600 text-white font-extrabold text-xl rounded-xl hover:bg-blue-700 disabled:opacity-50 shadow-lg"
-              >
-                Check Answer
-              </button>
+              <div className="sm:hidden"> {/* Mobile only spacer if needed */}
+              </div>
             ) : (
               <div className="space-y-6 animate-fade-in">
                 <div className={`p-6 rounded-2xl border-2 shadow-sm ${

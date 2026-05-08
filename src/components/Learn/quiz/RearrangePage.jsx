@@ -885,7 +885,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
       </div>
 
       {/* Main Content - optimized for mobile with reduced spacing */}
-      <div className="flex-1 w-full px-2 sm:px-4 md:px-6 max-w-5xl mx-auto overflow-y-auto pb-20 sm:pb-24">
+      <div className="flex-1 w-full px-2 sm:px-4 md:px-6 max-w-5xl mx-auto overflow-y-auto pb-40 sm:pb-32">
         <div className="mt-4 sm:mt-6 md:mt-8 mb-4 sm:mb-6">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 text-center lg:text-left leading-tight">
             {item.question}
@@ -960,19 +960,22 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
         </div>
       </div>
 
-      {/* Sticky Check Button */}
-      {!showResult && (
-        <div className="fixed left-0 right-0 bottom-0 z-50 bg-white border-t-2 border-gray-200 shadow-lg">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3">
+      {/* Bottom Action Bar - Unified for stability */}
+      <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white border-t-2 border-gray-200 shadow-lg sm:shadow-none px-2 sm:px-3 md:px-6 py-2 sm:py-3 z-50 sm:z-auto">
+        {!showResult ? (
+          <div className="w-full max-w-3xl mx-auto">
             <button
               onClick={handleSubmit}
-              className="w-full py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-base sm:text-lg"
+              disabled={arrangedWords.length === 0}
+              className={`w-full py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-base sm:text-lg transition-colors ${arrangedWords.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               Check
             </button>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="h-[60px] sm:h-0"></div>
+        )}
+      </div>
 
       {/* Inline feedback bar */}
       {showResult && (
