@@ -406,6 +406,11 @@ export default function DescriptivePage() {
               onChange={handleTextChange}
               disabled={showResult}
               placeholder="Type your answer here..."
+              autoComplete="one-time-code"
+              autoCorrect="off"
+              autoCapitalize="none"
+              spellCheck="false"
+              inputMode="text"
               className={`w-full h-40 p-4 border-2 rounded-xl text-lg font-medium focus:outline-none transition-colors ${
                 showResult 
                   ? (isCorrect ? 'border-green-400 bg-green-50' : 'border-red-400 bg-red-50') 

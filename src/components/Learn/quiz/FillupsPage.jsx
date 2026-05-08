@@ -817,10 +817,11 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
               onFocus={() => setIsInputFocused(true)}
               onBlur={() => setIsInputFocused(false)}
               autoFocus
-              autoComplete="off"
+              autoComplete="one-time-code"
               autoCorrect="off"
               autoCapitalize="none"
               spellCheck="false"
+              inputMode="text"
               className={`w-full p-3 sm:p-3.5 md:p-4 text-base sm:text-base md:text-lg lg:text-xl border-2 rounded-xl sm:rounded-2xl font-bold transition-all ${
                 showResult
                   ? isCorrect
