@@ -782,7 +782,15 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
   
   if (shouldShowVideo) {
     return (
-      <div className="h-screen bg-white flex flex-col overflow-hidden">
+        <div 
+          style={{ 
+            backgroundImage: 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778244665/img-to-link/lapihposkebjatdeljev.webp")',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
+          className="h-screen flex flex-col overflow-hidden"
+        >
         <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
           {!actualReviewMode && (
             <button
@@ -843,7 +851,15 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
   }
 
   return (
-    <div className="h-screen bg-white flex flex-col overflow-hidden">
+    <div 
+      style={{ 
+        backgroundImage: 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778244665/img-to-link/lapihposkebjatdeljev.webp")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+      className="h-screen flex flex-col overflow-hidden"
+    >
       {/* Header - reduced padding for mobile */}
       <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
         {!actualReviewMode && (
@@ -961,7 +977,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
       </div>
 
       {/* Bottom Action Bar - Unified for stability */}
-      <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white border-t-2 border-gray-200 shadow-lg sm:shadow-none px-2 sm:px-3 md:px-6 py-2 sm:py-3 z-50 sm:z-auto">
+      <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white/40 backdrop-blur-sm border-t-2 border-white/20 shadow-lg sm:shadow-none px-2 sm:px-3 md:px-6 py-2 sm:py-3 z-50 sm:z-auto">
         {!showResult ? (
           <div className="w-full max-w-3xl mx-auto">
             <button

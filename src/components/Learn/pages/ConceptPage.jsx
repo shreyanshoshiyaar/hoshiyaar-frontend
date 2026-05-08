@@ -463,6 +463,10 @@ export default function ConceptPage() {
     }
     return String(item?.type || '');
   })();
+
+  const bgImage = actualType === 'comic' 
+    ? 'https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778244662/img-to-link/eqapfsffgxkdty1pkq5f.webp'
+    : 'https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778244664/img-to-link/rja5gjrge66m1grxi284.webp';
   const midLessonKey = `${moduleNumber}:${index}`;
   const hasMidLessonVideo = midLessonVideos[midLessonKey];
   const shouldShowVideo = introVideoUrl && !videoAcknowledged && (index === 0 || hasMidLessonVideo || showEndVideo);
@@ -542,7 +546,15 @@ export default function ConceptPage() {
 
   if ((shouldShowVideo || shouldShowComic) && !isMobile) {
     return (
-      <div className="h-screen bg-white flex flex-col overflow-hidden">
+      <div 
+        style={{ 
+          backgroundImage: `url("${bgImage}")`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+        className="h-screen flex flex-col overflow-hidden"
+      >
         <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
           {!isInReviewOrRevision && (
             <button
@@ -684,7 +696,15 @@ export default function ConceptPage() {
 
 
   return (
-    <div className="fixed inset-0 bg-white flex flex-col overflow-hidden">
+    <div 
+      style={{ 
+        backgroundImage: `url("${bgImage}")`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+      className="fixed inset-0 flex flex-col overflow-hidden"
+    >
       {/* Header - reduced padding for mobile */}
       <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
         {!isInReviewOrRevision && (
@@ -787,7 +807,7 @@ export default function ConceptPage() {
         <div className="h-16 sm:h-0 md:h-0"></div>
       </div>
 
-      <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white border-t-2 border-blue-300 sm:border-t-0 shadow-lg sm:shadow-none px-2 sm:px-3 md:px-6 py-3 sm:py-4 z-50 sm:z-auto">
+      <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white/40 backdrop-blur-sm border-t-2 border-white/20 sm:border-t-0 shadow-lg sm:shadow-none px-2 sm:px-3 md:px-6 py-3 sm:py-4 z-50 sm:z-auto">
         <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto">
           <button
             onClick={() => {

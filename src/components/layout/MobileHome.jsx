@@ -79,20 +79,14 @@ const MobileHome = ({
           <div className="w-10 h-10"></div> {/* Bell icon removed */}
         </div>
 
-        {/* Hero Section (Responsive & Immersive) */}
-        <div className="relative w-full min-h-[140px] mt-2 mb-4 flex items-center">
-          <div className="relative z-10 w-[65%] pl-2">
-            <h1 className="text-[18px] sm:text-[21px] font-black text-gray-900 leading-[0.95] tracking-tighter">
-              Don't memorize <span className="text-blue-600">science.</span><br />
-              Solve it. Remember it.
-            </h1>
-          </div>
-          <div className="absolute bottom-[-10px] right-[-10px] w-[60%] h-[120%] z-0 flex items-end justify-end pointer-events-none">
-            <img src={heroChar} alt="Characters" className="object-contain h-full w-full object-bottom drop-shadow-[0_12px_16px_rgba(0,0,0,0.15)] scale-115 origin-bottom" />
-          </div>
+        {/* Hero Banner Section */}
+        <div className="relative w-full mt-2 mb-4 overflow-hidden rounded-[24px] shadow-md border border-white/50">
+          <img 
+            src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778243529/img-to-link/cvjqidu0cuu3qiy0h4ed.webp" 
+            alt="Hero Banner" 
+            className="w-full h-auto object-cover"
+          />
         </div>
-
-        {/* Stats Row (X-Large Text) */}
         <div className="w-full bg-white/95 rounded-[20px] p-2 shadow-[0_4px_12px_rgba(0,0,0,0.03)] flex justify-between items-center border border-white/60 backdrop-blur-md mb-2">
           {/* Rank */}
           <div className="flex items-center gap-1.5 w-1/3 justify-center">
