@@ -808,7 +808,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
         {/* Text Input for fill-in-the-blank - mobile optimized */}
         <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mb-1 sm:mb-3">
             <input
-              type="text"
+              type="search"
               ref={inputRef}
               value={userAnswer}
               onChange={(e) => setUserAnswer(e.target.value)}
@@ -817,11 +817,12 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
               onFocus={() => setIsInputFocused(true)}
               onBlur={() => setIsInputFocused(false)}
               autoFocus
-              autoComplete="one-time-code"
+              autoComplete="off"
               autoCorrect="off"
               autoCapitalize="none"
               spellCheck="false"
-              inputMode="text"
+              inputMode="search"
+              name="search"
               className={`w-full p-3 sm:p-3.5 md:p-4 text-base sm:text-base md:text-lg lg:text-xl border-2 rounded-xl sm:rounded-2xl font-bold transition-all ${
                 showResult
                   ? isCorrect
