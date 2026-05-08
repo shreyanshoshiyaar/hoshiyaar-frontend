@@ -13,7 +13,7 @@ const LoadingPage = () => {
       />
       
       {/* Loading Text at Bottom */}
-      <div className="absolute bottom-12 left-0 right-0 z-10 flex flex-col items-center justify-center">
+      <div className="absolute bottom-[20%] left-0 right-0 z-10 flex flex-col items-center justify-center">
         <div className="bg-white/40 backdrop-blur-md px-8 py-3 rounded-full border border-white/20 shadow-lg">
           <p className="text-xl font-bold text-gray-800 tracking-wider">Loading...</p>
         </div>

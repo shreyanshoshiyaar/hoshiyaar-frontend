@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useModuleItems } from '../../../hooks/useModuleItems';
 import { useReview } from '../../../context/ReviewContext.jsx';
+import SimpleLoading from '../../ui/SimpleLoading.jsx';
 
 export default function ModuleEntryRedirect() {
   const navigate = useNavigate();
@@ -60,7 +61,7 @@ export default function ModuleEntryRedirect() {
     }
   }, [items, loading, error, moduleNumber, navigate]);
 
-  if (loading) return <div className="p-6">Loading Module Content...</div>;
+  if (loading) return <SimpleLoading text="Loading Module Content..." />;
   if (error) return <div className="p-6 text-red-600">Error: {error}</div>;
   // If no items, keep user on learn dashboard gracefully
   return (
