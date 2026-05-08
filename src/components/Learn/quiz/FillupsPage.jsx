@@ -15,7 +15,7 @@ import { useModuleItems } from '../../../hooks/useModuleItems';
 import ConceptExitConfirm from '../../modals/ConceptExitConfirm.jsx';
 import correctSfx from '../../../assets/sounds/correct-choice-43861.mp3';
 import errorSfx from '../../../assets/sounds/error-010-206498.mp3';
-import Lottie from 'lottie-react';
+
 
 
 export default function FillupsPage({ onQuestionComplete, isReviewMode = false }) {
@@ -102,22 +102,11 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
     } catch (_) {}
   };
   const { stars: totalStars, awardCorrect, awardWrong, addToSession, clearSession } = useStars();
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [hoshiAnim, setHoshiAnim] = useState(null);
-  const [popAnim, setPopAnim] = useState(null);
-  const [bgAnim, setBgAnim] = useState(null);
 
-  useEffect(() => {
-    fetch('/lottie/Ruhaan2.json').then(res => res.json()).then(data => setHoshiAnim(data)).catch(console.error);
-    fetch('/lottie/pop.json').then(res => res.json()).then(data => setPopAnim(data)).catch(console.error);
-    fetch('/lottie/Ruhaan-Background.json').then(res => res.json()).then(data => setBgAnim(data)).catch(console.error);
-  }, []);
 
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+
+
+
 
   const [feedback, setFeedback] = useState({ open: false, correct: false, expected: '' });
   const [userAnswer, setUserAnswer] = useState('');
@@ -715,199 +704,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
       </div>
     );
   }
-  if (isMobile) {
-    return (
-      <div className="h-[100dvh] w-full relative overflow-hidden bg-gradient-to-b from-[#4138a3] to-[#7b5ef0]">
-        {/* Background Starry Lottie */}
-        <div className="absolute inset-0 z-0">
-          {bgAnim && (
-            <Lottie
-              animationData={bgAnim}
-              loop={true}
-              className="w-full h-full object-cover opacity-100"
-              rendererSettings={{
-                preserveAspectRatio: 'xMidYMid slice'
-              }}
-            />
-          )}
-        </div>
 
-        {/* Floating Header */}
-        <div className="absolute top-0 left-0 right-0 p-5 flex flex-col gap-4 z-30">
-          <div className="flex items-center justify-between">
-            {!actualReviewMode && (
-              <button
-                onClick={() => setShowExitConfirm(true)}
-                className="w-11 h-11 flex items-center justify-center rounded-full bg-[#6d5dfc] text-white shadow-lg active:scale-95 transition-all border-2 border-white/20"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                </svg>
-              </button>
-            )}
-            {actualReviewMode && <div className="w-11 h-11"></div>}
-
-            <div className="flex-1 flex flex-col items-center px-4">
-              <div className="w-full max-w-[180px]">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-[11px] font-black text-white uppercase tracking-wider">Lesson Progress</span>
-                  <span className="text-[11px] font-black text-white tracking-widest">{index + 1}/{items.length}</span>
-                </div>
-                <div className="h-3 w-full bg-white/30 rounded-full overflow-hidden border border-white/20">
-                  <div 
-                    className="h-full bg-[#a166ff] transition-all duration-500 rounded-full" 
-                    style={{ width: `${((index + 1) / items.length) * 100}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center">
-              <div className="bg-white rounded-full p-1.5 px-3 shadow-lg flex items-center gap-2 h-10 border border-purple-100">
-                <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center text-white shadow-sm">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                    <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <span className="text-sm font-black text-blue-900">{totalStars}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Mascot Section - Positioned to sit on top of the panel */}
-        <div className="absolute top-[-30px] left-0 right-0 flex justify-center z-0 pointer-events-none">
-          <div className="relative w-full max-sm flex items-center justify-center px-4 scale-[0.65]">
-            <div className="w-64 h-64 -ml-10 -mb-16 opacity-100">
-              {hoshiAnim && <Lottie animationData={hoshiAnim} loop={true} className="w-full h-full drop-shadow-2xl" />}
-            </div>
-            <div className="w-64 h-64 -ml-24 mt-10">
-              {popAnim && <Lottie animationData={popAnim} loop={true} className="w-full h-full" />}
-            </div>
-          </div>
-        </div>
-
-        {/* Minimal Bottom Panel */}
-        <div className="absolute bottom-0 left-0 right-0 h-[calc(100dvh-165px)] bg-white rounded-t-[40px] shadow-[0_-20px_50px_rgba(0,0,0,0.15)] z-10 flex flex-col overflow-hidden border-t border-white/50">
-          <div className="flex-1 overflow-y-auto no-scrollbar p-6 pt-10 pb-24">
-            <div className="w-full max-w-md mx-auto flex flex-col items-center">
-              <h2 className="text-xl font-black text-gray-800 text-center leading-tight mb-6">
-                {item.question}
-              </h2>
-
-              {/* Images Grid */}
-              {(() => {
-                const imgs = (item.images || []).filter(Boolean);
-                const primary = item.imageUrl ? [item.imageUrl] : [];
-                const list = imgs.length > 0 ? imgs : primary;
-                if (list.length === 0) return null;
-                return (
-                  <div className="flex flex-wrap justify-center gap-3 mb-6">
-                    {list.slice(0, 4).map((src, i) => (
-                      <div key={i} className="bg-white rounded-2xl border border-gray-100 p-2 shadow-sm">
-                        <img src={src} alt={'fillup-'+i} className="h-32 w-24 object-contain rounded-lg" />
-                      </div>
-                    ))}
-                  </div>
-                );
-              })()}
-
-              {/* Input Section */}
-              <div className="w-full mb-6">
-                <input
-                  type="text"
-                  ref={inputRef}
-                  value={userAnswer}
-                  onChange={(e) => setUserAnswer(e.target.value)}
-                  placeholder="Type the full word here..."
-                  disabled={showResult}
-                  autoFocus
-                  className={`w-full p-5 text-lg font-bold border-2 rounded-[24px] transition-all text-center ${
-                    showResult
-                      ? isCorrect
-                        ? 'bg-green-50 border-green-500 text-green-800'
-                        : 'bg-red-50 border-red-500 text-red-800'
-                      : 'bg-white border-gray-200 text-gray-700 focus:border-[#6d5dfc] focus:outline-none shadow-inner'
-                  }`}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Action Button Section - Fixed at bottom of panel */}
-          {!showResult && (
-            <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white via-white to-transparent pt-10">
-              <button
-                onClick={() => handleSubmit()}
-                disabled={!userAnswer.trim()}
-                className={`w-full py-4 rounded-[24px] font-black text-xl tracking-wide shadow-[0_6px_0_0_#4a3fcc] active:shadow-none active:translate-y-2 transition-all uppercase ${
-                  !userAnswer.trim() ? 'bg-gray-300 text-white shadow-none' : 'bg-[#6d5dfc] text-white'
-                }`}
-              >
-                Check
-              </button>
-            </div>
-          )}
-
-          {/* Feedback Section - Fixed at bottom of panel */}
-          {showResult && (
-            <div className={`absolute bottom-0 left-0 right-0 p-6 pt-10 border-t-2 ${
-              isCorrect 
-                ? 'bg-[#d7ffb8] border-green-200' 
-                : 'bg-[#ffedeb] border-red-200'
-            }`}>
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-sm ${
-                    isCorrect ? 'bg-white text-green-600' : 'bg-red-500 text-white'
-                  }`}>
-                    <span className="text-xl font-bold">{isCorrect ? '✓' : '✕'}</span>
-                  </div>
-                  <div>
-                    <p className={`text-lg font-black ${isCorrect ? 'text-green-700' : 'text-red-500'}`}>
-                      {isCorrect ? 'Correct!' : 'Incorrect'}
-                    </p>
-                    {!isCorrect && (
-                      <p className="text-gray-700 text-sm font-bold line-clamp-2">
-                        {Array.isArray(item?.answer) ? item?.answer[0] : item?.answer}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <button
-                  onClick={isCorrect ? handleNext : handleTryAgain}
-                  className={`w-full py-4 rounded-[24px] font-black text-xl tracking-wide shadow-[0_6px_0_0_rgba(0,0,0,0.15)] active:shadow-none active:translate-y-1 transition-all uppercase ${
-                    isCorrect ? 'bg-[#58cc02] text-white hover:bg-[#61e002]' : 'bg-[#ff4b4b] text-white hover:bg-[#ff5f5f]'
-                  }`}
-                >
-                  {isCorrect ? 'CONTINUE' : 'TRY AGAIN'}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-
-        {showExitConfirm && (
-          <div className="fixed inset-0 z-[9999]">
-            <ConceptExitConfirm
-              onQuit={() => {
-                const urlParams = new URLSearchParams(window.location.search);
-                const chapterId = urlParams.get('chapterId');
-                const unitId = urlParams.get('unitId');
-                const params = new URLSearchParams();
-                if (chapterId) params.set('chapterId', chapterId);
-                if (unitId) params.set('unitId', unitId);
-                const query = params.toString();
-                navigate(`/learn${query ? '?' + query : ''}`);
-              }}
-              onContinue={() => setShowExitConfirm(false)}
-            />
-          </div>
-        )}
-      </div>
-    );
-  }
 
   return (
 
@@ -939,10 +736,12 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
       </div>
 
       {/* Main Content - optimized for mobile with reduced spacing */}
-      <div className="flex-1 flex flex-col items-center px-2 sm:px-3 md:px-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 80px)' }}>
-        <h2 className="text-xl sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-extrabold text-gray-900 text-center mt-2 sm:mt-6 md:mt-8 mb-2 sm:mb-3 md:mb-4 text-overflow-fix px-1 sm:px-2">
-          {item.question}
-        </h2>
+      <div className="flex-1 flex flex-col items-center px-2 sm:px-3 md:px-6 overflow-y-auto pb-20" style={{ maxHeight: 'calc(100vh - 80px)' }}>
+        <div className="w-full max-w-4xl mt-4 sm:mt-6 md:mt-8 mb-4 sm:mb-6 px-2">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 text-center leading-tight">
+            {item.question}
+          </h2>
+        </div>
 
         {/* Image block BETWEEN question and input. If no image, reserve space */}
         {(() => {
