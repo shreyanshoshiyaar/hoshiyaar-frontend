@@ -856,31 +856,8 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 items-start">
-          {/* Image (Left) */}
-          {(() => {
-            const imgs = (item.images || []).filter(Boolean);
-            const primary = item.imageUrl ? [item.imageUrl] : [];
-            const list = imgs.length > 0 ? imgs : primary;
-            if (list.length === 0) {
-              return (
-                <div className="w-full h-48 sm:h-56 md:h-64 rounded-xl sm:rounded-2xl border-2 border-gray-200 bg-gray-50 flex items-center justify-center">
-                  <span className="text-gray-400 text-sm sm:text-base">Image</span>
-                </div>
-              );
-            }
-            return (
-              <div className="w-full rounded-xl sm:rounded-2xl border-2 border-gray-200 bg-white flex items-center justify-center p-2 sm:p-3">
-                <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-                  {list.slice(0, 5).map((src, i) => (
-                    <img key={i} src={src} alt={`rearrange-${i}`} className="h-40 w-32 sm:h-48 sm:w-40 md:h-56 md:w-44 object-contain rounded-lg sm:rounded-xl border" />
-                  ))}
-                </div>
-              </div>
-            );
-          })()}
-
-          <div className="flex flex-col">
+        <div className="flex flex-col gap-4 sm:gap-6 md:gap-8 items-center">
+          <div className="flex flex-col w-full max-w-3xl">
             <div className="relative w-full">
               <div
                 className={`w-full h-auto min-h-[120px] sm:min-h-[140px] border-2 border-dashed border-gray-300 rounded-[20px] sm:rounded-2xl p-3 sm:p-4 bg-gray-50 flex flex-wrap gap-2 items-start content-start ${isResetting ? 'transition-opacity opacity-50' : ''}`}
