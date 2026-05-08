@@ -747,8 +747,8 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
           </h2>
         </div>
 
-        {/* Image block - Hidden when focused on mobile to save space */}
-        {!isInputFocused && (() => {
+        {/* Image block */}
+        {(() => {
           const imgs = (item.images || []).filter(Boolean);
           const primary = item.imageUrl ? [item.imageUrl] : [];
           const list = imgs.length > 0 ? imgs : primary;
@@ -764,7 +764,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
               <div className="flex flex-wrap justify-center gap-1 sm:gap-3 md:gap-5">
                 {list.slice(0, 5).map((src, i) => (
                   <div key={i} className="border border-blue-300 rounded-xl sm:rounded-2xl p-1 sm:p-3 bg-white shadow-sm">
-                    <img src={src} alt={`fillup-${i}`} className="h-24 w-20 sm:h-28 sm:w-20 md:h-40 md:w-28 lg:h-52 lg:w-40 object-contain rounded-lg sm:rounded-xl" />
+                    <img src={src} alt={`fillup-${i}`} className="h-28 w-24 sm:h-32 sm:w-24 md:h-44 md:w-32 lg:h-56 lg:w-44 object-contain rounded-lg sm:rounded-xl shadow-sm" />
                   </div>
                 ))}
               </div>
