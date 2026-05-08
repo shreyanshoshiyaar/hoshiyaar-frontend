@@ -399,6 +399,9 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
   const handleSubmit = async () => {
     if (showResult || !item || !item.answer) return;
     
+    // Explicitly blur input to handle mobile keyboard transition smoothly
+    if (inputRef.current) inputRef.current.blur();
+    
     const answer = normalizeAnswer(userAnswer);
     let correct = false;
     
@@ -773,7 +776,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
       </div>
 
       {/* Main Content - optimized for mobile with reduced spacing */}
-      <div className="flex-1 flex flex-col items-center px-2 sm:px-3 md:px-6 overflow-y-auto pb-32">
+      <div className="flex-1 flex flex-col items-center px-2 sm:px-3 md:px-6 overflow-y-auto pb-40 sm:pb-32">
         <div className={`w-full max-w-4xl px-2 transition-all duration-300 ${isInputFocused ? 'mt-2 mb-2' : 'mt-4 sm:mt-6 md:mt-8 mb-4 sm:mb-6'}`}>
           <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 text-center leading-tight">
             {item.question}
@@ -837,19 +840,24 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
 
       </div>
 
-      {/* Continue Button - fixed on mobile, normal on desktop */}
-      {!showResult && (
-        <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white border-t-2 border-blue-300 sm:border-t-0 shadow-lg sm:shadow-none px-2 sm:px-3 md:px-6 py-2 sm:py-3 z-50 sm:z-auto">
+      {/* Bottom Action Bar - Unified for stability */}
+      <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white border-t-2 border-blue-300 sm:border-t-0 shadow-lg sm:shadow-none px-2 sm:px-3 md:px-6 py-2 sm:py-3 z-50 sm:z-auto">
+        {!showResult ? (
           <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto">
             <button
-              onClick={() => showResult ? handleNext() : handleSubmit()}
+              onClick={() => {
+                inputRef.current?.blur();
+                handleSubmit();
+              }}
               className="w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-blue-600 text-white font-extrabold text-lg sm:text-lg transition-colors shadow-lg sm:shadow-none"
             >
               Check
             </button>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="h-[60px] sm:h-0"></div> // Spacer to keep layout stable on desktop when feedback appears
+        )}
+      </div>
 
       {/* Inline feedback bar - Duolingo Style (Refined Classy Theme) */}
       {showResult && (

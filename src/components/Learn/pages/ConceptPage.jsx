@@ -718,8 +718,8 @@ export default function ConceptPage() {
         </div>
       </div>
 
-      {/* Main Content - mobile optimized, desktop unchanged */}
-      <div className={`flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 ${(itemVideoUrl || actualType === 'video') ? 'overflow-hidden' : 'overflow-y-auto'}`} style={{ maxHeight: 'calc(100vh - 80px)' }}>
+      {/* Main Content - stable height to prevent background moving */}
+      <div className={`flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 pb-40 sm:pb-32 ${(itemVideoUrl || actualType === 'video') ? 'overflow-hidden' : 'overflow-y-auto'}`} style={{ maxHeight: 'calc(100vh - 80px)' }}>
         {(itemVideoUrl || actualType === 'video') ? (
           <div className="flex-1 flex flex-col items-center justify-center p-4">
             <div className={`${isShortVideo ? 'aspect-[9/16] h-[74vh] max-h-[calc(100vh-230px)]' : 'w-full max-w-4xl aspect-video'} rounded-3xl overflow-hidden border border-gray-100 shadow-lg bg-black flex-shrink-0 mt-2 sm:mt-6`}>

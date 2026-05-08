@@ -1008,9 +1008,9 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         <div className="h-4 sm:h-0 md:h-0"></div>
       </div>
 
-      {/* Check Button - fixed on mobile, normal on desktop */}
-      {!showResult && (
-        <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white border-t-2 border-blue-300 sm:border-t-0 shadow-lg sm:shadow-none px-2 sm:px-3 md:px-6 py-2 sm:py-3 z-50 sm:z-auto">
+      {/* Bottom Action Bar - Unified for stability */}
+      <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white border-t-2 border-blue-300 sm:border-t-0 shadow-lg sm:shadow-none px-2 sm:px-3 md:px-6 py-2 sm:py-3 z-50 sm:z-auto">
+        {!showResult ? (
           <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto">
             <button
               onClick={handleSubmit}
@@ -1022,8 +1022,10 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
               Check
             </button>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="h-[60px] sm:h-0"></div> // Spacer to keep layout stable on desktop when feedback appears
+        )}
+      </div>
 
       {/* Inline feedback bar - Duolingo Style (Refined Classy Theme) */}
       {showResult && (
