@@ -708,7 +708,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
 
   return (
 
-    <div className="h-screen bg-white flex flex-col overflow-hidden">
+    <div className="min-h-[100dvh] bg-white flex flex-col">
       {/* Header - reduced padding for mobile */}
       <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
         {!actualReviewMode && (
@@ -736,7 +736,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
       </div>
 
       {/* Main Content - optimized for mobile with reduced spacing */}
-      <div className="flex-1 flex flex-col items-center px-2 sm:px-3 md:px-6 overflow-y-auto pb-20" style={{ maxHeight: 'calc(100vh - 80px)' }}>
+      <div className="flex-1 flex flex-col items-center px-2 sm:px-3 md:px-6 pb-20">
         <div className="w-full max-w-4xl mt-4 sm:mt-6 md:mt-8 mb-4 sm:mb-6 px-2">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 text-center leading-tight">
             {item.question}
@@ -760,7 +760,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
               <div className="flex flex-wrap justify-center gap-1 sm:gap-3 md:gap-5">
                 {list.slice(0, 5).map((src, i) => (
                   <div key={i} className="border border-blue-300 rounded-xl sm:rounded-2xl p-1 sm:p-3 bg-white shadow-sm">
-                    <img src={src} alt={`fillup-${i}`} className="h-36 w-28 sm:h-28 sm:w-20 md:h-40 md:w-28 lg:h-52 lg:w-40 object-contain rounded-lg sm:rounded-xl" />
+                    <img src={src} alt={`fillup-${i}`} className="h-24 w-20 sm:h-28 sm:w-20 md:h-40 md:w-28 lg:h-52 lg:w-40 object-contain rounded-lg sm:rounded-xl" />
                   </div>
                 ))}
               </div>
@@ -789,7 +789,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
           </div>
         
         {/* Bottom padding - mobile only for fixed button */}
-        <div className="h-16 sm:h-0 md:h-0"></div>
+
       </div>
 
       {/* Continue Button - fixed on mobile, normal on desktop */}
