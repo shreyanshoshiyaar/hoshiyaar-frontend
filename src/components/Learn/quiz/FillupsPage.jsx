@@ -123,6 +123,22 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
   const [hasAttempted, setHasAttempted] = useState(false);
   const [videoAcknowledged, setVideoAcknowledged] = useState(false);
   const [showEndVideo, setShowEndVideo] = useState(false);
+  const [viewportHeight, setViewportHeight] = useState('100dvh');
+
+  useEffect(() => {
+    // Lock viewport height to prevent keyboard resize jumps
+    const handleResize = () => {
+      // Only lock if we are on a mobile-like screen
+      if (window.innerWidth < 768) {
+        setViewportHeight(`${window.innerHeight}px`);
+      } else {
+        setViewportHeight('100%');
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
 
   // Start-of-lesson videos (index 0)
@@ -742,7 +758,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
 
   return (
 
-    <div className="fixed inset-0 bg-white flex flex-col overflow-hidden">
+    <div style={{ height: viewportHeight }} className="fixed inset-0 bg-white flex flex-col overflow-hidden">
       {/* Header - reduced padding for mobile */}
       <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
         {!actualReviewMode && (
@@ -777,7 +793,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
 
       {/* Main Content - optimized for mobile with reduced spacing */}
       <div className="flex-1 flex flex-col items-center px-2 sm:px-3 md:px-6 overflow-y-auto pb-40 sm:pb-32">
-        <div className={`w-full max-w-4xl px-2 transition-all duration-300 ${isInputFocused ? 'mt-2 mb-2' : 'mt-4 sm:mt-6 md:mt-8 mb-4 sm:mb-6'}`}>
+        <div className="w-full max-w-4xl px-2 mt-4 sm:mt-6 md:mt-8 mb-4 sm:mb-6">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 text-center leading-tight">
             {item.question}
           </h2>
@@ -826,7 +842,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
               spellCheck="false"
               inputMode="search"
               name="search"
-              className={`w-full p-3 sm:p-3.5 md:p-4 text-base sm:text-base md:text-lg lg:text-xl border-2 rounded-xl sm:rounded-2xl font-bold transition-all ${
+              className={`w-full p-3 sm:p-3.5 md:p-4 text-base sm:text-base md:text-lg lg:text-xl border-2 rounded-xl sm:rounded-2xl font-bold ${
                 showResult
                   ? isCorrect
                     ? 'bg-green-100 border-green-500 text-green-800'
@@ -861,7 +877,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
 
       {/* Inline feedback bar - Duolingo Style (Refined Classy Theme) */}
       {showResult && (
-        <div className={`fixed left-0 right-0 bottom-0 z-[100] animate-in slide-in-from-bottom duration-300 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.2)] ${
+        <div className={`fixed left-0 right-0 bottom-0 z-[100] pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.2)] ${
           isCorrect ? 'bg-[#d7ffb8]' : 'bg-[#1a2b3c]'
         }`}>
           <div className="max-w-sm mx-auto px-6 py-4 flex flex-col gap-3">
