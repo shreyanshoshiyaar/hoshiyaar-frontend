@@ -1767,18 +1767,8 @@ const LearnDashboard = ({ onboardingData }) => {
     <ReviewProvider>
       <div className="bg-gradient-to-b from-[#E6F2FF] to-[#F7FBFF] h-screen flex flex-col md:flex-row overflow-hidden">
         {/* Mobile Header */}
-        {(!isMobileLayout || (activeTab !== 'home' && activeTab !== 'ranks')) && (
-          <div className="md:hidden fixed top-0 left-0 right-0 z-[1001] backdrop-blur-md bg-white/10 border-b border-white/10 p-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <img 
-                src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1777997560/img-to-link/mfaw5t09dlayxlunzfas.png" 
-                alt="HoshiYaar Logo" 
-                className="h-8 w-auto drop-shadow-sm" 
-              />
-            </div>
-            <div className="w-10 h-10"></div> {/* Bell removed */}
-          </div>
-        )}
+        {/* Mobile Header Removed Per Request */}
+
 
         {/* Mobile Menu Overlay */}
         {isMobileMenuOpen && (
@@ -1940,7 +1930,7 @@ const LearnDashboard = ({ onboardingData }) => {
           <MobileMore stars={stars} weeklyStars={weeklyStars} />
         ) : (
           <>
-            <main className={`flex-grow p-1 md:p-3 overflow-y-auto no-scrollbar bg-transparent mt-16 md:mt-0 ${isMobileLayout ? 'overflow-x-hidden pb-24' : 'overflow-x-visible'}`}>
+            <main className={`flex-grow p-1 md:p-3 overflow-y-auto no-scrollbar bg-transparent ${isMobileLayout ? 'mt-0 overflow-x-hidden pb-24' : 'mt-16 md:mt-0 overflow-x-visible'}`}>
             {/* Mobile Score Display removed per request */}
 
           {/* Section Header (hide when viewing chapters list). If units exist, headers are shown per unit below, so hide this top one. */}
@@ -2107,7 +2097,7 @@ const LearnDashboard = ({ onboardingData }) => {
                       if (unitsList.length === 0 && modulesList.length > 0) {
                         return (
                           <div
-                            className="relative pt-12 pb-28"
+                            className={`relative ${isMobileLayout ? 'pt-2' : 'pt-12'} pb-28`}
                             data-chapter-id={chapterId}
                           >
                             {/* Unit header card for direct modules */}
@@ -2324,7 +2314,7 @@ const LearnDashboard = ({ onboardingData }) => {
                               return (
                                 <div
                                   key={u._id || unitIdx}
-                                  className={`relative pb-28 ${ (u.timelineBgUrl && isMobileLayout) ? 'pt-8 -mx-1 md:-mx-3 px-4 md:px-6 -mb-1 md:-mb-3' : 'pt-12'}`}
+                                  className={`relative pb-28 ${ (u.timelineBgUrl && isMobileLayout) ? 'pt-8 -mx-1 md:-mx-3 px-4 md:px-6 -mb-1 md:-mb-3' : (isMobileLayout ? 'pt-2' : 'pt-12')}`}
                                   style={(u.timelineBgUrl && isMobileLayout) ? {
                                     background: `url(${u.timelineBgUrl}) center/cover no-repeat`
                                   } : {}}
@@ -2543,7 +2533,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                            {(index + 1) % 3 === 0 && index < localLevels.length - 1 && (
                                              <PathAnimation
                                                data={pathAnimationData}
-                                               offset={unitIdx % 2 === 0 ? (isMobileLayout ? -80 : -180) : (isMobileLayout ? 80 : 180)}
+                                               offset={unitIdx % 2 === 0 ? (isMobileLayout ? -80 : -180) : (isMobileLayout ? 110 : 180)}
                                                top={rowSpacing * 0.5}
                                                isMobileLayout={isMobileLayout}
                                              />
