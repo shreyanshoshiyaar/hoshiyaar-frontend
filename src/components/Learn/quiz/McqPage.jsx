@@ -466,6 +466,16 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
   }
 
   const handleBack = useCallback(() => {
+    // Double press detection for quit popup
+    const lastPress = Number(sessionStorage.getItem('last_back_press_time') || 0);
+    const now = Date.now();
+    if (now - lastPress < 2000) { // 2 seconds threshold
+      setShowExitConfirm(true);
+      sessionStorage.removeItem('last_back_press_time'); // Clear to allow normal back if they stay
+      return;
+    }
+    sessionStorage.setItem('last_back_press_time', String(now));
+
     if (index > 0) {
       const prevIndex = index - 1;
       const prevItem = items[prevIndex];
@@ -881,7 +891,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
           <ProgressBar currentIndex={index} total={items.length} />
         </div>
         <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
-          {(user?.role === 'master' || user?.username === 'Host') && (
+          {(user?.role === 'master' || user?.username === 'Host' || user?.username === 'hostcbse') && (
             <button
               onClick={handleMasterSkip}
               className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-black rounded-lg shadow-sm border-b-4 border-yellow-700 active:border-b-0 active:translate-y-1 transition-all mr-2 uppercase"
@@ -934,8 +944,8 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
                   const isImageUrl = typeof opt === 'string' && (opt.startsWith('http') || opt.startsWith('https'));
                   
                   let buttonClass = hasImageOptions 
-                    ? "p-2 sm:p-3 md:p-4 rounded-xl sm:rounded-2xl border-2 text-center transition-all duration-200 " 
-                    : "p-2 sm:p-3 md:p-4 rounded-xl sm:rounded-2xl border-2 text-center transition-all duration-200 flex-1 ";
+                    ? "p-2 sm:p-3 md:p-4 rounded-xl sm:rounded-2xl border-2 text-left transition-all duration-200 " 
+                    : "p-2 sm:p-3 md:p-4 rounded-xl sm:rounded-2xl border-2 text-left transition-all duration-200 flex-1 ";
             
                   if (showResult) {
                     if (isSelected) {

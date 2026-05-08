@@ -34,8 +34,8 @@ const AdminProtectedRoute = ({ children }) => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // Specific credentials: Host / 01/01/2000
-    if (formData.username === 'Host' && formData.dob === '01/01/2000') {
+    // Specific credentials: Host or hostcbse / 01/01/2000
+    if ((formData.username === 'Host' || formData.username === 'hostcbse') && formData.dob === '01/01/2000') {
       setIsAdmin(true);
       sessionStorage.setItem('isAdmin', 'true');
     } else {
