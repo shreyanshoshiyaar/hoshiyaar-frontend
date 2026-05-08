@@ -240,6 +240,7 @@ export default function ConceptPage() {
 
   const isShortVideo = useMemo(() => {
     const sources = [
+      introVideoUrl,
       item?.imageUrl,
       item?.videoUrl,
       item?.text,
@@ -251,7 +252,7 @@ export default function ConceptPage() {
       }
     }
     return false;
-  }, [item]);
+  }, [item, introVideoUrl]);
 
 
 
@@ -564,34 +565,40 @@ export default function ConceptPage() {
         <div className="flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 80px)' }}>
           <div className="w-full max-w-3xl sm:max-w-4xl mt-4 sm:mt-6 md:mt-8">
             {shouldShowComic ? (
-              <div className="relative w-full rounded-xl border border-gray-200 shadow-sm overflow-hidden flex items-center justify-center p-2 bg-gray-50" style={{ minHeight: '60vh' }}>
+              <div className="relative w-full rounded-xl sm:rounded-2xl border-2 border-blue-50 shadow-md overflow-hidden flex items-center justify-center bg-white" style={{ minHeight: '65vh' }}>
                 <img
                   src={introComicUrls[comicSlideIndex]}
                   alt={`Comic slide ${comicSlideIndex + 1}`}
-                  className="max-w-full max-h-[65vh] object-contain cursor-zoom-in"
+                  className="w-full h-full object-contain cursor-zoom-in"
                   onClick={() => setIsZoomed(true)}
                 />
 
                 {/* Zoom button on top right */}
                 <button
                   onClick={() => setIsZoomed(true)}
-                  className="absolute top-4 right-4 bg-white/80 backdrop-blur text-gray-800 p-2.5 rounded-lg shadow-md border border-gray-200 hover:bg-white transition-colors"
+                  className="absolute top-4 right-4 bg-white/90 backdrop-blur text-gray-800 p-2.5 rounded-lg shadow-md border border-gray-200 hover:bg-white transition-colors z-10"
                   title="Zoom In"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
                   </svg>
                 </button>
+                
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur px-3 py-1 rounded-full text-white text-[10px] font-black tracking-widest uppercase z-10">
+                  Slide {comicSlideIndex + 1} / {introComicUrls.length}
+                </div>
               </div>
             ) : (
-              <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
-                <iframe
-                  src={introVideoUrl}
-                  title="Lesson intro video"
-                  className="absolute inset-0 w-full h-full rounded-xl border border-gray-200 shadow-sm"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen={false}
-                />
+              <div className="flex flex-col items-center justify-center w-full">
+                <div className={`relative ${isShortVideo ? 'aspect-[9/16] h-[65vh]' : 'w-full aspect-video'} rounded-xl sm:rounded-2xl overflow-hidden border-2 border-blue-50 shadow-md bg-black`}>
+                  <iframe
+                    src={introVideoUrl}
+                    title="Lesson intro video"
+                    className="absolute inset-0 w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen={true}
+                  />
+                </div>
               </div>
             )}
 
@@ -719,6 +726,29 @@ export default function ConceptPage() {
               />
             </div>
           </div>
+        ) : shouldShowComic ? (
+          <div className="flex-1 flex flex-col items-center justify-start p-2 sm:p-4 w-full">
+            <div className="w-full max-w-xl aspect-[3/4] sm:aspect-[4/5] relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white flex items-center justify-center border-2 border-blue-50 shadow-md">
+              <img
+                src={introComicUrls[comicSlideIndex]}
+                alt={`Comic slide ${comicSlideIndex + 1}`}
+                className="w-full h-full object-contain cursor-zoom-in"
+                onClick={() => setIsZoomed(true)}
+              />
+              <button
+                onClick={() => setIsZoomed(true)}
+                className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-white/90 backdrop-blur p-2 sm:p-2.5 rounded-lg shadow-sm border border-gray-200 text-gray-700 hover:bg-white transition-all z-10"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
+                </svg>
+              </button>
+              
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur px-3 py-1 rounded-full text-white text-[10px] font-black tracking-widest uppercase z-10">
+                Slide {comicSlideIndex + 1} / {introComicUrls.length}
+              </div>
+            </div>
+          </div>
         ) : (
           <>
             {/* Title and Text - mobile optimized, desktop unchanged */}
@@ -755,15 +785,28 @@ export default function ConceptPage() {
         <div className="h-16 sm:h-0 md:h-0"></div>
       </div>
 
-      {/* Continue button - fixed on mobile, normal on desktop */}
       <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white border-t-2 border-blue-300 sm:border-t-0 shadow-lg sm:shadow-none px-2 sm:px-3 md:px-6 py-3 sm:py-4 z-50 sm:z-auto">
         <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto">
           <button
-            onClick={goNext}
+            onClick={() => {
+              if (shouldShowComic) {
+                if (comicSlideIndex < introComicUrls.length - 1) {
+                  setComicSlideIndex(prev => prev + 1);
+                } else {
+                  if (actualType === 'comic') goNext(); else setVideoAcknowledged(true);
+                }
+              } else {
+                goNext();
+              }
+            }}
             disabled={isComicActive && comicReadTimer > 0}
-            className={`w-full py-3 sm:py-4 md:py-5 rounded-lg sm:rounded-xl text-white font-extrabold text-xl sm:text-base md:text-lg transition-colors shadow-lg sm:shadow-none ${isComicActive && comicReadTimer > 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+            className={`w-full py-3 sm:py-4 md:py-5 rounded-lg sm:rounded-xl text-white font-extrabold text-xl sm:text-base md:text-lg transition-colors shadow-lg sm:shadow-none ${
+              isComicActive && comicReadTimer > 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+            }`}
           >
-            {isComicActive && comicReadTimer > 0 ? `Please wait ${comicReadTimer}s...` : 'Continue'}
+            {isComicActive && comicReadTimer > 0 
+              ? `Please wait ${comicReadTimer}s...` 
+              : (shouldShowComic && comicSlideIndex < introComicUrls.length - 1 ? 'Next' : 'Continue')}
           </button>
         </div>
       </div>
