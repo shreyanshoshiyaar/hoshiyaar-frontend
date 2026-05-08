@@ -1930,7 +1930,7 @@ const LearnDashboard = ({ onboardingData }) => {
           <MobileMore stars={stars} weeklyStars={weeklyStars} />
         ) : (
           <>
-            <main className={`flex-grow p-1 md:p-3 overflow-y-auto no-scrollbar bg-transparent ${isMobileLayout ? 'mt-0 overflow-x-hidden pb-24' : 'mt-16 md:mt-0 overflow-x-visible'}`}>
+            <main className={`flex-grow ${isMobileLayout ? 'p-0' : 'p-3'} overflow-y-auto no-scrollbar bg-transparent ${isMobileLayout ? 'mt-0 overflow-x-hidden pb-10' : 'mt-16 md:mt-0 overflow-x-visible'}`}>
             {/* Mobile Score Display removed per request */}
 
           {/* Section Header (hide when viewing chapters list). If units exist, headers are shown per unit below, so hide this top one. */}
@@ -2097,7 +2097,7 @@ const LearnDashboard = ({ onboardingData }) => {
                       if (unitsList.length === 0 && modulesList.length > 0) {
                         return (
                           <div
-                            className={`relative ${isMobileLayout ? 'pt-2' : 'pt-12'} pb-28`}
+                            className={`relative ${isMobileLayout ? 'pt-0' : 'pt-12'} pb-10`}
                             data-chapter-id={chapterId}
                           >
                             {/* Unit header card for direct modules */}
@@ -2314,7 +2314,7 @@ const LearnDashboard = ({ onboardingData }) => {
                               return (
                                 <div
                                   key={u._id || unitIdx}
-                                  className={`relative pb-28 ${ (u.timelineBgUrl && isMobileLayout) ? 'pt-8 -mx-1 md:-mx-3 px-4 md:px-6 -mb-1 md:-mb-3' : (isMobileLayout ? 'pt-2' : 'pt-12')}`}
+                                  className={`relative ${isMobileLayout ? 'pb-10' : 'pb-28'} ${ (u.timelineBgUrl && isMobileLayout) ? 'pt-8 -mx-1 md:-mx-3 px-4 md:px-6 -mb-1 md:-mb-3' : (isMobileLayout ? 'pt-0' : 'pt-12')}`}
                                   style={(u.timelineBgUrl && isMobileLayout) ? {
                                     background: `url(${u.timelineBgUrl}) center/cover no-repeat`
                                   } : {}}

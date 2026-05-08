@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchLessonItemsByModule } from '../../../services/lessons';
+import SimpleLoading from '../../ui/SimpleLoading.jsx';
 
 function ConceptView({ item }) {
   return (
@@ -173,7 +174,7 @@ export default function LessonPlayer() {
     goNext();
   }
 
-  if (loading) return <div className="p-6">Loading…</div>;
+  if (loading) return <SimpleLoading />;
   if (error) return <div className="p-6 text-red-600">{error}</div>;
   if (!current) return <div className="p-6">No content.</div>;
 

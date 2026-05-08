@@ -7,6 +7,7 @@ import image07 from '../../../assets/images/image-07.png';
 import reattemptImg from '../../../assets/images/reattempt.png';
 import finishImg from '../../../assets/images/finish.png';
 import victorySound from '../../../assets/sounds/victory.mp3';
+import SimpleLoading from '../../ui/SimpleLoading.jsx';
  
 const LessonComplete = () => {
   const navigate = useNavigate();
@@ -140,12 +141,7 @@ const LessonComplete = () => {
   };
 
   if (isChecking) {
-    return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center px-16 py-2 text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        <p className="mt-4 text-lg text-gray-600">Checking for review questions...</p>
-      </div>
-    );
+    return <SimpleLoading text="Checking for review questions..." />;
   }
 
   return (
