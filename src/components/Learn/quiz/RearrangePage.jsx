@@ -858,7 +858,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       }}
-      className="h-screen flex flex-col overflow-hidden"
+      className="h-screen flex flex-col overflow-hidden md:!bg-none md:!bg-white"
     >
       {/* Header - reduced padding for mobile */}
       <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
@@ -901,7 +901,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
       </div>
 
       {/* Main Content - optimized for mobile with reduced spacing */}
-      <div className="flex-1 w-full px-2 sm:px-4 md:px-6 max-w-5xl mx-auto overflow-y-auto pb-40 sm:pb-32">
+      <div className="flex-1 w-full px-2 sm:px-4 md:px-6 max-w-5xl mx-auto overflow-y-auto md:overflow-hidden md:justify-start pb-40 sm:pb-32 md:pb-0 mt-4 md:mt-8">
         <div className="mt-4 sm:mt-6 md:mt-8 mb-4 sm:mb-6">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 text-center lg:text-left leading-tight">
             {item.question}

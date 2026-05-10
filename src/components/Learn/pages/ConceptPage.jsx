@@ -584,27 +584,28 @@ export default function ConceptPage() {
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 80px)' }}>
+        <div className="flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 overflow-y-auto md:overflow-hidden md:justify-start mt-4 md:mt-8" style={{ maxHeight: 'calc(100vh - 80px)' }}>
           <div className="w-full max-w-3xl sm:max-w-4xl mt-4 sm:mt-6 md:mt-8">
             {shouldShowComic ? (
-              <div className="relative w-full rounded-xl sm:rounded-2xl border-2 border-blue-50 shadow-md overflow-hidden flex items-center justify-center bg-white" style={{ minHeight: '65vh' }}>
-                <img
-                  src={introComicUrls[comicSlideIndex]}
-                  alt={`Comic slide ${comicSlideIndex + 1}`}
-                  className="w-full h-full object-contain cursor-zoom-in"
-                  onClick={() => setIsZoomed(true)}
-                />
-
-                {/* Zoom button on top right */}
-                <button
-                  onClick={() => setIsZoomed(true)}
-                  className="absolute top-4 right-4 bg-white/90 backdrop-blur text-gray-800 p-2.5 rounded-lg shadow-md border border-gray-200 hover:bg-white transition-colors z-10"
-                  title="Zoom In"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
-                  </svg>
-                </button>
+              <div className="flex items-center justify-center w-full">
+                <div className="relative inline-block max-w-full">
+                  <img
+                    src={introComicUrls[comicSlideIndex]}
+                    alt={`Comic slide ${comicSlideIndex + 1}`}
+                    className="w-full h-auto max-h-[65vh] md:max-h-[calc(100vh-250px)] object-contain rounded-xl sm:rounded-2xl cursor-zoom-in shadow-md border-2 border-blue-50 bg-white"
+                    onClick={() => setIsZoomed(true)}
+                  />
+                  {/* Zoom button on top right */}
+                  <button
+                    onClick={() => setIsZoomed(true)}
+                    className="absolute top-4 right-4 bg-white/90 backdrop-blur text-gray-800 p-2.5 rounded-lg shadow-md border border-gray-200 hover:bg-white transition-colors z-10"
+                    title="Zoom In"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center w-full">
@@ -703,7 +704,7 @@ export default function ConceptPage() {
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       }}
-      className="fixed inset-0 flex flex-col overflow-hidden"
+      className="fixed inset-0 flex flex-col overflow-hidden md:!bg-none md:!bg-white"
     >
       {/* Header - reduced padding for mobile */}
       <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
@@ -739,7 +740,7 @@ export default function ConceptPage() {
       </div>
 
       {/* Main Content - stable height to prevent background moving */}
-      <div className={`flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 pb-40 sm:pb-32 ${(itemVideoUrl || actualType === 'video') ? 'overflow-hidden' : 'overflow-y-auto'}`} style={{ maxHeight: 'calc(100vh - 80px)' }}>
+      <div className={`flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 pb-40 sm:pb-32 md:pb-0 md:justify-start mt-4 md:mt-8 ${(itemVideoUrl || actualType === 'video') ? 'overflow-hidden' : 'overflow-y-auto md:overflow-hidden'}`} style={{ maxHeight: 'calc(100vh - 80px)' }}>
         {(itemVideoUrl || actualType === 'video') ? (
           <div className="flex-1 flex flex-col items-center justify-center p-4">
             <div className={`${isShortVideo ? 'aspect-[9/16] h-[74vh] max-h-[calc(100vh-230px)]' : 'w-full max-w-4xl aspect-video'} rounded-3xl overflow-hidden border border-gray-100 shadow-lg bg-black flex-shrink-0 mt-2 sm:mt-6`}>
@@ -754,21 +755,23 @@ export default function ConceptPage() {
           </div>
         ) : shouldShowComic ? (
           <div className="flex-1 flex flex-col items-center justify-start p-2 sm:p-4 w-full">
-            <div className="w-full max-w-xl aspect-[3/4] sm:aspect-[4/5] relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white flex items-center justify-center border-2 border-blue-50 shadow-md">
-              <img
-                src={introComicUrls[comicSlideIndex]}
-                alt={`Comic slide ${comicSlideIndex + 1}`}
-                className="w-full h-full object-contain cursor-zoom-in"
-                onClick={() => setIsZoomed(true)}
-              />
-              <button
-                onClick={() => setIsZoomed(true)}
-                className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-white/90 backdrop-blur p-2 sm:p-2.5 rounded-lg shadow-sm border border-gray-200 text-gray-700 hover:bg-white transition-all z-10"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
-                </svg>
-              </button>
+            <div className="flex items-center justify-center w-full">
+              <div className="relative inline-block max-w-full">
+                <img
+                  src={introComicUrls[comicSlideIndex]}
+                  alt={`Comic slide ${comicSlideIndex + 1}`}
+                  className="w-full h-auto max-h-[65vh] md:max-h-[calc(100vh-250px)] object-contain rounded-xl sm:rounded-2xl cursor-zoom-in shadow-md border-2 border-blue-50 bg-white"
+                  onClick={() => setIsZoomed(true)}
+                />
+                <button
+                  onClick={() => setIsZoomed(true)}
+                  className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-white/90 backdrop-blur p-2 sm:p-2.5 rounded-lg shadow-sm border border-gray-200 text-gray-700 hover:bg-white transition-all z-10"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
         ) : (
@@ -793,7 +796,7 @@ export default function ConceptPage() {
                   <div className="flex flex-wrap justify-center gap-1 sm:gap-3 md:gap-5">
                     {((item.images && item.images.filter(Boolean)) || (item.imageUrl ? [item.imageUrl] : [])).slice(0, 5).map((src, i) => (
                       <div key={i} className="border border-blue-300 rounded-lg sm:rounded-2xl p-1 sm:p-3 bg-white shadow-sm">
-                        <img src={src} alt={'concept-' + i} className="h-40 w-32 sm:h-32 sm:w-24 md:h-48 md:w-36 lg:h-60 lg:w-44 xl:h-80 xl:w-60 object-contain rounded-md sm:rounded-xl" />
+                        <img src={src} alt={'concept-' + i} className="h-40 w-32 sm:h-32 sm:w-24 md:h-24 md:w-20 lg:h-32 lg:w-24 xl:h-40 xl:w-32 object-contain rounded-md sm:rounded-xl" />
                       </div>
                     ))}
                   </div>
