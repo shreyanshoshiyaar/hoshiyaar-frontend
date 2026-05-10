@@ -877,7 +877,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       }}
-      className="fixed inset-0 flex flex-col overflow-hidden"
+      className="fixed inset-0 flex flex-col overflow-hidden md:!bg-none md:!bg-white"
     >
       {/* Header - reduced padding for mobile */}
       <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
@@ -912,7 +912,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       </div>
 
       {/* Main Content - mobile optimized, desktop unchanged */}
-      <div className="flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 overflow-y-auto pb-24">
+      <div className="flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 overflow-y-auto md:overflow-hidden pb-24 md:pb-0 md:justify-start mt-4 md:mt-8">
         <h2 className="text-xl sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-extrabold text-gray-900 text-center mt-2 sm:mt-6 md:mt-8 mb-2 sm:mb-3 md:mb-4 text-overflow-fix px-1 sm:px-2">
           {item.question}
         </h2>
@@ -929,7 +929,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
               <div className="flex flex-wrap md:flex-nowrap items-center justify-center gap-1 sm:gap-3 md:gap-5">
                 {((item.images && item.images.filter(Boolean)) || (item.imageUrl ? [item.imageUrl] : [])).slice(0,5).map((src, i) => (
                   <div key={i} className="border border-blue-300 rounded-lg sm:rounded-2xl p-1 sm:p-3 bg-white shadow-sm">
-                    <img src={src} alt={'mcq-'+i} className="h-40 w-36 sm:h-32 sm:w-24 md:h-48 md:w-36 lg:h-60 lg:w-44 xl:h-80 xl:w-60 object-contain rounded-md sm:rounded-xl" />
+                    <img src={src} alt={'mcq-'+i} className="h-40 w-36 sm:h-32 sm:w-24 md:h-24 md:w-20 lg:h-32 lg:w-24 xl:h-40 xl:w-32 object-contain rounded-md sm:rounded-xl" />
                   </div>
                 ))}
               </div>
@@ -983,7 +983,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
                           <img 
                             src={opt} 
                             alt={`Option ${idx + 1}`}
-                            className="w-full h-20 sm:h-20 md:h-24 lg:h-28 object-contain rounded-lg mb-1 sm:mb-2"
+                            className="w-full h-20 sm:h-20 md:h-12 lg:h-16 object-contain rounded-lg mb-1 sm:mb-2"
                           />
                           <div className="text-xs sm:text-xs md:text-sm font-semibold text-gray-700 flex items-center justify-center gap-2">
                             <span>Option {idx + 1}</span>

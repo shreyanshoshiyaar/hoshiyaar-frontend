@@ -766,7 +766,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       }} 
-      className="fixed inset-0 flex flex-col overflow-hidden"
+      className="fixed inset-0 flex flex-col overflow-hidden md:!bg-none md:!bg-white"
     >
       {/* Header - reduced padding for mobile */}
       <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
@@ -801,7 +801,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
       </div>
 
       {/* Main Content - optimized for mobile with reduced spacing */}
-      <div className="flex-1 flex flex-col items-center px-2 sm:px-3 md:px-6 overflow-y-auto pb-40 sm:pb-32">
+      <div className="flex-1 flex flex-col items-center px-2 sm:px-3 md:px-6 overflow-y-auto md:overflow-hidden md:justify-start pb-40 sm:pb-32 md:pb-0 mt-4 md:mt-8">
         <div className="w-full max-w-4xl px-2 mt-4 sm:mt-6 md:mt-8 mb-4 sm:mb-6">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 text-center leading-tight">
             {item.question}
@@ -825,7 +825,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
               <div className="flex flex-wrap justify-center gap-1 sm:gap-3 md:gap-5">
                 {list.slice(0, 5).map((src, i) => (
                   <div key={i} className="border border-blue-300 rounded-xl sm:rounded-2xl p-1 sm:p-3 bg-white shadow-sm">
-                    <img src={src} alt={`fillup-${i}`} className="h-28 w-24 sm:h-32 sm:w-24 md:h-44 md:w-32 lg:h-56 lg:w-44 object-contain rounded-lg sm:rounded-xl shadow-sm" />
+                    <img src={src} alt={`fillup-${i}`} className="h-28 w-24 sm:h-32 sm:w-24 md:h-24 md:w-16 lg:h-28 lg:w-24 object-contain rounded-lg sm:rounded-xl shadow-sm" />
                   </div>
                 ))}
               </div>
