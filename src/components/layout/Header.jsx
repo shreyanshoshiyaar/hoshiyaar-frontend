@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx'; 
 const HoshiyaarLogo = "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1777997560/img-to-link/mfaw5t09dlayxlunzfas.png";
 
-const Header = () => {
+const Header = ({ isHomePage }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -13,8 +13,12 @@ const Header = () => {
   };
 
   return (
-    // UPDATED: Header height set to h-16 (mobile) and md:h-20 (desktop) for a sleeker look
-    <header className="sticky top-0 bg-transparent md:bg-white md:border-b border-duo-gray h-16 md:h-20 flex items-center z-50 transition-all duration-300">
+    <header className={`
+      ${isHomePage ? 'absolute md:sticky' : 'sticky'} 
+      top-0 w-full z-50 transition-all duration-300
+      ${isHomePage ? 'bg-transparent md:bg-white md:border-b border-duo-gray h-16 md:h-20' : 'bg-transparent md:bg-white md:border-b border-duo-gray h-16 md:h-20'}
+      flex items-center
+    `}>
       <div className="container mx-auto px-3 sm:px-4 flex justify-between items-center">
         
         {/* LOGO SECTION */}
