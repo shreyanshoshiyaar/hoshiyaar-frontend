@@ -1,11 +1,12 @@
 .mobile-carousel-container {
   display: flex;
   overflow-x: auto;
+  overflow-y: hidden; /* Prevent vertical scrolling */
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   width: 100vw;
-  height: 100dvh; /* Use dynamic viewport height for mobile */
+  height: 100dvh;
   margin: 0;
   padding: 0;
 }
