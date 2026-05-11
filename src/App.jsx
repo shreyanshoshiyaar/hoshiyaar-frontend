@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { ReviewProvider } from './context/ReviewContext.jsx';
 import { StarsProvider } from './context/StarsContext.jsx';
@@ -29,13 +29,21 @@ const ProfilePage = lazy(() => import('./components/features/ProfilePage.jsx'));
 const OnboardingFlow = lazy(() => import('./components/Learn/selectors/OnboardingFlow.jsx'));
 const AdminPanel = lazy(() => import('./components/admin/AdminPanel.jsx'));
 
-const MainLayout = ({ children }) => (
-  <div className="font-sans">
-    <Header />
-    <main>{children}</main>
-    <Footer />
-  </div>
-);
+const MainLayout = ({ children }) => {
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
+  
+  return (
+    <div className="font-sans flex flex-col min-h-screen">
+      <Header isHomePage={isHomePage} />
+      <main className="flex-grow">{children}</main>
+      {/* Footer hidden on mobile home page as per user request */}
+      <div className={isHomePage ? "hidden md:block" : "block"}>
+        <Footer />
+      </div>
+    </div>
+  );
+};
 
 function App() {
   return (
