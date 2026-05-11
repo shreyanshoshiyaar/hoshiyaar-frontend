@@ -12,6 +12,7 @@ const Signup = () => {
     dateOfBirth: '',
     classLevel: '',
     phone: '',
+    email: '',
   });
   const [error, setError] = useState('');
   const [usernameStatus, setUsernameStatus] = useState({ checking: false, available: null, message: '' });
@@ -81,6 +82,7 @@ const Signup = () => {
         dateOfBirth: dob ? new Date(dob) : null,
         classLevel: formData.classLevel || null,
         phone: formData.phone || null,
+        email: formData.email.trim() || null,
       });
       if (response.data && response.data.token) {
         login(response.data);
@@ -128,7 +130,15 @@ const Signup = () => {
                 value={formData.name}
                 onChange={onChange}
                 placeholder="Name"
-                className="w-full bg-[#3c3c3c] border-2 border-[#585858] rounded-xl sm:rounded-2xl p-3 sm:p-4 focus:outline-none focus:border-duo-blue text-sm sm:text-base"
+                className="w-full bg-[#3c3c3c] border-2 border-[#585858] rounded-xl sm:rounded-2xl p-3 sm:p-4 focus:outline-none focus:border-duo-blue text-sm sm:text-base text-white"
+              />
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={onChange}
+                placeholder="Email Address"
+                className="w-full bg-[#3c3c3c] border-2 border-[#585858] rounded-xl sm:rounded-2xl p-3 sm:p-4 focus:outline-none focus:border-duo-blue text-sm sm:text-base text-white"
               />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="text-left">
