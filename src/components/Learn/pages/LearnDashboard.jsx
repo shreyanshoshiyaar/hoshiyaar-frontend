@@ -318,9 +318,11 @@ const LearnDashboard = ({ onboardingData }) => {
   const [isChangingSchool, setIsChangingSchool] = useState(false);
   const [weeklyStars, setWeeklyStars] = useState(0);
   const [leaderboardTimeframe, setLeaderboardTimeframe] = useState("weekly"); // "weekly" or "total"
+  const [leaderboardScope, setLeaderboardScope] = useState("school"); // "school" or "global"
   const [showMobileLeaderboard, setShowMobileLeaderboard] = useState(false);
 
   // Fetch Lottie animation data from public folder
+  /*
   useEffect(() => {
     fetch('/lottie/Ruhaan2.json')
       .then(res => res.json())
@@ -330,6 +332,7 @@ const LearnDashboard = ({ onboardingData }) => {
       })
       .catch(err => console.error('Failed to load Ruhaan2 Lottie:', err));
   }, []);
+  */
 
   const rowSpacing = 110;
   const [isMobileLayout, setIsMobileLayout] = useState(window.innerWidth < 768);
@@ -1333,25 +1336,43 @@ const LearnDashboard = ({ onboardingData }) => {
     return () => clearInterval(id);
   }, [tipHidden]);
 
-  // Daily streak: auto-increment on first visit of the day
+  // Daily streak: properly tracks consecutive daily visits
   useEffect(() => {
     try {
-      const today = new Date().toDateString();
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayStr = today.toDateString();
+
       const storedDay = localStorage.getItem("daily_streak_day");
       let count = Number(localStorage.getItem("daily_streak_count")) || 0;
+
       if (!storedDay) {
-        count = Math.max(1, count);
+        // First ever visit — start streak at 1
+        count = 1;
         localStorage.setItem("daily_streak_count", String(count));
-        localStorage.setItem("daily_streak_day", today);
-      } else if (storedDay !== today) {
-        count = count + 1;
+        localStorage.setItem("daily_streak_day", todayStr);
+      } else if (storedDay === todayStr) {
+        // Already counted today — do nothing, just show current streak
+      } else {
+        // Check if last visit was exactly yesterday
+        const lastVisit = new Date(storedDay);
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1);
+
+        if (lastVisit.toDateString() === yesterday.toDateString()) {
+          // Consecutive day — increment streak
+          count = count + 1;
+          setShowConfetti(true);
+          try { setTimeout(() => setShowConfetti(false), 1500); } catch (_) { }
+        } else {
+          // Missed one or more days — reset streak to 1
+          count = 1;
+        }
+
         localStorage.setItem("daily_streak_count", String(count));
-        localStorage.setItem("daily_streak_day", today);
-        setShowConfetti(true);
-        try {
-          setTimeout(() => setShowConfetti(false), 1500);
-        } catch (_) { }
+        localStorage.setItem("daily_streak_day", todayStr);
       }
+
       setStreak(count || 1);
     } catch (_) { }
   }, []);
@@ -1475,30 +1496,29 @@ const LearnDashboard = ({ onboardingData }) => {
     }
   }, [user?._id, user?.username, user?.school]);
 
-  const fetchLeaderboard = useCallback(async (schoolName, timeframe) => {
-    if (!schoolName?.trim()) return;
+  const fetchLeaderboard = useCallback(async (schoolName, timeframe, scope) => {
+    const targetScope = scope || leaderboardScope;
+    const targetSchool = targetScope === 'global' ? null : (schoolName || user?.school);
     
     const targetTimeframe = timeframe || leaderboardTimeframe;
     let data = [];
     
     try {
       setLeaderboardLoading(true);
-      const response = await authService.getLeaderboard(schoolName, targetTimeframe);
+      const response = await authService.getLeaderboard(targetSchool, targetTimeframe);
       data = response?.data?.leaderboard || [];
     } catch (error) {
       console.error('Leaderboard fetch failed:', error);
       data = []; // Use empty list on failure to allow user-only display
     } finally {
-      // Ensure current user is always in the list for their own school
-      if (user && (user.school === schoolName || !data.find(u => u.username === user.username))) {
-        if (!data.find(u => u.username === user.username)) {
-          data.push({
-            username: user.username,
-            name: user.name || user.username,
-            school: user.school || schoolName,
-            totalPoints: targetTimeframe === 'weekly' ? weeklyStarsRef.current : (starsRef.current || 0)
-          });
-        }
+      // Ensure current user is always visible in the list
+      if (user && !data.find(u => u.username === user.username)) {
+        data.push({
+          username: user.username,
+          name: user.name || user.username,
+          school: user.school || schoolName,
+          totalPoints: targetTimeframe === 'weekly' ? weeklyStarsRef.current : (starsRef.current || 0)
+        });
       }
       
       // Always sort to ensure correct order after potential local push
@@ -1508,7 +1528,7 @@ const LearnDashboard = ({ onboardingData }) => {
       setLeaderboardSearched(true);
       setLeaderboardLoading(false);
     }
-  }, [user?._id, user?.username, user?.school, leaderboardTimeframe]);
+  }, [user?._id, user?.username, user?.school, leaderboardTimeframe, leaderboardScope]);
 
   const handleLeaderboardSearch = async (e) => {
     if (e) e.preventDefault();
@@ -1561,11 +1581,11 @@ const LearnDashboard = ({ onboardingData }) => {
   // Auto-load or refresh leaderboard when school or timeframe changes
   useEffect(() => {
     const activeSchool = user?.school || leaderboardSchool;
-    if (activeSchool && !isChangingSchool) {
+    if ((activeSchool || leaderboardScope === 'global') && !isChangingSchool) {
       fetchLeaderboard(activeSchool);
       fetchWeeklyLeaderboard(activeSchool);
     }
-  }, [user?.school, isChangingSchool, leaderboardTimeframe, fetchLeaderboard, fetchWeeklyLeaderboard]);
+  }, [user?.school, isChangingSchool, leaderboardTimeframe, leaderboardScope, fetchLeaderboard, fetchWeeklyLeaderboard]);
 
 
 
@@ -1911,6 +1931,8 @@ const LearnDashboard = ({ onboardingData }) => {
             leaderboardLoading={leaderboardLoading}
             leaderboardTimeframe={leaderboardTimeframe}
             setLeaderboardTimeframe={setLeaderboardTimeframe}
+            leaderboardScope={leaderboardScope}
+            setLeaderboardScope={setLeaderboardScope}
             isChangingSchool={isChangingSchool}
             setIsChangingSchool={setIsChangingSchool}
             leaderboardSchool={leaderboardSchool}
@@ -1924,6 +1946,7 @@ const LearnDashboard = ({ onboardingData }) => {
             fetchLeaderboard={fetchLeaderboard}
             stars={stars}
             weeklyStars={weeklyStars}
+            streak={streak}
             onNavigateToPractice={() => setActiveTab('practice')}
           />
         ) : isMobileLayout && activeTab === 'more' ? (
@@ -2281,6 +2304,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                     </div>
 
                                     {/* Inject Lottie every 3 modules (Left Placement) */}
+                                    {/*
                                     {(index + 1) % 3 === 0 && index < modulesList.length - 1 && (
                                       <PathAnimation
                                         data={pathAnimationData}
@@ -2289,6 +2313,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                         isMobileLayout={isMobileLayout}
                                       />
                                     )}
+                                    */}
                                   </div>
                                 );
                               })}
@@ -2530,6 +2555,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                            </div>
  
                                            {/* Inject Lottie every 3 modules (Alternating sides) */}
+                                           {/*
                                            {(index + 1) % 3 === 0 && index < localLevels.length - 1 && (
                                              <PathAnimation
                                                data={pathAnimationData}
@@ -2538,6 +2564,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                                isMobileLayout={isMobileLayout}
                                              />
                                            )}
+                                           */}
                                         </div>
                                       );
                                     })}

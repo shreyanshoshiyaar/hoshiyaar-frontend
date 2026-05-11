@@ -34,7 +34,7 @@ const MainLayout = ({ children }) => {
   const isHomePage = location.pathname === '/';
   
   return (
-    <div className="font-sans flex flex-col min-h-screen">
+    <div className="font-sans flex flex-col min-h-screen overflow-x-hidden">
       <Header isHomePage={isHomePage} />
       <main className="flex-grow">{children}</main>
       {/* Footer hidden on mobile home page as per user request */}

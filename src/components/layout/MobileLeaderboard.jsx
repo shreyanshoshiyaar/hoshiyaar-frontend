@@ -7,6 +7,8 @@ const MobileLeaderboard = ({
   leaderboardLoading, 
   leaderboardTimeframe, 
   setLeaderboardTimeframe, 
+  leaderboardScope,
+  setLeaderboardScope,
   isChangingSchool, 
   setIsChangingSchool,
   leaderboardSchool,
@@ -20,10 +22,12 @@ const MobileLeaderboard = ({
   fetchLeaderboard,
   stars,
   weeklyStars,
+  streak,
   onNavigateToPractice
 }) => {
-  const currentRank = 7; 
-  const currentStreak = 12; 
+  const myEntry = leaderboardData?.find(e => e.username === user?.username);
+  const currentRank = myEntry ? (leaderboardData.indexOf(myEntry) + 1) : '-';
+  const currentStreak = streak || 1;
 
   return (
     <div className="fixed inset-0 bg-white overflow-y-auto no-scrollbar pb-32">
@@ -64,7 +68,7 @@ const MobileLeaderboard = ({
             </div>
             <div className="flex flex-col">
                <span className="text-[8px] font-bold text-gray-400 uppercase tracking-tighter">Stars</span>
-               <span className="text-[16px] font-black text-gray-800 leading-none">{stars || 363}</span>
+               <span className="text-[16px] font-black text-gray-800 leading-none">{stars || 0}</span>
             </div>
           </div>
           <div className="w-px h-5 bg-gray-100"></div>
@@ -92,71 +96,104 @@ const MobileLeaderboard = ({
            <span className="text-yellow-400 text-base">★</span>
         </div>
 
-        {/* School Card (Blue) */}
-        <div className="bg-[#1E65FA] rounded-[16px] p-2.5 shadow-[0_6px_15px_-5px_rgba(30,101,250,0.3)] mb-3 flex justify-between items-center border border-white/20 gap-2">
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-base shrink-0">🏫</div>
-            <div className="w-px h-6 bg-white/20 shrink-0"></div>
-            <h2 className="text-white font-black text-[14px] tracking-tight truncate">{user?.school || "Don Bosco Borivali"}</h2>
-          </div>
+        {/* Leaderboard Scope Toggle */}
+        <div className="flex bg-gray-100 p-1 rounded-2xl mb-4 mx-1">
           <button 
-            onClick={() => setIsChangingSchool(!isChangingSchool)}
-            className="flex items-center shrink-0 gap-1 px-2 py-1 bg-white border border-blue-100 rounded-lg text-[#2563EB] text-[10px] font-black shadow-sm active:scale-95 transition-all"
+            onClick={() => {
+              setLeaderboardScope('school');
+              fetchLeaderboard(user?.school, null, 'school');
+            }}
+            className={`flex-1 py-2.5 rounded-xl text-[12px] font-black transition-all ${leaderboardScope === 'school' ? 'bg-white text-[#2563EB] shadow-sm' : 'text-gray-400'}`}
           >
-            <span className="text-xs">🔄</span> Change
+            🏫 My School
+          </button>
+          <button 
+            onClick={() => {
+              setLeaderboardScope('global');
+              fetchLeaderboard(null, null, 'global');
+            }}
+            className={`flex-1 py-2.5 rounded-xl text-[12px] font-black transition-all ${leaderboardScope === 'global' ? 'bg-white text-[#2563EB] shadow-sm' : 'text-gray-400'}`}
+          >
+            🌎 All Users
           </button>
         </div>
 
-        {/* Change School Form */}
-        {isChangingSchool && (
-          <form 
-            onSubmit={handleLeaderboardSearch} 
-            className="mb-5 flex gap-2 animate-in slide-in-from-top-2 duration-300 px-1"
-          >
-            <div className="relative flex-grow">
-              <input
-                type="text"
-                placeholder="Find your school..."
-                className="w-full px-4 py-3 rounded-xl border-2 border-blue-100 focus:border-blue-500 outline-none font-bold text-sm shadow-inner"
-                value={leaderboardSchool}
-                onChange={(e) => {
-                  setLeaderboardSchool(e.target.value);
-                  setShowSuggestions(true);
-                }}
-              />
-              {showSuggestions && schoolSuggestions.length > 0 && (
-                <div className="absolute left-0 right-0 top-full mt-1 bg-white rounded-xl shadow-2xl border border-blue-100 z-[100] max-h-48 overflow-y-auto no-scrollbar">
-                  {schoolSuggestions.map((s, i) => (
-                    <div 
-                      key={i} 
-                      className="px-4 py-3 border-b border-gray-50 last:border-0 hover:bg-blue-50 font-bold text-xs text-gray-700"
-                      onClick={() => {
-                        setLeaderboardSchool(s);
-                        setShowSuggestions(false);
-                        fetchLeaderboard(s);
-                      }}
-                    >
-                      {s}
-                    </div>
-                  ))}
-                </div>
-              )}
+        {/* School Card (Blue) - Only show in School Scope */}
+        {leaderboardScope === 'school' && (
+          <>
+            <div className="bg-[#1E65FA] rounded-[16px] p-2.5 shadow-[0_6px_15px_-5px_rgba(30,101,250,0.3)] mb-3 flex justify-between items-center border border-white/20 gap-2">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-base shrink-0">🏫</div>
+                <div className="w-px h-6 bg-white/20 shrink-0"></div>
+                <h2 className="text-white font-black text-[14px] tracking-tight truncate">{user?.school || "Don Bosco Borivali"}</h2>
+              </div>
+              <button 
+                onClick={() => setIsChangingSchool(!isChangingSchool)}
+                className="flex items-center shrink-0 gap-1 px-2 py-1 bg-white border border-blue-100 rounded-lg text-[#2563EB] text-[10px] font-black shadow-sm active:scale-95 transition-all"
+              >
+                <span className="text-xs">🔄</span> Change
+              </button>
             </div>
-            <button className="bg-blue-600 text-white px-4 rounded-xl font-black text-xs shadow-lg">JOIN</button>
-          </form>
+
+            {/* Change School Form */}
+            {isChangingSchool && (
+              <form 
+                onSubmit={handleLeaderboardSearch} 
+                className="mb-5 flex gap-2 animate-in slide-in-from-top-2 duration-300 px-1"
+              >
+                <div className="relative flex-grow">
+                  <input
+                    type="text"
+                    placeholder="Find your school..."
+                    className="w-full px-4 py-3 rounded-xl border-2 border-blue-100 focus:border-blue-500 outline-none font-bold text-sm shadow-inner"
+                    value={leaderboardSchool}
+                    onChange={(e) => {
+                      setLeaderboardSchool(e.target.value);
+                      setShowSuggestions(true);
+                    }}
+                  />
+                  {showSuggestions && schoolSuggestions.length > 0 && (
+                    <div className="absolute left-0 right-0 top-full mt-1 bg-white rounded-xl shadow-2xl border border-blue-100 z-[100] max-h-48 overflow-y-auto no-scrollbar">
+                      {schoolSuggestions.map((s, i) => (
+                        <div 
+                          key={i} 
+                          className="px-4 py-3 border-b border-gray-50 last:border-0 hover:bg-blue-50 font-bold text-xs text-gray-700"
+                          onClick={() => {
+                            setLeaderboardSchool(s);
+                            setShowSuggestions(false);
+                            fetchLeaderboard(s);
+                          }}
+                        >
+                          {s}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <button className="bg-blue-600 text-white px-4 rounded-xl font-black text-xs shadow-lg">JOIN</button>
+              </form>
+            )}
+          </>
         )}
 
         {/* Time Filters */}
         <div className="flex gap-2 mb-4 px-1">
           <button 
-            onClick={() => setLeaderboardTimeframe('weekly')}
+            onClick={() => {
+              setLeaderboardTimeframe('weekly');
+              const school = leaderboardScope === 'global' ? null : (user?.school);
+              fetchLeaderboard(school, 'weekly', leaderboardScope);
+            }}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black transition-all ${leaderboardTimeframe === 'weekly' ? 'bg-[#2563EB] text-white shadow-md' : 'bg-gray-100 text-gray-500'}`}
           >
             📅 Week
           </button>
-          {/* Month removed */}
           <button 
-             onClick={() => setLeaderboardTimeframe('total')}
+             onClick={() => {
+               setLeaderboardTimeframe('total');
+               const school = leaderboardScope === 'global' ? null : (user?.school);
+               fetchLeaderboard(school, 'total', leaderboardScope);
+             }}
              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black transition-all ${leaderboardTimeframe === 'total' ? 'bg-[#2563EB] text-white shadow-md' : 'bg-gray-100 text-gray-500'}`}
           >
             📊 All Time
@@ -196,9 +233,16 @@ const MobileLeaderboard = ({
                     
 
                     
-                    <span className={`text-[13px] font-black truncate ${isMe ? 'text-[#1E40AF]' : 'text-gray-800'}`}>
-                      {isMe ? 'You' : (entry.name || entry.username)}
-                    </span>
+                    <div className="flex flex-col min-w-0">
+                      <span className={`text-[13px] font-black truncate ${isMe ? 'text-[#1E40AF]' : 'text-gray-800'}`}>
+                        {isMe ? 'You' : (entry.name || entry.username)}
+                      </span>
+                      {leaderboardScope === 'global' && entry.school && (
+                        <span className="text-[9px] text-gray-400 font-bold truncate">
+                          {entry.school}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   
                   <div className="flex items-center gap-1 shrink-0 px-2 py-0.5 bg-white rounded-lg shadow-sm border border-gray-100">
