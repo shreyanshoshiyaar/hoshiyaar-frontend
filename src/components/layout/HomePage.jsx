@@ -41,7 +41,7 @@ const MobileHomeCarousel = () => {
             
             {/* Get Started Button only on first image */}
             {index === 0 && (
-              <div className="absolute bottom-32 left-0 right-0 flex justify-center px-6">
+              <div className="absolute bottom-14 left-0 right-0 flex justify-center px-6">
                 <button 
                   onClick={() => navigate('/signup')}
                   className="w-full max-w-sm bg-duo-blue text-white font-bold uppercase tracking-wider py-4 rounded-2xl border-b-4 border-duo-blue-dark hover:bg-blue-500 transition-all text-base shadow-xl"
@@ -78,10 +78,30 @@ const HomePage = () => {
     }
   }, [user, navigate]);
 
+  // Force no vertical scroll on mobile home
+  useEffect(() => {
+    const isMobile = window.innerWidth < 768;
+    if (isMobile) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.height = '100dvh';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+      document.documentElement.style.overflow = 'unset';
+      document.body.style.height = 'unset';
+      document.body.style.position = 'unset';
+      document.body.style.width = 'unset';
+    };
+  }, []);
+
   return (
     <>
       {/* Mobile View */}
-      <div className="block md:hidden overflow-hidden h-screen bg-black">
+      <div className="block md:hidden overflow-hidden h-screen bg-black fixed inset-0 z-0">
         <MobileHomeCarousel />
       </div>
 
