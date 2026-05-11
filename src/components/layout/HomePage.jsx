@@ -1,5 +1,7 @@
 // src/components/HomePage.jsx
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext.jsx';
 import Hero from '../features/Hero';
 import FinalCTA from '../features/FinalCTA';
 import './MobileHome.css';
@@ -15,6 +17,7 @@ const MOBILE_IMAGES = [
 const MobileHomeCarousel = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollRef = useRef(null);
+  const navigate = useNavigate();
 
   const handleScroll = () => {
     if (scrollRef.current) {
@@ -33,8 +36,20 @@ const MobileHomeCarousel = () => {
         className="mobile-carousel-container no-scrollbar"
       >
         {MOBILE_IMAGES.map((src, index) => (
-          <div key={index} className="mobile-carousel-item">
+          <div key={index} className="mobile-carousel-item relative">
             <img src={src} alt={`Slide ${index + 1}`} loading="lazy" />
+            
+            {/* Get Started Button only on first image */}
+            {index === 0 && (
+              <div className="absolute bottom-32 left-0 right-0 flex justify-center px-6">
+                <button 
+                  onClick={() => navigate('/signup')}
+                  className="w-full max-w-sm bg-duo-blue text-white font-bold uppercase tracking-wider py-4 rounded-2xl border-b-4 border-duo-blue-dark hover:bg-blue-500 transition-all text-base shadow-xl"
+                >
+                  Get Started
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -52,19 +67,31 @@ const MobileHomeCarousel = () => {
   );
 };
 
-const HomePage = () => (
-  <>
-    {/* Mobile View */}
-    <div className="block md:hidden">
-      <MobileHomeCarousel />
-    </div>
+const HomePage = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
-    {/* Desktop View */}
-    <div className="hidden md:block">
-      <Hero />
-      <FinalCTA />
-    </div>
-  </>
-);
+  // Redirect logged in users to dashboard
+  useEffect(() => {
+    if (user) {
+      navigate('/learn');
+    }
+  }, [user, navigate]);
+
+  return (
+    <>
+      {/* Mobile View */}
+      <div className="block md:hidden overflow-hidden h-screen bg-black">
+        <MobileHomeCarousel />
+      </div>
+
+      {/* Desktop View */}
+      <div className="hidden md:block">
+        <Hero />
+        <FinalCTA />
+      </div>
+    </>
+  );
+};
 
 export default HomePage;
