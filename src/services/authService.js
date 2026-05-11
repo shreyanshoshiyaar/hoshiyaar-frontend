@@ -76,7 +76,8 @@ const checkUsername = (username, opts) => http.get('check-username', { params: {
 
 // Leaderboard API (calls pointsRoutes mounted at /api/points/leaderboard)
 const getLeaderboard = (school, timeframe = 'total', opts) => {
-  return cachedGet(`${BASE}/api/points/leaderboard`, { params: { school, timeframe }, ...(opts || {}) });
+  const params = school ? { school, timeframe } : { timeframe };
+  return cachedGet(`${BASE}/api/points/leaderboard`, { params, ...(opts || {}) });
 };
 
 // Get points summary (calls pointsRoutes mounted at /api/points/summary)
