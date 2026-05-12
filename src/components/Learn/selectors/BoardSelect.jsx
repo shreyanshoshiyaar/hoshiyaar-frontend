@@ -123,34 +123,27 @@ const BoardSelect = ({ onContinue, onBack, updateData, autoAdvance = false }) =>
     };
     
     return (
-        <div className="flex flex-col h-screen bg-transparent md:bg-gradient-to-b md:from-blue-50 md:via-white md:to-blue-50 overflow-hidden relative font-outfit">
+        <div className="flex flex-col h-screen bg-transparent md:bg-gradient-to-b md:from-blue-50 md:via-white md:to-blue-50 overflow-hidden relative font-sans">
             
-            {/* Header Area */}
-            <div className="px-8 pt-16 pb-6 text-center animate-fade-in relative z-10">
-                <h1 className="font-black text-4xl md:text-5xl text-[#1E293B] leading-tight tracking-tight drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]">
+            {/* Minimal Header */}
+            <div className="px-6 pt-12 pb-4 text-center relative z-10">
+                <h1 className="font-bold text-2xl md:text-3xl text-gray-800">
                     Which board do you belong to?
                 </h1>
-                <p className="text-[#475569] font-extrabold mt-2 text-lg md:text-xl opacity-90">
+                <p className="text-gray-500 text-sm mt-1">
                     We'll tailor content to your selection
                 </p>
             </div>
 
-            {/* Main Content - Centered and Spaced */}
+            {/* Compact Main Content */}
             <div className="flex-grow flex items-center justify-center px-6 relative z-10">
-                <div className="w-full max-w-lg space-y-5">
+                <div className="w-full max-w-sm space-y-3">
                     {loading && (
-                        <div className="flex flex-col items-center gap-4">
-                            <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                            <div className="text-[#1E293B] font-black text-xl tracking-widest">LOADING...</div>
-                        </div>
+                        <div className="text-center text-gray-400 text-sm animate-pulse">Loading...</div>
                     )}
                     
-                    {!loading && boards.length > 0 && boards.map((board, idx) => (
-                        <label 
-                            key={board} 
-                            className="block group transition-all active:scale-[0.97]"
-                            style={{ animation: `slideUp 0.4s ease-out ${idx * 0.1}s both` }}
-                        >
+                    {!loading && boards.length > 0 && boards.map(board => (
+                        <label key={board} className="block transition-all active:scale-[0.98]">
                             <input 
                                 type="radio" 
                                 name="board" 
@@ -159,21 +152,20 @@ const BoardSelect = ({ onContinue, onBack, updateData, autoAdvance = false }) =>
                                 onChange={handleSelection}
                                 className="hidden"
                             />
-                            <div className={`p-6 rounded-[2.5rem] transition-all cursor-pointer flex items-center gap-6 border-2 ${
+                            <div className={`py-4 px-5 rounded-2xl transition-all cursor-pointer flex items-center gap-4 border ${
                                 selectedBoard === board 
-                                ? 'bg-white border-blue-500 shadow-[0_20px_40px_rgba(59,130,246,0.2)] scale-[1.02]' 
-                                : 'bg-white/80 backdrop-blur-xl border-white/60 border-b-8 border-b-gray-400/20 hover:bg-white/90 shadow-lg'
+                                ? 'bg-white border-blue-400 shadow-sm' 
+                                : 'bg-white/40 backdrop-blur-md border-white/40 hover:bg-white/60'
                             }`}>
-                                {/* Premium Custom Radio */}
-                                <div className={`w-10 h-10 rounded-full border-4 flex items-center justify-center transition-all shadow-inner ${
-                                    selectedBoard === board ? 'border-blue-500 bg-blue-500' : 'border-gray-200 bg-gray-50/50'
+                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                                    selectedBoard === board ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
                                 }`}>
                                     {selectedBoard === board && (
-                                        <div className="w-3.5 h-3.5 bg-white rounded-full shadow-md animate-scale-in" />
+                                        <div className="w-1.5 h-1.5 bg-white rounded-full" />
                                     )}
                                 </div>
-                                <span className={`font-black text-xl md:text-2xl transition-colors ${
-                                    selectedBoard === board ? 'text-blue-700' : 'text-[#334155]'
+                                <span className={`font-semibold text-base ${
+                                    selectedBoard === board ? 'text-blue-600' : 'text-gray-700'
                                 }`}>
                                     {board}
                                 </span>
@@ -183,32 +175,20 @@ const BoardSelect = ({ onContinue, onBack, updateData, autoAdvance = false }) =>
                 </div>
             </div>
 
-            {/* Footer with Floating Action Button style */}
-            <div className="p-8 md:p-12 relative z-10">
+            {/* Minimal Footer with Small Button */}
+            <div className="p-10 flex justify-center relative z-10">
                 <button 
                     onClick={handleContinue}
                     disabled={!selectedBoard || loading}
-                    className={`w-full font-black py-6 px-12 rounded-[2.5rem] text-2xl transition-all uppercase tracking-[0.2em] shadow-xl ${
+                    className={`px-10 py-3.5 rounded-full font-bold text-base transition-all ${
                         !selectedBoard || loading 
-                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed border-b-8 border-b-gray-300' 
-                        : 'bg-[#10B981] text-white hover:bg-[#059669] border-b-8 border-b-[#047857] hover:border-b-[#047857] active:border-b-0 active:translate-y-2'
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                        : 'bg-blue-600 text-white hover:bg-blue-700 shadow-md active:scale-95'
                     }`}
                 >
                     Continue
                 </button>
             </div>
-
-            <style dangerouslySetInnerHTML={{ __html: `
-                @keyframes slideUp {
-                    from { opacity: 0; transform: translateY(30px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                @keyframes scaleIn {
-                    from { transform: scale(0); }
-                    to { transform: scale(1); }
-                }
-                .animate-scale-in { animation: scaleIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
-            `}} />
         </div>
     );
 };
