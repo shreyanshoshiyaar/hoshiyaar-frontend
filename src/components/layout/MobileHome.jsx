@@ -32,8 +32,6 @@ const MobileHome = ({
   const userIndex = leaderboardData?.findIndex(d => d.username === user?.username || d.userId === user?._id);
   const myRank = userIndex !== -1 ? userIndex + 1 : '-';
   const myStreak = localStorage.getItem('daily_streak_count') || user?.streak || 0;
-  const [isMuted, setIsMuted] = React.useState(true);
-  const videoRef = React.useRef(null);
 
   // Prepare leaderboard subset (1 above, self, 1 below)
   const lbItems = React.useMemo(() => {
@@ -133,32 +131,19 @@ const MobileHome = ({
             </div>
 
             <div className="bg-white rounded-[28px] overflow-hidden flex-1 flex flex-col items-center justify-center relative shadow-inner">
-              {/* Mission Video with Sound Toggle */}
-              <div className="absolute inset-0 z-0">
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  loop
-                  muted={isMuted}
-                  playsInline
-                  className="w-full h-full object-cover"
-                >
-                  <source src="https://res.cloudinary.com/dcxlzfyfp/video/upload/v1777997560/video/mission_v1.mp4" type="video/mp4" />
-                </video>
-                {/* Dark overlay to make text pop if needed */}
-                <div className="absolute inset-0 bg-black/5"></div>
+              {/* Mission YouTube Video */}
+              <div className="absolute inset-0 z-0 overflow-hidden">
+                <iframe 
+                  className="w-full h-full"
+                  src="https://www.youtube.com/embed/uHDSRZK74Dk?autoplay=1&mute=1&loop=1&playlist=uHDSRZK74Dk&controls=0&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3" 
+                  title="Today's Mission" 
+                  frameBorder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowFullScreen
+                ></iframe>
+                {/* Overlay to prevent interaction and keep it looking like a background video */}
+                <div className="absolute inset-0 bg-transparent"></div>
               </div>
-
-              {/* Mute Toggle Overlay */}
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsMuted(!isMuted);
-                }}
-                className="absolute top-2 right-2 z-20 w-8 h-8 bg-black/20 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/20 active:scale-90 transition-all"
-              >
-                <span className="text-xs">{isMuted ? '🔇' : '🔊'}</span>
-              </button>
             </div>
           </div>
 

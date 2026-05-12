@@ -17,7 +17,7 @@ import MobileMore from "../../layout/MobileMore.jsx";
 const DASHBOARD_VERSION = "V5.1-FREQ-3";
 
 // --- SVG Icons for the Dashboard ---
-const LearnIcon = () => (
+const LearnIcon = React.memo(() => (
   <svg
     className="w-7 h-7 md:w-8 md:h-8"
     viewBox="0 0 24 24"
@@ -25,8 +25,8 @@ const LearnIcon = () => (
   >
     <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-3 2v5l-1-.75L15 9V4h2zm-3 0v5l-1-.75L12 9V4h2zm-3 0v5l-1-.75L9 9V4h2z"></path>
   </svg>
-);
-const ReviseIcon = () => (
+));
+const ReviseIcon = React.memo(() => (
   <svg
     className="w-7 h-7 md:w-8 md:h-8"
     viewBox="0 0 24 24"
@@ -34,8 +34,8 @@ const ReviseIcon = () => (
   >
     <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5C21.27 7.61 17 4.5 12 4.5zm0 10c-2.48 0-4.5-2.02-4.5-4.5S9.52 5.5 12 5.5 16.5 7.52 16.5 10 14.48 14.5 12 14.5z"></path>
   </svg>
-);
-const ProfileIcon = () => (
+));
+const ProfileIcon = React.memo(() => (
   <svg
     className="w-7 h-7 md:w-8 md:h-8"
     viewBox="0 0 24 24"
@@ -43,7 +43,7 @@ const ProfileIcon = () => (
   >
     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
   </svg>
-);
+));
 const LogoutIcon = () => (
   <svg
     className="w-7 h-7 md:w-8 md:h-8"
@@ -59,7 +59,7 @@ const LogoutIcon = () => (
     <line x1="21" y1="12" x2="9" y2="12" />
   </svg>
 );
-const StarIcon = () => (
+const StarIcon = React.memo(() => (
   <svg
     className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8"
     viewBox="0 0 24 24"
@@ -67,41 +67,41 @@ const StarIcon = () => (
   >
     <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path>
   </svg>
-);
-const BookIcon = () => (
+));
+const BookIcon = React.memo(() => (
   <svg className="w-10 h-10" viewBox="0 0 24 24" fill="currentColor">
     <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"></path>
   </svg>
-);
-const HamburgerIcon = () => (
+));
+const HamburgerIcon = React.memo(() => (
   <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
     <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path>
   </svg>
-);
+));
 
-const CloseIcon = () => (
+const CloseIcon = React.memo(() => (
   <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
     <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
   </svg>
-);
+));
 
-const FireIcon = () => (
+const FireIcon = React.memo(() => (
   <svg viewBox="0 0 16 16" className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10" fill="currentColor">
     <path d="M8 16c3.314 0 6-2 6-5.5 0-1.5-.5-4-2.5-6 .25 1.5-1.25 2-1.25 2C11 4 9 .5 6 0c.357 2 .5 4-2 6-1.25 1-2 2.729-2 4.5C2 14 4.686 16 8 16m0-1c-1.657 0-3-1-3-2.75 0-.75.25-2 1.25-3C6.125 10 7 10.5 7 10.5c-.375-1.25.5-3.25 2-3.5-.179 1-.25 2 1 3 .625.5 1 1.364 1 2.25C11 14 9.657 15 8 15" />
   </svg>
-);
+));
 
-const PencilIcon = () => (
+const PencilIcon = React.memo(() => (
   <svg viewBox="0 0 24 24" className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10" fill="currentColor">
     <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
   </svg>
-);
+));
 
-const ChapterNavIcon = () => (
+const ChapterNavIcon = React.memo(() => (
   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
     <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path>
   </svg>
-);
+));
 
 // Cute bouncing "START" badge used above the active node
 const StartBadge = React.memo(({ color = "#2C6DEF" }) => (
@@ -127,11 +127,33 @@ const StartBadge = React.memo(({ color = "#2C6DEF" }) => (
 const PathAnimation = React.memo(({ data, offset, top, isMobileLayout }) => {
   const sizeBase = isMobileLayout ? "w-[68px] h-[68px]" : "w-24 h-24 sm:w-26 sm:h-26 md:w-28 md:h-28 lg:w-32 lg:h-32";
   const depth = "6px";
+  const containerRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
   
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => {
+      if (containerRef.current) {
+        observer.unobserve(containerRef.current);
+      }
+    };
+  }, []);
+
   if (!data) return null;
 
   return (
     <div
+      ref={containerRef}
       className="absolute pointer-events-none z-[200]"
       style={{
         width: isMobileLayout ? '190px' : '224px',
@@ -163,15 +185,17 @@ const PathAnimation = React.memo(({ data, offset, top, isMobileLayout }) => {
         {/* Lottie Animation */}
         <div className="absolute inset-0 flex items-center justify-center">
           <div className={`${isMobileLayout ? 'w-[190px] h-[190px] -translate-y-[80px]' : 'w-[224px] h-[224px] -translate-y-[94px]'}`}>
-            <Lottie
-              animationData={data}
-              loop={true}
-              style={{ 
-                width: isMobileLayout ? '190px' : '224px', 
-                height: isMobileLayout ? '190px' : '224px', 
-                backgroundColor: 'transparent' 
-              }}
-            />
+            {isVisible && (
+              <Lottie
+                animationData={data}
+                loop={true}
+                style={{ 
+                  width: isMobileLayout ? '190px' : '224px', 
+                  height: isMobileLayout ? '190px' : '224px', 
+                  backgroundColor: 'transparent' 
+                }}
+              />
+            )}
           </div>
         </div>
       </div>
