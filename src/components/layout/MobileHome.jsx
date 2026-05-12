@@ -135,14 +135,12 @@ const MobileHome = ({
               <div className="absolute inset-0 z-0 overflow-hidden">
                 <iframe 
                   className="w-full h-full"
-                  src="https://www.youtube.com/embed/uHDSRZK74Dk?autoplay=1&mute=1&loop=1&playlist=uHDSRZK74Dk&controls=0&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3" 
+                  src="https://www.youtube.com/embed/uHDSRZK74Dk?autoplay=1&mute=0&loop=1&playlist=uHDSRZK74Dk&controls=1&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3" 
                   title="Today's Mission" 
                   frameBorder="0" 
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                   allowFullScreen
                 ></iframe>
-                {/* Overlay to prevent interaction and keep it looking like a background video */}
-                <div className="absolute inset-0 bg-transparent"></div>
               </div>
             </div>
           </div>
