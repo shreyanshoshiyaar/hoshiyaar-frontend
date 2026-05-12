@@ -19,6 +19,22 @@ const MobileHomeCarousel = () => {
   const scrollRef = useRef(null);
   const navigate = useNavigate();
 
+  // Auto-scroll logic
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (scrollRef.current) {
+        const nextIndex = (activeIndex + 1) % MOBILE_IMAGES.length;
+        const width = scrollRef.current.offsetWidth;
+        scrollRef.current.scrollTo({
+          left: nextIndex * width,
+          behavior: 'smooth'
+        });
+        setActiveIndex(nextIndex);
+      }
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [activeIndex]);
+
   const handleScroll = () => {
     if (scrollRef.current) {
       const scrollPosition = scrollRef.current.scrollLeft;
@@ -39,8 +55,8 @@ const MobileHomeCarousel = () => {
           <div key={index} className="mobile-carousel-item relative">
             <img src={src} alt={`Slide ${index + 1}`} loading="lazy" />
             
-            {/* Get Started Button on first and second images */}
-            {(index === 0 || index === 1) && (
+            {/* Get Started Button on 1st, 2nd, and 3rd images */}
+            {(index === 0 || index === 1 || index === 2) && (
               <div className="absolute bottom-14 left-0 right-0 flex justify-center px-6">
                 <button 
                   onClick={() => navigate('/signup')}
@@ -51,10 +67,9 @@ const MobileHomeCarousel = () => {
               </div>
             )}
 
-            {/* Social Buttons on 3rd, 4th and 5th images */}
-            {(index === 2 || index === 3 || index === 4) && (
-              <div className={`absolute ${index === 2 ? 'bottom-12' : 'bottom-10'} left-0 right-0 flex flex-col items-center gap-3 px-6`}>
-                {index === 2 && <p className="text-gray-900 font-black text-[12px] uppercase tracking-[0.2em]">Follow Us</p>}
+            {/* Social Buttons on 4th and 5th images */}
+            {(index === 3 || index === 4) && (
+              <div className="absolute bottom-10 left-0 right-0 flex flex-col items-center gap-3 px-6">
                 <div className="flex flex-row gap-3 w-full justify-center">
                   <a 
                     href="https://www.instagram.com/hoshiyaar_club/" 

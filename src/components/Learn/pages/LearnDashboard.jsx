@@ -2306,17 +2306,27 @@ const LearnDashboard = ({ onboardingData }) => {
                                         {status === "active" && <StartBadge color="#2C6DEF" />}
                                       </PathNode>
                                       {/* Always-Visible Label (3D Box Styling) */}
-                                      <div className="absolute top-1/2 -translate-y-1/2 left-full pointer-events-none flex items-center ml-[10px] md:ml-[24px]">
-                                        <div className="relative w-[115px] md:w-[150px] min-h-[52px]">
+                                      <div 
+                                        onClick={() => {
+                                          if (!canClick) return;
+                                          saveScrollPosition();
+                                          const params = new URLSearchParams();
+                                          if (chapterId) params.set('chapterId', chapterId);
+                                          const query = params.toString();
+                                          navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
+                                        }}
+                                        className={`absolute top-1/2 -translate-y-1/2 left-full flex items-center ml-[10px] md:ml-[24px] cursor-pointer group/label ${!canClick ? 'opacity-50 grayscale' : ''}`}
+                                      >
+                                        <div className="relative w-[130px] md:w-[150px] h-auto">
                                           {/* Bottom Layer (Depth) */}
                                           <div className={`absolute inset-0 translate-y-[4px] rounded-2xl ${
                                             status === "completed" ? "bg-[#CA8A04]" : status === "active" ? "bg-[#1D4ED8]" : "bg-[#CBD5E1]"
                                           }`} />
                                           {/* Top Layer (Surface) */}
-                                          <div className={`absolute inset-0 rounded-2xl flex items-center justify-between pl-4 pr-3 py-2 border shadow-sm transition-transform active:translate-y-[2px] ${
+                                          <div className={`relative h-full rounded-2xl flex items-center justify-between pl-4 pr-3 py-2.5 border shadow-sm transition-transform active:translate-y-[2px] group-hover/label:-translate-y-[1px] ${
                                             status === "completed" ? "bg-[#FACC15] border-[#EAB308]" : status === "active" ? "bg-[#2C6DEF] border-[#1E40AF]" : "bg-white border-slate-200"
                                           }`}>
-                                            <div className={`text-[11px] md:text-xs font-black leading-tight text-left line-clamp-2 flex-1 pr-2 ${
+                                            <div className={`text-[11px] md:text-xs font-black leading-tight text-left flex-1 pr-2 break-words ${
                                               status === "active" ? "text-white" : status === "completed" ? "text-yellow-900" : "text-slate-700"
                                             }`}>
                                               {mod?.title || "—"}
@@ -2549,21 +2559,31 @@ const LearnDashboard = ({ onboardingData }) => {
                                               {status === "active" && <StartBadge color={unitPalette[unitIdx % unitPalette.length]} />}
                                              </PathNode>
                                                                          {/* Always-Visible Label (3D Box Styling - Alternating) */}
-                                             <div className={`absolute top-1/2 -translate-y-1/2 pointer-events-none flex items-center ${
+                                             <div 
+                                               onClick={() => {
+                                                 if (!canClick) return;
+                                                 saveScrollPosition();
+                                                 const params = new URLSearchParams();
+                                                 if (chapterId) params.set('chapterId', chapterId);
+                                                 if (u?._id) params.set('unitId', u._id);
+                                                 const query = params.toString();
+                                                 navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
+                                               }}
+                                               className={`absolute top-1/2 -translate-y-1/2 flex items-center cursor-pointer group/label ${
                                                unitIdx % 2 === 0 ? "left-full ml-[10px] md:ml-[24px]" : "right-full mr-[10px] md:mr-[24px]"
-                                             }`}>
-                                               <div className="relative w-[115px] md:w-[150px] min-h-[52px]">
+                                             } ${!canClick ? 'opacity-50 grayscale' : ''}`}>
+                                               <div className="relative w-[130px] md:w-[150px] h-auto">
                                                  {/* Bottom Layer (Depth) */}
                                                  <div className={`absolute inset-0 translate-y-[4px] rounded-2xl ${
                                                    status === "completed" ? "bg-[#CA8A04]" : status === "active" ? "bg-[#1D4ED8]" : "bg-[#CBD5E1]"
                                                  }`} />
                                                  {/* Top Layer (Surface) */}
-                                                 <div className={`absolute inset-0 rounded-2xl flex items-center justify-between pl-4 pr-3 py-2 border shadow-sm ${
+                                                 <div className={`relative h-full rounded-2xl flex items-center justify-between pl-4 pr-3 py-2.5 border shadow-sm transition-transform active:translate-y-[2px] group-hover/label:-translate-y-[1px] ${
                                                    unitIdx % 2 !== 0 ? "flex-row-reverse pl-3 pr-4" : ""
                                                  } ${
                                                    status === "completed" ? "bg-[#FACC15] border-[#EAB308]" : status === "active" ? "bg-[#2C6DEF] border-[#1E40AF]" : "bg-white border-slate-200"
                                                  }`}>
-                                                   <div className={`text-[11px] md:text-xs font-black leading-tight flex-1 line-clamp-2 ${
+                                                   <div className={`text-[11px] md:text-xs font-black leading-tight flex-1 break-words ${
                                                      unitIdx % 2 === 0 ? "text-left pr-2" : "text-right pl-2"
                                                    } ${
                                                      status === "active" ? "text-white" : status === "completed" ? "text-yellow-900" : "text-slate-700"
