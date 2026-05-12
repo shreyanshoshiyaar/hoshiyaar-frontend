@@ -2024,115 +2024,132 @@ const LearnDashboard = ({ onboardingData }) => {
                           {chaptersList.map((ch, index) => {
                             const st = chapterStats[ch._id] || { total: 0, completed: 0 };
                             const pct = st.total > 0 ? Math.min(100, Math.round((st.completed / st.total) * 100)) : 0;
+                            
+                            const gradients = [
+                              "from-blue-600 to-indigo-700",
+                              "from-emerald-600 to-teal-700",
+                              "from-violet-600 to-purple-700",
+                              "from-rose-600 to-pink-700",
+                              "from-amber-600 to-orange-700"
+                            ];
+                            const cardGradient = gradients[index % gradients.length];
+
+                            const handleChapterClick = async () => {
+                              setShowChapters(false);
+                              if (ch?._id) {
+                                // Update URL with chapterId to persist selection
+                                navigate(`/learn?chapterId=${encodeURIComponent(ch._id)}`, { replace: false });
+                                setChapterId(ch._id);
+                                setChapterTitle(ch.title);
+
+                                if (user?._id) {
+                                  try {
+                                    const response = await authService.updateProfile({
+                                      userId: user._id,
+                                      chapter: ch.title,
+                                    });
+                                    const updatedUser = response?.data ? { ...user, ...response.data } : { ...user, chapter: ch.title, chapterId: ch._id };
+                                    try {
+                                      localStorage.setItem(`last_selected_chapter_${user._id}_${subjectName}`, ch._id);
+                                      if (updateUser) updateUser(updatedUser);
+                                      else localStorage.setItem('user', JSON.stringify(updatedUser));
+                                    } catch (e) { console.warn('Failed to update user state:', e); }
+                                  } catch (error) {
+                                    console.error('Failed to save chapter to database:', error);
+                                    try { localStorage.setItem(`last_selected_chapter_${user._id}_${subjectName}`, ch._id); } catch (_) { }
+                                  }
+                                } else {
+                                  try { localStorage.setItem(`last_selected_chapter_anon_${subjectName}`, ch._id); } catch (_) { }
+                                }
+                              }
+                            };
 
                             return (
                               <div
                                 key={ch._id}
-                                className="group w-full min-h-[200px] md:min-h-[220px] rounded-3xl p-5 md:p-6 bg-white text-blue-700 border-4 border-blue-200/50 shadow-[0_8px_0_0_rgba(59,130,246,0.2)] hover:shadow-[0_12px_0_0_rgba(59,130,246,0.3)] transition-all duration-300 hover:scale-[1.02] hover:border-blue-300 flex items-center gap-6 relative overflow-hidden"
+                                onClick={handleChapterClick}
+                                className="group relative w-full cursor-pointer transition-all duration-300 active:scale-[0.98]"
                                 style={{ animationDelay: `${index * 50}ms` }}
                               >
-                                {/* Gradient background effect */}
-                                <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-                                <div className="flex-1 relative z-10">
-                                  <div className="text-xl md:text-2xl font-extrabold leading-tight mb-3 text-blue-900 group-hover:text-blue-800 transition-colors">
-                                    {ch.title}
-                                  </div>
-
-                                  {/* Enhanced progress bar */}
-                                  <div className="mt-4 mb-2">
-                                    <div className="flex items-center justify-between mb-1">
-                                      <span className="text-xs font-bold text-blue-600/80">Progress</span>
-                                      <span className="text-xs font-extrabold text-blue-700">{st.completed} / {st.total || "?"}</span>
+                                {/* 3D Shadow/Depth Layer */}
+                                <div className="absolute inset-0 translate-y-2 rounded-[2rem] bg-black/10 blur-sm group-hover:translate-y-3 transition-transform" />
+                                
+                                <div className={`relative overflow-hidden rounded-[2rem] p-6 bg-white border-b-[6px] border-gray-200 hover:border-b-[4px] hover:translate-y-[2px] active:border-b-0 active:translate-y-[6px] transition-all flex items-center gap-6`}>
+                                  
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-widest text-white bg-gradient-to-r ${cardGradient}`}>
+                                        CHAPTER {index + 1}
+                                      </span>
+                                      {pct === 100 && (
+                                        <span className="text-yellow-500 text-lg">🏆</span>
+                                      )}
                                     </div>
-                                    <div className="h-4 bg-blue-100 rounded-full overflow-hidden shadow-inner">
-                                      <div
-                                        className="h-full bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 rounded-full transition-all duration-500 ease-out relative overflow-hidden"
-                                        style={{ width: `${pct}%` }}
-                                      >
-                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
+                                    
+                                    <h3 className="text-xl md:text-2xl font-black text-gray-800 leading-tight mb-4 group-hover:text-blue-600 transition-colors truncate">
+                                      {ch.title}
+                                    </h3>
+
+                                    {/* Progress Section */}
+                                    <div className="space-y-2 mb-6">
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                          Progress
+                                        </span>
+                                        <span className="text-sm font-black text-gray-700">
+                                          {st.completed} <span className="text-gray-300">/</span> {st.total || "?"}
+                                        </span>
+                                      </div>
+                                      
+                                      <div className="h-4 bg-gray-100 rounded-2xl overflow-hidden relative">
+                                        <div
+                                          className={`h-full rounded-2xl transition-all duration-1000 ease-out bg-gradient-to-r ${cardGradient}`}
+                                          style={{ width: `${pct}%` }}
+                                        >
+                                          {/* Animated Shimmer */}
+                                          <div className="absolute inset-0 w-full h-full">
+                                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+                                          </div>
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
 
-                                  <div className="mt-5">
-                                    <button
-                                      onClick={async () => {
-                                        setShowChapters(false);
-                                        if (ch?._id) {
-                                          // Update URL with chapterId to persist selection
-                                          navigate(`/learn?chapterId=${encodeURIComponent(ch._id)}`, { replace: false });
-                                          // Immediately update state to reflect the change
-                                          setChapterId(ch._id);
-                                          setChapterTitle(ch.title);
-
-                                          // Update database with the selected chapter
-                                          if (user?._id) {
-                                            try {
-                                              const response = await authService.updateProfile({
-                                                userId: user._id,
-                                                chapter: ch.title, // Save chapter title to user profile
-                                              });
-                                              console.log('Chapter saved to database:', ch.title);
-
-                                              // Update local user state to reflect the change immediately
-                                              const updatedUser = response?.data ? { ...user, ...response.data } : { ...user, chapter: ch.title, chapterId: ch._id };
-                                              try {
-                                                // Also save chapter ID to localStorage for quick retrieval
-                                                localStorage.setItem(`last_selected_chapter_${user._id}_${subjectName}`, ch._id);
-                                                // Update AuthContext user state immediately
-                                                if (updateUser) {
-                                                  updateUser(updatedUser);
-                                                } else {
-                                                  // Fallback to localStorage only
-                                                  localStorage.setItem('user', JSON.stringify(updatedUser));
-                                                }
-                                              } catch (e) {
-                                                console.warn('Failed to update user state:', e);
-                                              }
-                                            } catch (error) {
-                                              console.error('Failed to save chapter to database:', error);
-                                              // Still save to localStorage as fallback
-                                              try {
-                                                localStorage.setItem(`last_selected_chapter_${user._id}_${subjectName}`, ch._id);
-                                              } catch (_) { }
-                                              // Don't block UI if save fails
-                                            }
-                                          } else {
-                                            // Save to localStorage even if not logged in
-                                            try {
-                                              localStorage.setItem(`last_selected_chapter_anon_${subjectName}`, ch._id);
-                                            } catch (_) { }
-                                          }
-                                        }
-                                      }}
-                                      className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 via-blue-600 to-indigo-600 hover:from-blue-700 hover:via-blue-700 hover:to-indigo-700 text-white font-extrabold text-sm md:text-base shadow-[0_6px_0_0_rgba(37,99,235,0.4)] hover:shadow-[0_8px_0_0_rgba(37,99,235,0.5)] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden group"
-                                    >
-                                      <span className="relative z-10 flex items-center justify-center gap-2">
-                                        <span>CONTINUE</span>
-                                        <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                        </svg>
-                                      </span>
-                                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
-                                    </button>
-                                  </div>
-                                </div>
-
-                                {/* Chapter illustration (right side) */}
-                                <div className="flex-shrink-0 pr-2 hidden md:block relative z-10">
-                                  <div className="relative">
-                                    <img
-                                      src={chapterImg}
-                                      alt="Chapter"
-                                      className="w-36 h-36 md:w-44 md:h-44 object-contain opacity-95 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300"
-                                    />
-                                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center text-xl animate-bounce">
-                                      ❤️
+                                    {/* Continue Button */}
+                                    <div className={`w-full py-3.5 rounded-2xl bg-gradient-to-r ${cardGradient} text-white text-center font-black text-sm md:text-base shadow-lg hover:shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2`}>
+                                      <span>CONTINUE LEARNING</span>
+                                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                      </svg>
                                     </div>
                                   </div>
-                                </div>
 
+                                  {/* Illustration Container */}
+                                  <div className="hidden sm:flex flex-shrink-0 items-center justify-center w-24 h-24 md:w-32 md:h-32 rounded-3xl bg-gray-50 group-hover:bg-blue-50 transition-colors relative">
+                                    <img
+                                      src={chapterImg}
+                                      alt=""
+                                      className="w-16 h-16 md:w-20 md:h-20 object-contain drop-shadow-lg group-hover:scale-110 transition-transform duration-300"
+                                    />
+                                    {pct === 100 ? (
+                                       <div className="absolute -top-2 -right-2 bg-green-500 text-white p-1 rounded-full shadow-lg">
+                                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                           <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
+                                         </svg>
+                                       </div>
+                                    ) : (
+                                      <div className="absolute -bottom-2 -right-2 bg-white px-2 py-1 rounded-lg shadow-md text-[10px] font-black text-gray-500 border border-gray-100">
+                                        {pct}%
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  {/* Hover Arrow */}
+                                  <div className="hidden md:flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 group-hover:bg-blue-500 group-hover:text-white transition-all">
+                                    <svg className="w-6 h-6 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                  </div>
+                                </div>
                               </div>
                             );
                           })}

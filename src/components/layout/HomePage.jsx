@@ -7,11 +7,11 @@ import FinalCTA from '../features/FinalCTA';
 import './MobileHome.css';
 
 const MOBILE_IMAGES = [
-  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567490/img-to-link/kww4z9sqehy01uvfcaz0.webp",
+  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778578700/img-to-link/wunxaopn4qfirxnfdwa6.webp",
   "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567489/img-to-link/n9fo2moxpmfwyp04ueob.webp",
   "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567487/img-to-link/zy3aaizcfjl5qwm9ewjx.webp",
   "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567485/img-to-link/iogmnil6kadduvgx62tn.webp",
-  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567484/img-to-link/tkellg9aspixbxke6oa3.webp"
+  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778578699/img-to-link/tynaqnlzmbvoaafwu3do.webp"
 ];
 
 const MobileHomeCarousel = () => {
