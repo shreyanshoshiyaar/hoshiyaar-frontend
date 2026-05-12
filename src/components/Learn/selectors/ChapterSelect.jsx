@@ -71,10 +71,10 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
     return (
         <div className="flex flex-col h-screen bg-transparent md:bg-gradient-to-b md:from-blue-50 md:via-white md:to-blue-50 overflow-hidden relative font-sans">
             
-            {/* Top Content Group */}
-            <div className="px-6 pt-10 flex flex-col items-center relative z-10 w-full max-w-sm mx-auto">
+            {/* Top Content Group - Tightened */}
+            <div className="px-6 pt-6 flex flex-col items-center relative z-10 w-full max-w-sm mx-auto">
                 {/* Header Text */}
-                <div className="text-center mb-6">
+                <div className="text-center mb-4">
                     <h1 className="font-bold text-2xl md:text-3xl text-gray-800">
                         Pick a Chapter
                     </h1>
@@ -86,11 +86,11 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
                 {/* Compact Main Content: List of chapters */}
                 <div className="w-full space-y-2 max-h-[50vh] overflow-y-auto no-scrollbar">
                     {loading && (
-                        <div className="text-center text-gray-400 text-sm animate-pulse py-8">
+                        <div className="text-center text-gray-400 text-sm animate-pulse py-6">
                             Loading...
                         </div>
                     )}
-                    {!loading && chapters.length === 0 && (<div className="text-center text-gray-400 text-sm py-8">No chapters found.</div>)}
+                    {!loading && chapters.length === 0 && (<div className="text-center text-gray-400 text-sm py-6">No chapters found.</div>)}
                     {!loading && chapters.map((chapter) => (
                         <button
                             key={chapter.id}
@@ -98,7 +98,7 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
                                 setSelectedChapter(chapter.name); 
                                 updateData?.({ chapter: chapter.name }); 
                             }}
-                            className={`w-full py-3 px-5 rounded-2xl border transition-all active:scale-[0.98] flex items-center gap-4 ${
+                            className={`w-full py-2.5 px-5 rounded-2xl border transition-all active:scale-[0.98] flex items-center gap-4 ${
                                 selectedChapter === chapter.name
                                 ? 'bg-white border-blue-400 shadow-sm'
                                 : 'bg-white/40 backdrop-blur-md border-white/40 hover:bg-white/60'
@@ -121,11 +121,11 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
                 </div>
             </div>
 
-            {/* Spacer to push button to bottom */}
+            {/* Spacer */}
             <div className="flex-grow" />
 
-            {/* Bottom Button - Full width within container */}
-            <div className="p-10 flex justify-center relative z-10 w-full max-w-sm mx-auto">
+            {/* Bottom Button - Tighter Padding */}
+            <div className="p-6 flex justify-center relative z-10 w-full max-w-sm mx-auto">
                 <button 
                     onClick={handleContinue}
                     disabled={!selectedChapter}
