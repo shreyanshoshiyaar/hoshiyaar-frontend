@@ -1522,6 +1522,7 @@ const LearnDashboard = ({ onboardingData }) => {
 
   const fetchLeaderboard = useCallback(async (schoolName, timeframe, scope) => {
     const targetScope = scope || leaderboardScope;
+    // Explicitly nullify school for global scope, otherwise use provided name or user's current school
     const targetSchool = targetScope === 'global' ? null : (schoolName || user?.school);
     
     const targetTimeframe = timeframe || leaderboardTimeframe;
@@ -1576,7 +1577,8 @@ const LearnDashboard = ({ onboardingData }) => {
       }
     }
 
-    fetchLeaderboard(leaderboardSchool);
+    setLeaderboardScope('school');
+    fetchLeaderboard(leaderboardSchool, null, 'school');
   };
 
   // Fetch school suggestions for autocomplete
@@ -1605,9 +1607,11 @@ const LearnDashboard = ({ onboardingData }) => {
   // Auto-load or refresh leaderboard when school or timeframe changes
   useEffect(() => {
     const activeSchool = user?.school || leaderboardSchool;
-    if ((activeSchool || leaderboardScope === 'global') && !isChangingSchool) {
-      fetchLeaderboard(activeSchool);
-      fetchWeeklyLeaderboard(activeSchool);
+    if (!isChangingSchool) {
+      // If global, fetch with null school. If school, fetch with activeSchool.
+      const fetchSchool = leaderboardScope === 'global' ? null : activeSchool;
+      fetchLeaderboard(fetchSchool);
+      fetchWeeklyLeaderboard(fetchSchool);
     }
   }, [user?.school, isChangingSchool, leaderboardTimeframe, leaderboardScope, fetchLeaderboard, fetchWeeklyLeaderboard]);
 
