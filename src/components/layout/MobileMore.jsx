@@ -406,7 +406,7 @@ const MobileMore = ({ stars, weeklyStars }) => {
               </svg>
             </button>
             <button 
-              onClick={() => window.location.href = 'mailto:support@hoshiyaar.info'}
+              onClick={() => window.location.href = 'mailto:cg.hoshiyaar@gmail.com'}
               className="w-full flex items-center justify-between p-4 hover:bg-blue-50/50 transition-all group"
             >
               <div className="flex items-center gap-3">
