@@ -57,10 +57,10 @@ const MobileHomeCarousel = () => {
             
             {/* YouTube Video in Phone Frame on 4th Slide */}
             {index === 3 && (
-              <div className="absolute top-[10%] left-0 right-0 flex justify-center animate-fade-in pointer-events-none">
-                <div className="relative w-[205px] max-w-[62vw] aspect-[9/18.5] bg-black rounded-[2.5rem] border-[7px] border-gray-900 shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden ring-4 ring-white/10 pointer-events-auto">
+              <div className="absolute top-[12%] left-0 right-0 flex justify-center animate-fade-in pointer-events-none">
+                <div className="relative w-[165px] max-w-[50vw] aspect-[9/18.5] bg-black rounded-[2.2rem] border-[5px] border-gray-900 shadow-[0_15px_40px_rgba(0,0,0,0.4)] overflow-hidden ring-2 ring-white/10 pointer-events-auto">
                   {/* Phone Notch */}
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-5 bg-gray-900 rounded-b-2xl z-10"></div>
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-4 bg-gray-900 rounded-b-xl z-10"></div>
                   
                   <iframe 
                     className="w-full h-full scale-[1.02]"
