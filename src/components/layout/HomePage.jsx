@@ -29,7 +29,7 @@ const MobileHomeCarousel = () => {
   };
 
   return (
-    <div className="relative h-screen w-full overflow-hidden">
+    <div className="relative h-[100dvh] w-full overflow-hidden">
       <div 
         ref={scrollRef}
         onScroll={handleScroll}
@@ -53,7 +53,7 @@ const MobileHomeCarousel = () => {
 
             {/* Social Buttons on 3rd, 4th and 5th images */}
             {(index === 2 || index === 3 || index === 4) && (
-              <div className="absolute bottom-12 left-0 right-0 flex flex-col items-center gap-3 px-6">
+              <div className={`absolute ${index === 2 ? 'bottom-12' : 'bottom-10'} left-0 right-0 flex flex-col items-center gap-3 px-6`}>
                 {index === 2 && <p className="text-gray-900 font-black text-[12px] uppercase tracking-[0.2em]">Follow Us</p>}
                 <div className="flex flex-row gap-3 w-full justify-center">
                   <a 
