@@ -173,16 +173,23 @@ const LessonComplete = () => {
             </p>
           </div>
 
-          {/* Total Stars card - New Glassmorphic Design */}
-          <div className="w-full max-w-md animate-fade-in px-2">
-            <div className="bg-white/80 backdrop-blur-md border-4 border-yellow-400/50 rounded-3xl px-6 py-8 shadow-[0_12px_24px_rgba(0,0,0,0.1)]">
-              <div className="flex flex-col items-center gap-4">
-                <div className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center text-3xl shadow-lg animate-bounce">
+          {/* Total Stars card - Horizontal Sleek Glassmorphic Design */}
+          <div className="w-full max-w-xl animate-fade-in px-2">
+            <div className="bg-white/80 backdrop-blur-md border-2 border-yellow-400/30 rounded-2xl px-6 py-4 shadow-[0_8px_32px_rgba(0,0,0,0.1)] flex items-center justify-between border-b-4 border-b-yellow-400/20">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center text-2xl shadow-lg animate-bounce shrink-0">
                   ⭐
                 </div>
-                <div>
-                  <div className="text-sm font-black text-yellow-800 uppercase tracking-widest mb-1">Total Stars Earned</div>
-                  <div className="text-4xl font-black text-yellow-600 drop-shadow-sm">{stars}</div>
+                <div className="text-left">
+                  <div className="text-[10px] font-black text-yellow-800 uppercase tracking-widest leading-none mb-1.5">Total Stars Earned</div>
+                  <div className="text-2xl font-black text-yellow-600 drop-shadow-sm leading-none">{stars} stars</div>
+                </div>
+              </div>
+              <div className="flex flex-col items-end">
+                <span className="text-[10px] font-black text-green-600 uppercase tracking-tighter">Lesson Mastered</span>
+                <div className="flex gap-0.5 mt-1">
+                  <span className="text-xs">✨</span>
+                  <span className="text-xs animate-pulse">✨</span>
                 </div>
               </div>
             </div>
