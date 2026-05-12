@@ -178,9 +178,9 @@ const Learn = () => {
 
   return (
     <div 
-      className="min-h-screen relative bg-white md:bg-white"
+      className="min-h-screen relative bg-white md:bg-white overflow-hidden"
       style={{
-        backgroundImage: window.innerWidth < 768 ? 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778580874/img-to-link/ghsiw9nhbm4dlojuvutb.webp")' : 'none',
+        backgroundImage: window.innerWidth < 768 ? 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778582100/img-to-link/avlrqghu3x4rh4gjyvcq.webp")' : 'none',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundAttachment: 'fixed'

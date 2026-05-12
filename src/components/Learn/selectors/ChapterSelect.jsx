@@ -69,61 +69,86 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
     };
 
     return (
-        <div className="flex flex-col h-screen bg-transparent md:bg-gradient-to-b md:from-blue-50 md:via-white md:to-blue-50 overflow-hidden relative">
+        <div className="flex flex-col h-screen bg-transparent md:bg-gradient-to-b md:from-blue-50 md:via-white md:to-blue-50 overflow-hidden relative font-outfit">
             
-            {/* Header Text - Direct on Background */}
-            <div className="px-6 pt-12 pb-4 text-center animate-fade-in relative z-10">
-                <h1 className="font-black text-3xl md:text-4xl text-gray-900 leading-tight drop-shadow-sm">
+            {/* Header Area */}
+            <div className="px-8 pt-16 pb-4 text-center animate-fade-in relative z-10">
+                <h1 className="font-black text-4xl md:text-5xl text-[#1E293B] leading-tight tracking-tight drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)]">
                     Pick a Chapter
                 </h1>
-                <p className="text-gray-700 font-bold mt-2 text-base opacity-80">
+                <p className="text-[#475569] font-extrabold mt-2 text-lg md:text-xl opacity-90">
                     Continue your journey
                 </p>
             </div>
 
-            {/* Main content: List of chapters - Scrollable only if many items, but container is h-screen */}
-            <div className="flex-grow flex items-center justify-center p-4 relative z-10 overflow-hidden">
-                <div className="w-full max-w-lg space-y-3 max-h-[55vh] overflow-y-auto no-scrollbar">
-                    {loading && (<div className="text-center text-gray-600 font-bold animate-pulse text-lg py-8">Loading chapters...</div>)}
-                    {!loading && chapters.length === 0 && (<div className="text-center text-gray-500 font-bold py-8">No chapters found.</div>)}
-                    {!loading && chapters.map((chapter) => (
+            {/* Main content: List of chapters - Centered */}
+            <div className="flex-grow flex items-center justify-center px-6 relative z-10 overflow-hidden">
+                <div className="w-full max-w-lg space-y-3 max-h-[50vh] overflow-y-auto no-scrollbar pb-6">
+                    {loading && (
+                        <div className="flex flex-col items-center gap-4 py-12">
+                            <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                            <div className="text-[#1E293B] font-black text-xl tracking-widest">LOADING...</div>
+                        </div>
+                    )}
+                    {!loading && chapters.length === 0 && (<div className="text-center text-gray-500 font-bold py-12">No chapters found.</div>)}
+                    {!loading && chapters.map((chapter, idx) => (
                         <button
                             key={chapter.id}
                             onClick={() => { 
                                 setSelectedChapter(chapter.name); 
                                 updateData?.({ chapter: chapter.name }); 
                             }}
-                            className={`w-full p-4 rounded-2xl border-2 flex items-center gap-4 transition-all ${
+                            style={{ animation: `slideUp 0.4s ease-out ${idx * 0.05}s both` }}
+                            className={`w-full p-5 rounded-[2rem] border-2 flex items-center gap-5 transition-all active:scale-[0.98] ${
                                 selectedChapter === chapter.name
-                                ? 'bg-white border-green-500 shadow-[0_8px_20px_rgba(34,197,94,0.2)] scale-[1.02]'
-                                : 'bg-white/60 backdrop-blur-md border-white/40 border-b-[6px] border-b-gray-200/50 hover:bg-white/70'
+                                ? 'bg-white border-blue-500 shadow-[0_20px_40px_rgba(59,130,246,0.2)] scale-[1.02]'
+                                : 'bg-white/80 backdrop-blur-xl border-white/60 border-b-6 border-b-gray-400/20 hover:bg-white/90 shadow-lg'
                             }`}
                         >
-                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
-                                selectedChapter === chapter.name ? 'border-green-500 bg-green-500' : 'border-gray-300'
+                            {/* Premium Custom Radio */}
+                            <div className={`w-9 h-9 rounded-full border-4 flex items-center justify-center transition-all shadow-inner shrink-0 ${
+                                selectedChapter === chapter.name ? 'border-blue-500 bg-blue-500' : 'border-gray-200 bg-gray-50/50'
                             }`}>
                                 {selectedChapter === chapter.name && (
-                                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" />
-                                    </svg>
+                                    <div className="w-3 h-3 bg-white rounded-full shadow-md animate-scale-in" />
                                 )}
                             </div>
-                            <span className="font-black text-lg text-gray-800 text-left leading-tight">{chapter.name}</span>
+                            <span className={`font-black text-lg md:text-xl text-left leading-tight transition-colors ${
+                                selectedChapter === chapter.name ? 'text-blue-700' : 'text-[#334155]'
+                            }`}>
+                                {chapter.name}
+                            </span>
                         </button>
                     ))}
                 </div>
             </div>
 
-            {/* Footer with Continue button */}
-            <div className="p-6 md:p-10 relative z-10">
+            {/* Footer with Premium Button */}
+            <div className="p-8 md:p-12 relative z-10">
                 <button 
                     onClick={handleContinue}
                     disabled={!selectedChapter}
-                    className="w-full bg-green-600 text-white font-black py-5 px-12 rounded-[2rem] text-xl transition-all disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-green-700 shadow-[0_8px_0_0_#15803D] active:translate-y-1 active:shadow-none"
+                    className={`w-full font-black py-6 px-12 rounded-[2.5rem] text-2xl transition-all uppercase tracking-[0.2em] shadow-xl ${
+                        !selectedChapter 
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed border-b-8 border-b-gray-300' 
+                        : 'bg-[#10B981] text-white hover:bg-[#059669] border-b-8 border-b-[#047857] hover:border-b-[#047857] active:border-b-0 active:translate-y-2'
+                    }`}
                 >
                     Continue
                 </button>
             </div>
+
+            <style dangerouslySetInnerHTML={{ __html: `
+                @keyframes slideUp {
+                    from { opacity: 0; transform: translateY(30px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes scaleIn {
+                    from { transform: scale(0); }
+                    to { transform: scale(1); }
+                }
+                .animate-scale-in { animation: scaleIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
+            `}} />
         </div>
     );
 };
