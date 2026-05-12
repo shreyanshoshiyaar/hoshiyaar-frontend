@@ -145,63 +145,57 @@ const LessonComplete = () => {
   }
 
   return (
-    <div className="h-screen bg-white relative flex flex-col items-center justify-between px-6 sm:px-10 md:px-12 py-4 text-center overflow-hidden">
+    <div 
+      className="h-screen relative flex flex-col items-center justify-between px-6 sm:px-10 md:px-12 py-8 text-center overflow-hidden bg-center bg-cover bg-no-repeat"
+      style={{ backgroundImage: 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778580068/img-to-link/h22ceyd8qnmcxmvfmlsb.webp")' }}
+    >
+      {/* Overlay to ensure legibility if background is too busy */}
+      <div className="absolute inset-0 bg-black/5 pointer-events-none" />
       
-      {/* Force success screen - Re-attempt disabled per user request */}
-      {/* 
-      {hasItems ? (
-        <>
-          <div className="mt-6 w-full max-w-3xl flex flex-col items-center">
-            <img src={reattemptImg} alt="Reattempt" className="w-56 h-56 md:w-64 md:h-64 object-contain select-none" />
-            <p className="mt-4 text-2xl md:text-4xl text-gray-900 font-extrabold">Let's correct the exercises you missed!</p>
+      <div className="relative z-10 flex flex-col items-center justify-center h-full w-full gap-8">
+        {/* Success Content & Stars Box & Action Button Group - Stacked at the bottom */}
+        <div className="w-full max-w-xl flex flex-col items-center gap-6 mt-auto mb-10">
+          <div className="flex flex-col items-center">
+            {showConfetti && (
+              <div className="pointer-events-none absolute -top-40 right-0 w-36 h-36">
+                <div className="absolute text-3xl animate-bounce" style={{ top: 0, right: 8 }}>🎉</div>
+                <div className="absolute text-3xl animate-bounce" style={{ top: 26, right: 56, animationDelay: '0.15s' }}>✨</div>
+                <div className="absolute text-3xl animate-bounce" style={{ top: 10, right: 86, animationDelay: '0.3s' }}>🎊</div>
+                <div className="absolute text-3xl animate-bounce" style={{ top: 46, right: 24, animationDelay: '0.45s' }}>⭐</div>
+              </div>
+            )}
+            
+            <h1 className="text-3xl md:text-5xl text-gray-900 font-black drop-shadow-sm leading-tight">
+              CONGRATULATIONS!
+            </h1>
+            <p className="mt-2 text-lg md:text-xl text-gray-800 font-extrabold px-4">
+              You rocked this lesson. Ready for the next adventure?
+            </p>
           </div>
-          <div className="mt-10 w-full max-w-2xl">
-            <button
-              onClick={() => navigate('/review-round')}
-              className="w-full py-5 rounded-2xl bg-green-600 hover:bg-green-700 text-white font-extrabold text-2xl tracking-wide shadow-[0_8px_0_0_rgba(0,0,0,0.15)]"
-            >
-              RE-ATTEMPT
-            </button>
-          </div>
-        </>
-      ) : (
-      */}
-        <>
-          {/* Finish character above sentence (Duolingo-style) */}
-          <img src={finishImg} alt="Finish" className="max-h-[28vh] w-auto object-contain select-none mt-2" />
-          {showConfetti && (
-            <div className="pointer-events-none absolute top-10 right-10 w-36 h-36">
-              <div className="absolute text-3xl animate-bounce" style={{ top: 0, right: 8 }}>🎉</div>
-              <div className="absolute text-3xl animate-bounce" style={{ top: 26, right: 56, animationDelay: '0.15s' }}>✨</div>
-              <div className="absolute text-3xl animate-bounce" style={{ top: 10, right: 86, animationDelay: '0.3s' }}>🎊</div>
-              <div className="absolute text-3xl animate-bounce" style={{ top: 46, right: 24, animationDelay: '0.45s' }}>⭐</div>
-            </div>
-          )}
-          <p className="mt-4 text-2xl md:text-3xl text-gray-900 font-extrabold max-w-4xl px-2">You rocked this lesson. Ready for the next adventure?</p>
-          {/* Total Stars card moved here (replaces bottom yellow box) */}
-          <div className="mt-6 w-full max-w-xl">
-            <div className="bg-gradient-to-br from-yellow-50 to-orange-50 border-4 border-yellow-400 rounded-2xl px-4 py-6 shadow-[0_8px_0_0_rgba(0,0,0,0.10)]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">⭐</span>
-                  <div>
-                    <div className="text-xs font-extrabold text-yellow-700">Total Stars</div>
-                    <div className="text-lg font-extrabold text-yellow-600">{stars} stars</div>
-                  </div>
+
+          {/* Total Stars card - New Glassmorphic Design */}
+          <div className="w-full max-w-md animate-fade-in px-2">
+            <div className="bg-white/80 backdrop-blur-md border-4 border-yellow-400/50 rounded-3xl px-6 py-8 shadow-[0_12px_24px_rgba(0,0,0,0.1)]">
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center text-3xl shadow-lg animate-bounce">
+                  ⭐
                 </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-sm">✨</span>
-                  <span className="text-xs font-bold text-yellow-600">Earned!</span>
+                <div>
+                  <div className="text-sm font-black text-yellow-800 uppercase tracking-widest mb-1">Total Stars Earned</div>
+                  <div className="text-4xl font-black text-yellow-600 drop-shadow-sm">{stars}</div>
                 </div>
               </div>
             </div>
           </div>
-          <div className="mb-2 mt-3">
-            <button onClick={handleContinue} className="py-4 px-6 rounded-2xl bg-blue-600 text-white font-extrabold text-xl hover:bg-blue-700 transition-colors shadow-[0_6px_0_0_rgba(0,0,0,0.15)] whitespace-nowrap">Continue Learning</button>
-          </div>
-        </>
-      {/* ) */}
-      {/* } */}
+
+          <button 
+            onClick={handleContinue} 
+            className="w-full py-5 rounded-[2rem] bg-blue-600 text-white font-black text-xl hover:bg-blue-700 transition-all hover:scale-105 active:scale-95 shadow-[0_8px_0_0_#1D4ED8] hover:shadow-[0_10px_0_0_#1D4ED8]"
+          >
+            CONTINUE LEARNING
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
