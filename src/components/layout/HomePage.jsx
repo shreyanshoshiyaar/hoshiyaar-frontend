@@ -10,7 +10,7 @@ const MOBILE_IMAGES = [
   "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778578700/img-to-link/wunxaopn4qfirxnfdwa6.webp",
   "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567489/img-to-link/n9fo2moxpmfwyp04ueob.webp",
   "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567487/img-to-link/zy3aaizcfjl5qwm9ewjx.webp",
-  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567485/img-to-link/iogmnil6kadduvgx62tn.webp",
+  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778579285/img-to-link/eqdx0kyjrhkruh0ownxd.webp",
   "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778578699/img-to-link/tynaqnlzmbvoaafwu3do.webp"
 ];
 
@@ -55,6 +55,25 @@ const MobileHomeCarousel = () => {
           <div key={index} className="mobile-carousel-item relative">
             <img src={src} alt={`Slide ${index + 1}`} loading="lazy" />
             
+            {/* YouTube Video in Phone Frame on 4th Slide */}
+            {index === 3 && (
+              <div className="absolute top-[10%] left-0 right-0 flex justify-center animate-fade-in pointer-events-none">
+                <div className="relative w-[205px] max-w-[62vw] aspect-[9/18.5] bg-black rounded-[2.5rem] border-[7px] border-gray-900 shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden ring-4 ring-white/10 pointer-events-auto">
+                  {/* Phone Notch */}
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-5 bg-gray-900 rounded-b-2xl z-10"></div>
+                  
+                  <iframe 
+                    className="w-full h-full scale-[1.02]"
+                    src="https://www.youtube.com/embed/NlXk4BVxScI?autoplay=1&mute=1&loop=1&playlist=NlXk4BVxScI&controls=0&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3" 
+                    title="Hoshiyaar Social" 
+                    frameBorder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              </div>
+            )}
+
             {/* Get Started Button on 1st, 2nd, and 3rd images */}
             {(index === 0 || index === 1 || index === 2) && (
               <div className={`absolute ${index === 0 ? 'bottom-8' : 'bottom-14'} left-0 right-0 flex justify-center px-6`}>
@@ -87,7 +106,7 @@ const MobileHomeCarousel = () => {
                     rel="noopener noreferrer"
                     className="flex-1 max-w-[150px] py-3 rounded-2xl flex items-center justify-center gap-2 text-white font-bold uppercase tracking-wider text-[10px] shadow-xl bg-[#FF0000] border-b-4 border-[#CC0000] transition-all active:scale-95 active:translate-y-1"
                   >
-                    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93$.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>
                     YouTube
                   </a>
                 </div>
