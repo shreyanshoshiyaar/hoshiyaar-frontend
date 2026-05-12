@@ -125,19 +125,20 @@ const BoardSelect = ({ onContinue, onBack, updateData, autoAdvance = false }) =>
     return (
         <div className="flex flex-col h-screen bg-transparent md:bg-gradient-to-b md:from-blue-50 md:via-white md:to-blue-50 overflow-hidden relative font-sans">
             
-            {/* Minimal Header */}
-            <div className="px-6 pt-12 pb-4 text-center relative z-10">
-                <h1 className="font-bold text-2xl md:text-3xl text-gray-800">
-                    Which board do you belong to?
-                </h1>
-                <p className="text-gray-500 text-sm mt-1">
-                    We'll tailor content to your selection
-                </p>
-            </div>
+            {/* Tighter Vertical Stack */}
+            <div className="px-6 pt-10 flex flex-col items-center relative z-10 w-full max-w-sm mx-auto">
+                {/* Header Text */}
+                <div className="text-center mb-6">
+                    <h1 className="font-bold text-2xl md:text-3xl text-gray-800">
+                        Which board do you belong to?
+                    </h1>
+                    <p className="text-gray-500 text-sm mt-1">
+                        We'll tailor content to your selection
+                    </p>
+                </div>
 
-            {/* Compact Main Content */}
-            <div className="flex-grow flex items-center justify-center px-6 relative z-10">
-                <div className="w-full max-w-sm space-y-3">
+                {/* Options List - Close to Text */}
+                <div className="w-full space-y-2.5">
                     {loading && (
                         <div className="text-center text-gray-400 text-sm animate-pulse">Loading...</div>
                     )}
@@ -152,7 +153,7 @@ const BoardSelect = ({ onContinue, onBack, updateData, autoAdvance = false }) =>
                                 onChange={handleSelection}
                                 className="hidden"
                             />
-                            <div className={`py-4 px-5 rounded-2xl transition-all cursor-pointer flex items-center gap-4 border ${
+                            <div className={`py-3.5 px-5 rounded-2xl transition-all cursor-pointer flex items-center gap-4 border ${
                                 selectedBoard === board 
                                 ? 'bg-white border-blue-400 shadow-sm' 
                                 : 'bg-white/40 backdrop-blur-md border-white/40 hover:bg-white/60'
@@ -173,21 +174,21 @@ const BoardSelect = ({ onContinue, onBack, updateData, autoAdvance = false }) =>
                         </label>
                     ))}
                 </div>
-            </div>
 
-            {/* Minimal Footer with Small Button */}
-            <div className="p-10 flex justify-center relative z-10">
-                <button 
-                    onClick={handleContinue}
-                    disabled={!selectedBoard || loading}
-                    className={`px-10 py-3.5 rounded-full font-bold text-base transition-all ${
-                        !selectedBoard || loading 
-                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
-                        : 'bg-blue-600 text-white hover:bg-blue-700 shadow-md active:scale-95'
-                    }`}
-                >
-                    Continue
-                </button>
+                {/* Full-width Button - Matches cards */}
+                <div className="mt-8 w-full px-4">
+                    <button 
+                        onClick={handleContinue}
+                        disabled={!selectedBoard || loading}
+                        className={`w-full py-3.5 rounded-full font-bold text-base transition-all ${
+                            !selectedBoard || loading 
+                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                            : 'bg-blue-600 text-white hover:bg-blue-700 shadow-md active:scale-95'
+                        }`}
+                    >
+                        Continue
+                    </button>
+                </div>
             </div>
         </div>
     );
