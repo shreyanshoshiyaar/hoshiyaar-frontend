@@ -122,7 +122,7 @@ const Learn = () => {
         const missingSelections = !(user.board && user.subject && user.chapter);
         if (!go && (!user.onboardingCompleted || missingSelections)) {
           setOnboardingData({ board: null, subject: null, chapter: null });
-          setStep(1);
+          setStep(2); // Start from BoardSelect directly, skip Welcome
           return;
         }
 
@@ -177,7 +177,15 @@ const Learn = () => {
   };
 
   return (
-    <div className="bg-white min-h-screen">
+    <div 
+      className="min-h-screen relative bg-white md:bg-white"
+      style={{
+        backgroundImage: window.innerWidth < 768 ? 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778580874/img-to-link/ghsiw9nhbm4dlojuvutb.webp")' : 'none',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed'
+      }}
+    >
       {loading ? <SimpleLoading /> : renderStep()}
     </div>
   );
