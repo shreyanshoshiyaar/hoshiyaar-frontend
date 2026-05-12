@@ -71,7 +71,7 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
     return (
         <div className="flex flex-col h-screen bg-transparent md:bg-gradient-to-b md:from-blue-50 md:via-white md:to-blue-50 overflow-hidden relative font-sans">
             
-            {/* Tighter Vertical Stack */}
+            {/* Top Content Group */}
             <div className="px-6 pt-10 flex flex-col items-center relative z-10 w-full max-w-sm mx-auto">
                 {/* Header Text */}
                 <div className="text-center mb-6">
@@ -119,21 +119,24 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
                         </button>
                     ))}
                 </div>
+            </div>
 
-                {/* Full-width Button - Matches cards */}
-                <div className="mt-8 w-full px-4">
-                    <button 
-                        onClick={handleContinue}
-                        disabled={!selectedChapter}
-                        className={`w-full py-3.5 rounded-full font-bold text-base transition-all ${
-                            !selectedChapter 
-                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
-                            : 'bg-blue-600 text-white hover:bg-blue-700 shadow-md active:scale-95'
-                        }`}
-                    >
-                        Continue
-                    </button>
-                </div>
+            {/* Spacer to push button to bottom */}
+            <div className="flex-grow" />
+
+            {/* Bottom Button - Full width within container */}
+            <div className="p-10 flex justify-center relative z-10 w-full max-w-sm mx-auto">
+                <button 
+                    onClick={handleContinue}
+                    disabled={!selectedChapter}
+                    className={`w-full py-4 rounded-full font-bold text-base transition-all ${
+                        !selectedChapter 
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                        : 'bg-blue-600 text-white hover:bg-blue-700 shadow-md active:scale-95'
+                    }`}
+                >
+                    Continue
+                </button>
             </div>
         </div>
     );
