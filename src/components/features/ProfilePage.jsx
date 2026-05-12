@@ -193,7 +193,7 @@ export default function ProfilePage() {
               className="mt-1 w-full px-4 py-3 rounded-2xl border-2 border-blue-200 focus:outline-none focus:border-blue-400 bg-white text-gray-800"
             >
               <option value="" disabled>Select class</option>
-              {Array.from({ length: 12 }, (_, i) => String(i + 1)).map(c => (
+              {['6', '7', '8'].map(c => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>

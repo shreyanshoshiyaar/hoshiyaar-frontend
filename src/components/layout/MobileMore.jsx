@@ -314,7 +314,7 @@ const MobileMore = ({ stars, weeklyStars }) => {
                   className="w-full bg-blue-50/30 border-2 border-blue-50 rounded-2xl p-3.5 text-sm font-bold text-blue-900 focus:outline-none focus:border-blue-200 transition-all appearance-none"
                 >
                   <option value="" disabled>Select Class</option>
-                  {Array.from({ length: 12 }, (_, i) => String(i + 1)).map(c => (
+                  {['6', '7', '8'].map(c => (
                     <option key={c} value={c}>Class {c}</option>
                   ))}
                 </select>

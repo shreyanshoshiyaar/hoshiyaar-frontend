@@ -178,7 +178,7 @@ const Signup = () => {
                     className="w-full bg-[#3c3c3c] border-2 border-[#585858] rounded-xl sm:rounded-2xl p-3 sm:p-4 focus:outline-none focus:border-duo-blue text-sm sm:text-base text-white"
                   >
                     <option value="" disabled>Select class</option>
-                    {Array.from({ length: 12 }, (_, i) => String(i + 1)).map(c => (
+                    {['6', '7', '8'].map(c => (
                       <option key={c} value={c}>{c}</option>
                     ))}
                   </select>
