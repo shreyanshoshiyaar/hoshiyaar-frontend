@@ -2315,9 +2315,9 @@ const LearnDashboard = ({ onboardingData }) => {
                                           const query = params.toString();
                                           navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
                                         }}
-                                        className={`absolute top-1/2 -translate-y-1/2 left-full flex items-center ml-[10px] md:ml-[24px] cursor-pointer group/label ${!canClick ? 'opacity-50 grayscale' : ''}`}
+                                        className={`absolute top-1/2 -translate-y-1/2 left-full flex items-center ml-[6px] md:ml-[24px] cursor-pointer group/label ${!canClick ? 'opacity-50 grayscale' : ''}`}
                                       >
-                                        <div className="relative w-[130px] md:w-[150px] h-auto">
+                                        <div className="relative w-[120px] md:w-[150px] h-auto">
                                           {/* Bottom Layer (Depth) */}
                                           <div className={`absolute inset-0 translate-y-[4px] rounded-2xl ${
                                             status === "completed" ? "bg-[#CA8A04]" : status === "active" ? "bg-[#1D4ED8]" : "bg-[#CBD5E1]"
@@ -2570,9 +2570,9 @@ const LearnDashboard = ({ onboardingData }) => {
                                                  navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
                                                }}
                                                className={`absolute top-1/2 -translate-y-1/2 flex items-center cursor-pointer group/label ${
-                                               unitIdx % 2 === 0 ? "left-full ml-[10px] md:ml-[24px]" : "right-full mr-[10px] md:mr-[24px]"
+                                               unitIdx % 2 === 0 ? "left-full ml-[6px] md:ml-[24px]" : "right-full mr-[6px] md:mr-[24px]"
                                              } ${!canClick ? 'opacity-50 grayscale' : ''}`}>
-                                               <div className="relative w-[130px] md:w-[150px] h-auto">
+                                               <div className="relative w-[120px] md:w-[150px] h-auto">
                                                  {/* Bottom Layer (Depth) */}
                                                  <div className={`absolute inset-0 translate-y-[4px] rounded-2xl ${
                                                    status === "completed" ? "bg-[#CA8A04]" : status === "active" ? "bg-[#1D4ED8]" : "bg-[#CBD5E1]"
