@@ -57,7 +57,7 @@ const SubjectSelect = ({ onContinue, onBack, updateData, selectedBoard, autoAdva
     }, [selectedBoard]);
 
     return (
-        <div className="flex flex-col h-screen relative bg-gradient-to-b from-blue-50 via-white to-blue-50">
+        <div className="flex flex-col h-screen relative bg-transparent md:bg-gradient-to-b md:from-blue-50 md:via-white md:to-blue-50">
             {/* Header bar */}
             <div className="bg-duo-blue text-white px-6 py-5 md:px-8 md:py-6 flex items-center gap-4 shadow-[0_10px_0_0_rgba(0,0,0,0.08)]">
                 <button onClick={onBack} className="p-2 rounded-full bg-white/15 hover:bg-white/25">
