@@ -54,7 +54,10 @@ const Disclaimer = () => {
           <section className="pt-6 border-t border-gray-100">
             <p className="font-bold">Contact Us</p>
             <p>If you have any questions regarding this disclaimer, please contact us at:</p>
-            <a href="mailto:support@hoshiyaar.info" className="text-blue-600 font-bold hover:underline">support@hoshiyaar.info</a>
+            <div className="flex flex-col gap-2 mt-2">
+              <a href="mailto:cg.hoshiyaar@gmail.com" className="text-blue-600 font-bold hover:underline">cg.hoshiyaar@gmail.com</a>
+              <span className="text-gray-700 font-bold">Phone: 7021970672</span>
+            </div>
           </section>
         </div>
       </div>

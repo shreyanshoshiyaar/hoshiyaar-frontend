@@ -68,7 +68,7 @@ const PrivacyPolicy = () => {
         <section className="space-y-4">
           <h2 className="text-xl font-black text-blue-600 uppercase tracking-tight">5. Contact Us</h2>
           <p className="text-sm font-medium leading-relaxed">
-            If you have any questions about this Privacy Policy, please contact us at support@hoshiyaar.info.
+            If you have any questions about this Privacy Policy, please contact us at cg.hoshiyaar@gmail.com or call us at 7021970672.
           </p>
         </section>
 

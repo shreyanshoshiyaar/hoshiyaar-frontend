@@ -69,6 +69,13 @@ const TermsConditions = () => {
           </p>
         </section>
 
+        <section className="space-y-4">
+          <h2 className="text-xl font-black text-blue-600 uppercase tracking-tight">7. Contact Us</h2>
+          <p className="text-sm font-medium leading-relaxed">
+            If you have any questions about these Terms and Conditions, please contact us at cg.hoshiyaar@gmail.com or call us at 7021970672.
+          </p>
+        </section>
+
         <div className="pt-10 pb-20 text-center opacity-30">
           <p className="text-[10px] font-black uppercase tracking-[0.2em]">Last Updated: May 2026</p>
         </div>
