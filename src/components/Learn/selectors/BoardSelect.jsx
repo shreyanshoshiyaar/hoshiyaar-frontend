@@ -123,66 +123,74 @@ const BoardSelect = ({ onContinue, onBack, updateData, autoAdvance = false }) =>
     };
     
     return (
-        <div className="flex flex-col h-screen bg-transparent md:bg-gradient-to-b md:from-blue-50 md:via-white md:to-blue-50">
-            {/* Header bar consistent with dashboard */}
-            <div className="bg-duo-blue text-white px-6 py-5 md:px-8 md:py-6 flex items-center gap-4 shadow-[0_10px_0_0_rgba(0,0,0,0.08)]">
-                <button onClick={onBack} className="p-2 rounded-full bg-white/15 hover:bg-white/25">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
-                </button>
-                <div>
-                    <p className="font-extrabold text-2xl md:text-3xl">Which board do you belong to?</p>
-                    <p className="opacity-90 text-base md:text-lg">We'll tailor content to your selection</p>
-                </div>
+        <div className="flex flex-col h-screen bg-transparent md:bg-gradient-to-b md:from-blue-50 md:via-white md:to-blue-50 overflow-hidden relative">
+            
+            {/* Header Text - Direct on Background */}
+            <div className="px-6 pt-12 pb-8 md:pt-16 text-center animate-fade-in relative z-10">
+                <h1 className="font-black text-3xl md:text-4xl text-gray-900 leading-tight drop-shadow-sm">
+                    Which board do you belong to?
+                </h1>
+                <p className="text-gray-700 font-bold mt-2 text-base md:text-lg opacity-80">
+                    We'll tailor content to your selection
+                </p>
             </div>
 
-            {/* Main content area */}
-            <div className="flex-grow overflow-y-auto no-scrollbar p-8">
-                <div className="max-w-4xl mx-auto">
-                    <div className="flex items-start gap-6 mb-8">
-                        <HoshiIcon />
-                        <div className="bg-blue-50 text-duo-blue px-6 py-4 rounded-xl text-xl">Which board do you belong to?</div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {loading && (
-                            <div className="col-span-2 text-center text-gray-500 text-lg py-8">
-                                <div className="animate-pulse">Loading boards...</div>
-                            </div>
-                        )}
-                        {!loading && error && (
-                            <div className="col-span-2 text-center text-red-500 text-lg py-8">
-                                <p>{error}</p>
-                                <button 
-                                    onClick={() => window.location.reload()} 
-                                    className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                                >
-                                    Retry
-                                </button>
-                            </div>
-                        )}
-                        {!loading && !error && boards.length === 0 && (
-                            <div className="col-span-2 text-center text-gray-500 text-lg py-8">
-                                No boards found. Please contact support.
-                            </div>
-                        )}
-                        {!loading && boards.length > 0 && boards.map(board => (
-                            <BoardOption 
-                                key={board} 
-                                label={board} 
+            {/* Main content area - Centered Grid */}
+            <div className="flex-grow flex items-center justify-center p-6 relative z-10">
+                <div className="w-full max-w-lg space-y-4">
+                    {loading && (
+                        <div className="text-center text-gray-600 font-bold animate-pulse text-lg py-8">
+                            Loading boards...
+                        </div>
+                    )}
+                    {!loading && error && (
+                        <div className="text-center text-red-500 font-bold py-8">
+                            <p>{error}</p>
+                            <button 
+                                onClick={() => window.location.reload()} 
+                                className="mt-4 px-8 py-3 bg-blue-600 text-white rounded-2xl shadow-lg"
+                            >
+                                Retry
+                            </button>
+                        </div>
+                    )}
+                    {!loading && boards.length > 0 && boards.map(board => (
+                        <label key={board} className="block group">
+                            <input 
+                                type="radio" 
+                                name="board" 
                                 value={board} 
-                                selectedValue={selectedBoard} 
-                                onChange={handleSelection} 
+                                checked={selectedBoard === board} 
+                                onChange={handleSelection}
+                                className="hidden"
                             />
-                        ))}
-                    </div>
+                            <div className={`p-6 border-2 rounded-[2rem] transition-all cursor-pointer flex items-center gap-4 ${
+                                selectedBoard === board 
+                                ? 'bg-white/90 border-green-500 shadow-[0_8px_20px_rgba(34,197,94,0.2)] scale-[1.02]' 
+                                : 'bg-white/60 backdrop-blur-md border-white/40 border-b-[6px] border-b-gray-200/50 hover:bg-white/70'
+                            }`}>
+                                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
+                                    selectedBoard === board ? 'border-green-500 bg-green-500' : 'border-gray-300'
+                                }`}>
+                                    {selectedBoard === board && (
+                                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    )}
+                                </div>
+                                <span className="font-black text-xl text-gray-800">{board}</span>
+                            </div>
+                        </label>
+                    ))}
                 </div>
             </div>
 
             {/* Footer with Continue button */}
-            <div className="border-t pt-6 px-6 pb-6 flex justify-end">
+            <div className="p-6 md:p-10 relative z-10">
                 <button 
                     onClick={handleContinue}
                     disabled={!selectedBoard || loading}
-                    className="bg-green-600 text-white font-extrabold py-5 px-12 rounded-xl text-xl transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-green-700 shadow-[0_6px_0_0_rgba(0,0,0,0.15)]"
+                    className="w-full bg-green-600 text-white font-black py-5 px-12 rounded-[2rem] text-xl transition-all disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-green-700 shadow-[0_8px_0_0_#15803D] active:translate-y-1 active:shadow-none"
                 >
                     Continue
                 </button>
