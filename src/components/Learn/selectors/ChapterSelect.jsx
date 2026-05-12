@@ -69,22 +69,22 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
     };
 
     return (
-        <div className="flex flex-col h-[100dvh] bg-transparent md:bg-gradient-to-b md:from-blue-50 md:via-white md:to-blue-50 overflow-hidden relative font-sans">
+        <div className="flex flex-col h-screen bg-transparent md:bg-gradient-to-b md:from-blue-50 md:via-white md:to-blue-50 overflow-hidden relative font-sans">
             
-            {/* Top Content Group - Ultra Tight */}
-            <div className="px-6 pt-4 flex flex-col items-center relative z-10 w-full max-w-sm mx-auto">
+            {/* Top Content Group - Tightened */}
+            <div className="px-6 pt-6 flex flex-col items-center relative z-10 w-full max-w-sm mx-auto">
                 {/* Header Text */}
-                <div className="text-center mb-3">
-                    <h1 className="font-bold text-xl md:text-2xl text-gray-800">
+                <div className="text-center mb-4">
+                    <h1 className="font-bold text-2xl md:text-3xl text-gray-800">
                         Pick a Chapter
                     </h1>
-                    <p className="text-gray-500 text-xs mt-0.5">
+                    <p className="text-gray-500 text-sm mt-1">
                         Continue your journey
                     </p>
                 </div>
 
                 {/* Compact Main Content: List of chapters */}
-                <div className="w-full space-y-2 max-h-[55dvh] overflow-y-auto no-scrollbar">
+                <div className="w-full space-y-2 max-h-[50vh] overflow-y-auto no-scrollbar">
                     {loading && (
                         <div className="text-center text-gray-400 text-sm animate-pulse py-6">
                             Loading...
@@ -104,7 +104,7 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
                                 : 'bg-white/40 backdrop-blur-md border-white/40 hover:bg-white/60'
                             }`}
                         >
-                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${
                                 selectedChapter === chapter.name ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
                             }`}>
                                 {selectedChapter === chapter.name && (
@@ -124,12 +124,12 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
             {/* Spacer */}
             <div className="flex-grow" />
 
-            {/* Bottom Button - Minimized padding for zero scroll */}
-            <div className="px-6 pb-6 pt-2 flex justify-center relative z-10 w-full max-w-sm mx-auto">
+            {/* Bottom Button - Tighter Padding */}
+            <div className="p-6 flex justify-center relative z-10 w-full max-w-sm mx-auto">
                 <button 
                     onClick={handleContinue}
                     disabled={!selectedChapter}
-                    className={`w-full py-3.5 rounded-full font-bold text-base transition-all ${
+                    className={`w-full py-4 rounded-full font-bold text-base transition-all ${
                         !selectedChapter 
                         ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
                         : 'bg-blue-600 text-white hover:bg-blue-700 shadow-md active:scale-95'
