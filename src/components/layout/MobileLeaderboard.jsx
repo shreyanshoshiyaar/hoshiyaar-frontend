@@ -278,4 +278,4 @@ const MobileLeaderboard = ({
   );
 };
 
-export default MobileLeaderboard;
+export default React.memo(MobileLeaderboard);

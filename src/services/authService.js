@@ -109,6 +109,16 @@ const getOlaSchoolSuggestions = async (query) => {
   }
 };
 
+// Blog APIs
+const getBlogs = (opts) => cachedGet(`${BASE}/api/blogs`, opts);
+const getBlogById = (id, opts) => axios.get(`${BASE}/api/blogs/${id}`, opts);
+
+// Admin Blog APIs
+const getAllBlogsAdmin = (opts) => axios.get(`${BASE}/api/blogs/admin/all`, opts);
+const createBlog = (data, opts) => axios.post(`${BASE}/api/blogs`, data, opts);
+const updateBlog = (id, data, opts) => axios.put(`${BASE}/api/blogs/${id}`, data, opts);
+const deleteBlog = (id, opts) => axios.delete(`${BASE}/api/blogs/${id}`, opts);
+
 // Export the functions
 const authService = {
   register,
@@ -125,6 +135,12 @@ const authService = {
   getSchoolNames,
   getSummary,
   getOlaSchoolSuggestions,
+  getBlogs,
+  getBlogById,
+  getAllBlogsAdmin,
+  createBlog,
+  updateBlog,
+  deleteBlog,
 };
 
 export default authService;

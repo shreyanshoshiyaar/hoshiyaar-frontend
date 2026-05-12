@@ -37,7 +37,11 @@ export default defineConfig(({ mode }) => {
       assetsDir: 'assets',
       rollupOptions: {
         output: {
-          manualChunks: undefined,
+          manualChunks: {
+            'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+            'vendor-ui': ['lottie-react', 'recharts'],
+            'vendor-utils': ['axios'],
+          },
         },
       },
     },

@@ -40,7 +40,7 @@ const Footer = () => {
                         <ul className="space-y-2 text-center sm:text-left text-white/90">
                             <li><Link to="/" className="hover:text-white hover:translate-x-1 transition-transform inline-block">Home</Link></li>
                             <li><Link to="/about" className="hover:text-white hover:translate-x-1 transition-transform inline-block">About Us</Link></li>
-                            <li><Link to="/courses" className="hover:text-white hover:translate-x-1 transition-transform inline-block">Courses</Link></li>
+                            <li><Link to="/learn" className="hover:text-white hover:translate-x-1 transition-transform inline-block">Courses</Link></li>
                             <li><Link to="/contact" className="hover:text-white hover:translate-x-1 transition-transform inline-block">Contact Support</Link></li>
                         </ul>
                     </div>
@@ -52,7 +52,6 @@ const Footer = () => {
                             <li><Link to="/privacy-policy" className="hover:text-white hover:translate-x-1 transition-transform inline-block">Privacy Policy</Link></li>
                             <li><Link to="/terms-conditions" className="hover:text-white hover:translate-x-1 transition-transform inline-block">Terms of Service</Link></li>
                             <li><Link to="/disclaimer" className="hover:text-white hover:translate-x-1 transition-transform inline-block">Disclaimer</Link></li>
-                            <li><Link to="/refund-policy" className="hover:text-white hover:translate-x-1 transition-transform inline-block">Refund Policy</Link></li>
                         </ul>
                     </div>
 

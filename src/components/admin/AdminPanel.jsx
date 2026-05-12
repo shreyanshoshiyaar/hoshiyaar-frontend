@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import curriculumService from '../../services/curriculumService';
 import ContentEditor from './ContentEditor';
+import BlogManager from './BlogManager';
 
 const UnitEditRow = ({ unit, onUpdateUnit }) => {
   const [title, setTitle] = useState(unit.title || '');
@@ -263,6 +264,9 @@ const AdminPanel = () => {
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-900 mb-6">Admin Panel - Content Management</h1>
+        
+        {/* Blog Management Section */}
+        <BlogManager />
         
         {error && (
           <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">

@@ -28,6 +28,13 @@ const UploadTest = lazy(() => import('./components/features/UploadTest.jsx'));
 const ProfilePage = lazy(() => import('./components/features/ProfilePage.jsx'));
 const OnboardingFlow = lazy(() => import('./components/Learn/selectors/OnboardingFlow.jsx'));
 const AdminPanel = lazy(() => import('./components/admin/AdminPanel.jsx'));
+const PrivacyPolicy = lazy(() => import('./components/Legal/PrivacyPolicy.jsx'));
+const TermsConditions = lazy(() => import('./components/Legal/TermsConditions.jsx'));
+const BlogList = lazy(() => import('./components/Learn/blogs/BlogList.jsx'));
+const BlogView = lazy(() => import('./components/Learn/blogs/BlogView.jsx'));
+const About = lazy(() => import('./components/layout/About.jsx'));
+const Contact = lazy(() => import('./components/layout/Contact.jsx'));
+const Disclaimer = lazy(() => import('./components/Legal/Disclaimer.jsx'));
 
 const MainLayout = ({ children }) => {
   const location = useLocation();
@@ -168,6 +175,13 @@ function App() {
                     </AdminProtectedRoute>
                   } 
                 />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-conditions" element={<TermsConditions />} />
+                <Route path="/blogs" element={<BlogList />} />
+                <Route path="/blogs/:id" element={<BlogView />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/disclaimer" element={<Disclaimer />} />
               </Routes>
             </Suspense>
           </Router>

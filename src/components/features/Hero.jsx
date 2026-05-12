@@ -796,7 +796,7 @@ const Hero = () => {
 
             <ScrollRevealButton
               className="bg-red-600 text-white font-bold uppercase tracking-wider py-3 px-8 md:px-10 rounded-lg border-b-4 border-red-700 hover:bg-red-500 hover:scale-105 transition-all duration-300 text-sm sm:text-base inline-flex items-center gap-2"
-              onClick={() => window.open('https://www.youtube.com/@Hoshiyaar', '_blank')}
+              onClick={() => window.open('https://www.youtube.com/@Hoshi-yaar', '_blank')}
             >
               <span>▶️</span> Watch on YouTube
             </ScrollRevealButton>
