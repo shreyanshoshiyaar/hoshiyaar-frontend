@@ -71,25 +71,26 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
     return (
         <div className="flex flex-col h-screen bg-transparent md:bg-gradient-to-b md:from-blue-50 md:via-white md:to-blue-50 overflow-hidden relative font-sans">
             
-            {/* Minimal Header */}
-            <div className="px-6 pt-12 pb-4 text-center relative z-10">
-                <h1 className="font-bold text-2xl md:text-3xl text-gray-800">
-                    Pick a Chapter
-                </h1>
-                <p className="text-gray-500 text-sm mt-1">
-                    Continue your journey
-                </p>
-            </div>
+            {/* Tighter Vertical Stack */}
+            <div className="px-6 pt-10 flex flex-col items-center relative z-10 w-full max-w-sm mx-auto">
+                {/* Header Text */}
+                <div className="text-center mb-6">
+                    <h1 className="font-bold text-2xl md:text-3xl text-gray-800">
+                        Pick a Chapter
+                    </h1>
+                    <p className="text-gray-500 text-sm mt-1">
+                        Continue your journey
+                    </p>
+                </div>
 
-            {/* Compact Main Content: List of chapters */}
-            <div className="flex-grow flex items-center justify-center px-6 relative z-10 overflow-hidden">
-                <div className="w-full max-w-sm space-y-2 max-h-[50vh] overflow-y-auto no-scrollbar pb-6">
+                {/* Compact Main Content: List of chapters */}
+                <div className="w-full space-y-2 max-h-[50vh] overflow-y-auto no-scrollbar">
                     {loading && (
-                        <div className="text-center text-gray-400 text-sm animate-pulse py-12">
+                        <div className="text-center text-gray-400 text-sm animate-pulse py-8">
                             Loading...
                         </div>
                     )}
-                    {!loading && chapters.length === 0 && (<div className="text-center text-gray-400 text-sm py-12">No chapters found.</div>)}
+                    {!loading && chapters.length === 0 && (<div className="text-center text-gray-400 text-sm py-8">No chapters found.</div>)}
                     {!loading && chapters.map((chapter) => (
                         <button
                             key={chapter.id}
@@ -97,7 +98,7 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
                                 setSelectedChapter(chapter.name); 
                                 updateData?.({ chapter: chapter.name }); 
                             }}
-                            className={`w-full py-4 px-5 rounded-2xl border transition-all active:scale-[0.98] flex items-center gap-4 ${
+                            className={`w-full py-3 px-5 rounded-2xl border transition-all active:scale-[0.98] flex items-center gap-4 ${
                                 selectedChapter === chapter.name
                                 ? 'bg-white border-blue-400 shadow-sm'
                                 : 'bg-white/40 backdrop-blur-md border-white/40 hover:bg-white/60'
@@ -118,21 +119,21 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
                         </button>
                     ))}
                 </div>
-            </div>
 
-            {/* Minimal Footer with Small Button */}
-            <div className="p-10 flex justify-center relative z-10">
-                <button 
-                    onClick={handleContinue}
-                    disabled={!selectedChapter}
-                    className={`px-10 py-3.5 rounded-full font-bold text-base transition-all ${
-                        !selectedChapter 
-                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
-                        : 'bg-blue-600 text-white hover:bg-blue-700 shadow-md active:scale-95'
-                    }`}
-                >
-                    Continue
-                </button>
+                {/* Full-width Button - Matches cards */}
+                <div className="mt-8 w-full px-4">
+                    <button 
+                        onClick={handleContinue}
+                        disabled={!selectedChapter}
+                        className={`w-full py-3.5 rounded-full font-bold text-base transition-all ${
+                            !selectedChapter 
+                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                            : 'bg-blue-600 text-white hover:bg-blue-700 shadow-md active:scale-95'
+                        }`}
+                    >
+                        Continue
+                    </button>
+                </div>
             </div>
         </div>
     );
