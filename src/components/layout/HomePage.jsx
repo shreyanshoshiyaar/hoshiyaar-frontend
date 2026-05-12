@@ -57,7 +57,7 @@ const MobileHomeCarousel = () => {
             
             {/* Get Started Button on 1st, 2nd, and 3rd images */}
             {(index === 0 || index === 1 || index === 2) && (
-              <div className="absolute bottom-14 left-0 right-0 flex justify-center px-6">
+              <div className={`absolute ${index === 0 ? 'bottom-8' : 'bottom-14'} left-0 right-0 flex justify-center px-6`}>
                 <button 
                   onClick={() => navigate('/signup')}
                   className="w-full max-w-sm bg-duo-blue text-white font-bold uppercase tracking-wider py-4 rounded-2xl border-b-4 border-duo-blue-dark hover:bg-blue-500 transition-all text-base shadow-xl"
