@@ -69,58 +69,57 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
     };
 
     return (
-        <div className="flex flex-col h-screen relative bg-transparent md:bg-gradient-to-b md:from-blue-50 md:via-white md:to-blue-50">
-            {/* Header */}
-            <div className="bg-duo-blue text-white px-6 py-5 md:px-8 md:py-6 flex items-center gap-4 shadow-[0_10px_0_0_rgba(0,0,0,0.08)]">
-                <button onClick={onBack} className="p-2 rounded-full bg-white/15 hover:bg-white/25">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-                </button>
-                <div>
-                    <p className="font-extrabold text-2xl md:text-3xl">Pick a Chapter</p>
-                    <p className="opacity-90 text-base md:text-lg">Continue your journey</p>
-                </div>
+        <div className="flex flex-col h-screen bg-transparent md:bg-gradient-to-b md:from-blue-50 md:via-white md:to-blue-50 overflow-hidden relative">
+            
+            {/* Header Text - Direct on Background */}
+            <div className="px-6 pt-12 pb-4 text-center animate-fade-in relative z-10">
+                <h1 className="font-black text-3xl md:text-4xl text-gray-900 leading-tight drop-shadow-sm">
+                    Pick a Chapter
+                </h1>
+                <p className="text-gray-700 font-bold mt-2 text-base opacity-80">
+                    Continue your journey
+                </p>
             </div>
 
-            {/* Main content: List of chapters */}
-            <div className="flex-grow overflow-y-auto no-scrollbar p-8">
-                <div className="max-w-4xl mx-auto">
-                    <div className="flex items-center gap-8 mb-8">
-                        <HoshiCharacter />
-                        <div className="bg-blue-50 p-5 rounded-lg w-full text-duo-blue">
-                            <p className="text-xl">Ready to learn? Pick a chapter to start!</p>
-                        </div>
-                    </div>
-                    <div className="space-y-3 sm:space-y-4">
-                        {loading && (<div className="text-gray-500 text-lg">Loading chapters...</div>)}
-                        {!loading && chapters.length === 0 && (<div className="text-gray-500 text-lg">No chapters found.</div>)}
-                        {!loading && chapters.map((chapter) => (
-                            <button
-                                key={chapter.id}
-                                onClick={() => { 
-                                    setSelectedChapter(chapter.name); 
-                                    updateData?.({ chapter: chapter.name }); 
-                                    // Manual selection only - no auto-advance
-                                }}
-                                className={`w-full p-4 sm:p-5 md:p-6 rounded-2xl border-2 flex items-center gap-4 sm:gap-5 md:gap-6 text-left text-lg sm:text-xl font-extrabold transition-colors ${
-                                    selectedChapter === chapter.name
-                                    ? 'bg-green-200 border-green-500'
-                                    : 'bg-white border-gray-300 hover:border-gray-400'
-                                }`}
-                            >
-                                <DefaultIcon />
-                                <span className="font-bold">{chapter.name}</span>
-                            </button>
-                        ))}
-                    </div>
+            {/* Main content: List of chapters - Scrollable only if many items, but container is h-screen */}
+            <div className="flex-grow flex items-center justify-center p-4 relative z-10 overflow-hidden">
+                <div className="w-full max-w-lg space-y-3 max-h-[55vh] overflow-y-auto no-scrollbar">
+                    {loading && (<div className="text-center text-gray-600 font-bold animate-pulse text-lg py-8">Loading chapters...</div>)}
+                    {!loading && chapters.length === 0 && (<div className="text-center text-gray-500 font-bold py-8">No chapters found.</div>)}
+                    {!loading && chapters.map((chapter) => (
+                        <button
+                            key={chapter.id}
+                            onClick={() => { 
+                                setSelectedChapter(chapter.name); 
+                                updateData?.({ chapter: chapter.name }); 
+                            }}
+                            className={`w-full p-4 rounded-2xl border-2 flex items-center gap-4 transition-all ${
+                                selectedChapter === chapter.name
+                                ? 'bg-white border-green-500 shadow-[0_8px_20px_rgba(34,197,94,0.2)] scale-[1.02]'
+                                : 'bg-white/60 backdrop-blur-md border-white/40 border-b-[6px] border-b-gray-200/50 hover:bg-white/70'
+                            }`}
+                        >
+                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
+                                selectedChapter === chapter.name ? 'border-green-500 bg-green-500' : 'border-gray-300'
+                            }`}>
+                                {selectedChapter === chapter.name && (
+                                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                )}
+                            </div>
+                            <span className="font-black text-lg text-gray-800 text-left leading-tight">{chapter.name}</span>
+                        </button>
+                    ))}
                 </div>
             </div>
 
             {/* Footer with Continue button */}
-            <div className="border-t pt-6 px-6 pb-6 flex justify-end">
+            <div className="p-6 md:p-10 relative z-10">
                 <button 
                     onClick={handleContinue}
                     disabled={!selectedChapter}
-                    className="bg-green-600 text-white font-extrabold py-5 px-12 rounded-xl text-xl transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-green-700 shadow-[0_6px_0_0_rgba(0,0,0,0.15)]"
+                    className="w-full bg-green-600 text-white font-black py-5 px-12 rounded-[2rem] text-xl transition-all disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-green-700 shadow-[0_8px_0_0_#15803D] active:translate-y-1 active:shadow-none"
                 >
                     Continue
                 </button>

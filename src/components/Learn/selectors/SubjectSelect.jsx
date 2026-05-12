@@ -57,66 +57,53 @@ const SubjectSelect = ({ onContinue, onBack, updateData, selectedBoard, autoAdva
     }, [selectedBoard]);
 
     return (
-        <div className="flex flex-col h-screen relative bg-transparent md:bg-gradient-to-b md:from-blue-50 md:via-white md:to-blue-50">
-            {/* Header bar */}
-            <div className="bg-duo-blue text-white px-6 py-5 md:px-8 md:py-6 flex items-center gap-4 shadow-[0_10px_0_0_rgba(0,0,0,0.08)]">
-                <button onClick={onBack} className="p-2 rounded-full bg-white/15 hover:bg-white/25">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-                </button>
-                <div>
-                    <p className="font-extrabold text-2xl md:text-3xl">Choose a Subject</p>
-                    <p className="opacity-90 text-base md:text-lg">We’ll prepare lessons around it</p>
-                </div>
+        <div className="flex flex-col h-screen bg-transparent md:bg-gradient-to-b md:from-blue-50 md:via-white md:to-blue-50 overflow-hidden relative">
+            
+            {/* Header Text - Direct on Background */}
+            <div className="px-6 pt-12 pb-6 text-center animate-fade-in relative z-10">
+                <h1 className="font-black text-3xl md:text-4xl text-gray-900 leading-tight drop-shadow-sm">
+                    Choose a Subject
+                </h1>
+                <p className="text-gray-700 font-bold mt-2 text-base opacity-80">
+                    We’ll prepare lessons around it
+                </p>
             </div>
 
-            {/* Main content: Grid of subjects */}
-            <div className="flex-grow overflow-y-auto no-scrollbar p-8">
-                <div className="max-w-4xl mx-auto">
-                    <div className="flex items-center gap-8 mb-8">
-                        <HoshiCharacter />
-                        <div className="bg-blue-50 p-5 rounded-lg w-full text-duo-blue">
-                            <p className="text-xl">Which subject should we explore today?</p>
+            {/* Main content: Grid of subjects - Centered */}
+            <div className="flex-grow flex items-center justify-center p-6 relative z-10">
+                <div className="w-full max-w-4xl grid grid-cols-2 gap-4">
+                    {loading && (
+                        <div className="col-span-2 text-center text-gray-600 font-bold animate-pulse text-lg py-8">
+                            Loading subjects...
                         </div>
-                    </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
-                        {loading && (
-                            <div className="col-span-2 sm:col-span-3 text-gray-500 text-lg">Loading subjects...</div>
-                        )}
-                        {!loading && subjects.length === 0 && (
-                            <div className="col-span-2 sm:col-span-3 text-gray-500 text-lg">No subjects found.</div>
-                        )}
-                        {!loading && subjects.map((subject) => (
-                            <button
-                                key={subject}
-                                onClick={async () => { 
-                                    setSelectedSubject(subject); 
-                                    // Step-ahead prefetch: chapters for chosen subject
-                                    try {
-                                        const res = await curriculumService.listChapters(selectedBoard || 'CBSE', subject);
-                                        const list = (res?.data || []).map((c, idx) => ({ id: c._id, name: c.title, order: c.order ?? idx + 1 }));
-                                        try { sessionStorage.setItem(`chapters_cache_v1__${selectedBoard || 'CBSE'}__${subject}`, JSON.stringify(list || [])); } catch(_) {}
-                                    } catch (_) {}
-                                    // Manual selection only - no auto-advance
-                                }}
-                                className={`p-8 text-center rounded-2xl border-2 text-xl font-extrabold transition-colors ${
-                                    selectedSubject === subject 
-                                    ? 'bg-green-200 border-green-500' 
-                                    : 'bg-white border-gray-300 hover:border-gray-400'
-                                }`}
-                            >
-                                <span className="font-bold">{subject}</span>
-                            </button>
-                        ))}
-                    </div>
+                    )}
+                    {!loading && subjects.length === 0 && (
+                        <div className="col-span-2 text-center text-gray-500 font-bold py-8">
+                            No subjects found.
+                        </div>
+                    )}
+                    {!loading && subjects.map((subject) => (
+                        <button
+                            key={subject}
+                            onClick={() => setSelectedSubject(subject)}
+                            className={`p-6 text-center rounded-2xl border-2 transition-all flex flex-col items-center justify-center gap-2 ${
+                                selectedSubject === subject 
+                                ? 'bg-white border-green-500 shadow-[0_8px_20px_rgba(34,197,94,0.2)] scale-[1.02]' 
+                                : 'bg-white/60 backdrop-blur-md border-white/40 border-b-[6px] border-b-gray-200/50 hover:bg-white/70'
+                            }`}
+                        >
+                            <span className="font-black text-lg text-gray-800">{subject}</span>
+                        </button>
+                    ))}
                 </div>
             </div>
 
             {/* Footer with Continue button */}
-            <div className="border-t pt-6 px-6 pb-6 flex justify-end">
+            <div className="p-6 md:p-10 relative z-10">
                 <button 
                     onClick={() => { updateData?.({ subject: selectedSubject }); onContinue?.(); }}
                     disabled={!selectedSubject}
-                    className="bg-green-600 text-white font-extrabold py-5 px-12 rounded-xl text-xl transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-green-700 shadow-[0_6px_0_0_rgba(0,0,0,0.15)]"
+                    className="w-full bg-green-600 text-white font-black py-5 px-12 rounded-[2rem] text-xl transition-all disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-green-700 shadow-[0_8px_0_0_#15803D] active:translate-y-1 active:shadow-none"
                 >
                     Continue
                 </button>
