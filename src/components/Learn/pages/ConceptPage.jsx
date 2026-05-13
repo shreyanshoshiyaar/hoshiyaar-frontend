@@ -476,7 +476,7 @@ export default function ConceptPage() {
   // COMIC TIMER EFFECT
   useEffect(() => {
     if (isComicActive) {
-      setComicReadTimer(10);
+      setComicReadTimer(5);
       const interval = setInterval(() => {
         setComicReadTimer(prev => {
           if (prev <= 1) {
