@@ -57,10 +57,10 @@ const MobileHomeCarousel = () => {
             
             {/* YouTube Video in Phone Frame on 4th Slide */}
             {index === 3 && (
-              <div className="absolute top-[12%] left-0 right-0 flex justify-center animate-fade-in pointer-events-none">
-                <div className="relative w-[165px] max-w-[50vw] aspect-[9/18.5] bg-black rounded-[2.2rem] border-[5px] border-gray-900 shadow-[0_15px_40px_rgba(0,0,0,0.4)] overflow-hidden ring-2 ring-white/10 pointer-events-auto">
+              <div className="absolute top-[10%] left-0 right-0 flex justify-center animate-fade-in pointer-events-none">
+                <div className="relative w-[145px] max-w-[45vw] aspect-[9/19] bg-black rounded-[2.2rem] border-[4px] border-gray-900 shadow-[0_12px_30px_rgba(0,0,0,0.4)] overflow-hidden ring-1 ring-white/10 pointer-events-auto">
                   {/* Phone Notch */}
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-4 bg-gray-900 rounded-b-xl z-10"></div>
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-14 h-3.5 bg-gray-900 rounded-b-xl z-10"></div>
                   
                   <iframe 
                     className="w-full h-full scale-[1.02]"
@@ -88,7 +88,7 @@ const MobileHomeCarousel = () => {
 
             {/* Social Buttons on 4th and 5th images */}
             {(index === 3 || index === 4) && (
-              <div className="absolute bottom-10 left-0 right-0 flex flex-col items-center gap-3 px-6">
+              <div className="absolute bottom-6 left-0 right-0 flex flex-col items-center gap-2 px-6">
                 <div className="flex flex-row gap-3 w-full justify-center">
                   <a 
                     href="https://www.instagram.com/hoshiyaar_club/" 

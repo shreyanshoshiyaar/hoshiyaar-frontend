@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import curriculumService from '../../services/curriculumService';
 import ContentEditor from './ContentEditor';
 import BlogManager from './BlogManager';
+import SystemSettingsManager from './SystemSettingsManager';
 
 const UnitEditRow = ({ unit, onUpdateUnit }) => {
   const [title, setTitle] = useState(unit.title || '');
@@ -265,6 +266,9 @@ const AdminPanel = () => {
       <div className="max-w-7xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-900 mb-6">Admin Panel - Content Management</h1>
         
+        {/* Global Settings Section */}
+        <SystemSettingsManager />
+
         {/* Blog Management Section */}
         <BlogManager />
         
