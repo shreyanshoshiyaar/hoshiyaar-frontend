@@ -66,6 +66,14 @@ const curriculumService = {
     // Clear cache when updating
     cache.clear();
     return http.put(`/api/curriculum/units/${unitId}`, data, passOpts(opts));
+  },
+  
+  // Settings API
+  getSetting(key, opts) {
+    return http.get(`/api/settings/${key}`, passOpts(opts));
+  },
+  updateSetting(data, opts) {
+    return http.post(`/api/settings`, data, passOpts(opts));
   }
 };
 

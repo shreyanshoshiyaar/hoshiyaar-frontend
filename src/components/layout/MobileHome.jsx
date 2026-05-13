@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import curriculumService from '../../services/curriculumService';
 import heroChar from '../../assets/images/heroChar.png'; // Fallback image
 
 const HexagonRankIcon = ({ rank }) => (
@@ -52,6 +53,22 @@ const MobileHome = ({
       isMe: u.username === user?.username
     }));
   }, [leaderboardData, user?.username, userIndex, hasSchool]);
+
+  const [missionVideoUrl, setMissionVideoUrl] = useState('https://www.youtube.com/embed/uHDSRZK74Dk');
+
+  useEffect(() => {
+    const fetchMissionVideo = async () => {
+      try {
+        const res = await curriculumService.getSetting('mission_video_url');
+        if (res.data && res.data.value) {
+          setMissionVideoUrl(res.data.value);
+        }
+      } catch (err) {
+        console.error('Failed to fetch mission video settings', err);
+      }
+    };
+    fetchMissionVideo();
+  }, []);
 
   return (
     <div className="w-full min-h-screen bg-[#F0F6FF] font-sans flex flex-col overflow-y-auto block md:hidden relative pb-[180px]">
@@ -135,7 +152,7 @@ const MobileHome = ({
               <div className="absolute inset-0 z-0 overflow-hidden">
                 <iframe 
                   className="w-full h-full"
-                  src="https://www.youtube.com/embed/uHDSRZK74Dk?autoplay=1&mute=0&loop=1&playlist=uHDSRZK74Dk&controls=1&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3" 
+                  src={`${missionVideoUrl}${missionVideoUrl.includes('?') ? '&' : '?'}autoplay=1&mute=0&loop=1&playlist=${missionVideoUrl.split('/').pop().split('?')[0]}&controls=1&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3`} 
                   title="Today's Mission" 
                   frameBorder="0" 
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
