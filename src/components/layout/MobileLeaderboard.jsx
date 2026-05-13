@@ -125,7 +125,7 @@ const MobileLeaderboard = ({
               <div className="flex items-center gap-2 min-w-0 flex-1">
                 <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-base shrink-0">🏫</div>
                 <div className="w-px h-6 bg-white/20 shrink-0"></div>
-                <h2 className="text-white font-black text-[14px] tracking-tight truncate">{user?.school || "Don Bosco Borivali"}</h2>
+                <h2 className="text-white font-black text-[14px] tracking-tight truncate">{user?.school || "Select your school"}</h2>
               </div>
               <button 
                 onClick={() => setIsChangingSchool(!isChangingSchool)}
