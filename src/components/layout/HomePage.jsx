@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import Hero from '../features/Hero';
 import FinalCTA from '../features/FinalCTA';
+import curriculumService from '../../services/curriculumService';
 import './MobileHome.css';
 
 const MOBILE_IMAGES = [
@@ -15,15 +16,37 @@ const MOBILE_IMAGES = [
 ];
 
 const MobileHomeCarousel = () => {
+  const [mobileImages, setMobileImages] = useState([
+    "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778578700/img-to-link/wunxaopn4qfirxnfdwa6.webp",
+    "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567489/img-to-link/n9fo2moxpmfwyp04ueob.webp",
+    "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567487/img-to-link/zy3aaizcfjl5qwm9ewjx.webp",
+    "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778579285/img-to-link/eqdx0kyjrhkruh0ownxd.webp",
+    "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778578699/img-to-link/tynaqnlzmbvoaafwu3do.webp"
+  ]);
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollRef = useRef(null);
   const navigate = useNavigate();
+
+  // Fetch dynamic slides
+  useEffect(() => {
+    const fetchSlides = async () => {
+      try {
+        const res = await curriculumService.getSetting('homepage_slides');
+        if (res.data && Array.isArray(res.data.value) && res.data.value.length > 0) {
+          setMobileImages(res.data.value);
+        }
+      } catch (err) {
+        console.error('Failed to fetch homepage slides', err);
+      }
+    };
+    fetchSlides();
+  }, []);
 
   // Auto-scroll logic
   useEffect(() => {
     const interval = setInterval(() => {
       if (scrollRef.current) {
-        const nextIndex = (activeIndex + 1) % MOBILE_IMAGES.length;
+        const nextIndex = (activeIndex + 1) % mobileImages.length;
         const width = scrollRef.current.offsetWidth;
         scrollRef.current.scrollTo({
           left: nextIndex * width,
@@ -33,7 +56,7 @@ const MobileHomeCarousel = () => {
       }
     }, 4000);
     return () => clearInterval(interval);
-  }, [activeIndex]);
+  }, [activeIndex, mobileImages.length]);
 
   const handleScroll = () => {
     if (scrollRef.current) {
@@ -51,7 +74,7 @@ const MobileHomeCarousel = () => {
         onScroll={handleScroll}
         className="mobile-carousel-container no-scrollbar"
       >
-        {MOBILE_IMAGES.map((src, index) => (
+        {mobileImages.map((src, index) => (
           <div key={index} className="mobile-carousel-item relative">
             <img src={src} alt={`Slide ${index + 1}`} loading="lazy" />
             
@@ -118,7 +141,7 @@ const MobileHomeCarousel = () => {
       
       {/* Dot Navigation */}
       <div className="dot-navigation">
-        {MOBILE_IMAGES.map((_, index) => (
+        {mobileImages.map((_, index) => (
           <div 
             key={index} 
             className={`dot ${activeIndex === index ? 'active' : ''}`}
