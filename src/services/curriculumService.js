@@ -1,14 +1,4 @@
-import axios from 'axios';
-import { getApiBase } from '../utils/apiBase.js';
-
-const API = getApiBase();
-
-// Centralized axios instance with sane defaults to avoid hanging requests
-const http = axios.create({
-  baseURL: API,
-  timeout: 12000, // 12s timeout to fail fast and render fallbacks
-  withCredentials: false,
-});
+import api from './apiClient';
 
 const passOpts = (opts) => (opts && typeof opts === 'object' ? opts : {});
 
@@ -27,7 +17,7 @@ const cachedGet = async (url, config = {}) => {
     }
   }
   
-  const response = await http.get(url, config);
+  const response = await api.get(url, config);
   cache.set(cacheKey, { data: response, timestamp: now });
   return response;
 };
@@ -65,15 +55,15 @@ const curriculumService = {
   updateUnit(unitId, data, opts) {
     // Clear cache when updating
     cache.clear();
-    return http.put(`/api/curriculum/units/${unitId}`, data, passOpts(opts));
+    return api.put(`/api/curriculum/units/${unitId}`, data, passOpts(opts));
   },
   
   // Settings API
   getSetting(key, opts) {
-    return http.get(`/api/settings/${key}`, passOpts(opts));
+    return api.get(`/api/settings/${key}`, passOpts(opts));
   },
   updateSetting(data, opts) {
-    return http.post(`/api/settings`, data, passOpts(opts));
+    return api.post(`/api/settings`, data, passOpts(opts));
   }
 };
 

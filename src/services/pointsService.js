@@ -1,13 +1,7 @@
-import axios from 'axios';
-import { getApiBase } from '../utils/apiBase.js';
+import api from './apiClient';
 
-const BASE = getApiBase();
-const API_URL = `${BASE}/api/points/`;
-
-const http = axios.create({ baseURL: API_URL, timeout: 12000, withCredentials: false });
-
-const award = (data, opts) => http.put('award', data, opts);
-const revert = (data, opts) => http.post('revert', data, opts);
-const summary = (params, opts) => http.get('summary', { params, ...(opts || {}) });
+const award = (data, opts) => api.put('/api/points/award', data, opts);
+const revert = (data, opts) => api.post('/api/points/revert', data, opts);
+const summary = (params, opts) => api.get('/api/points/summary', { params, ...(opts || {}) });
 
 export default { award, revert, summary };

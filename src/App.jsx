@@ -2,7 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { ReviewProvider } from './context/ReviewContext.jsx';
-import { StarsProvider } from './context/StarsContext.jsx';
+
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import LoadingPage from './components/ui/LoadingPage.jsx';
@@ -55,8 +55,7 @@ const MainLayout = ({ children }) => {
 function App() {
   return (
     <AuthProvider>
-      <StarsProvider>
-        <ReviewProvider>
+      <ReviewProvider>
           <Router>
             <Suspense fallback={<LoadingPage />}>
               <Routes>
@@ -163,9 +162,30 @@ function App() {
                     </ProtectedRoute>
                   } 
                 />
-                <Route path="/lesson-complete" element={<LessonComplete />} />
-                <Route path="/review-round" element={<ReviewRound />} />
-                <Route path="/revision" element={<RevisionList />} />
+                <Route 
+                  path="/lesson-complete" 
+                  element={
+                    <ProtectedRoute>
+                      <LessonComplete />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/review-round" 
+                  element={
+                    <ProtectedRoute>
+                      <ReviewRound />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/revision" 
+                  element={
+                    <ProtectedRoute>
+                      <RevisionList />
+                    </ProtectedRoute>
+                  } 
+                />
                   
                 <Route 
                   path="/admin/upload-test" 
@@ -186,7 +206,6 @@ function App() {
             </Suspense>
           </Router>
         </ReviewProvider>
-      </StarsProvider>
     </AuthProvider>
   );
 }

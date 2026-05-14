@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import authService from '../services/authService.js';
+import { logDev } from '../utils/logger.js';
 import pointsService from '../services/pointsService.js';
 import { useStars } from './StarsContext.jsx';
 
@@ -119,7 +120,7 @@ export const AuthProvider = ({ children }) => {
                     keysToRemove.forEach(key => localStorage.removeItem(key));
                 } catch (_) {}
                 
-                console.log('[AuthContext] Cleared previous account localStorage on account switch');
+                logDev('[AuthContext] Cleared previous account localStorage on account switch');
             }
         } catch (_) {}
         localStorage.setItem('user', JSON.stringify(userData));
@@ -156,7 +157,7 @@ export const AuthProvider = ({ children }) => {
             keysToRemove.forEach(key => localStorage.removeItem(key));
         } catch (_) {}
         
-        console.log('[AuthContext] Cleared all localStorage on logout');
+        logDev('[AuthContext] Cleared all localStorage on logout');
         setUser(null);
     };
 
