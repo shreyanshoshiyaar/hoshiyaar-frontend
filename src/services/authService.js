@@ -1,44 +1,37 @@
-import axios from 'axios';
+import api from './apiClient';
+import axios from 'axios'; // Still needed for some external/direct calls
 import { getApiBase } from '../utils/apiBase.js';
-
+import { logDev } from '../utils/logger.js';
 
 const BASE = getApiBase();
-const API_URL = `${BASE}/api/auth/`;
-
-// Debug logging
-console.log('API_URL:', API_URL);
-console.log('Environment:', import.meta.env.DEV ? 'development' : 'production');
-console.log('BASE:', BASE);
-
-// Centralized axios instance with timeout
-const http = axios.create({
-  baseURL: API_URL,
-  timeout: 12000,
-  withCredentials: false,
-});
 
 // Register user (username-based)
 const register = (userData, opts) => {
-  return http.post('register', userData, opts);
+  return api.post('/api/auth/register', userData, opts);
 };
 
 // Register guest (anonymous)
 const registerGuest = (opts) => {
-  return http.post('register-guest', {}, opts);
+  return api.post('/api/auth/register-guest', {}, opts);
 };
 
 // Login user with username
 const login = (userData, opts) => {
-  return http.post('login', userData, opts);
+  return api.post('/api/auth/login', userData, opts);
+};
+
+// Admin Login
+const adminLogin = (userData, opts) => {
+  return api.post('/api/admin/login', userData, opts);
 };
 
 // Update onboarding selections
 const updateOnboarding = (data, opts) => {
-  return http.put('onboarding', data, opts);
+  return api.put('/api/auth/onboarding', data, opts);
 };
 
 // Update profile (alias to onboarding update for now)
-const updateProfile = (data, opts) => http.put('onboarding', data, opts);
+const updateProfile = (data, opts) => api.put('/api/auth/onboarding', data, opts);
 
 // Simple in-memory cache for GET requests to reduce redundant network calls
 const cache = new Map();
@@ -51,43 +44,43 @@ const cachedGet = async (url, config = {}) => {
   if (cache.has(cacheKey)) {
     const entry = cache.get(cacheKey);
     if (now - entry.timestamp < CACHE_TTL) {
-      console.log(`[Cache Hit] ${url}`);
+      logDev(`[Cache Hit] ${url}`);
       return entry.data;
     }
   }
   
-  const response = await axios.get(url, config);
+  const response = await api.get(url, config);
   cache.set(cacheKey, { data: response, timestamp: now });
   return response;
 };
 
 // Get user data
 const getUser = (userId, opts) => {
-  return http.get('user/' + userId, opts);
+  return api.get('/api/auth/user/' + userId, opts);
 };
 
 // Progress APIs
-const getProgress = (userId, opts) => http.get('progress/' + userId, opts);
-const updateProgress = (data, opts) => http.put('progress', data, opts);
-const getCompletedModuleIds = (userId, { subject } = {}, opts) => http.get('completed-modules/' + userId, { params: { subject }, ...(opts || {}) });
+const getProgress = (userId, opts) => api.get('/api/auth/progress/' + userId, opts);
+const updateProgress = (data, opts) => api.put('/api/auth/progress', data, opts);
+const getCompletedModuleIds = (userId, { subject } = {}, opts) => api.get('/api/auth/completed-modules/' + userId, { params: { subject }, ...(opts || {}) });
 
 // Username availability
-const checkUsername = (username, opts) => http.get('check-username', { params: { username }, ...(opts || {}) });
+const checkUsername = (username, opts) => api.get('/api/auth/check-username', { params: { username }, ...(opts || {}) });
 
-// Leaderboard API (calls pointsRoutes mounted at /api/points/leaderboard)
+// Leaderboard API
 const getLeaderboard = (school, timeframe = 'total', opts) => {
   const params = school ? { school, timeframe } : { timeframe };
-  return cachedGet(`${BASE}/api/points/leaderboard`, { params, ...(opts || {}) });
+  return cachedGet('/api/points/leaderboard', { params, ...(opts || {}) });
 };
 
-// Get points summary (calls pointsRoutes mounted at /api/points/summary)
+// Get points summary
 const getSummary = (params, opts) => {
-  return cachedGet(`${BASE}/api/points/summary`, { params, ...(opts || {}) });
+  return cachedGet('/api/points/summary', { params, ...(opts || {}) });
 };
 
 // Get list of unique school names for autocomplete
 const getSchoolNames = (query, opts) => {
-  return cachedGet(`${BASE}/api/points/schools`, { params: { q: query }, ...(opts || {}) });
+  return cachedGet('/api/points/schools', { params: { q: query }, ...(opts || {}) });
 };
 
 // Get school suggestions from Ola Maps API
@@ -102,28 +95,40 @@ const getOlaSchoolSuggestions = async (query) => {
   const params = { input: query, api_key: apiKey };
   
   try {
-    return await cachedGet(url, { params });
+    // Note: Ola Maps is external, so we might want to use cachedGet with absolute URL
+    // but cachedGet uses api which has a baseURL.
+    // For external calls, we use direct axios.
+    const cacheKey = JSON.stringify({ url, params });
+    const now = Date.now();
+    if (cache.has(cacheKey)) {
+      const entry = cache.get(cacheKey);
+      if (now - entry.timestamp < CACHE_TTL) return entry.data;
+    }
+    const response = await axios.get(url, { params });
+    cache.set(cacheKey, { data: response, timestamp: now });
+    return response;
   } catch (error) {
-    console.error('Ola Maps Autocomplete Error:', error);
+    console.error('Ola Maps Autocomplete Error:', error); // Keep error for tracking
     return { data: { predictions: [] } };
   }
 };
 
 // Blog APIs
-const getBlogs = (opts) => cachedGet(`${BASE}/api/blogs`, opts);
-const getBlogById = (id, opts) => axios.get(`${BASE}/api/blogs/${id}`, opts);
+const getBlogs = (opts) => cachedGet('/api/blogs', opts);
+const getBlogById = (id, opts) => api.get(`/api/blogs/${id}`, opts);
 
 // Admin Blog APIs
-const getAllBlogsAdmin = (opts) => axios.get(`${BASE}/api/blogs/admin/all`, opts);
-const createBlog = (data, opts) => axios.post(`${BASE}/api/blogs`, data, opts);
-const updateBlog = (id, data, opts) => axios.put(`${BASE}/api/blogs/${id}`, data, opts);
-const deleteBlog = (id, opts) => axios.delete(`${BASE}/api/blogs/${id}`, opts);
+const getAllBlogsAdmin = (opts) => api.get('/api/blogs/admin/all', opts);
+const createBlog = (data, opts) => api.post('/api/blogs', data, opts);
+const updateBlog = (id, data, opts) => api.put(`/api/blogs/${id}`, data, opts);
+const deleteBlog = (id, opts) => api.delete(`/api/blogs/${id}`, opts);
 
 // Export the functions
 const authService = {
   register,
   registerGuest,
   login,
+  adminLogin,
   updateOnboarding,
   updateProfile,
   getUser,

@@ -2,12 +2,30 @@ import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import AuthLayout from '../forms/AuthLayout';
 import { CalendarIcon } from '../ui/Icons';
+import authService from '../../services/authService';
+import { useAuth } from '../../context/AuthContext';
 
 const AdminProtectedRoute = ({ children }) => {
+  const { user } = useAuth();
   const location = useLocation();
-  const [isAdmin, setIsAdmin] = useState(sessionStorage.getItem('isAdmin') === 'true');
+  const [isAdmin, setIsAdmin] = useState(() => {
+    if (user && user.role !== 'admin') return false;
+    const sessionAdmin = sessionStorage.getItem('isAdmin') === 'true';
+    const contextAdmin = user?.role === 'admin';
+    return sessionAdmin || contextAdmin;
+  });
   const [formData, setFormData] = useState({ username: '', dob: '' });
   const [error, setError] = useState('');
+
+  // Sync state with AuthContext and session
+  React.useEffect(() => {
+    let isActuallyAdmin = user?.role === 'admin' || sessionStorage.getItem('isAdmin') === 'true';
+    if (user && user.role !== 'admin') isActuallyAdmin = false;
+    
+    if (isActuallyAdmin !== isAdmin) {
+      setIsAdmin(isActuallyAdmin);
+    }
+  }, [user, isAdmin]);
 
   const handleDobChange = (e) => {
     let val = e.target.value;
@@ -32,14 +50,32 @@ const AdminProtectedRoute = ({ children }) => {
     setFormData(prev => ({ ...prev, dob: res }));
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Specific credentials: Host or hostcbse / 01/01/2000
-    if ((formData.username === 'Host' || formData.username === 'hostcbse') && formData.dob === '01/01/2000') {
-      setIsAdmin(true);
-      sessionStorage.setItem('isAdmin', 'true');
-    } else {
-      setError('Invalid admin credentials');
+    setError('');
+    
+    try {
+      // Parse dateOfBirth if it's in DD/MM/YYYY format
+      let dob = formData.dob;
+      if (dob && /^\d{2}[/-]\d{2}[/-]\d{4}$/.test(dob)) {
+        const parts = dob.split(/[/-]/);
+        dob = `${parts[2]}-${parts[1]}-${parts[0]}`; // YYYY-MM-DD
+      }
+
+      const { data } = await authService.adminLogin({
+        username: formData.username,
+        dateOfBirth: dob
+      });
+      
+      if (data.token && data.role === 'admin') {
+        setIsAdmin(true);
+        sessionStorage.setItem('isAdmin', 'true');
+        sessionStorage.setItem('adminToken', data.token);
+      } else {
+        setError('Unauthorized: Admin access required');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Invalid admin credentials');
     }
   };
 

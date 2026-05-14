@@ -3,11 +3,11 @@
   "appName": "HoshiYaar",
   "webDir": "dist",
   "android": {
-    "allowMixedContent": true
+    "allowMixedContent": false
   },
   "server": {
     "androidScheme": "https",
-    "cleartext": true
+    "cleartext": false
   },
   "plugins": {
     "SplashScreen": {

@@ -17,6 +17,8 @@ const Learn = () => {
     subject: null,
     chapter: null, // Add chapter to state
   });
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState(null);
   const { user, loading, login } = useAuth();
 
   const getScopedKeys = (uid) => ({
@@ -26,7 +28,11 @@ const Learn = () => {
 
   // Function to save onboarding data to backend
   const saveOnboardingData = async () => {
+    if (isSaving) return;
+    
     if (user?._id && onboardingData.board && onboardingData.subject && onboardingData.chapter) {
+      setIsSaving(true);
+      setError(null);
       try {
         const response = await authService.updateProfile({
           userId: user._id,
@@ -44,11 +50,12 @@ const Learn = () => {
             localStorage.removeItem(`onboarding_progress_${user._id}`);
           } catch (_) {}
         }
+        setIsSaving(false);
         return true;
-      } catch (error) {
-        console.error('Failed to save onboarding data:', error);
-        // Still proceed to dashboard even if save fails, but show a warning
-        alert('Warning: Your preferences were not saved to the server. Please try again later.');
+      } catch (err) {
+        console.error('Failed to save onboarding data:', err);
+        setError('Your preferences were not saved to the server. Please try again later.');
+        setIsSaving(false);
         return false;
       }
     } else {
@@ -60,10 +67,6 @@ const Learn = () => {
   const nextStep = () => {
     setStep(prevStep => {
       const next = prevStep + 1;
-      // Save onboarding data when reaching the dashboard (step 5)
-      if (next === 5) {
-        saveOnboardingData();
-      }
       if (next >= 5 && user?._id) {
         const keys = getScopedKeys(user._id);
         try { localStorage.setItem(keys.local, 'true'); } catch (_) {}
@@ -186,6 +189,18 @@ const Learn = () => {
         backgroundAttachment: 'fixed'
       }}
     >
+      {error && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-md bg-red-500 text-white p-4 rounded-xl shadow-lg flex justify-between items-center animate-in fade-in slide-in-from-top-4 duration-300">
+          <span className="text-sm font-bold">{error}</span>
+          <button onClick={() => setError(null)} className="ml-4 text-white hover:opacity-75">✕</button>
+        </div>
+      )}
+      {isSaving && (
+        <div className="fixed inset-0 z-50 bg-white/80 flex flex-col items-center justify-center">
+          <SimpleLoading />
+          <p className="mt-4 font-bold text-duo-blue">Saving your preferences...</p>
+        </div>
+      )}
       {loading ? <SimpleLoading /> : renderStep()}
     </div>
   );
