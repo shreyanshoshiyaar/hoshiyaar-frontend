@@ -1412,6 +1412,16 @@ const LearnDashboard = ({ onboardingData }) => {
     return () => window.removeEventListener('focus', handleFocus);
   }, []);
 
+  // Handle direct navigation to specific tabs/views from URL params (e.g. from LessonComplete)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const go = params.get('go');
+    if (go === 'dashboard') {
+      console.log('[Dashboard] Navigating to practice tab based on URL param');
+      setActiveTab('practice');
+    }
+  }, [location.search]);
+
   // Subject change functions
   const handleOpenSubjectModal = async () => {
     try {
