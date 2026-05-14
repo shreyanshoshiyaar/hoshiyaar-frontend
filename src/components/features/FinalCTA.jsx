@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import HoshiPencil from '../../assets/images/Hoshi Pencil.webp';
 import HoshiScience from '../../assets/images/Hoshi Science.webp';
-const HoshiYaarLogo = "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1777997560/img-to-link/mfaw5t09dlayxlunzfas.png";
+const HoshiYaarLogo = "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778743597/img-to-link/bihseec7aigbmau4amnd.png";
 
 const FinalCTA = () => (
     <section className="relative overflow-hidden bg-gray-50">

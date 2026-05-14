@@ -43,7 +43,7 @@ const MobileLeaderboard = ({
         <div className="absolute top-0 left-0 right-0 z-20 px-6 pt-5 flex items-center justify-between w-full">
           <div className="flex items-center">
             <img 
-              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1777997560/img-to-link/mfaw5t09dlayxlunzfas.png" 
+              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778743597/img-to-link/bihseec7aigbmau4amnd.png" 
               alt="HoshiYaar Logo" 
               className="h-9 w-auto drop-shadow-sm" 
             />
