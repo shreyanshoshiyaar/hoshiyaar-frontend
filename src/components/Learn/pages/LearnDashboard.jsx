@@ -1832,7 +1832,7 @@ const LearnDashboard = ({ onboardingData }) => {
           <div className="p-6 space-y-4">
             <div className="flex items-center justify-between mb-6">
               <img 
-                src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1777997560/img-to-link/mfaw5t09dlayxlunzfas.png" 
+                src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778743597/img-to-link/bihseec7aigbmau4amnd.png" 
                 alt="HoshiYaar Logo" 
                 className="h-8 w-auto" 
               />
@@ -1894,7 +1894,7 @@ const LearnDashboard = ({ onboardingData }) => {
         <nav className="hidden md:flex md:w-64 p-6 space-y-4 border-r border-blue-200 flex-col justify-start shrink-0 bg-white shadow-lg">
           <div className="mb-6">
             <img 
-              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1777997560/img-to-link/mfaw5t09dlayxlunzfas.png" 
+              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778743597/img-to-link/bihseec7aigbmau4amnd.png" 
               alt="HoshiYaar Logo" 
               className="h-12 w-auto" 
             />

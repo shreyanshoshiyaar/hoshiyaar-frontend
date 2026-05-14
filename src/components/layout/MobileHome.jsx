@@ -85,7 +85,7 @@ const MobileHome = ({
         <div className="flex items-center justify-between w-full z-20 mb-1">
           <div className="flex items-center">
             <img 
-              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1777997560/img-to-link/mfaw5t09dlayxlunzfas.png" 
+              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778743597/img-to-link/bihseec7aigbmau4amnd.png" 
               alt="HoshiYaar Logo" 
               className="h-12 w-auto drop-shadow-sm" 
             />
