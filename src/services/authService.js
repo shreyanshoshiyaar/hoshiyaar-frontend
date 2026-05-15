@@ -146,6 +146,7 @@ const authService = {
   createBlog,
   updateBlog,
   deleteBlog,
+  deleteAccount: (userId, opts) => api.delete(`/api/auth/user/${userId}`, opts),
 };
 
 export default authService;

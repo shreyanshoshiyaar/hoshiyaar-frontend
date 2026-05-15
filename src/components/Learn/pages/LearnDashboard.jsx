@@ -1897,6 +1897,25 @@ const LearnDashboard = ({ onboardingData }) => {
               <LogoutIcon />
               <span>Logout</span>
             </a>
+            <a
+              href="#"
+              onClick={async (e) => {
+                e.preventDefault();
+                setIsMobileMenuOpen(false);
+                if (window.confirm('WARNING: Are you sure you want to PERMANENTLY DELETE your account? This action cannot be undone and all your progress will be lost.')) {
+                  try {
+                    const { default: authSvc } = await import('../../../services/authService.js');
+                    await authSvc.deleteAccount(user._id);
+                    handleLogout();
+                  } catch (err) {
+                    alert('Failed to delete account. Please try again.');
+                  }
+                }
+              }}
+              className="py-2 px-4 text-[11px] font-black uppercase tracking-widest text-red-400/50 hover:text-red-500 transition-colors text-center"
+            >
+              Delete Account
+            </a>
           </div>
         </nav>
 
@@ -1938,7 +1957,7 @@ const LearnDashboard = ({ onboardingData }) => {
             <ProfileIcon />
             <span>Profile</span>
           </a>
-          <div className="mt-auto pt-6 border-t border-blue-100 w-full">
+          <div className="mt-auto pt-6 border-t border-blue-100 w-full space-y-1">
             <a
               href="#"
               onClick={(e) => {
@@ -1949,6 +1968,24 @@ const LearnDashboard = ({ onboardingData }) => {
             >
               <LogoutIcon />
               <span>Logout</span>
+            </a>
+            <a
+              href="#"
+              onClick={async (e) => {
+                e.preventDefault();
+                if (window.confirm('WARNING: Are you sure you want to PERMANENTLY DELETE your account? This action cannot be undone and all your progress will be lost.')) {
+                  try {
+                    const { default: authSvc } = await import('../../../services/authService.js');
+                    await authSvc.deleteAccount(user._id);
+                    handleLogout();
+                  } catch (err) {
+                    alert('Failed to delete account. Please try again.');
+                  }
+                }
+              }}
+              className="block py-2 px-4 text-[10px] font-black uppercase tracking-widest text-red-400/40 hover:text-red-500 transition-colors text-center"
+            >
+              Delete Account
             </a>
           </div>
         </nav>

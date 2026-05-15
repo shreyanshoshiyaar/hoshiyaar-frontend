@@ -351,6 +351,25 @@ const MobileMore = ({ stars, weeklyStars }) => {
           >
             Logout
           </button>
+
+          <button 
+            onClick={async () => {
+              if (window.confirm('WARNING: Are you sure you want to PERMANENTLY DELETE your account? This action cannot be undone and all your progress will be lost.')) {
+                try {
+                  setSaving(true);
+                  await authService.deleteAccount(user._id);
+                  logout();
+                  window.location.href = '/';
+                } catch (err) {
+                  setError('Failed to delete account. Please try again.');
+                  setSaving(false);
+                }
+              }
+            }}
+            className="w-full py-2 text-[10px] font-black uppercase tracking-[0.2em] text-red-400/50 hover:text-red-500 transition-all"
+          >
+            Delete Account
+          </button>
         </div>
 
         {/* Legal Section */}

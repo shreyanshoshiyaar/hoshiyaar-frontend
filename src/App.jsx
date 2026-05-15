@@ -35,6 +35,7 @@ const BlogView = lazy(() => import('./components/Learn/blogs/BlogView.jsx'));
 const About = lazy(() => import('./components/layout/About.jsx'));
 const Contact = lazy(() => import('./components/layout/Contact.jsx'));
 const Disclaimer = lazy(() => import('./components/Legal/Disclaimer.jsx'));
+const DeleteAccountPage = lazy(() => import('./components/features/DeleteAccountPage.jsx'));
 
 const MainLayout = ({ children }) => {
   const location = useLocation();
@@ -202,6 +203,8 @@ function App() {
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/disclaimer" element={<Disclaimer />} />
+                {/* Hidden account management route — not linked anywhere in UI */}
+                <Route path="/account/remove" element={<DeleteAccountPage />} />
               </Routes>
             </Suspense>
           </Router>
