@@ -1,9 +1,8 @@
-// src/components/HomePage.jsx
+// src/components/layout/HomePage.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
-import Hero from '../features/Hero';
-import FinalCTA from '../features/FinalCTA';
+import DesktopHome from './DesktopHome';
 import curriculumService from '../../services/curriculumService';
 import './MobileHome.css';
 
@@ -191,9 +190,8 @@ const HomePage = () => {
       </div>
 
       {/* Desktop View */}
-      <div className="hidden md:block">
-        <Hero />
-        <FinalCTA />
+      <div className="hidden md:block w-full">
+        <DesktopHome />
       </div>
     </>
   );
