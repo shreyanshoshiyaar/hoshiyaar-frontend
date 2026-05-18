@@ -584,7 +584,7 @@ export default function ConceptPage() {
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 overflow-y-auto md:overflow-hidden md:justify-start mt-4 md:mt-8" style={{ maxHeight: 'calc(100vh - 80px)' }}>
+        <div className="flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 overflow-y-auto md:overflow-y-auto md:justify-start mt-4 md:mt-8" style={{ maxHeight: 'calc(100vh - 80px)' }}>
           <div className="w-full max-w-3xl sm:max-w-4xl mt-4 sm:mt-6 md:mt-8">
             {shouldShowComic ? (
               <div className="flex items-center justify-center w-full">
@@ -609,7 +609,10 @@ export default function ConceptPage() {
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center w-full">
-                <div className={`relative ${isShortVideo ? 'aspect-[9/16] h-[65vh]' : 'w-full aspect-video'} rounded-xl sm:rounded-2xl overflow-hidden border-2 border-blue-50 shadow-md bg-black`}>
+                <div 
+                  className={`relative overflow-hidden border-2 border-blue-50 shadow-md bg-black rounded-xl sm:rounded-2xl ${isShortVideo ? 'aspect-[9/16] h-[65vh]' : 'w-full aspect-video'}`}
+                  style={!isShortVideo ? { maxWidth: 'max(320px, calc((100vh - 250px) * 16 / 9))', width: '100%' } : {}}
+                >
                   <iframe
                     src={introVideoUrl}
                     title="Lesson intro video"
@@ -740,14 +743,17 @@ export default function ConceptPage() {
       </div>
 
       {/* Main Content - stable height to prevent background moving */}
-      <div className={`flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 pb-40 sm:pb-32 md:pb-0 md:justify-start mt-4 md:mt-8 ${(itemVideoUrl || actualType === 'video') ? 'overflow-hidden' : 'overflow-y-auto md:overflow-hidden'}`} style={{ maxHeight: 'calc(100vh - 80px)' }}>
+      <div className={`flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 pb-40 sm:pb-32 md:pb-0 md:justify-start mt-4 md:mt-8 overflow-y-auto`} style={{ maxHeight: 'calc(100vh - 80px)' }}>
         {(itemVideoUrl || actualType === 'video') ? (
-          <div className="flex-1 flex flex-col items-center justify-center p-4">
-            <div className={`${isShortVideo ? 'aspect-[9/16] h-[74vh] max-h-[calc(100vh-230px)]' : 'w-full max-w-4xl aspect-video'} rounded-3xl overflow-hidden border border-gray-100 shadow-lg bg-black flex-shrink-0 mt-2 sm:mt-6`}>
+          <div className="flex-1 flex flex-col items-center justify-center p-4 w-full">
+            <div 
+              className={`relative overflow-hidden border border-gray-100 shadow-lg bg-black flex-shrink-0 mt-2 sm:mt-6 rounded-3xl ${isShortVideo ? 'aspect-[9/16] h-[74vh] max-h-[calc(100vh-230px)]' : 'w-full aspect-video'}`}
+              style={!isShortVideo ? { maxWidth: 'max(320px, min(72rem, calc((100vh - 320px) * 16 / 9)))', width: '100%' } : {}}
+            >
               <iframe
                 src={itemVideoUrl || (introVideoUrl || 'https://www.youtube.com/embed/i59cR7MPD5M')}
                 title="Concept video"
-                className="w-full h-full"
+                className="absolute inset-0 w-full h-full"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen={true}
               />

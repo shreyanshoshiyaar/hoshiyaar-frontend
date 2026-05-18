@@ -146,7 +146,7 @@ const LessonComplete = () => {
 
   return (
     <div 
-      className="h-screen relative flex flex-col items-center justify-between px-6 sm:px-10 md:px-12 py-8 text-center overflow-hidden bg-center bg-cover bg-no-repeat"
+      className="h-screen relative flex flex-col items-center justify-between px-6 sm:px-10 md:px-12 py-8 text-center overflow-hidden bg-center bg-cover md:bg-contain bg-no-repeat md:bg-[#f8f6f9]"
       style={{ backgroundImage: 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778580068/img-to-link/h22ceyd8qnmcxmvfmlsb.webp")' }}
     >
       {/* Overlay to ensure legibility if background is too busy */}
