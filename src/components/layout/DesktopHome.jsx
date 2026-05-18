@@ -265,7 +265,7 @@ const DesktopHome = () => {
             <div className="char-grid">
               <div className="hoshi-card char-card reveal-scale d1" style={{'--c-color':'var(--blue)','--c-bg':'var(--blue-lt)'}}>
                 <div className="char-avatar">
-                  <img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778578700/img-to-link/wunxaopn4qfirxnfdwa6.webp" alt="Hoshi" />
+                  <img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779100397/img-to-link/rtyoddo8fjqspbtngsri.webp" alt="Hoshi" />
                 </div>
                 <div className="char-name">Hoshi</div>
                 <div className="char-role">The Calm Thinker</div>
@@ -274,7 +274,7 @@ const DesktopHome = () => {
 
               <div className="hoshi-card char-card reveal-scale d2" style={{'--c-color':'var(--indigo)','--c-bg':'var(--indigo-lt)'}}>
                 <div className="char-avatar">
-                  <img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778579285/img-to-link/eqdx0kyjrhkruh0ownxd.webp" alt="Myra" />
+                  <img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779100398/img-to-link/ayqvapvovlppgkniud7k.webp" alt="Myra" />
                 </div>
                 <div className="char-name">Myra</div>
                 <div className="char-role">The Sharp Verifier</div>
@@ -283,7 +283,7 @@ const DesktopHome = () => {
 
               <div className="hoshi-card char-card reveal-scale d3" style={{'--c-color':'var(--rose)','--c-bg':'var(--rose-lt)'}}>
                 <div className="char-avatar">
-                  <img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567487/img-to-link/zy3aaizcfjl5qwm9ewjx.webp" alt="Ruhaan" />
+                  <img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779100399/img-to-link/cgel5nvus6jbhxlbghhu.webp" alt="Ruhaan" />
                 </div>
                 <div className="char-name">Ruhaan</div>
                 <div className="char-role">The Live Reaction</div>
@@ -292,7 +292,7 @@ const DesktopHome = () => {
 
               <div className="hoshi-card char-card reveal-scale d4" style={{'--c-color':'var(--amber)','--c-bg':'var(--amber-lt)'}}>
                 <div className="char-avatar">
-                  <img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567489/img-to-link/n9fo2moxpmfwyp04ueob.webp" alt="Babloo" />
+                  <img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779100396/img-to-link/rqwxrpdymyzbhqd74eiy.webp" alt="Babloo" />
                 </div>
                 <div className="char-name">Babloo</div>
                 <div className="char-role">The Funny Wrong Guess</div>
