@@ -553,7 +553,7 @@ export default function ConceptPage() {
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'
         }}
-        className="h-screen flex flex-col overflow-hidden"
+        className="h-screen flex flex-col overflow-hidden md:!bg-none md:!bg-[#d7efff]"
       >
         <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
           {!isInReviewOrRevision && (
@@ -624,7 +624,14 @@ export default function ConceptPage() {
               </div>
             )}
 
-            <div className="mt-4 sm:mt-5 md:mt-6 flex flex-col items-center gap-2">
+            <div className="mt-4 sm:mt-5 md:mt-6 w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative z-10">
+              {shouldShowComic && (
+                <img 
+                  src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103895/img-to-link/prjwol57ayvxogrzua2z.png" 
+                  alt="Hoshi" 
+                  className="hidden md:block absolute bottom-0 right-4 lg:-right-4 w-[150px] lg:w-[200px] object-contain -z-10 pointer-events-none" 
+                />
+              )}
               {shouldShowComic ? (
                 <button
                   disabled={comicReadTimer > 0}
@@ -639,7 +646,7 @@ export default function ConceptPage() {
                       }
                     }
                   }}
-                  className={`px-5 py-3 sm:px-6 sm:py-3.5 rounded-lg sm:rounded-xl text-white font-semibold text-base sm:text-lg shadow-md transition-colors min-w-[200px] ${comicReadTimer > 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+                  className={`w-full py-3 sm:py-4 md:py-5 rounded-lg sm:rounded-xl text-white font-extrabold text-xl sm:text-base md:text-lg transition-colors shadow-lg sm:shadow-none ${comicReadTimer > 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
                 >
                   {comicReadTimer > 0 
                     ? `Wait ${comicReadTimer}s`
@@ -648,7 +655,7 @@ export default function ConceptPage() {
               ) : (
                 <button
                   onClick={() => setVideoAcknowledged(true)}
-                  className="px-5 py-3 sm:px-6 sm:py-3.5 rounded-lg sm:rounded-xl text-white font-semibold text-base sm:text-lg shadow-md transition-colors bg-blue-600 hover:bg-blue-700"
+                  className="w-full py-3 sm:py-4 md:py-5 rounded-lg sm:rounded-xl text-white font-extrabold text-xl sm:text-base md:text-lg transition-colors shadow-lg sm:shadow-none bg-blue-600 hover:bg-blue-700"
                 >
                   Start lesson
                 </button>
@@ -707,7 +714,7 @@ export default function ConceptPage() {
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       }}
-      className="fixed inset-0 flex flex-col overflow-hidden md:!bg-none md:!bg-white"
+      className="fixed inset-0 flex flex-col overflow-hidden md:!bg-none md:!bg-[#d7efff]"
     >
       {/* Header - reduced padding for mobile */}
       <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
@@ -743,7 +750,7 @@ export default function ConceptPage() {
       </div>
 
       {/* Main Content - stable height to prevent background moving */}
-      <div className={`flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 pb-40 sm:pb-32 md:pb-0 md:justify-start mt-4 md:mt-8 overflow-y-auto`} style={{ maxHeight: 'calc(100vh - 80px)' }}>
+      <div className={`flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 pb-40 sm:pb-32 md:pb-0 md:justify-start mt-2 md:mt-4 overflow-y-auto`} style={{ maxHeight: 'calc(100vh - 80px)' }}>
         {(itemVideoUrl || actualType === 'video') ? (
           <div className="flex-1 flex flex-col items-center justify-center p-4 w-full">
             <div 
@@ -784,11 +791,11 @@ export default function ConceptPage() {
           <>
             {/* Title and Text - mobile optimized, desktop unchanged */}
             {item.title && (
-              <h2 className="text-2xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-extrabold text-gray-900 text-center mt-2 sm:mt-6 md:mt-8 text-overflow-fix px-1 sm:px-2">
+              <h2 className="text-2xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-extrabold text-gray-900 text-center mt-2 sm:mt-4 md:mt-4 text-overflow-fix px-1 sm:px-2">
                 {item.title}
               </h2>
             )}
-            <div className="w-full max-w-2xl sm:max-w-3xl md:max-w-4xl mt-2 sm:mt-6 md:mt-8 lg:mt-10">
+            <div className="w-full max-w-2xl sm:max-w-3xl md:max-w-4xl mt-2 sm:mt-4 md:mt-4 lg:mt-6">
               <p
                 className="text-lg sm:text-base md:text-lg lg:text-xl xl:text-2xl font-extrabold text-gray-900 leading-relaxed whitespace-pre-wrap text-center text-overflow-fix px-1 sm:px-2"
                 dangerouslySetInnerHTML={{ __html: String(item.text || item.content || '') }}
@@ -817,7 +824,14 @@ export default function ConceptPage() {
       </div>
 
       <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white/40 backdrop-blur-sm border-t-2 border-white/20 sm:border-t-0 shadow-lg sm:shadow-none px-2 sm:px-3 md:px-6 py-3 sm:py-4 z-50 sm:z-auto">
-        <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto">
+        <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative z-10">
+          {shouldShowComic && (
+            <img 
+              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103895/img-to-link/prjwol57ayvxogrzua2z.png" 
+              alt="Hoshi" 
+              className="block absolute bottom-0 right-2 sm:right-6 md:right-12 lg:right-24 w-[180px] sm:w-[120px] md:w-[150px] lg:w-[200px] object-contain -z-10 pointer-events-none" 
+            />
+          )}
           <button
             onClick={() => {
               if (shouldShowComic) {
