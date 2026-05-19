@@ -882,7 +882,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       }}
-      className="fixed inset-0 flex flex-col overflow-hidden md:!bg-none md:!bg-white"
+      className="fixed inset-0 flex flex-col overflow-hidden md:!bg-none md:!bg-[#f1eafc]"
     >
       {/* Header - reduced padding for mobile */}
       <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
@@ -917,8 +917,8 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       </div>
 
       {/* Main Content - mobile optimized, desktop unchanged */}
-      <div className="flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 overflow-y-auto md:overflow-y-auto pb-24 md:pb-0 md:justify-start mt-4 md:mt-8">
-        <h2 className="text-xl sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-extrabold text-gray-900 text-center mt-2 sm:mt-6 md:mt-8 mb-2 sm:mb-3 md:mb-4 text-overflow-fix px-1 sm:px-2">
+      <div className="flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 overflow-y-auto md:overflow-y-auto pb-24 md:pb-0 md:justify-start mt-2 md:mt-4">
+        <h2 className="text-xl sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-extrabold text-gray-900 text-center mt-2 sm:mt-4 md:mt-4 mb-2 sm:mb-3 md:mb-4 text-overflow-fix px-1 sm:px-2">
           {item.question}
         </h2>
 
@@ -1024,7 +1024,12 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       {/* Bottom Action Bar - Unified for stability */}
       <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white/40 backdrop-blur-sm border-t-2 border-white/20 shadow-lg sm:shadow-none px-2 sm:px-3 md:px-6 py-2 sm:py-3 z-50 sm:z-auto">
         {!showResult ? (
-          <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto">
+          <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative z-10">
+            <img 
+              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103893/img-to-link/j6qbsf6b9y4zdkeymjag.png" 
+              alt="Myra" 
+              className="hidden md:block absolute bottom-0 right-4 lg:right-8 w-[100px] lg:w-[130px] object-contain -z-10 pointer-events-none" 
+            />
             <button
               onClick={handleSubmit}
               disabled={selectedIndex === null}
@@ -1045,7 +1050,12 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         <div className={`fixed left-0 right-0 bottom-0 z-[100] animate-in slide-in-from-bottom duration-300 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.2)] ${
           isCorrect ? 'bg-[#d7ffb8]' : 'bg-[#1a2b3c]'
         }`}>
-          <div className="max-w-sm mx-auto px-6 py-4 flex flex-col gap-3">
+          <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto px-6 py-4 flex flex-col gap-3 relative z-10">
+            <img 
+              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103893/img-to-link/j6qbsf6b9y4zdkeymjag.png" 
+              alt="Myra" 
+              className="hidden md:block absolute bottom-0 right-4 lg:right-8 w-[100px] lg:w-[130px] object-contain -z-10 pointer-events-none" 
+            />
             <div className="flex items-center gap-4">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-inner ${
                 isCorrect ? 'bg-white text-[#58a700]' : 'bg-[#ff4b4b] text-white'
