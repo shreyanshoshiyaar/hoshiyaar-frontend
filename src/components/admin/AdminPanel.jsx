@@ -5,142 +5,71 @@ import BlogManager from './BlogManager';
 import SystemSettingsManager from './SystemSettingsManager';
 import UserAnalytics from './UserAnalytics';
 
-const BgField = ({ label, hint, value, onChange }) => (
-  <div>
-    <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">{label}</label>
-    {hint && <p className="text-[10px] text-gray-400 mb-2">{hint}</p>}
-    <div className="flex gap-2 items-center">
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="Paste image URL…"
-        className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 text-sm"
-      />
-      {value && (
-        <button onClick={() => onChange('')} className="text-red-400 hover:text-red-600 text-xl leading-none" title="Clear">×</button>
-      )}
-    </div>
-    {value && (
-      <div className="mt-2 rounded-lg overflow-hidden border border-gray-200 h-14 relative">
-        <img src={value} alt="preview" className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
-        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white/80 drop-shadow">Preview</span>
-      </div>
-    )}
-  </div>
-);
-
 const UnitEditRow = ({ unit, onUpdateUnit }) => {
   const [title, setTitle] = useState(unit.title || '');
-  // Mobile
   const [headerBgUrl, setHeaderBgUrl] = useState(unit.headerBgUrl || '');
   const [timelineBgUrl, setTimelineBgUrl] = useState(unit.timelineBgUrl || '');
-  // Desktop (independent)
-  const [desktopHeaderBgUrl, setDesktopHeaderBgUrl] = useState(unit.desktopHeaderBgUrl || '');
-  const [desktopTimelineBgUrl, setDesktopTimelineBgUrl] = useState(unit.desktopTimelineBgUrl || '');
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     setTitle(unit.title || '');
     setHeaderBgUrl(unit.headerBgUrl || '');
     setTimelineBgUrl(unit.timelineBgUrl || '');
-    setDesktopHeaderBgUrl(unit.desktopHeaderBgUrl || '');
-    setDesktopTimelineBgUrl(unit.desktopTimelineBgUrl || '');
   }, [unit]);
 
   const handleSave = async () => {
     try {
       setSaving(true);
-      await onUpdateUnit(unit._id, { title, headerBgUrl, timelineBgUrl, desktopHeaderBgUrl, desktopTimelineBgUrl });
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2500);
+      await onUpdateUnit(unit._id, { title, headerBgUrl, timelineBgUrl });
+      alert('Unit updated successfully!');
     } catch (err) {
       console.error(err);
-      alert('Failed to save unit.');
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div className="border border-indigo-100 rounded-xl p-5 bg-white shadow-sm mb-3 last:mb-0">
-      {/* Unit title + save button */}
-      <div className="flex items-center gap-3 mb-5">
-        <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 font-black text-sm shrink-0">U</span>
-        <div className="flex-1">
-          <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Unit Title</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 text-sm font-semibold"
-          />
-        </div>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className={`px-5 py-2.5 text-white text-sm font-bold rounded-lg shadow-sm focus:outline-none transition-all shrink-0 ${
-            saved ? 'bg-green-500' : 'bg-indigo-600 hover:bg-indigo-700'
-          } disabled:opacity-60`}
-        >
-          {saving ? 'Saving…' : saved ? '✓ Saved' : 'Save Unit'}
-        </button>
+    <div className="border border-gray-200 rounded-lg p-4 bg-gray-50 flex flex-col md:flex-row gap-4 items-end mb-3 last:mb-0">
+      <div className="flex-1">
+        <label className="block text-xs font-bold text-gray-600 mb-1">Unit Title</label>
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        />
       </div>
-
-      {/* Two-column: Mobile | Desktop */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-        {/* ── Mobile column ── */}
-        <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-base">📱</span>
-            <span className="text-xs font-black text-blue-700 uppercase tracking-wider">Mobile Backgrounds</span>
-          </div>
-          <div className="space-y-4">
-            <BgField
-              label="Header Card BG"
-              hint="Sticky unit header card on mobile. Leave blank for gradient."
-              value={headerBgUrl}
-              onChange={setHeaderBgUrl}
-            />
-            <BgField
-              label="Timeline Section BG"
-              hint="Full-bleed background behind the learning path on mobile."
-              value={timelineBgUrl}
-              onChange={setTimelineBgUrl}
-            />
-          </div>
-        </div>
-
-        {/* ── Desktop column ── */}
-        <div className="bg-purple-50/50 border border-purple-100 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-base">🖥️</span>
-            <span className="text-xs font-black text-purple-700 uppercase tracking-wider">Desktop Backgrounds</span>
-            <span className="text-[10px] text-gray-400 ml-1">(falls back to mobile if blank)</span>
-          </div>
-          <div className="space-y-4">
-            <BgField
-              label="Header Card BG"
-              hint="Sticky unit header card on desktop. Leave blank to reuse mobile image."
-              value={desktopHeaderBgUrl}
-              onChange={setDesktopHeaderBgUrl}
-            />
-            <BgField
-              label="Timeline Section BG"
-              hint="Full-bleed background behind the learning path on desktop."
-              value={desktopTimelineBgUrl}
-              onChange={setDesktopTimelineBgUrl}
-            />
-          </div>
-        </div>
-
+      <div className="flex-1">
+        <label className="block text-xs font-bold text-gray-600 mb-1">Header Background URL</label>
+        <input
+          type="text"
+          value={headerBgUrl}
+          onChange={(e) => setHeaderBgUrl(e.target.value)}
+          placeholder="e.g. Image URL or pattern"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        />
       </div>
+      <div className="flex-1">
+        <label className="block text-xs font-bold text-gray-600 mb-1">Timeline Background URL</label>
+        <input
+          type="text"
+          value={timelineBgUrl}
+          onChange={(e) => setTimelineBgUrl(e.target.value)}
+          placeholder="e.g. Image URL or pattern"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        />
+      </div>
+      <button
+        onClick={handleSave}
+        disabled={saving}
+        className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-md shadow focus:outline-none transition-colors"
+      >
+        {saving ? 'Saving...' : 'Save Unit'}
+      </button>
     </div>
   );
 };
-
 
 const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState('curriculum');

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import curriculumService from '../../services/curriculumService';
 import heroChar from '../../assets/images/heroChar.png'; // Fallback image
-import { useStars } from '../../context/StarsContext';
 
 const HexagonRankIcon = ({ rank }) => (
   <div className="relative w-12 h-12 flex items-center justify-center">
