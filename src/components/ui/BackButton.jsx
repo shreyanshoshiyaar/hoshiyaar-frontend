@@ -6,9 +6,9 @@ export default function BackButton({ className = '' }) {
   const goBack = () => {
     try {
       if (window.history.length > 1) navigate(-1);
-      else navigate('/learn');
+      else navigate(-1);
     } catch (_) {
-      navigate('/learn');
+      navigate(-1);
     }
   };
   return (

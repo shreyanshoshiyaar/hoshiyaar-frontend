@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import curriculumService from '../../services/curriculumService';
 import heroChar from '../../assets/images/heroChar.png'; // Fallback image
+import { useStars } from '../../context/StarsContext';
 
 const HexagonRankIcon = ({ rank }) => (
   <div className="relative w-12 h-12 flex items-center justify-center">
@@ -23,13 +24,21 @@ const HexagonRankIcon = ({ rank }) => (
 
 const MobileHome = ({
   user,
-  stars,
   weeklyStars,
   leaderboardData,
   onNavigateToPractice,
-  onNavigateToRanks
+  onNavigateToRanks,
 }) => {
+  const { stars, refresh } = useStars();
   const hasSchool = !!user?.school;
+
+  // Ensure stars data is refreshed when MobileHome mounts (e.g., after login or navigation)
+  React.useEffect(() => {
+    refresh();
+  }, []);
+  React.useEffect(() => {
+    if (user) refresh();
+  }, [user]);
   const userIndex = leaderboardData?.findIndex(d => d.username === user?.username || d.userId === user?._id);
   const myRank = userIndex !== -1 ? userIndex + 1 : '-';
   const myStreak = localStorage.getItem('daily_streak_count') || user?.streak || 0;

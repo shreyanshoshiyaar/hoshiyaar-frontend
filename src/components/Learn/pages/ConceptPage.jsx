@@ -598,7 +598,7 @@ export default function ConceptPage() {
                   {/* Zoom button on top right */}
                   <button
                     onClick={() => setIsZoomed(true)}
-                    className="absolute top-4 right-4 bg-white/90 backdrop-blur text-gray-800 p-2.5 rounded-lg shadow-md border border-gray-200 hover:bg-white transition-colors z-10"
+                    className="absolute top-4 right-4 md:top-3 md:right-3 w-12 h-12 md:w-10 md:h-10 bg-white/90 backdrop-blur flex items-center justify-center p-3 md:p-2.5 rounded-lg shadow-sm border border-gray-200 text-gray-700 hover:bg-white transition-all z-10"
                     title="Zoom In"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">

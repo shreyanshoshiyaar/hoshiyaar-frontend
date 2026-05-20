@@ -1,7 +1,7 @@
 import React from 'react';
 import heroChar from '../../assets/images/loading_char.png';
 
-export default function SimpleLoading({ text = "Loading" }) {
+export default function SimpleLoading({ text = "Loading adventure" }) {
   return (
     <>
       {/* Mobile Loading Screen (Branded) */}
