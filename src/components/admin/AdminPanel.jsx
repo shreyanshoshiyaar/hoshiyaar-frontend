@@ -3,74 +3,148 @@ import curriculumService from '../../services/curriculumService';
 import ContentEditor from './ContentEditor';
 import BlogManager from './BlogManager';
 import SystemSettingsManager from './SystemSettingsManager';
+import UserAnalytics from './UserAnalytics';
+
+const BgField = ({ label, hint, value, onChange }) => (
+  <div>
+    <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">{label}</label>
+    {hint && <p className="text-[10px] text-gray-400 mb-2">{hint}</p>}
+    <div className="flex gap-2 items-center">
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="Paste image URL…"
+        className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 text-sm"
+      />
+      {value && (
+        <button onClick={() => onChange('')} className="text-red-400 hover:text-red-600 text-xl leading-none" title="Clear">×</button>
+      )}
+    </div>
+    {value && (
+      <div className="mt-2 rounded-lg overflow-hidden border border-gray-200 h-14 relative">
+        <img src={value} alt="preview" className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
+        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white/80 drop-shadow">Preview</span>
+      </div>
+    )}
+  </div>
+);
 
 const UnitEditRow = ({ unit, onUpdateUnit }) => {
   const [title, setTitle] = useState(unit.title || '');
+  // Mobile
   const [headerBgUrl, setHeaderBgUrl] = useState(unit.headerBgUrl || '');
   const [timelineBgUrl, setTimelineBgUrl] = useState(unit.timelineBgUrl || '');
+  // Desktop (independent)
+  const [desktopHeaderBgUrl, setDesktopHeaderBgUrl] = useState(unit.desktopHeaderBgUrl || '');
+  const [desktopTimelineBgUrl, setDesktopTimelineBgUrl] = useState(unit.desktopTimelineBgUrl || '');
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     setTitle(unit.title || '');
     setHeaderBgUrl(unit.headerBgUrl || '');
     setTimelineBgUrl(unit.timelineBgUrl || '');
+    setDesktopHeaderBgUrl(unit.desktopHeaderBgUrl || '');
+    setDesktopTimelineBgUrl(unit.desktopTimelineBgUrl || '');
   }, [unit]);
 
   const handleSave = async () => {
     try {
       setSaving(true);
-      await onUpdateUnit(unit._id, { title, headerBgUrl, timelineBgUrl });
-      alert('Unit updated successfully!');
+      await onUpdateUnit(unit._id, { title, headerBgUrl, timelineBgUrl, desktopHeaderBgUrl, desktopTimelineBgUrl });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
     } catch (err) {
       console.error(err);
+      alert('Failed to save unit.');
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div className="border border-gray-200 rounded-lg p-4 bg-gray-50 flex flex-col md:flex-row gap-4 items-end mb-3 last:mb-0">
-      <div className="flex-1">
-        <label className="block text-xs font-bold text-gray-600 mb-1">Unit Title</label>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
-        />
+    <div className="border border-indigo-100 rounded-xl p-5 bg-white shadow-sm mb-3 last:mb-0">
+      {/* Unit title + save button */}
+      <div className="flex items-center gap-3 mb-5">
+        <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 font-black text-sm shrink-0">U</span>
+        <div className="flex-1">
+          <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Unit Title</label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 text-sm font-semibold"
+          />
+        </div>
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className={`px-5 py-2.5 text-white text-sm font-bold rounded-lg shadow-sm focus:outline-none transition-all shrink-0 ${
+            saved ? 'bg-green-500' : 'bg-indigo-600 hover:bg-indigo-700'
+          } disabled:opacity-60`}
+        >
+          {saving ? 'Saving…' : saved ? '✓ Saved' : 'Save Unit'}
+        </button>
       </div>
-      <div className="flex-1">
-        <label className="block text-xs font-bold text-gray-600 mb-1">Header Background URL</label>
-        <input
-          type="text"
-          value={headerBgUrl}
-          onChange={(e) => setHeaderBgUrl(e.target.value)}
-          placeholder="e.g. Image URL or pattern"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
-        />
+
+      {/* Two-column: Mobile | Desktop */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        {/* ── Mobile column ── */}
+        <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-base">📱</span>
+            <span className="text-xs font-black text-blue-700 uppercase tracking-wider">Mobile Backgrounds</span>
+          </div>
+          <div className="space-y-4">
+            <BgField
+              label="Header Card BG"
+              hint="Sticky unit header card on mobile. Leave blank for gradient."
+              value={headerBgUrl}
+              onChange={setHeaderBgUrl}
+            />
+            <BgField
+              label="Timeline Section BG"
+              hint="Full-bleed background behind the learning path on mobile."
+              value={timelineBgUrl}
+              onChange={setTimelineBgUrl}
+            />
+          </div>
+        </div>
+
+        {/* ── Desktop column ── */}
+        <div className="bg-purple-50/50 border border-purple-100 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-base">🖥️</span>
+            <span className="text-xs font-black text-purple-700 uppercase tracking-wider">Desktop Backgrounds</span>
+            <span className="text-[10px] text-gray-400 ml-1">(falls back to mobile if blank)</span>
+          </div>
+          <div className="space-y-4">
+            <BgField
+              label="Header Card BG"
+              hint="Sticky unit header card on desktop. Leave blank to reuse mobile image."
+              value={desktopHeaderBgUrl}
+              onChange={setDesktopHeaderBgUrl}
+            />
+            <BgField
+              label="Timeline Section BG"
+              hint="Full-bleed background behind the learning path on desktop."
+              value={desktopTimelineBgUrl}
+              onChange={setDesktopTimelineBgUrl}
+            />
+          </div>
+        </div>
+
       </div>
-      <div className="flex-1">
-        <label className="block text-xs font-bold text-gray-600 mb-1">Timeline Background URL</label>
-        <input
-          type="text"
-          value={timelineBgUrl}
-          onChange={(e) => setTimelineBgUrl(e.target.value)}
-          placeholder="e.g. Image URL or pattern"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
-        />
-      </div>
-      <button
-        onClick={handleSave}
-        disabled={saving}
-        className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-md shadow focus:outline-none transition-colors"
-      >
-        {saving ? 'Saving...' : 'Save Unit'}
-      </button>
     </div>
   );
 };
 
+
 const AdminPanel = () => {
+  const [activeTab, setActiveTab] = useState('curriculum');
+
   const [boards, setBoards] = useState([]);
   const [classes, setClasses] = useState([]);
   const [subjects, setSubjects] = useState([]);
@@ -262,156 +336,200 @@ const AdminPanel = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Admin Panel - Content Management</h1>
-        
-        {/* Global Settings Section */}
-        <SystemSettingsManager />
-
-        {/* Blog Management Section */}
-        <BlogManager />
-        
-        {error && (
-          <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-            {error}
+    <div className="min-h-screen bg-gray-50">
+      {/* ── Premium Tab Navigation Header ── */}
+      <div className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          {/* Panel Title */}
+          <div className="flex items-center justify-between py-4 border-b border-slate-100">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-sm">
+                <span className="text-white text-sm font-black">A</span>
+              </div>
+              <div>
+                <h1 className="text-base font-black text-slate-800 leading-tight">Hoshiyaar Admin</h1>
+                <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Control Center</p>
+              </div>
+            </div>
+            <div className="text-xs font-semibold text-slate-400 bg-slate-50 border border-slate-200 px-3 py-1 rounded-full">
+              Admin Mode
+            </div>
           </div>
-        )}
 
-        {/* Cascading Dropdowns */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Select Content Path</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            {/* Board Dropdown */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Board
-              </label>
-              <select
-                value={selectedBoard}
-                onChange={handleBoardChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                disabled={loading}
-              >
-                <option value="">Select Board</option>
-                {boards.map((board) => (
-                  <option key={board._id} value={board.name}>
-                    {board.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Class Dropdown */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Class
-              </label>
-              <select
-                value={selectedClass}
-                onChange={handleClassChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                disabled={!selectedBoard || loading}
-              >
-                <option value="">Select Class</option>
-                {classes.map((cls) => (
-                  <option key={cls._id} value={cls.name}>
-                    {cls.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Subject Dropdown */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Subject
-              </label>
-              <select
-                value={selectedSubject}
-                onChange={handleSubjectChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                disabled={!selectedBoard || !selectedClass || loading}
-              >
-                <option value="">Select Subject</option>
-                {subjects.map((subject) => (
-                  <option key={subject._id} value={subject.name}>
-                    {subject.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Chapter Dropdown */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Chapter
-              </label>
-              <select
-                value={selectedChapter}
-                onChange={handleChapterChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                disabled={!selectedBoard || !selectedSubject || loading}
-              >
-                <option value="">Select Chapter</option>
-                {chapters.map((chapter) => (
-                  <option key={chapter._id} value={chapter._id}>
-                    {chapter.title}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Module Dropdown */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Module
-              </label>
-              <select
-                value={selectedModule}
-                onChange={handleModuleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                disabled={!selectedChapter || loading}
-              >
-                <option value="">Select Module</option>
-                {modules.map((module) => (
-                  <option key={module._id} value={module._id}>
-                    {module.title}
-                  </option>
-                ))}
-              </select>
-            </div>
+          {/* Tab Bar */}
+          <div className="flex gap-1 pt-1">
+            <button
+              id="admin-tab-curriculum"
+              onClick={() => setActiveTab('curriculum')}
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 transition-all duration-200 focus:outline-none ${
+                activeTab === 'curriculum'
+                  ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
+                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
+              }`}
+            >
+              <span className="text-base">📚</span>
+              <span>Content Management</span>
+            </button>
+            <button
+              id="admin-tab-analytics"
+              onClick={() => setActiveTab('analytics')}
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 transition-all duration-200 focus:outline-none ${
+                activeTab === 'analytics'
+                  ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
+                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
+              }`}
+            >
+              <span className="text-base">📊</span>
+              <span>User Analytics &amp; Tracking</span>
+            </button>
           </div>
         </div>
+      </div>
 
-        {/* Unit Management section when chapter is selected */}
-        {selectedChapter && units.length > 0 && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Unit Image & Background Settings</h2>
-            <div className="grid grid-cols-1 gap-4">
-              {units.map((unit) => {
-                return <UnitEditRow key={unit._id} unit={unit} onUpdateUnit={handleUpdateUnit} />;
-              })}
+      {/* ── Tab Panel: Content Management ── */}
+      {activeTab === 'curriculum' && (
+        <div className="max-w-7xl mx-auto py-8 px-4">
+          {/* Global Settings Section */}
+          <SystemSettingsManager />
+
+          {/* Blog Management Section */}
+          <BlogManager />
+
+          {error && (
+            <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-xl text-sm font-medium">
+              {error}
+            </div>
+          )}
+
+          {/* Cascading Dropdowns */}
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Select Content Path</h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              {/* Board Dropdown */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Board</label>
+                <select
+                  value={selectedBoard}
+                  onChange={handleBoardChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  disabled={loading}
+                >
+                  <option value="">Select Board</option>
+                  {boards.map((board) => (
+                    <option key={board._id} value={board.name}>{board.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Class Dropdown */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Class</label>
+                <select
+                  value={selectedClass}
+                  onChange={handleClassChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  disabled={!selectedBoard || loading}
+                >
+                  <option value="">Select Class</option>
+                  {classes.map((cls) => (
+                    <option key={cls._id} value={cls.name}>{cls.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Subject Dropdown */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
+                <select
+                  value={selectedSubject}
+                  onChange={handleSubjectChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  disabled={!selectedBoard || !selectedClass || loading}
+                >
+                  <option value="">Select Subject</option>
+                  {subjects.map((subject) => (
+                    <option key={subject._id} value={subject.name}>{subject.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Chapter Dropdown */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Chapter</label>
+                <select
+                  value={selectedChapter}
+                  onChange={handleChapterChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  disabled={!selectedBoard || !selectedSubject || loading}
+                >
+                  <option value="">Select Chapter</option>
+                  {chapters.map((chapter) => (
+                    <option key={chapter._id} value={chapter._id}>{chapter.title}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Module Dropdown */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Module</label>
+                <select
+                  value={selectedModule}
+                  onChange={handleModuleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  disabled={!selectedChapter || loading}
+                >
+                  <option value="">Select Module</option>
+                  {modules.map((module) => (
+                    <option key={module._id} value={module._id}>{module.title}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
-        )}
 
-        {/* Content Editor */}
-        {selectedModule && (
-          <ContentEditor
-            moduleId={selectedModule}
-            moduleTitle={modules.find(m => m._id === selectedModule)?.title || ''}
-            boardTitle={selectedBoard}
-            classTitle={selectedClass}
-            subjectTitle={selectedSubject}
-            chapterId={selectedChapter}
-            chapterTitle={chapters.find(c => c._id === selectedChapter)?.title || ''}
-          />
-        )}
-      </div>
+          {/* Unit Management section when chapter is selected */}
+          {selectedChapter && units.length > 0 && (
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-6">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">Unit Image &amp; Background Settings</h2>
+              <div className="grid grid-cols-1 gap-4">
+                {units.map((unit) => (
+                  <UnitEditRow key={unit._id} unit={unit} onUpdateUnit={handleUpdateUnit} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Content Editor */}
+          {selectedModule && (
+            <ContentEditor
+              moduleId={selectedModule}
+              moduleTitle={modules.find(m => m._id === selectedModule)?.title || ''}
+              boardTitle={selectedBoard}
+              classTitle={selectedClass}
+              subjectTitle={selectedSubject}
+              chapterId={selectedChapter}
+              chapterTitle={chapters.find(c => c._id === selectedChapter)?.title || ''}
+            />
+          )}
+        </div>
+      )}
+
+      {/* ── Tab Panel: User Analytics & Tracking ── */}
+      {activeTab === 'analytics' && (
+        <div className="max-w-7xl mx-auto py-8 px-4">
+          <div className="mb-6">
+            <h2 className="text-2xl font-black text-slate-800">User Analytics &amp; Tracking</h2>
+            <p className="text-sm text-slate-500 font-medium mt-1">
+              Comprehensive student progress, active session durations, accuracy rates, and engagement metrics across all users.
+            </p>
+          </div>
+          <UserAnalytics />
+        </div>
+      )}
     </div>
   );
 };
 
 export default AdminPanel;
+

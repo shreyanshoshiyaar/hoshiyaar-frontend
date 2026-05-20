@@ -2441,10 +2441,11 @@ const LearnDashboard = ({ onboardingData }) => {
                               return (
                                 <div
                                   key={u._id || unitIdx}
-                                  className={`relative ${isMobileLayout ? 'pb-10' : 'pb-28'} ${ (u.timelineBgUrl && isMobileLayout) ? 'pt-8 -mx-1 md:-mx-3 px-4 md:px-6 -mb-1 md:-mb-3' : (isMobileLayout ? 'pt-0' : 'pt-12')}`}
-                                  style={(u.timelineBgUrl && isMobileLayout) ? {
-                                    background: `url(${u.timelineBgUrl}) center/cover no-repeat`
-                                  } : {}}
+                                  className={`relative ${isMobileLayout ? 'pb-10' : 'pb-28'} ${ (isMobileLayout ? u.timelineBgUrl : (u.desktopTimelineBgUrl || u.timelineBgUrl)) ? 'pt-8 -mx-1 md:-mx-3 px-4 md:px-6 -mb-1 md:-mb-3' : (isMobileLayout ? 'pt-0' : 'pt-12')}`}
+                                  style={(() => {
+                                    const bgUrl = isMobileLayout ? u.timelineBgUrl : (u.desktopTimelineBgUrl || u.timelineBgUrl);
+                                    return bgUrl ? { background: `url(${bgUrl}) center/cover no-repeat` } : {};
+                                  })()}
                                   data-chapter-id={chapterId}
                                   data-unit-id={String(u._id)}
                                 >
@@ -2502,10 +2503,20 @@ const LearnDashboard = ({ onboardingData }) => {
                                         </div>
                                       ) : (
                                         <div className="sticky top-0 z-[100] text-white px-6 py-5 rounded-3xl flex justify-between items-center mb-8 shadow-[0_10px_0_0_rgba(0,0,0,0.15)] w-full border-4 backdrop-blur-md"
-                                          style={{ 
-                                            background: !isMobileLayout ? `linear-gradient(90deg, ${gradFrom}, ${gradTo})` : (u.headerBgUrl ? `url(${u.headerBgUrl}) center/cover no-repeat` : (u.timelineBgUrl ? `rgba(255, 255, 255, 0.12)` : `linear-gradient(135deg, ${gradFrom}, ${gradTo})`)), 
-                                            borderColor: withAlpha(color, 0.25) 
-                                          }}>
+                                          style={(() => {
+                                            const headerBg = isMobileLayout
+                                              ? u.headerBgUrl
+                                              : (u.desktopHeaderBgUrl || u.headerBgUrl);
+                                            const timelineBg = isMobileLayout
+                                              ? u.timelineBgUrl
+                                              : (u.desktopTimelineBgUrl || u.timelineBgUrl);
+                                            return {
+                                              background: headerBg
+                                                ? `url(${headerBg}) center/cover no-repeat`
+                                                : (timelineBg ? `rgba(255, 255, 255, 0.12)` : `linear-gradient(90deg, ${gradFrom}, ${gradTo})`),
+                                              borderColor: withAlpha(color, 0.25)
+                                            };
+                                          })()}>
                                           <div>
                                             <p className="font-extrabold text-base md:text-lg">
                                               {(u.title && u.title.toLowerCase() !== 'unit') ? u.title : `Unit ${unitIdx + 1}`}

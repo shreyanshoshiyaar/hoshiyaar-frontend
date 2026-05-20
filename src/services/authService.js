@@ -123,6 +123,9 @@ const createBlog = (data, opts) => api.post('/api/blogs', data, opts);
 const updateBlog = (id, data, opts) => api.put(`/api/blogs/${id}`, data, opts);
 const deleteBlog = (id, opts) => api.delete(`/api/blogs/${id}`, opts);
 
+// Admin User Analytics
+const getUsersAnalytics = (opts) => api.get('/api/admin/users-analytics', opts);
+
 // Export the functions
 const authService = {
   register,
@@ -146,6 +149,7 @@ const authService = {
   createBlog,
   updateBlog,
   deleteBlog,
+  getUsersAnalytics,
   deleteAccount: (userId, opts) => api.delete(`/api/auth/user/${userId}`, opts),
 };
 

@@ -192,7 +192,7 @@ const LessonComplete = () => {
             onClick={handleContinue} 
             className="w-full py-5 rounded-[2rem] bg-blue-600 text-white font-black text-xl hover:bg-blue-700 transition-all hover:scale-105 active:scale-95 shadow-[0_8px_0_0_#1D4ED8] hover:shadow-[0_10px_0_0_#1D4ED8]"
           >
-            CONTINUE LEARNING
+            {scores.last && Number(scores.last) > 0 ? 'CONTINUE LEARNING' : 'START LEARNING'}
           </button>
         </div>
       </div>
