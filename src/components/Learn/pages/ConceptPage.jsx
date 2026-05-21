@@ -546,7 +546,15 @@ export default function ConceptPage() {
 
   if ((shouldShowVideo || shouldShowComic) && !isMobile) {
     return (
-      <div className="h-screen flex flex-col overflow-hidden bg-[#d7efff]">
+      <div 
+        style={{ 
+          backgroundImage: `url("${bgImage}")`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+        className="h-screen flex flex-col overflow-hidden md:!bg-none md:!bg-[#d7efff]"
+      >
         <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
           {!isInReviewOrRevision && (
             <button
@@ -617,11 +625,13 @@ export default function ConceptPage() {
             )}
 
             <div className="mt-4 sm:mt-5 md:mt-6 w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative z-10">
-              <img 
-                src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103895/img-to-link/prjwol57ayvxogrzua2z.png" 
-                alt="Hoshi" 
-                className="block absolute bottom-[40px] md:bottom-0 right-4 lg:-right-4 w-[210px] md:w-[240px] lg:w-[300px] object-contain -z-10 pointer-events-none" 
-              />
+              {shouldShowComic && (
+                <img 
+                  src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103895/img-to-link/prjwol57ayvxogrzua2z.png" 
+                  alt="Hoshi" 
+                  className="hidden md:block absolute bottom-0 right-4 lg:-right-4 w-[150px] lg:w-[200px] object-contain -z-10 pointer-events-none" 
+                />
+              )}
               {shouldShowComic ? (
                 <button
                   disabled={comicReadTimer > 0}
@@ -697,7 +707,15 @@ export default function ConceptPage() {
 
 
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden bg-[#d7efff]">
+    <div 
+      style={{ 
+        backgroundImage: `url("${bgImage}")`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+      className="fixed inset-0 flex flex-col overflow-hidden md:!bg-none md:!bg-[#d7efff]"
+    >
       {/* Header - reduced padding for mobile */}
       <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
         {!isInReviewOrRevision && (
@@ -791,7 +809,7 @@ export default function ConceptPage() {
                   <div className="flex flex-wrap justify-center gap-1 sm:gap-3 md:gap-5">
                     {((item.images && item.images.filter(Boolean)) || (item.imageUrl ? [item.imageUrl] : [])).slice(0, 5).map((src, i) => (
                       <div key={i} className="border border-blue-300 rounded-lg sm:rounded-2xl p-1 sm:p-3 bg-white shadow-sm">
-                        <img src={src} alt={'concept-' + i} className="h-32 sm:h-40 md:h-48 lg:h-56 w-auto max-w-full object-contain rounded-md sm:rounded-xl" />
+                        <img src={src} alt={'concept-' + i} className="h-40 w-32 sm:h-32 sm:w-24 md:h-24 md:w-20 lg:h-32 lg:w-24 xl:h-40 xl:w-32 object-contain rounded-md sm:rounded-xl" />
                       </div>
                     ))}
                   </div>
@@ -807,11 +825,13 @@ export default function ConceptPage() {
 
       <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white/40 backdrop-blur-sm border-t-2 border-white/20 sm:border-t-0 shadow-lg sm:shadow-none px-2 sm:px-3 md:px-6 py-3 sm:py-4 z-50 sm:z-auto">
         <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative z-10">
+          {shouldShowComic && (
             <img 
               src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103895/img-to-link/prjwol57ayvxogrzua2z.png" 
               alt="Hoshi" 
-              className="block absolute bottom-[40px] sm:bottom-0 right-2 sm:right-6 md:right-12 lg:right-24 w-[210px] sm:w-[225px] md:w-[240px] lg:w-[300px] object-contain -z-10 pointer-events-none" 
+              className="block absolute bottom-0 right-2 sm:right-6 md:right-12 lg:right-24 w-[180px] sm:w-[120px] md:w-[150px] lg:w-[200px] object-contain -z-10 pointer-events-none" 
             />
+          )}
           <button
             onClick={() => {
               if (shouldShowComic) {
