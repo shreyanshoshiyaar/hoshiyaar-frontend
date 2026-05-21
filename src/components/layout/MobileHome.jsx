@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import curriculumService from '../../services/curriculumService';
+import { useStars } from '../../context/StarsContext.jsx';
 import heroChar from '../../assets/images/heroChar.png'; // Fallback image
 
 const HexagonRankIcon = ({ rank }) => (
