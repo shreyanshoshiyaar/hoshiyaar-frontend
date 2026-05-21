@@ -128,7 +128,13 @@ const MobileHome = ({
             <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center text-[14px] drop-shadow-sm">⭐</div>
             <div className="flex flex-col">
               <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Stars</span>
-              <span className="text-[17px] font-black text-gray-800 leading-none">{stars}</span>
+              <span className="text-[17px] font-black text-gray-800 leading-none">
+                {stars === null ? (
+                  <span className="animate-pulse">...</span>
+                ) : (
+                  stars
+                )}
+              </span>
             </div>
           </div>
 
