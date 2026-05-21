@@ -62,7 +62,8 @@ const ContentEditor = ({
           if (mAnswers.length === 0 && item.text) {
             mAnswers.push(item.text); // Backwards compatibility
           }
-          return { ...item, modelAnswers: mAnswers };
+          const questionText = item.question || item.text || '';
+          return { ...item, modelAnswers: mAnswers, question: questionText };
         }
         return item;
       });

@@ -13,6 +13,9 @@ import Lottie from "lottie-react";
 import MobileHome from "../../layout/MobileHome.jsx";
 import BottomNavigation from "../../layout/BottomNavigation.jsx";
 import MobileLeaderboard from "../../layout/MobileLeaderboard.jsx";
+import DesktopHomeDashboard from "../../layout/DesktopHomeDashboard.jsx";
+import DesktopLeaderboard from "../../layout/DesktopLeaderboard.jsx";
+import DesktopMore from "../../layout/DesktopMore.jsx";
 import MobileMore from "../../layout/MobileMore.jsx";
 const DASHBOARD_VERSION = "V5.1-FREQ-3";
 
@@ -100,6 +103,40 @@ const PencilIcon = React.memo(() => (
 const ChapterNavIcon = React.memo(() => (
   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
     <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path>
+  </svg>
+));
+
+const NavHomeIcon = React.memo(({ active }) => (
+  <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+    <polyline points="9 22 9 12 15 12 15 22" />
+  </svg>
+));
+
+const NavPracticeIcon = React.memo(({ active }) => (
+  <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <circle cx="12" cy="12" r="6" />
+    <circle cx="12" cy="12" r="2" />
+  </svg>
+));
+
+const NavRanksIcon = React.memo(({ active }) => (
+  <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+    <path d="M4 22h16" />
+    <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+    <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+    <rect x="6" y="4" width="12" height="10" rx="2" />
+  </svg>
+));
+
+const NavMoreIcon = React.memo(({ active }) => (
+  <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="3" y1="12" x2="21" y2="12" />
+    <line x1="3" y1="6" x2="21" y2="6" />
+    <line x1="3" y1="18" x2="21" y2="18" />
   </svg>
 ));
 
@@ -1920,7 +1957,7 @@ const LearnDashboard = ({ onboardingData }) => {
         </nav>
 
         {/* Desktop Sidebar */}
-        <nav className="hidden md:flex md:w-64 p-6 space-y-4 border-r border-blue-200 flex-col justify-start shrink-0 bg-white shadow-lg">
+        <nav className="hidden md:flex md:w-64 p-6 space-y-4 border-r border-blue-200 flex-col justify-start shrink-0 bg-white shadow-lg z-10">
           <div className="mb-6">
             <img 
               src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778743597/img-to-link/bihseec7aigbmau4amnd.png" 
@@ -1930,102 +1967,127 @@ const LearnDashboard = ({ onboardingData }) => {
           </div>
           <a
             href="#"
-            className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors bg-blue-500 text-white shadow-md`}
+            onClick={(e) => {
+              e.preventDefault();
+              setActiveTab('home');
+            }}
+            className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors ${activeTab === 'home' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
           >
-            <LearnIcon />
-            <span>Learn</span>
+            <NavHomeIcon active={activeTab === 'home'} />
+            <span>Home</span>
           </a>
           <a
             href="#"
             onClick={(e) => {
               e.preventDefault();
-              navigate("/revision");
+              setActiveTab('practice');
             }}
-            className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors text-gray-600 hover:bg-blue-50`}
+            className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors ${activeTab === 'practice' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
           >
-            <ReviseIcon />
-            <span>Revision</span>
+            <NavPracticeIcon active={activeTab === 'practice'} />
+            <span>Practice</span>
           </a>
           <a
             href="#"
             onClick={(e) => {
               e.preventDefault();
-              navigate("/profile");
+              setActiveTab('ranks');
             }}
-            className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors text-gray-600 hover:bg-blue-50`}
+            className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors ${activeTab === 'ranks' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
           >
-            <ProfileIcon />
-            <span>Profile</span>
+            <NavRanksIcon active={activeTab === 'ranks'} />
+            <span>Ranks</span>
           </a>
-          <div className="mt-auto pt-6 border-t border-blue-100 w-full space-y-1">
-            <a
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                handleLogout();
-              }}
-              className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors text-red-600 hover:bg-red-50`}
-            >
-              <LogoutIcon />
-              <span>Logout</span>
-            </a>
-            <a
-              href="#"
-              onClick={async (e) => {
-                e.preventDefault();
-                if (window.confirm('WARNING: Are you sure you want to PERMANENTLY DELETE your account? This action cannot be undone and all your progress will be lost.')) {
-                  try {
-                    const { default: authSvc } = await import('../../../services/authService.js');
-                    await authSvc.deleteAccount(user._id);
-                    handleLogout();
-                  } catch (err) {
-                    alert('Failed to delete account. Please try again.');
-                  }
-                }
-              }}
-              className="block py-2 px-4 text-[10px] font-black uppercase tracking-widest text-red-400/40 hover:text-red-500 transition-colors text-center"
-            >
-              Delete Account
-            </a>
-          </div>
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              setActiveTab('more');
+            }}
+            className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors ${activeTab === 'more' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
+          >
+            <NavMoreIcon active={activeTab === 'more'} />
+            <span>More</span>
+          </a>
         </nav>
 
-        {isMobileLayout && activeTab === 'home' ? (
-          <MobileHome 
-            user={user} 
-            stars={stars} 
-            weeklyStars={weeklyStars} 
-            leaderboardData={weeklyLeaderboardData} 
-            onNavigateToPractice={() => setActiveTab('practice')} 
-            onNavigateToRanks={() => setActiveTab('ranks')}
-          />
-        ) : isMobileLayout && activeTab === 'ranks' ? (
-          <MobileLeaderboard 
-            user={user}
-            leaderboardData={leaderboardData}
-            leaderboardLoading={leaderboardLoading}
-            leaderboardTimeframe={leaderboardTimeframe}
-            setLeaderboardTimeframe={setLeaderboardTimeframe}
-            leaderboardScope={leaderboardScope}
-            setLeaderboardScope={setLeaderboardScope}
-            isChangingSchool={isChangingSchool}
-            setIsChangingSchool={setIsChangingSchool}
-            leaderboardSchool={leaderboardSchool}
-            setLeaderboardSchool={setLeaderboardSchool}
-            handleLeaderboardSearch={handleLeaderboardSearch}
-            schoolSuggestions={schoolSuggestions}
-            showSuggestions={showSuggestions}
-            setShowSuggestions={setShowSuggestions}
-            isManualSchoolInput={isManualSchoolInput}
-            setIsManualSchoolInput={setIsManualSchoolInput}
-            fetchLeaderboard={fetchLeaderboard}
-            stars={stars}
-            weeklyStars={weeklyStars}
-            streak={streak}
-            onNavigateToPractice={() => setActiveTab('practice')}
-          />
-        ) : isMobileLayout && activeTab === 'more' ? (
-          <MobileMore stars={stars} weeklyStars={weeklyStars} />
+        {activeTab === 'home' ? (
+          isMobileLayout ? (
+            <MobileHome 
+              user={user} 
+              stars={stars} 
+              weeklyStars={weeklyStars} 
+              leaderboardData={weeklyLeaderboardData} 
+              onNavigateToPractice={() => setActiveTab('practice')} 
+              onNavigateToRanks={() => setActiveTab('ranks')}
+            />
+          ) : (
+            <DesktopHomeDashboard 
+              user={user} 
+              weeklyStars={weeklyStars} 
+              leaderboardData={weeklyLeaderboardData} 
+              onNavigateToPractice={() => setActiveTab('practice')} 
+              onNavigateToRanks={() => setActiveTab('ranks')}
+            />
+          )
+        ) : activeTab === 'ranks' ? (
+          isMobileLayout ? (
+            <MobileLeaderboard 
+              user={user}
+              leaderboardData={leaderboardData}
+              leaderboardLoading={leaderboardLoading}
+              leaderboardTimeframe={leaderboardTimeframe}
+              setLeaderboardTimeframe={setLeaderboardTimeframe}
+              leaderboardScope={leaderboardScope}
+              setLeaderboardScope={setLeaderboardScope}
+              isChangingSchool={isChangingSchool}
+              setIsChangingSchool={setIsChangingSchool}
+              leaderboardSchool={leaderboardSchool}
+              setLeaderboardSchool={setLeaderboardSchool}
+              handleLeaderboardSearch={handleLeaderboardSearch}
+              schoolSuggestions={schoolSuggestions}
+              showSuggestions={showSuggestions}
+              setShowSuggestions={setShowSuggestions}
+              isManualSchoolInput={isManualSchoolInput}
+              setIsManualSchoolInput={setIsManualSchoolInput}
+              fetchLeaderboard={fetchLeaderboard}
+              stars={stars}
+              weeklyStars={weeklyStars}
+              streak={streak}
+              onNavigateToPractice={() => setActiveTab('practice')}
+            />
+          ) : (
+            <DesktopLeaderboard 
+              user={user}
+              leaderboardData={leaderboardData}
+              leaderboardLoading={leaderboardLoading}
+              leaderboardTimeframe={leaderboardTimeframe}
+              setLeaderboardTimeframe={setLeaderboardTimeframe}
+              leaderboardScope={leaderboardScope}
+              setLeaderboardScope={setLeaderboardScope}
+              isChangingSchool={isChangingSchool}
+              setIsChangingSchool={setIsChangingSchool}
+              leaderboardSchool={leaderboardSchool}
+              setLeaderboardSchool={setLeaderboardSchool}
+              handleLeaderboardSearch={handleLeaderboardSearch}
+              schoolSuggestions={schoolSuggestions}
+              showSuggestions={showSuggestions}
+              setShowSuggestions={setShowSuggestions}
+              isManualSchoolInput={isManualSchoolInput}
+              setIsManualSchoolInput={setIsManualSchoolInput}
+              fetchLeaderboard={fetchLeaderboard}
+              stars={stars}
+              weeklyStars={weeklyStars}
+              streak={streak}
+              onNavigateToPractice={() => setActiveTab('practice')}
+            />
+          )
+        ) : activeTab === 'more' ? (
+          isMobileLayout ? (
+            <MobileMore stars={stars} weeklyStars={weeklyStars} />
+          ) : (
+            <DesktopMore stars={stars} weeklyStars={weeklyStars} />
+          )
         ) : (
           <>
             <main className={`flex-grow ${isMobileLayout ? 'p-0' : 'p-3'} overflow-y-auto no-scrollbar bg-transparent ${isMobileLayout ? 'mt-0 overflow-x-hidden pb-10' : 'mt-16 md:mt-0 overflow-x-visible'}`}>

@@ -385,8 +385,7 @@ export default function DescriptivePage() {
           <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-gray-900 text-center mb-6">
             {item.question}
           </h2>
-
-          {item.imageUrl && (
+          {item.imageUrl && (!item.images || item.images.length === 0) && (
             <div className="w-full flex justify-center mb-6">
               <img src={item.imageUrl} alt="Question Diagram" className="max-w-full w-auto max-h-64 rounded-xl shadow-sm border border-gray-200 object-contain bg-white" />
             </div>
@@ -399,7 +398,6 @@ export default function DescriptivePage() {
               ))}
             </div>
           )}
-
           <div className="w-full space-y-4">
             <textarea
               value={userInput}
@@ -418,11 +416,8 @@ export default function DescriptivePage() {
               }`}
             />
 
-            {!showResult ? (
-              <div className="sm:hidden"> {/* Mobile only spacer if needed */}
-              </div>
-            ) : (
-              <div className="space-y-6 animate-fade-in">
+            {showResult && (
+              <div className="space-y-6 animate-fade-in mt-6">
                 <div className={`p-6 rounded-2xl border-2 shadow-sm ${
                   scoreData?.status === 'perfect' ? 'bg-green-50 border-green-300' :
                   scoreData?.status.startsWith('partial') ? 'bg-yellow-50 border-yellow-300' :
@@ -521,6 +516,28 @@ export default function DescriptivePage() {
             )}
           </div>
         </div>
+        
+        {/* Bottom padding - mobile only for fixed button */}
+        <div className="h-24 sm:h-0"></div>
+      </div>
+
+      {/* Bottom Action Bar */}
+      <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white/40 backdrop-blur-sm border-t-2 border-white/20 sm:border-t-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] sm:shadow-none px-4 sm:px-3 md:px-6 py-3 sm:py-3 z-50 sm:z-auto">
+        {!showResult ? (
+          <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative z-10">
+            <button
+              onClick={handleSubmit}
+              disabled={!userInput.trim()}
+              className={`w-full py-3.5 rounded-xl text-white font-extrabold text-xl shadow-lg transition-all uppercase tracking-wide ${
+                userInput.trim() ? 'bg-blue-600 hover:bg-blue-700 active:scale-[0.98] cursor-pointer' : 'bg-gray-400 cursor-not-allowed opacity-80'
+              }`}
+            >
+              Submit Answer
+            </button>
+          </div>
+        ) : (
+          <div className="h-[60px] sm:h-0"></div>
+        )}
       </div>
 
       {showIncorrectModal && (
