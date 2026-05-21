@@ -14,46 +14,12 @@ const STORAGE_PER_MODULE_KEY = 'hs_stars_per_module_v1';
 const STORAGE_PER_QUESTION_KEY = 'hs_stars_per_question_v1';
 
 export const StarsProvider = ({ children }) => {
-  const getUserIdSync = () => {
-    try {
-      const raw = localStorage.getItem('user');
-      const parsed = raw ? JSON.parse(raw) : null;
-      return parsed?._id || null;
-    } catch (_) { return null; }
-  };
-
-  const getScopedKeySync = (base) => {
-    const uid = getUserIdSync();
-    return uid ? `${base}__${uid}` : base;
-  };
-
-  const [stars, setStars] = useState(() => {
-    try {
-      const val = Number(localStorage.getItem(getScopedKeySync(STORAGE_KEY)));
-      return Number.isFinite(val) ? val : 0;
-    } catch { return 0; }
-  });
+  const [stars, setStars] = useState(0);
   const [delta, setDelta] = useState(0); // for +5 / -2 flyout
-  const [moduleStars, setModuleStars] = useState(() => {
-    try {
-      const val = localStorage.getItem(getScopedKeySync(STORAGE_PER_MODULE_KEY));
-      return val ? JSON.parse(val) : {};
-    } catch { return {}; }
-  });
-  const [questionLedger, setQuestionLedger] = useState(() => {
-    try {
-      const val = localStorage.getItem(getScopedKeySync(STORAGE_PER_QUESTION_KEY));
-      return val ? JSON.parse(val) : {};
-    } catch { return {}; }
-  });
+  const [moduleStars, setModuleStars] = useState({});
+  const [questionLedger, setQuestionLedger] = useState({});
   const [sessionQuestionIds, setSessionQuestionIds] = useState([]);
-  const [isSyncing, setIsSyncing] = useState(true);
   const timerRef = useRef(null);
-
-  useEffect(() => {
-    const t = setTimeout(() => setIsSyncing(false), 3000);
-    return () => clearTimeout(t);
-  }, []);
 
   const getUserId = useCallback(() => {
     try {
@@ -249,12 +215,10 @@ export const StarsProvider = ({ children }) => {
         setModuleStars(serverModuleStars);
       }
     }
-    setIsSyncing(false);
   };
 
   const value = useMemo(() => ({ 
     stars, 
-    isSyncing,
     addStars, 
     setTotal, 
     delta, 
@@ -268,14 +232,14 @@ export const StarsProvider = ({ children }) => {
     clearSession,
     addToSession,
     refresh: reloadFromStorage
-  }), [stars, isSyncing, delta, moduleStars, questionLedger, sessionQuestionIds, reloadFromStorage]);
+  }), [stars, delta, moduleStars, questionLedger, sessionQuestionIds, reloadFromStorage]);
 
   return <StarsContext.Provider value={value}>{children}</StarsContext.Provider>;
 };
 
 
 export const StarCounter = () => {
-  const { stars, delta, isSyncing } = useStars();
+  const { stars, delta } = useStars();
   return (
     <div className="relative flex items-center gap-1 sm:gap-2 text-gray-800 select-none">
       <svg
@@ -293,7 +257,7 @@ export const StarCounter = () => {
           strokeWidth="0.8"
         />
       </svg>
-      <span className="font-extrabold text-sm sm:text-base tabular-nums">{isSyncing ? "..." : stars}</span>
+      <span className="font-extrabold text-sm sm:text-base tabular-nums">{stars}</span>
       {delta !== 0 && (
         <span
           className={`absolute -top-3 left-4 text-xs sm:text-sm font-bold transition-all duration-700 ease-out ${
