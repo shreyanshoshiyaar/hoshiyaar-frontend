@@ -351,29 +351,10 @@ const MobileMore = ({ stars, weeklyStars }) => {
           >
             Logout
           </button>
-
-          <button 
-            onClick={async () => {
-              if (window.confirm('WARNING: Are you sure you want to PERMANENTLY DELETE your account? This action cannot be undone and all your progress will be lost.')) {
-                try {
-                  setSaving(true);
-                  await authService.deleteAccount(user._id);
-                  logout();
-                  window.location.href = '/';
-                } catch (err) {
-                  setError('Failed to delete account. Please try again.');
-                  setSaving(false);
-                }
-              }
-            }}
-            className="w-full py-2 text-[10px] font-black uppercase tracking-[0.2em] text-red-400/50 hover:text-red-500 transition-all"
-          >
-            Delete Account
-          </button>
         </div>
 
         {/* Legal Section */}
-        <div>
+        <div className="mb-4">
           <h3 className="text-sm font-black text-blue-900/40 uppercase tracking-widest ml-1 mb-3">Legal & Support</h3>
           <div className="bg-white rounded-3xl p-2 shadow-sm border border-gray-100 divide-y divide-gray-50">
             <button 
@@ -443,8 +424,30 @@ const MobileMore = ({ stars, weeklyStars }) => {
           </div>
         </div>
 
+        {/* Delete Account */}
+        <div className="mt-8 mb-4">
+          <button 
+            onClick={async () => {
+              if (window.confirm('WARNING: Are you sure you want to PERMANENTLY DELETE your account? This action cannot be undone and all your progress will be lost.')) {
+                try {
+                  setSaving(true);
+                  await authService.deleteAccount(user._id);
+                  logout();
+                  window.location.href = '/';
+                } catch (err) {
+                  setError('Failed to delete account. Please try again.');
+                  setSaving(false);
+                }
+              }
+            }}
+            className="w-full py-3 rounded-[16px] text-xs font-black uppercase tracking-widest text-red-600 bg-red-50 border-2 border-red-100 hover:bg-red-100 hover:border-red-200 transition-all active:scale-[0.98]"
+          >
+            Delete Account
+          </button>
+        </div>
+
         {/* Branding Footer */}
-        <div className="py-8 text-center opacity-20">
+        <div className="py-6 text-center opacity-30">
           <p className="text-[10px] font-black text-blue-900 uppercase tracking-[0.3em]">Hoshiyaar Academy v5.1</p>
         </div>
       </div>
