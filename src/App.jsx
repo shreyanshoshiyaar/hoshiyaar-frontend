@@ -1,7 +1,5 @@
 import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
-import { App as CapApp } from '@capacitor/app';
-import { Capacitor } from '@capacitor/core';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { ReviewProvider } from './context/ReviewContext.jsx';
 
@@ -52,27 +50,36 @@ const NavigationController = () => {
   // Handle Startup and Back Button
   useEffect(() => {
     // 1. Restore Path
-    const savedPath = localStorage.getItem('hoshiyaar_last_path');
-    if (savedPath && savedPath !== '/' && savedPath !== window.location.pathname) {
-      // Small delay to ensure app is ready
-      setTimeout(() => navigate(savedPath, { replace: true }), 100);
+    try {
+      const savedPath = localStorage.getItem('hoshiyaar_last_path');
+      if (savedPath && savedPath !== '/' && savedPath !== window.location.pathname) {
+        // Small delay to ensure app is ready
+        setTimeout(() => navigate(savedPath, { replace: true }), 100);
+      }
+    } catch (e) {
+      console.warn('Could not read from localStorage', e);
     }
 
     // 2. Back Button Listener (Native only)
-    let backListener;
-    if (Capacitor.isNativePlatform()) {
-      backListener = CapApp.addListener('backButton', ({ canGoBack }) => {
-        if (location.pathname === '/' || !canGoBack) {
-          CapApp.exitApp();
-        } else {
-          window.history.back();
-        }
-      });
+    let backListenerPromise = null;
+    if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+      import('@capacitor/app').then(({ App: CapApp }) => {
+        backListenerPromise = CapApp.addListener('backButton', ({ canGoBack }) => {
+          if (location.pathname === '/' || !canGoBack) {
+            CapApp.exitApp();
+          } else {
+            window.history.back();
+          }
+        });
+      }).catch(e => console.warn('Failed to load capacitor app plugin', e));
     }
 
     return () => {
-      if (backListener) {
-        backListener.then(l => l.remove());
+      if (backListenerPromise) {
+        // Resolve the promise if it exists, then remove listener
+        Promise.resolve(backListenerPromise).then(l => {
+          if (l && l.remove) l.remove();
+        });
       }
     };
   }, []);
@@ -82,7 +89,11 @@ const NavigationController = () => {
     // Don't save transient pages like login or loading
     const skipSave = ['/login', '/signup', '/loading'].includes(location.pathname);
     if (!skipSave) {
-      localStorage.setItem('hoshiyaar_last_path', location.pathname + location.search);
+      try {
+        localStorage.setItem('hoshiyaar_last_path', location.pathname + location.search);
+      } catch (e) {
+        console.warn('Could not save to localStorage', e);
+      }
     }
   }, [location]);
 
