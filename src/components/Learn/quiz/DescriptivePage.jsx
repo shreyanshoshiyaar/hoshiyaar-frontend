@@ -13,6 +13,7 @@ import pointsService from '../../../services/pointsService.js';
 import { progressKey } from '../../../utils/progressKey.js';
 import correctSfx from '../../../assets/sounds/correct-choice-43861.mp3';
 import errorSfx from '../../../assets/sounds/error-010-206498.mp3';
+import { Haptics } from '@capacitor/haptics';
 
 export default function DescriptivePage() {
   const navigate = useNavigate();
@@ -161,6 +162,9 @@ export default function DescriptivePage() {
       if (src) {
         src.currentTime = 0;
         src.play().catch(() => {});
+      }
+      if (!isCorrectStatus) {
+        Haptics.vibrate().catch(() => {});
       }
     } catch (_) {}
 
@@ -497,21 +501,6 @@ export default function DescriptivePage() {
                   </div>
                 )}
 
-                {isCorrect ? (
-                  <button
-                    onClick={handleNext}
-                    className="w-full py-4 bg-blue-600 text-white font-extrabold text-xl rounded-xl hover:bg-blue-700 shadow-lg"
-                  >
-                    Continue
-                  </button>
-                ) : !showIncorrectModal ? (
-                  <button
-                    onClick={() => { setShowResult(false); setForceShowExpert(false); }}
-                    className="w-full py-4 bg-orange-600 text-white font-extrabold text-xl rounded-xl hover:bg-orange-700 shadow-lg"
-                  >
-                    Try Again
-                  </button>
-                ) : null}
               </div>
             )}
           </div>
@@ -536,7 +525,25 @@ export default function DescriptivePage() {
             </button>
           </div>
         ) : (
-          <div className="h-[60px] sm:h-0"></div>
+          <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative z-10">
+            {isCorrect ? (
+              <button
+                onClick={handleNext}
+                className="w-full py-3.5 rounded-xl text-white font-extrabold text-xl shadow-lg transition-all uppercase tracking-wide bg-[#58cc02] hover:bg-[#61e002] active:scale-[0.98] cursor-pointer"
+              >
+                Continue
+              </button>
+            ) : !showIncorrectModal ? (
+              <button
+                onClick={() => { setShowResult(false); setForceShowExpert(false); }}
+                className="w-full py-3.5 rounded-xl text-white font-extrabold text-xl shadow-lg transition-all uppercase tracking-wide bg-[#ff4b4b] hover:bg-[#ff5f5f] active:scale-[0.98] cursor-pointer"
+              >
+                Try Again
+              </button>
+            ) : (
+              <div className="h-[60px] sm:h-0"></div>
+            )}
+          </div>
         )}
       </div>
 

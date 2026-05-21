@@ -584,26 +584,27 @@ export default function ConceptPage() {
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 overflow-y-auto md:overflow-y-auto md:justify-start mt-4 md:mt-8" style={{ maxHeight: 'calc(100vh - 80px)' }}>
-          <div className="w-full max-w-3xl sm:max-w-4xl mt-4 sm:mt-6 md:mt-8">
+        <div className="flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 overflow-y-auto md:overflow-y-hidden md:justify-start mt-2 md:mt-4" style={{ maxHeight: 'calc(100vh - 80px)' }}>
+          <div className="w-full max-w-3xl sm:max-w-4xl mt-2 md:mt-4">
             {shouldShowComic ? (
-              <div className="flex items-center justify-center w-full">
-                <div className="relative inline-block max-w-full">
+              <div className="flex items-center justify-center w-full -mt-2 md:-mt-6 pb-20 md:pb-2">
+                <div className="relative inline-block max-w-full flex flex-col items-center">
                   <img
                     src={introComicUrls[comicSlideIndex]}
                     alt={`Comic slide ${comicSlideIndex + 1}`}
-                    className="w-full h-auto max-h-[65vh] md:max-h-[calc(100vh-250px)] object-contain rounded-xl sm:rounded-2xl cursor-zoom-in shadow-md border-2 border-blue-50 bg-white"
+                    className="w-full h-auto max-h-[60vh] md:max-h-[calc(100vh-230px)] object-contain rounded-xl sm:rounded-2xl cursor-zoom-in shadow-md border-2 border-blue-50 bg-white"
                     onClick={() => setIsZoomed(true)}
                   />
-                  {/* Zoom button on top right */}
+                  {/* Zoom button below image */}
                   <button
                     onClick={() => setIsZoomed(true)}
-                    className="absolute top-4 right-4 md:top-3 md:right-3 w-12 h-12 md:w-10 md:h-10 bg-white/90 backdrop-blur flex items-center justify-center p-3 md:p-2.5 rounded-lg shadow-sm border border-gray-200 text-gray-700 hover:bg-white transition-all z-10"
+                    className="mt-3 flex items-center gap-2 px-4 py-2 bg-blue-50/50 text-blue-600 rounded-xl font-bold hover:bg-blue-100 transition-colors border border-blue-100 shadow-sm relative z-50"
                     title="Zoom In"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
                     </svg>
+                    <span className="text-sm">Zoom Image</span>
                   </button>
                 </div>
               </div>
@@ -629,7 +630,7 @@ export default function ConceptPage() {
                 <img 
                   src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103895/img-to-link/prjwol57ayvxogrzua2z.png" 
                   alt="Hoshi" 
-                  className="hidden md:block absolute bottom-0 right-4 lg:-right-4 w-[150px] lg:w-[200px] object-contain -z-10 pointer-events-none" 
+                  className="hidden md:block absolute bottom-0 right-4 lg:-right-4 w-[135px] lg:w-[180px] object-contain -z-10 pointer-events-none" 
                 />
               )}
               {shouldShowComic ? (
@@ -663,25 +664,6 @@ export default function ConceptPage() {
             </div>
           </div>
         </div>
-
-        {isZoomed && shouldShowComic && (
-          <div className="fixed inset-0 z-[10000] bg-black/95 flex flex-col items-center justify-center p-4">
-            <button
-              onClick={() => setIsZoomed(false)}
-              className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            <img
-              src={introComicUrls[comicSlideIndex]}
-              alt={`Zoomed Comic ${comicSlideIndex + 1}`}
-              className="max-w-[95%] max-h-[90vh] object-contain cursor-zoom-out"
-              onClick={() => setIsZoomed(false)}
-            />
-          </div>
-        )}
 
         {showExitConfirm && (
           <div className="fixed inset-0 z-[9999]">
@@ -768,21 +750,22 @@ export default function ConceptPage() {
           </div>
         ) : shouldShowComic ? (
           <div className="flex-1 flex flex-col items-center justify-start p-2 sm:p-4 w-full">
-            <div className="flex items-center justify-center w-full">
-              <div className="relative inline-block max-w-full">
+            <div className="flex items-center justify-center w-full -mt-2 pb-24 md:pb-2">
+              <div className="relative inline-block max-w-full flex flex-col items-center">
                 <img
                   src={introComicUrls[comicSlideIndex]}
                   alt={`Comic slide ${comicSlideIndex + 1}`}
-                  className="w-full h-auto max-h-[65vh] md:max-h-[calc(100vh-250px)] object-contain rounded-xl sm:rounded-2xl cursor-zoom-in shadow-md border-2 border-blue-50 bg-white"
+                  className="w-full h-auto max-h-[60vh] md:max-h-[calc(100vh-230px)] object-contain rounded-xl sm:rounded-2xl cursor-zoom-in shadow-md border-2 border-blue-50 bg-white"
                   onClick={() => setIsZoomed(true)}
                 />
                 <button
                   onClick={() => setIsZoomed(true)}
-                  className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-white/90 backdrop-blur p-2 sm:p-2.5 rounded-lg shadow-sm border border-gray-200 text-gray-700 hover:bg-white transition-all z-10"
+                  className="mt-3 flex items-center gap-2 px-4 py-2 bg-blue-50/50 text-blue-600 rounded-xl font-bold hover:bg-blue-100 transition-colors border border-blue-100 shadow-sm relative z-50"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
                   </svg>
+                  <span className="text-sm">Zoom Image</span>
                 </button>
               </div>
             </div>
@@ -825,13 +808,14 @@ export default function ConceptPage() {
 
       <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white/40 backdrop-blur-sm border-t-2 border-white/20 sm:border-t-0 shadow-lg sm:shadow-none px-2 sm:px-3 md:px-6 py-3 sm:py-4 z-50 sm:z-auto">
         <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative z-10">
-          {shouldShowComic && (
+          {!shouldShowComic && !(itemVideoUrl || actualType === 'video') && (
             <img 
-              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103895/img-to-link/prjwol57ayvxogrzua2z.png" 
-              alt="Hoshi" 
-              className="block absolute bottom-0 right-2 sm:right-6 md:right-12 lg:right-24 w-[180px] sm:w-[120px] md:w-[150px] lg:w-[200px] object-contain -z-10 pointer-events-none" 
+              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103896/img-to-link/uqj3uwzpd9sbb2z9mhxv.png" 
+              alt="Ruhaan" 
+              className="hidden md:block absolute bottom-0 right-4 lg:-right-4 w-[150px] lg:w-[200px] object-contain -z-10 pointer-events-none" 
             />
           )}
+
           <button
             onClick={() => {
               if (shouldShowComic) {
@@ -870,6 +854,25 @@ export default function ConceptPage() {
               navigate(`/learn${query ? '?' + query : ''}`);
             }}
             onContinue={() => setShowExitConfirm(false)}
+          />
+        </div>
+      )}
+
+      {isZoomed && shouldShowComic && (
+        <div className="fixed inset-0 z-[10000] bg-black/95 flex flex-col items-center justify-center p-4">
+          <button
+            onClick={() => setIsZoomed(false)}
+            className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          <img
+            src={introComicUrls[comicSlideIndex]}
+            alt={`Zoomed Comic ${comicSlideIndex + 1}`}
+            className="max-w-[95%] max-h-[90vh] object-contain cursor-zoom-out"
+            onClick={() => setIsZoomed(false)}
           />
         </div>
       )}

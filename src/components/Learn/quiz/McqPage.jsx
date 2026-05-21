@@ -1,3 +1,4 @@
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import ProgressBar from '../../ui/ProgressBar.jsx';
 import SimpleLoading from '../../ui/SimpleLoading.jsx';
 import TryAgainModal from '../../modals/TryAgainModal.jsx';
@@ -542,6 +543,11 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       }
     } else {
       setShowTryAgainOption(false);
+      // Haptic feedback for incorrect answer
+      try {
+        Haptics.vibrate();
+      } catch (_) {}
+
       if (isFirstAttempt && !actualReviewMode) {
         const qid = `${moduleNumber}_${index}_mcq`;
         const type = isRevisionModeFromUrl ? 'revision' : 'curriculum';
@@ -1026,9 +1032,9 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         {!showResult ? (
           <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative z-10">
             <img 
-              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103893/img-to-link/j6qbsf6b9y4zdkeymjag.png" 
-              alt="Myra" 
-              className="hidden md:block absolute bottom-0 right-4 lg:right-8 w-[100px] lg:w-[130px] object-contain -z-10 pointer-events-none" 
+              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103895/img-to-link/prjwol57ayvxogrzua2z.png" 
+              alt="Hoshi" 
+              className="hidden md:block absolute bottom-0 right-4 lg:-right-4 w-[135px] lg:w-[180px] object-contain -z-10 pointer-events-none" 
             />
             <button
               onClick={handleSubmit}
@@ -1052,9 +1058,9 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         }`}>
           <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto px-6 py-4 flex flex-col gap-3 relative z-10">
             <img 
-              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103893/img-to-link/j6qbsf6b9y4zdkeymjag.png" 
-              alt="Myra" 
-              className="hidden md:block absolute bottom-0 right-4 lg:right-8 w-[100px] lg:w-[130px] object-contain -z-10 pointer-events-none" 
+              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103895/img-to-link/prjwol57ayvxogrzua2z.png" 
+              alt="Hoshi" 
+              className="hidden md:block absolute bottom-0 right-4 lg:-right-4 w-[135px] lg:w-[180px] object-contain -z-10 pointer-events-none" 
             />
             <div className="flex items-center gap-4">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-inner ${

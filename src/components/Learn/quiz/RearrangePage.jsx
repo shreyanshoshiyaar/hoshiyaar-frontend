@@ -1,3 +1,4 @@
+import { Haptics } from '@capacitor/haptics';
 import ProgressBar from '../../ui/ProgressBar.jsx';
 import SimpleLoading from '../../ui/SimpleLoading.jsx';
 import TryAgainModal from '../../modals/TryAgainModal.jsx';
@@ -532,6 +533,11 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
         navigate('/review-round');
       }
     } else {
+      // Haptic feedback for incorrect answer
+      try {
+        Haptics.vibrate();
+      } catch (_) {}
+
       playWrongSound();
       // Immediate feedback and enqueue for review
       setShowTryAgainOption(false);
@@ -988,12 +994,12 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
             <img 
               src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103894/img-to-link/ro7myyeaahos06av0oel.png" 
               alt="Babaloo" 
-              className="hidden md:block absolute bottom-0 right-4 lg:right-8 w-[100px] lg:w-[130px] object-contain -z-10 pointer-events-none" 
+              className="hidden md:block absolute bottom-0 right-4 lg:right-8 w-[110px] lg:w-[145px] object-contain -z-10 pointer-events-none" 
             />
             <button
               onClick={handleSubmit}
               disabled={arrangedWords.length === 0}
-              className={`w-full py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-base sm:text-lg transition-colors ${arrangedWords.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`w-full py-2.5 sm:py-3 rounded-xl sm:rounded-2xl text-white font-extrabold text-base sm:text-lg transition-colors ${arrangedWords.length === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
             >
               Check
             </button>
@@ -1012,7 +1018,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
             <img 
               src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103894/img-to-link/ro7myyeaahos06av0oel.png" 
               alt="Babaloo" 
-              className="hidden md:block absolute bottom-0 right-4 lg:right-8 w-[100px] lg:w-[130px] object-contain -z-10 pointer-events-none" 
+              className="hidden md:block absolute bottom-0 right-4 lg:right-8 w-[110px] lg:w-[145px] object-contain -z-10 pointer-events-none" 
             />
             <div className="flex items-center gap-4">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-inner ${

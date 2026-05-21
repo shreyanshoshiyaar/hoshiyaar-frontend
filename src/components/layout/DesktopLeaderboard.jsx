@@ -30,66 +30,47 @@ const DesktopLeaderboard = ({
   const currentStreak = streak || 1;
 
   return (
-    <div className="w-full h-full bg-[#F8FAFC] flex flex-col items-center overflow-hidden p-4 lg:p-6 relative">
-      <div className="w-full max-w-5xl flex flex-col h-full gap-4">
+    <div className="w-full min-h-full bg-[#F8FAFC] flex flex-col items-center overflow-y-auto no-scrollbar p-4 lg:p-6 relative">
+      <div className="w-full max-w-5xl flex flex-col min-h-full gap-4">
         
-        {/* Header Section */}
-        <div className="bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4 shrink-0">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-tr from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-sm rotate-3 shrink-0">
-              <span className="text-2xl">🏆</span>
-            </div>
-            <div>
-              <h1 className="text-xl font-black text-gray-800">Leaderboard</h1>
-              <p className="text-gray-500 font-bold text-xs mt-0.5">See how you rank among your peers.</p>
-            </div>
-          </div>
-          
-          <div className="flex bg-gray-50 p-1 rounded-xl border border-gray-100">
-             <button 
-                onClick={() => {
-                  setLeaderboardScope('school');
-                  fetchLeaderboard(user?.school, null, 'school');
-                }}
-                className={`px-4 py-2 rounded-lg text-xs font-black transition-all ${leaderboardScope === 'school' ? 'bg-white text-[#2563EB] shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-              >
-                🏫 My School
-              </button>
-              <button 
-                onClick={() => {
-                  setLeaderboardScope('global');
-                  fetchLeaderboard(null, null, 'global');
-                }}
-                className={`px-4 py-2 rounded-lg text-xs font-black transition-all ${leaderboardScope === 'global' ? 'bg-white text-[#2563EB] shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-              >
-                🌎 Global
-              </button>
-          </div>
-        </div>
+        {/* Leaderboard Banner */}
+        <div
+          className="relative w-full rounded-3xl overflow-hidden shadow-md border border-white/60 shrink-0 lg:h-[24vh] max-h-[240px] min-h-[160px]"
+          style={{
+            backgroundImage: 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778246958/img-to-link/r2bkh4ou7qxpl8nsekj6.webp")',
+            backgroundSize: 'contain',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            backgroundColor: '#D4E8FF',
+          }}
+        />
 
-        {/* User Stats Row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 shrink-0">
-           <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-4 text-white shadow-sm flex justify-between items-center hover:shadow-md transition-shadow">
-              <div>
-                <p className="text-blue-100 font-bold uppercase tracking-widest text-[10px] mb-1">Your Rank</p>
-                <p className="text-2xl font-black">{currentRank}</p>
+        {/* User Stats Row - compact */}
+        <div className="flex gap-2 shrink-0">
+          <div className="bg-white rounded-xl px-3 py-2 shadow-sm border border-gray-100 flex items-center gap-2 hover:shadow-md transition-shadow flex-1">
+            <div className="w-7 h-7 bg-blue-100 rounded-lg flex items-center justify-center text-sm shadow-inner border border-blue-200 shrink-0">👑</div>
+            <div className="flex flex-col">
+              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none">Rank</span>
+              <span className="text-base font-black text-gray-800 leading-none mt-0.5">{currentRank}</span>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl px-3 py-2 shadow-sm border border-gray-100 flex items-center gap-2 hover:shadow-md transition-shadow flex-1">
+            <div className="w-7 h-7 bg-yellow-100 rounded-lg flex items-center justify-center text-sm shadow-inner border border-yellow-200 shrink-0">⭐</div>
+            <div className="flex flex-col">
+              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none">Stars</span>
+              <span className="text-base font-black text-gray-800 leading-none mt-0.5">{stars || 0}</span>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl px-3 py-2 shadow-sm border border-gray-100 flex items-center gap-2 hover:shadow-md transition-shadow flex-1">
+            <div className="w-7 h-7 bg-orange-100 rounded-lg flex items-center justify-center text-sm shadow-inner border border-orange-200 shrink-0">🔥</div>
+            <div className="flex flex-col">
+              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none">Streak</span>
+              <div className="flex items-baseline gap-0.5 mt-0.5">
+                <span className="text-base font-black text-gray-800 leading-none">{currentStreak}</span>
+                <span className="text-[9px] font-bold text-gray-500 uppercase">d</span>
               </div>
-              <span className="text-4xl opacity-80">👑</span>
-           </div>
-           <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex justify-between items-center hover:shadow-md transition-shadow">
-              <div>
-                <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px] mb-1">Total Stars</p>
-                <p className="text-2xl font-black text-gray-800">{stars || 0}</p>
-              </div>
-              <span className="text-3xl">⭐</span>
-           </div>
-           <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex justify-between items-center hover:shadow-md transition-shadow">
-              <div>
-                <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px] mb-1">Current Streak</p>
-                <p className="text-2xl font-black text-gray-800">{currentStreak} <span className="text-sm text-gray-500 uppercase">Days</span></p>
-              </div>
-              <span className="text-3xl">🔥</span>
-           </div>
+            </div>
+          </div>
         </div>
 
         {/* Leaderboard Scope Settings */}
@@ -151,36 +132,59 @@ const DesktopLeaderboard = ({
         )}
 
         {/* Main Leaderboard Table Container */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col flex-1 min-h-0">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col">
           {/* Table Header / Time Filters */}
           <div className="flex flex-col sm:flex-row justify-between items-center p-4 border-b border-gray-50 gap-3 bg-gray-50/50 shrink-0">
-             <h3 className="text-sm font-black text-gray-800 uppercase tracking-wider">Rankings</h3>
-             <div className="flex bg-white p-1 rounded-xl border border-gray-200">
-              <button 
-                onClick={() => {
-                  setLeaderboardTimeframe('weekly');
-                  const school = leaderboardScope === 'global' ? null : (user?.school);
-                  fetchLeaderboard(school, 'weekly', leaderboardScope);
-                }}
-                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${leaderboardTimeframe === 'weekly' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-              >
-                This Week
-              </button>
-              <button 
-                onClick={() => {
-                  setLeaderboardTimeframe('total');
-                  const school = leaderboardScope === 'global' ? null : (user?.school);
-                  fetchLeaderboard(school, 'total', leaderboardScope);
-                }}
-                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${leaderboardTimeframe === 'total' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-              >
-                All Time
-              </button>
+             <h3 className="text-sm font-black text-gray-800 uppercase tracking-wider hidden sm:block">Rankings</h3>
+             <div className="flex gap-2 w-full sm:w-auto overflow-x-auto no-scrollbar">
+               <div className="flex bg-white p-1 rounded-xl border border-gray-200 shrink-0">
+                <button 
+                  onClick={() => {
+                    setLeaderboardScope('school');
+                    fetchLeaderboard(user?.school, null, 'school');
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${leaderboardScope === 'school' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                >
+                  🏫 My School
+                </button>
+                <button 
+                  onClick={() => {
+                    setLeaderboardScope('global');
+                    fetchLeaderboard(null, null, 'global');
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${leaderboardScope === 'global' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                >
+                  🌎 Global
+                </button>
+              </div>
+              
+              <div className="flex bg-white p-1 rounded-xl border border-gray-200 shrink-0">
+                <button 
+                  onClick={() => {
+                    setLeaderboardTimeframe('weekly');
+                    const school = leaderboardScope === 'global' ? null : (user?.school);
+                    fetchLeaderboard(school, 'weekly', leaderboardScope);
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${leaderboardTimeframe === 'weekly' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                >
+                  This Week
+                </button>
+                <button 
+                  onClick={() => {
+                    setLeaderboardTimeframe('total');
+                    const school = leaderboardScope === 'global' ? null : (user?.school);
+                    fetchLeaderboard(school, 'total', leaderboardScope);
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${leaderboardTimeframe === 'total' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                >
+                  All Time
+                </button>
+              </div>
             </div>
           </div>
 
           {/* Table Body */}
-          <div className="p-2 md:p-4 overflow-y-auto no-scrollbar flex-1">
+          <div className="p-2 md:p-4">
             {leaderboardLoading ? (
               <div className="flex flex-col items-center justify-center h-full gap-3">
                 <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>

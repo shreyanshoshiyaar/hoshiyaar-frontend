@@ -3,6 +3,7 @@ import curriculumService from '../../services/curriculumService';
 
 const SystemSettingsManager = () => {
   const [missionVideoUrl, setMissionVideoUrl] = useState('');
+  const [missionVideoDesktopUrl, setMissionVideoDesktopUrl] = useState('');
   const [homepageSlides, setHomepageSlides] = useState(['', '', '', '', '']);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -18,6 +19,10 @@ const SystemSettingsManager = () => {
       const resVideo = await curriculumService.getSetting('mission_video_url');
       if (resVideo.data) {
         setMissionVideoUrl(resVideo.data.value || '');
+      }
+      const resDesktopVideo = await curriculumService.getSetting('mission_video_desktop_url');
+      if (resDesktopVideo.data) {
+        setMissionVideoDesktopUrl(resDesktopVideo.data.value || '');
       }
       const resSlides = await curriculumService.getSetting('homepage_slides');
       if (resSlides.data && Array.isArray(resSlides.data.value)) {
@@ -67,10 +72,32 @@ const SystemSettingsManager = () => {
         description: "URL for the 'Today's Mission' video on the homescreen"
       });
       setMissionVideoUrl(normalizedUrl);
-      setMessage({ text: 'Video updated successfully! ✨', type: 'success' });
+      setMessage({ text: 'Mobile video updated successfully! ✨', type: 'success' });
       setTimeout(() => setMessage({ text: '', type: '' }), 3000);
     } catch (err) {
-      setMessage({ text: 'Failed to update video.', type: 'error' });
+      setMessage({ text: 'Failed to update mobile video.', type: 'error' });
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveDesktopVideo = async () => {
+    if (!missionVideoDesktopUrl) return;
+    const normalizedUrl = normalizeYoutubeUrl(missionVideoDesktopUrl);
+    try {
+      setSaving(true);
+      setMessage({ text: '', type: '' });
+      await curriculumService.updateSetting({
+        key: 'mission_video_desktop_url',
+        value: normalizedUrl,
+        description: "URL for the 'Today's Mission' video on the desktop homescreen"
+      });
+      setMissionVideoDesktopUrl(normalizedUrl);
+      setMessage({ text: 'Desktop video updated successfully! ✨', type: 'success' });
+      setTimeout(() => setMessage({ text: '', type: '' }), 3000);
+    } catch (err) {
+      setMessage({ text: 'Failed to update desktop video.', type: 'error' });
       console.error(err);
     } finally {
       setSaving(false);
@@ -118,39 +145,76 @@ const SystemSettingsManager = () => {
           </div>
         </div>
 
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-indigo-500 uppercase tracking-wider ml-1">YouTube Link (Shorts/Standard/Embed)</label>
-            <div className="flex flex-col md:flex-row gap-3">
-              <input 
-                type="text" 
-                value={missionVideoUrl}
-                onChange={(e) => setMissionVideoUrl(e.target.value)}
-                placeholder="Paste YouTube link"
-                className="flex-1 bg-gray-50 border-2 border-gray-50 rounded-2xl p-4 text-sm font-bold text-gray-800 focus:outline-none focus:border-indigo-100 transition-all"
-                disabled={loading}
-              />
-              <button 
-                onClick={handleSaveVideo}
-                disabled={saving || loading || !missionVideoUrl}
-                className={`px-8 py-4 rounded-2xl text-sm font-black uppercase tracking-widest transition-all active:scale-[0.98] ${
-                  saving || loading || !missionVideoUrl
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 hover:bg-indigo-700'
-                }`}
-              >
-                {saving ? 'Saving...' : 'Update Video'}
-              </button>
-            </div>
-          </div>
-
-          {missionVideoUrl && (
-            <div className="mt-4">
-              <div className="aspect-video w-full max-w-sm rounded-2xl overflow-hidden border-2 border-gray-100 bg-black">
-                <iframe className="w-full h-full" src={missionVideoUrl} title="Preview" frameBorder="0" allowFullScreen></iframe>
+        <div className="space-y-6 flex flex-col md:flex-row gap-6">
+          <div className="flex-1 space-y-4">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-indigo-500 uppercase tracking-wider ml-1">Mobile Video Link</label>
+              <div className="flex flex-col gap-3">
+                <input 
+                  type="text" 
+                  value={missionVideoUrl}
+                  onChange={(e) => setMissionVideoUrl(e.target.value)}
+                  placeholder="Paste YouTube link"
+                  className="w-full bg-gray-50 border-2 border-gray-50 rounded-2xl p-4 text-sm font-bold text-gray-800 focus:outline-none focus:border-indigo-100 transition-all"
+                  disabled={loading}
+                />
+                <button 
+                  onClick={handleSaveVideo}
+                  disabled={saving || loading || !missionVideoUrl}
+                  className={`w-full py-4 rounded-2xl text-sm font-black uppercase tracking-widest transition-all active:scale-[0.98] ${
+                    saving || loading || !missionVideoUrl
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 hover:bg-indigo-700'
+                  }`}
+                >
+                  {saving ? 'Saving...' : 'Update Mobile Video'}
+                </button>
               </div>
             </div>
-          )}
+
+            {missionVideoUrl && (
+              <div className="mt-4">
+                <div className="aspect-video w-full rounded-2xl overflow-hidden border-2 border-gray-100 bg-black">
+                  <iframe className="w-full h-full" src={missionVideoUrl} title="Preview Mobile" frameBorder="0" allowFullScreen></iframe>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="flex-1 space-y-4">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-indigo-500 uppercase tracking-wider ml-1">Desktop Video Link (Optional)</label>
+              <div className="flex flex-col gap-3">
+                <input 
+                  type="text" 
+                  value={missionVideoDesktopUrl}
+                  onChange={(e) => setMissionVideoDesktopUrl(e.target.value)}
+                  placeholder="Paste YouTube link (if different from mobile)"
+                  className="w-full bg-gray-50 border-2 border-gray-50 rounded-2xl p-4 text-sm font-bold text-gray-800 focus:outline-none focus:border-indigo-100 transition-all"
+                  disabled={loading}
+                />
+                <button 
+                  onClick={handleSaveDesktopVideo}
+                  disabled={saving || loading || !missionVideoDesktopUrl}
+                  className={`w-full py-4 rounded-2xl text-sm font-black uppercase tracking-widest transition-all active:scale-[0.98] ${
+                    saving || loading || !missionVideoDesktopUrl
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 hover:bg-indigo-700'
+                  }`}
+                >
+                  {saving ? 'Saving...' : 'Update Desktop Video'}
+                </button>
+              </div>
+            </div>
+
+            {missionVideoDesktopUrl && (
+              <div className="mt-4">
+                <div className="aspect-video w-full rounded-2xl overflow-hidden border-2 border-gray-100 bg-black">
+                  <iframe className="w-full h-full" src={missionVideoDesktopUrl} title="Preview Desktop" frameBorder="0" allowFullScreen></iframe>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

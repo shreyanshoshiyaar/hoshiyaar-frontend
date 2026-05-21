@@ -286,11 +286,10 @@ const AdminPanel = () => {
           </div>
 
           {/* Tab Bar */}
-          <div className="flex gap-1 pt-1">
+          <div className="flex gap-1 pt-1 overflow-x-auto no-scrollbar">
             <button
-              id="admin-tab-curriculum"
               onClick={() => setActiveTab('curriculum')}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 transition-all duration-200 focus:outline-none ${
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
                 activeTab === 'curriculum'
                   ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
                   : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
@@ -300,9 +299,30 @@ const AdminPanel = () => {
               <span>Content Management</span>
             </button>
             <button
-              id="admin-tab-analytics"
+              onClick={() => setActiveTab('blogs')}
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
+                activeTab === 'blogs'
+                  ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
+                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
+              }`}
+            >
+              <span className="text-base">✍️</span>
+              <span>Blog Manager</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('settings')}
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
+                activeTab === 'settings'
+                  ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
+                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
+              }`}
+            >
+              <span className="text-base">⚙️</span>
+              <span>System Settings</span>
+            </button>
+            <button
               onClick={() => setActiveTab('analytics')}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 transition-all duration-200 focus:outline-none ${
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
                 activeTab === 'analytics'
                   ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
                   : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
@@ -318,11 +338,6 @@ const AdminPanel = () => {
       {/* ── Tab Panel: Content Management ── */}
       {activeTab === 'curriculum' && (
         <div className="max-w-7xl mx-auto py-8 px-4">
-          {/* Global Settings Section */}
-          <SystemSettingsManager />
-
-          {/* Blog Management Section */}
-          <BlogManager />
 
           {error && (
             <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-xl text-sm font-medium">
@@ -441,6 +456,32 @@ const AdminPanel = () => {
               chapterTitle={chapters.find(c => c._id === selectedChapter)?.title || ''}
             />
           )}
+        </div>
+      )}
+
+      {/* ── Tab Panel: Blog Manager ── */}
+      {activeTab === 'blogs' && (
+        <div className="max-w-7xl mx-auto py-8 px-4">
+          <div className="mb-6">
+            <h2 className="text-2xl font-black text-slate-800">Blog Management</h2>
+            <p className="text-sm text-slate-500 font-medium mt-1">
+              Create, edit, and manage articles for the Hoshiyaar blog.
+            </p>
+          </div>
+          <BlogManager />
+        </div>
+      )}
+
+      {/* ── Tab Panel: System Settings ── */}
+      {activeTab === 'settings' && (
+        <div className="max-w-7xl mx-auto py-8 px-4">
+          <div className="mb-6">
+            <h2 className="text-2xl font-black text-slate-800">System Settings</h2>
+            <p className="text-sm text-slate-500 font-medium mt-1">
+              Configure global app settings like homepage videos and carousel slides.
+            </p>
+          </div>
+          <SystemSettingsManager />
         </div>
       )}
 
