@@ -452,55 +452,7 @@ const LearnDashboard = ({ onboardingData }) => {
   const [subjectOptions, setSubjectOptions] = useState([]);
   const [subjectChanging, setSubjectChanging] = useState(false);
 
-  // Force refresh stars from localStorage on dashboard load
-  useEffect(() => {
-    const refreshStars = () => {
-      try {
-        const userId = user?._id;
-        const key = userId ? `hs_stars_total_v1__${userId}` : 'hs_stars_total_v1';
-        const storedStars = localStorage.getItem(key);
-        const starCount = Number(storedStars);
-        console.log('[LearnDashboard] Current localStorage value:', storedStars, '->', starCount);
-        if (Number.isFinite(starCount) && starCount >= 0) {
-          setTotal(starCount);
-          console.log('[LearnDashboard] Refreshed stars from localStorage:', starCount);
-        }
-      } catch (error) {
-        console.warn('[LearnDashboard] Failed to refresh stars:', error);
-      }
-    };
-
-    // Immediate refresh
-    refreshStars();
-
-    // Also refresh every 2 seconds to catch any updates
-    const refreshInterval = setInterval(() => {
-      console.log('[LearnDashboard] Periodic refresh...');
-      refreshStars();
-    }, 100000);
-
-    // Also refresh when window gains focus (user returns from learning)
-    const handleFocus = () => {
-      console.log('[LearnDashboard] Window focused, refreshing stars...');
-      refreshStars();
-    };
-    window.addEventListener('focus', handleFocus);
-
-    // Also refresh on visibility change (tab switching)
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        console.log('[LearnDashboard] Tab became visible, refreshing stars...');
-        refreshStars();
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      clearInterval(refreshInterval);
-      window.removeEventListener('focus', handleFocus);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [setTotal]);
+  // Stars sync is handled by StarsContext and AuthContext.
 
   // Fetch weekly stars
   useEffect(() => {
@@ -2850,7 +2802,7 @@ const LearnDashboard = ({ onboardingData }) => {
                 <div className="flex flex-col">
                   <div className="text-[10px] font-black text-yellow-700 uppercase leading-none mb-0.5">Total</div>
                   <div className="text-sm font-black text-yellow-600 leading-none">
-                    {stars}
+                    {stars === null ? <span className="animate-pulse">...</span> : stars}
                   </div>
                 </div>
               </div>

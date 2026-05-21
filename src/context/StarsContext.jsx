@@ -14,7 +14,7 @@ const STORAGE_PER_MODULE_KEY = 'hs_stars_per_module_v1';
 const STORAGE_PER_QUESTION_KEY = 'hs_stars_per_question_v1';
 
 export const StarsProvider = ({ children }) => {
-  const [stars, setStars] = useState(0);
+  const [stars, setStars] = useState(null);
   const [delta, setDelta] = useState(0); // for +5 / -2 flyout
   const [moduleStars, setModuleStars] = useState({});
   const [questionLedger, setQuestionLedger] = useState({});
@@ -257,7 +257,9 @@ export const StarCounter = () => {
           strokeWidth="0.8"
         />
       </svg>
-      <span className="font-extrabold text-sm sm:text-base tabular-nums">{stars}</span>
+      <span className="font-extrabold text-sm sm:text-base tabular-nums">
+        {stars === null ? <span className="animate-pulse">...</span> : stars}
+      </span>
       {delta !== 0 && (
         <span
           className={`absolute -top-3 left-4 text-xs sm:text-sm font-bold transition-all duration-700 ease-out ${
