@@ -875,7 +875,15 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
 
 
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden bg-[#f1eafc]">
+    <div 
+      style={{ 
+        backgroundImage: 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778244663/img-to-link/m6w3rzzraf0o5di82eui.webp")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+      className="fixed inset-0 flex flex-col overflow-hidden md:!bg-none md:!bg-[#f1eafc]"
+    >
       {/* Header - reduced padding for mobile */}
       <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
         {!actualReviewMode && (
@@ -926,7 +934,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
               <div className="flex flex-wrap md:flex-nowrap items-center justify-center gap-1 sm:gap-3 md:gap-5">
                 {((item.images && item.images.filter(Boolean)) || (item.imageUrl ? [item.imageUrl] : [])).slice(0,5).map((src, i) => (
                   <div key={i} className="border border-blue-300 rounded-lg sm:rounded-2xl p-1 sm:p-3 bg-white shadow-sm">
-                    <img src={src} alt={'mcq-'+i} className="h-32 sm:h-40 md:h-48 lg:h-56 w-auto max-w-full object-contain rounded-md sm:rounded-xl" />
+                    <img src={src} alt={'mcq-'+i} className="h-40 w-36 sm:h-32 sm:w-24 md:h-24 md:w-20 lg:h-32 lg:w-24 xl:h-40 xl:w-32 object-contain rounded-md sm:rounded-xl" />
                   </div>
                 ))}
               </div>
@@ -1020,7 +1028,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
             <img 
               src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103893/img-to-link/j6qbsf6b9y4zdkeymjag.png" 
               alt="Myra" 
-              className="block absolute bottom-[40px] md:bottom-0 right-4 lg:right-8 w-[210px] md:w-[240px] lg:w-[270px] object-contain -z-10 pointer-events-none" 
+              className="hidden md:block absolute bottom-0 right-4 lg:right-8 w-[100px] lg:w-[130px] object-contain -z-10 pointer-events-none" 
             />
             <button
               onClick={handleSubmit}
@@ -1046,7 +1054,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
             <img 
               src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103893/img-to-link/j6qbsf6b9y4zdkeymjag.png" 
               alt="Myra" 
-              className="block absolute bottom-[40px] md:bottom-0 right-4 lg:right-8 w-[210px] md:w-[240px] lg:w-[270px] object-contain -z-10 pointer-events-none" 
+              className="hidden md:block absolute bottom-0 right-4 lg:right-8 w-[100px] lg:w-[130px] object-contain -z-10 pointer-events-none" 
             />
             <div className="flex items-center gap-4">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-inner ${
