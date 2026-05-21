@@ -4,7 +4,7 @@ import { useStars } from '../../context/StarsContext.jsx';
 import heroChar from '../../assets/images/heroChar.png'; // Fallback image
 
 const HexagonRankIcon = ({ rank }) => (
-  <div className="relative w-12 h-12 flex items-center justify-center">
+  <div className="relative w-full h-full flex items-center justify-center">
     <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-sm">
       <polygon points="50 3, 93 25, 93 75, 50 97, 7 75, 7 25" fill="url(#hexGradientDesktop)" />
       <defs>
@@ -14,8 +14,8 @@ const HexagonRankIcon = ({ rank }) => (
         </linearGradient>
       </defs>
     </svg>
-    <div className="absolute flex flex-col items-center justify-center text-white">
-      <svg className="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="currentColor">
+    <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+      <svg className="w-[55%] h-[55%]" viewBox="0 0 24 24" fill="currentColor">
         <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z" />
       </svg>
     </div>
@@ -48,9 +48,16 @@ const DesktopHomeDashboard = ({
   useEffect(() => {
     const fetchMissionVideo = async () => {
       try {
-        const res = await curriculumService.getSetting('mission_video_url');
-        if (res.data && res.data.value) {
-          setMissionVideoUrl(res.data.value);
+        const resDesktop = await curriculumService.getSetting('mission_video_desktop_url');
+        if (resDesktop.data && resDesktop.data.value) {
+          setMissionVideoUrl(resDesktop.data.value);
+          return; // Stop if desktop video is found
+        }
+        
+        // Fallback to mobile video
+        const resMobile = await curriculumService.getSetting('mission_video_url');
+        if (resMobile.data && resMobile.data.value) {
+          setMissionVideoUrl(resMobile.data.value);
         }
       } catch (err) {
         console.error('Failed to fetch mission video settings', err);
@@ -80,7 +87,7 @@ const DesktopHomeDashboard = ({
   }, [leaderboardData, user, userIndex, hasSchool]);
 
   return (
-    <div className="w-full h-full bg-[#F0F6FF] font-sans flex flex-col overflow-y-auto no-scrollbar relative p-4 lg:p-6">
+    <div className="w-full h-full bg-[#F0F6FF] font-sans flex flex-col overflow-y-hidden no-scrollbar relative p-4 lg:p-6">
       {/* Seamless Top Background */}
       <div className="absolute top-0 left-0 right-0 h-48 bg-gradient-to-b from-[#D4E8FF] to-[#F0F6FF] z-0 pointer-events-none rounded-b-3xl">
         <div className="absolute top-8 left-12 text-yellow-400 text-xl animate-pulse">✨</div>
@@ -90,60 +97,53 @@ const DesktopHomeDashboard = ({
 
       <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col h-full gap-4">
         
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row justify-between items-center bg-white/90 backdrop-blur-md rounded-2xl p-4 shadow-sm border border-white/60 shrink-0">
-          <div className="flex items-center gap-4">
-             <div className="w-14 h-14 bg-blue-100 rounded-full border-2 border-white shadow-sm overflow-hidden flex items-center justify-center">
-               <span className="text-2xl">😎</span>
-             </div>
-             <div>
-               <h1 className="text-xl font-black text-blue-900">Welcome back, {user?.name?.split(' ')[0] || user?.username || 'Student'}!</h1>
-               <p className="text-blue-600 font-bold text-xs mt-0.5">Ready for today's adventure?</p>
-             </div>
-          </div>
-          <button
-            onClick={onNavigateToPractice}
-            className="mt-2 md:mt-0 px-6 py-2.5 bg-[#FFC107] hover:bg-[#FFD54F] text-gray-900 rounded-full font-black text-sm shadow-[0_4px_0_0_#F57F17] active:translate-y-1 active:shadow-none flex items-center justify-center gap-2 transition-all group"
-          >
-            Continue Learning
-            <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-               <span className="text-[#2563EB] text-[10px] ml-0.5">▶</span>
-            </div>
-          </button>
-        </div>
+        {/* Desktop Hero Banner - full image */}
+        <div
+          className="relative w-full rounded-3xl overflow-hidden shadow-md border border-white/60 shrink-0 lg:h-[28vh] max-h-[280px] min-h-[180px]"
+          style={{
+            backgroundImage: 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779361333/img-to-link/zqipv0kb0thnwni1knrm.jpg")',
+            backgroundSize: 'contain',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            backgroundColor: '#D4E8FF',
+          }}
+        />
 
-        {/* Stats Row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 shrink-0">
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center gap-3 hover:shadow-md transition-shadow">
-            <HexagonRankIcon rank={myRank} />
+
+        {/* Stats Row - compact */}
+        <div className="flex gap-2 shrink-0">
+          <div className="bg-white rounded-xl px-3 py-2 shadow-sm border border-gray-100 flex items-center gap-2 hover:shadow-md transition-shadow flex-1">
+            <div className="w-8 h-8 shrink-0">
+              <HexagonRankIcon rank={myRank} />
+            </div>
             <div className="flex flex-col">
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">Current Rank</span>
-              <span className="text-2xl font-black text-gray-800 mt-1">{myRank}</span>
+              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none">Rank</span>
+              <span className="text-base font-black text-gray-800 leading-none mt-0.5">{myRank}</span>
             </div>
           </div>
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center gap-3 hover:shadow-md transition-shadow">
-            <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center text-xl shadow-inner border border-yellow-200 shrink-0">⭐</div>
+          <div className="bg-white rounded-xl px-3 py-2 shadow-sm border border-gray-100 flex items-center gap-2 hover:shadow-md transition-shadow flex-1">
+            <div className="w-7 h-7 bg-yellow-100 rounded-lg flex items-center justify-center text-sm shadow-inner border border-yellow-200 shrink-0">⭐</div>
             <div className="flex flex-col">
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">Total Stars</span>
-              <span className="text-2xl font-black text-gray-800 mt-1">{stars}</span>
+              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none">Stars</span>
+              <span className="text-base font-black text-gray-800 leading-none mt-0.5">{stars}</span>
             </div>
           </div>
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center gap-3 hover:shadow-md transition-shadow">
-            <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center text-xl shadow-inner border border-orange-200 shrink-0">🔥</div>
+          <div className="bg-white rounded-xl px-3 py-2 shadow-sm border border-gray-100 flex items-center gap-2 hover:shadow-md transition-shadow flex-1">
+            <div className="w-7 h-7 bg-orange-100 rounded-lg flex items-center justify-center text-sm shadow-inner border border-orange-200 shrink-0">🔥</div>
             <div className="flex flex-col">
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">Day Streak</span>
-              <div className="flex items-baseline gap-1 mt-1">
-                <span className="text-2xl font-black text-gray-800">{myStreak}</span>
-                <span className="text-[10px] font-bold text-gray-500 uppercase">Days</span>
+              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none">Streak</span>
+              <div className="flex items-baseline gap-0.5 mt-0.5">
+                <span className="text-base font-black text-gray-800 leading-none">{myStreak}</span>
+                <span className="text-[9px] font-bold text-gray-500 uppercase">d</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Content Grid (Fills remaining height) */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-4 min-h-0">
+        {/* Content Grid (Fills remaining height) — video | extras | leaderboard */}
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-[2fr_1fr_1fr] gap-4 min-h-0">
           {/* Mission Video */}
-          <div className="lg:col-span-2 bg-[#3B82F6] rounded-2xl p-2 shadow-sm border border-blue-400 flex flex-col h-full min-h-[260px]">
+          <div className="bg-[#3B82F6] rounded-2xl p-2 shadow-sm border border-blue-400 flex flex-col h-full min-h-[150px]">
              <div className="flex justify-center items-center py-2 text-white text-[11px] font-black tracking-widest uppercase shrink-0">
               <span className="mr-2 text-yellow-300">⭐</span> TODAY'S MISSION <span className="ml-2 text-yellow-300">⭐</span>
             </div>
@@ -159,7 +159,38 @@ const DesktopHomeDashboard = ({
             </div>
           </div>
 
-          {/* Mini Leaderboard Column */}
+          {/* Side Stack - middle column */}
+          <div className="flex flex-col gap-4 h-full">
+            <div className="bg-[#F9F8FF] rounded-2xl p-4 shadow-sm border border-[#E9D8FF] flex-1 flex flex-col items-center justify-center relative hover:shadow-md transition-shadow">
+              <div className="text-4xl drop-shadow-sm mb-2">📅</div>
+              <p className="text-[#4A5568] font-bold text-center text-xs leading-tight mb-2">
+                Fresh mysteries every
+              </p>
+              <div className="flex items-center gap-1.5 text-[#8B5CF6] font-black text-sm bg-purple-100 px-3 py-1.5 rounded-lg">
+                <span className="opacity-50">≽</span> Tues &amp; Fri <span className="opacity-50">≼</span>
+              </div>
+            </div>
+
+            <div className="bg-[#EBF5FF] rounded-2xl p-4 shadow-sm border border-[#D6E4FF] flex-1 flex flex-col items-center justify-center hover:shadow-md transition-shadow">
+               <h3 className="text-[#2C4A86] font-black text-[10px] uppercase tracking-widest mb-3">Stay Connected</h3>
+               <div className="flex gap-2 w-full">
+                <a href="https://www.instagram.com/hoshiyaar_club/" target="_blank" rel="noopener noreferrer" className="flex-1 bg-white rounded-xl p-2 flex flex-col items-center justify-center shadow-sm border border-gray-100 hover:scale-105 transition-transform group">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white mb-1.5 shadow-sm group-hover:shadow-md transition-all" style={{ background: 'linear-gradient(45deg, #f09433 0%, #dc2743 50%, #bc1888 100%)' }}>
+                    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.333 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm3.98-10.169a1.44 1.44 0 11-2.88 0 1.44 1.44 0 012.88 0z" /></svg>
+                  </div>
+                  <span className="text-[10px] font-bold text-gray-600">Instagram</span>
+                </a>
+                <a href="https://www.youtube.com/@Hoshi-yaar" target="_blank" rel="noopener noreferrer" className="flex-1 bg-white rounded-xl p-2 flex flex-col items-center justify-center shadow-sm border border-gray-100 hover:scale-105 transition-transform group">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-sm bg-[#FF0000] mb-1.5 group-hover:shadow-md transition-all">
+                    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>
+                  </div>
+                  <span className="text-[10px] font-bold text-gray-600">YouTube</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Mini Leaderboard Column - extreme right */}
           <div className="bg-[#F8FAFF] rounded-2xl p-4 shadow-sm border border-white/60 flex flex-col h-full overflow-hidden hover:shadow-md transition-shadow relative">
             <div className="flex justify-between items-center mb-3 shrink-0">
               <h3 className="text-xs font-black text-gray-800 uppercase tracking-wider flex items-center gap-1.5">
@@ -207,37 +238,6 @@ const DesktopHomeDashboard = ({
               </div>
             )}
           </div>
-
-          {/* Side Stack */}
-          <div className="flex flex-col gap-4 h-full">
-            <div className="bg-[#F9F8FF] rounded-2xl p-4 shadow-sm border border-[#E9D8FF] flex-1 flex flex-col items-center justify-center relative hover:shadow-md transition-shadow">
-              <div className="text-4xl drop-shadow-sm mb-2">📅</div>
-              <p className="text-[#4A5568] font-bold text-center text-xs leading-tight mb-2">
-                Fresh mysteries every
-              </p>
-              <div className="flex items-center gap-1.5 text-[#8B5CF6] font-black text-sm bg-purple-100 px-3 py-1.5 rounded-lg">
-                <span className="opacity-50">≽</span> Tues & Fri <span className="opacity-50">≼</span>
-              </div>
-            </div>
-
-            <div className="bg-[#EBF5FF] rounded-2xl p-4 shadow-sm border border-[#D6E4FF] flex-1 flex flex-col items-center justify-center hover:shadow-md transition-shadow">
-               <h3 className="text-[#2C4A86] font-black text-[10px] uppercase tracking-widest mb-3">Stay Connected</h3>
-               <div className="flex gap-2 w-full">
-                <a href="https://www.instagram.com/hoshiyaar_club/" target="_blank" rel="noopener noreferrer" className="flex-1 bg-white rounded-xl p-2 flex flex-col items-center justify-center shadow-sm border border-gray-100 hover:scale-105 transition-transform group">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white mb-1.5 shadow-sm group-hover:shadow-md transition-all" style={{ background: 'linear-gradient(45deg, #f09433 0%, #dc2743 50%, #bc1888 100%)' }}>
-                    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.333 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm3.98-10.169a1.44 1.44 0 11-2.88 0 1.44 1.44 0 012.88 0z" /></svg>
-                  </div>
-                  <span className="text-[10px] font-bold text-gray-600">Instagram</span>
-                </a>
-                <a href="https://www.youtube.com/@Hoshi-yaar" target="_blank" rel="noopener noreferrer" className="flex-1 bg-white rounded-xl p-2 flex flex-col items-center justify-center shadow-sm border border-gray-100 hover:scale-105 transition-transform group">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-sm bg-[#FF0000] mb-1.5 group-hover:shadow-md transition-all">
-                    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>
-                  </div>
-                  <span className="text-[10px] font-bold text-gray-600">YouTube</span>
-                </a>
-              </div>
-            </div>
-          </div>
         </div>
 
       </div>
@@ -246,3 +246,4 @@ const DesktopHomeDashboard = ({
 };
 
 export default DesktopHomeDashboard;
+

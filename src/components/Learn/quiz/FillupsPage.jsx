@@ -1,3 +1,4 @@
+import { Haptics } from '@capacitor/haptics';
 import ProgressBar from '../../ui/ProgressBar.jsx';
 import SimpleLoading from '../../ui/SimpleLoading.jsx';
 import TryAgainModal from '../../modals/TryAgainModal.jsx';
@@ -455,6 +456,11 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
         navigate('/review-round');
       }
     } else {
+      // Haptic feedback for incorrect answer
+      try {
+        Haptics.vibrate();
+      } catch (_) {}
+
       // Immediate feedback and enqueue for review
       setShowTryAgainOption(false);
       if (isFirstAttempt && !actualReviewMode) {
@@ -875,8 +881,8 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
         {!showResult ? (
           <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative z-10">
             <img 
-              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103896/img-to-link/uqj3uwzpd9sbb2z9mhxv.png" 
-              alt="Ruhaan" 
+              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103893/img-to-link/j6qbsf6b9y4zdkeymjag.png" 
+              alt="Myra" 
               className="hidden md:block absolute bottom-0 right-4 lg:right-8 w-[100px] lg:w-[130px] object-contain -z-10 pointer-events-none" 
             />
             <button
@@ -901,8 +907,8 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
         }`}>
           <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto px-6 py-4 flex flex-col gap-3 relative z-10">
             <img 
-              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103896/img-to-link/uqj3uwzpd9sbb2z9mhxv.png" 
-              alt="Ruhaan" 
+              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103893/img-to-link/j6qbsf6b9y4zdkeymjag.png" 
+              alt="Myra" 
               className="hidden md:block absolute bottom-0 right-4 lg:right-8 w-[100px] lg:w-[130px] object-contain -z-10 pointer-events-none" 
             />
             <div className="flex items-center gap-4">

@@ -327,7 +327,7 @@ const OrganicPathSvg = ({ nodesCount, color, rowSpacing, isMobile }) => {
   for (let i = 0; i < count; i++) {
     points.push({
       x: center + getWaveOffset(i, isMobile),
-      y: i * rowSpacing + 40
+      y: i * rowSpacing + 60
     });
   }
 
@@ -1961,6 +1961,23 @@ const LearnDashboard = ({ onboardingData }) => {
             <NavMoreIcon active={activeTab === 'more'} />
             <span>More</span>
           </a>
+
+          {/* Welcome + CTA at bottom of sidebar */}
+          <div className="mt-auto pt-4 border-t border-blue-100">
+            <p className="text-xs font-bold text-gray-500 leading-snug mb-3">
+              Welcome back,<br />
+              <span className="text-blue-700 font-black text-sm">{user?.name?.split(' ')[0] || user?.username || 'Student'}! 👋</span>
+            </p>
+            <button
+              onClick={() => setActiveTab('practice')}
+              className="w-full py-3 bg-[#FFC107] hover:bg-[#FFD54F] text-gray-900 rounded-xl font-black text-sm shadow-[0_4px_0_0_#F57F17] active:translate-y-1 active:shadow-none flex items-center justify-center gap-2 transition-all group"
+            >
+              <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                <span className="text-[#2563EB] text-[9px] ml-0.5">▶</span>
+              </div>
+              Continue Learning
+            </button>
+          </div>
         </nav>
 
         {activeTab === 'home' ? (
@@ -2357,7 +2374,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                     onMouseEnter={() => setHoveredIndex(index)}
                                     onMouseLeave={() => setHoveredIndex(null)}
                                     style={{
-                                      top: index * rowSpacing + 40,
+                                      top: index * rowSpacing + 60,
                                       zIndex: status === "active" ? 50 : 10 + (modulesList.length - index),
                                       height: 0
                                     }}
@@ -2609,7 +2626,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                             setHoveredUnitModule(null);
                                           }}
                                           style={{
-                                            top: index * rowSpacing + 40,
+                                            top: index * rowSpacing + 60,
                                             zIndex: status === "active" ? 50 : 10 + (localLevels.length - index),
                                             height: 0
                                           }}
@@ -2698,7 +2715,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                     {/* Revision star at the end of the wavy path */}
                                     <div
                                       className="absolute w-full flex justify-center items-center px-4"
-                                      style={{ top: localLevels.length * rowSpacing + 40, zIndex: 10, height: 0 }}
+                                      style={{ top: localLevels.length * rowSpacing + 60, zIndex: 10, height: 0 }}
                                     >
                                       <div className="relative group" style={{ transform: `translateX(${getWaveOffset(localLevels.length, isMobileLayout)}px)` }}>
                                         <RevisionStar

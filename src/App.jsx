@@ -1,5 +1,6 @@
-import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import React, { Suspense, lazy, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { App as CapApp } from '@capacitor/app';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { ReviewProvider } from './context/ReviewContext.jsx';
 
@@ -10,32 +11,52 @@ import ProtectedRoute from './components/layout/ProtectedRoute.jsx';
 import AdminProtectedRoute from './components/layout/AdminProtectedRoute.jsx';
 
 // Lazy load components
-const HomePage = lazy(() => import('./components/layout/HomePage'));
-const Login = lazy(() => import('./components/forms/Login'));
-const Signup = lazy(() => import('./components/forms/Signup'));
-const Learn = lazy(() => import('./components/Learn/pages/Learn.jsx'));
-const ReviewRound = lazy(() => import('./components/Learn/quiz/ReviewRound.jsx'));
-const RevisionList = lazy(() => import('./components/Learn/quiz/RevisionList.jsx'));
-const McqPage = lazy(() => import('./components/Learn/quiz/McqPage.jsx'));
-const FillupsPage = lazy(() => import('./components/Learn/quiz/FillupsPage.jsx'));
-const RearrangePage = lazy(() => import('./components/Learn/quiz/RearrangePage.jsx'));
-const DescriptivePage = lazy(() => import('./components/Learn/quiz/DescriptivePage.jsx'));
-const ModuleEntryRedirect = lazy(() => import('./components/Learn/pages/ModuleEntryRedirect.jsx'));
-const LessonEntryRedirectByTitle = lazy(() => import('./components/Learn/pages/LessonEntryRedirectByTitle.jsx'));
-const LessonComplete = lazy(() => import('./components/Learn/pages/LessonComplete.jsx'));
-const ConceptPage = lazy(() => import('./components/Learn/pages/ConceptPage.jsx'));
-const UploadTest = lazy(() => import('./components/features/UploadTest.jsx'));
-const ProfilePage = lazy(() => import('./components/features/ProfilePage.jsx'));
-const OnboardingFlow = lazy(() => import('./components/Learn/selectors/OnboardingFlow.jsx'));
-const AdminPanel = lazy(() => import('./components/admin/AdminPanel.jsx'));
-const PrivacyPolicy = lazy(() => import('./components/Legal/PrivacyPolicy.jsx'));
-const TermsConditions = lazy(() => import('./components/Legal/TermsConditions.jsx'));
-const BlogList = lazy(() => import('./components/Learn/blogs/BlogList.jsx'));
-const BlogView = lazy(() => import('./components/Learn/blogs/BlogView.jsx'));
-const About = lazy(() => import('./components/layout/About.jsx'));
-const Contact = lazy(() => import('./components/layout/Contact.jsx'));
-const Disclaimer = lazy(() => import('./components/Legal/Disclaimer.jsx'));
-const DeleteAccountPage = lazy(() => import('./components/features/DeleteAccountPage.jsx'));
+// ... (existing lazy imports)
+
+/**
+ * Handles App-wide navigation logic:
+ * 1. Restores last visited path on startup.
+ * 2. Saves current path to localStorage.
+ * 3. Manages Hardware Back Button.
+ */
+const NavigationController = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Handle Startup and Back Button
+  useEffect(() => {
+    // 1. Restore Path
+    const savedPath = localStorage.getItem('hoshiyaar_last_path');
+    if (savedPath && savedPath !== '/' && savedPath !== window.location.pathname) {
+      // Small delay to ensure app is ready
+      setTimeout(() => navigate(savedPath, { replace: true }), 100);
+    }
+
+    // 2. Back Button Listener
+    const backListener = CapApp.addListener('backButton', ({ canGoBack }) => {
+      if (location.pathname === '/' || !canGoBack) {
+        CapApp.exitApp();
+      } else {
+        window.history.back();
+      }
+    });
+
+    return () => {
+      backListener.then(l => l.remove());
+    };
+  }, []);
+
+  // 3. Save current path
+  useEffect(() => {
+    // Don't save transient pages like login or loading
+    const skipSave = ['/login', '/signup', '/loading'].includes(location.pathname);
+    if (!skipSave) {
+      localStorage.setItem('hoshiyaar_last_path', location.pathname + location.search);
+    }
+  }, [location]);
+
+  return null;
+};
 
 const MainLayout = ({ children }) => {
   const location = useLocation();
@@ -58,6 +79,7 @@ function App() {
     <AuthProvider>
       <ReviewProvider>
           <Router>
+            <NavigationController />
             <Suspense fallback={<LoadingPage />}>
               <Routes>
                 {/* Public Routes */}
