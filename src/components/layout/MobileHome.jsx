@@ -29,7 +29,7 @@ const MobileHome = ({
   onNavigateToPractice,
   onNavigateToRanks,
 }) => {
-  const { stars, isSyncing, refresh } = useStars();
+  const { stars, refresh } = useStars();
   const hasSchool = !!user?.school;
 
   // Ensure stars data is refreshed when MobileHome mounts (e.g., after login or navigation)
@@ -111,38 +111,12 @@ const MobileHome = ({
           />
         </div>
         <div className="w-full bg-white/95 rounded-[20px] p-2 shadow-[0_4px_12px_rgba(0,0,0,0.03)] flex justify-between items-center border border-white/60 backdrop-blur-md mb-2">
-          <div className="flex items-center gap-2">
-            <div className="bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full flex items-center shadow-sm">
-              <span className="text-yellow-500 font-bold mr-1">⭐</span>
-              <span className="font-bold text-gray-800">{isSyncing ? "..." : stars}</span>
-            </div>
-            <div className="bg-white/80 backdrop-blur-sm p-1.5 rounded-full shadow-sm">
-              <div className="w-7 h-7 bg-indigo-100 rounded-full flex items-center justify-center overflow-hidden">
-                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username || 'user'}`} alt="Avatar" className="w-6 h-6" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Floating Greeting */}
-        <div className="mb-2 z-20 pl-2">
-          <p className="text-gray-500 text-sm">Welcome back,</p>
-          <h1 className="text-2xl font-black text-gray-800 leading-tight">
-            {user?.name || user?.username || 'Student'}!
-          </h1>
-        </div>
-
-        {/* Top Floating Stats Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 mb-4 flex items-center justify-between z-20 relative overflow-hidden">
-          {/* Subtle decoration */}
-          <div className="absolute -right-4 -top-4 w-16 h-16 bg-blue-50 rounded-full opacity-50"></div>
-          
           {/* Rank */}
           <div className="flex items-center gap-1.5 w-1/3 justify-center">
             <HexagonRankIcon rank={myRank} />
-            <div className="flex flex-col ml-1">
+            <div className="flex flex-col">
               <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Rank</span>
-              <span className="text-[17px] font-black text-gray-800 leading-none">#{myRank}</span>
+              <span className="text-[17px] font-black text-gray-800 leading-none">{myRank}</span>
               <div className="w-6 h-0.5 rounded-full bg-purple-500 mt-0.5"></div>
             </div>
           </div>
@@ -154,7 +128,7 @@ const MobileHome = ({
             <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center text-[14px] drop-shadow-sm">⭐</div>
             <div className="flex flex-col">
               <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Stars</span>
-              <span className="text-[17px] font-black text-gray-800 leading-none">{isSyncing ? "..." : stars}</span>
+              <span className="text-[17px] font-black text-gray-800 leading-none">{stars}</span>
             </div>
           </div>
 
