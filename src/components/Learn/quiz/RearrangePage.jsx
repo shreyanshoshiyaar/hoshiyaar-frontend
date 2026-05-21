@@ -782,15 +782,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
   
   if (shouldShowVideo) {
     return (
-        <div 
-          style={{ 
-            backgroundImage: 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778244665/img-to-link/lapihposkebjatdeljev.webp")',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
-          }}
-          className="h-screen flex flex-col overflow-hidden"
-        >
+        <div className="h-screen flex flex-col overflow-hidden bg-[#ffe7e1]">
         <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
           {!actualReviewMode && (
             <button
@@ -856,15 +848,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
   }
 
   return (
-    <div 
-      style={{ 
-        backgroundImage: 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778244665/img-to-link/lapihposkebjatdeljev.webp")',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}
-      className="h-screen flex flex-col overflow-hidden md:!bg-none md:!bg-[#ffe7e1]"
-    >
+    <div className="h-screen flex flex-col overflow-hidden bg-[#ffe7e1]">
       {/* Header - reduced padding for mobile */}
       <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
         {!actualReviewMode && (
@@ -988,7 +972,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
             <img 
               src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103894/img-to-link/ro7myyeaahos06av0oel.png" 
               alt="Babaloo" 
-              className="hidden md:block absolute bottom-0 right-4 lg:right-8 w-[100px] lg:w-[130px] object-contain -z-10 pointer-events-none" 
+              className="block absolute bottom-[40px] md:bottom-0 right-4 lg:right-8 w-[210px] md:w-[240px] lg:w-[270px] object-contain -z-10 pointer-events-none" 
             />
             <button
               onClick={handleSubmit}
@@ -1012,7 +996,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
             <img 
               src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103894/img-to-link/ro7myyeaahos06av0oel.png" 
               alt="Babaloo" 
-              className="hidden md:block absolute bottom-0 right-4 lg:right-8 w-[100px] lg:w-[130px] object-contain -z-10 pointer-events-none" 
+              className="block absolute bottom-[40px] md:bottom-0 right-4 lg:right-8 w-[210px] md:w-[240px] lg:w-[270px] object-contain -z-10 pointer-events-none" 
             />
             <div className="flex items-center gap-4">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-inner ${

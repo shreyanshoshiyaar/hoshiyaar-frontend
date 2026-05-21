@@ -765,13 +765,9 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
 
     <div 
       style={{ 
-        height: viewportHeight,
-        backgroundImage: 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778242858/img-to-link/uyinmhu24f36fdmj6ejz.webp")',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
+        height: viewportHeight
       }} 
-      className="fixed inset-0 flex flex-col overflow-hidden md:!bg-none md:!bg-[#ffffd7]"
+      className="fixed inset-0 flex flex-col overflow-hidden bg-[#ffffd7]"
     >
       {/* Header - reduced padding for mobile */}
       <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
@@ -830,7 +826,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
               <div className="flex flex-wrap justify-center gap-1 sm:gap-3 md:gap-5">
                 {list.slice(0, 5).map((src, i) => (
                   <div key={i} className="border border-blue-300 rounded-xl sm:rounded-2xl p-1 sm:p-3 bg-white shadow-sm">
-                    <img src={src} alt={`fillup-${i}`} className="h-28 w-24 sm:h-32 sm:w-24 md:h-24 md:w-16 lg:h-28 lg:w-24 object-contain rounded-lg sm:rounded-xl shadow-sm" />
+                    <img src={src} alt={`fillup-${i}`} className="h-32 sm:h-40 md:h-48 lg:h-56 w-auto max-w-full object-contain rounded-md sm:rounded-xl shadow-sm" />
                   </div>
                 ))}
               </div>
@@ -877,7 +873,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
             <img 
               src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103896/img-to-link/uqj3uwzpd9sbb2z9mhxv.png" 
               alt="Ruhaan" 
-              className="hidden md:block absolute bottom-0 right-4 lg:right-8 w-[100px] lg:w-[130px] object-contain -z-10 pointer-events-none" 
+              className="block absolute bottom-[40px] md:bottom-0 right-4 lg:right-8 w-[210px] md:w-[240px] lg:w-[270px] object-contain -z-10 pointer-events-none" 
             />
             <button
               onClick={() => {
@@ -903,7 +899,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
             <img 
               src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103896/img-to-link/uqj3uwzpd9sbb2z9mhxv.png" 
               alt="Ruhaan" 
-              className="hidden md:block absolute bottom-0 right-4 lg:right-8 w-[100px] lg:w-[130px] object-contain -z-10 pointer-events-none" 
+              className="block absolute bottom-[40px] md:bottom-0 right-4 lg:right-8 w-[140px] md:w-[160px] lg:w-[180px] object-contain -z-10 pointer-events-none" 
             />
             <div className="flex items-center gap-4">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-inner ${

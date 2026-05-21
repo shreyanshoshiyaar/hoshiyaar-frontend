@@ -387,14 +387,14 @@ export default function DescriptivePage() {
           </h2>
           {item.imageUrl && (!item.images || item.images.length === 0) && (
             <div className="w-full flex justify-center mb-6">
-              <img src={item.imageUrl} alt="Question Diagram" className="max-w-full w-auto max-h-64 rounded-xl shadow-sm border border-gray-200 object-contain bg-white" />
+              <img src={item.imageUrl} alt="Question Diagram" className="h-32 sm:h-40 md:h-48 lg:h-56 w-auto max-w-full rounded-xl shadow-sm border border-gray-200 object-contain bg-white" />
             </div>
           )}
 
           {item.images && item.images.length > 0 && (
             <div className="w-full flex justify-center gap-4 flex-wrap mb-6">
               {item.images.map((imgUrl, i) => (
-                <img key={i} src={imgUrl} alt={`Question Diagram ${i+1}`} className="max-w-full w-auto max-h-64 rounded-xl shadow-sm border border-gray-200 object-contain bg-white" />
+                <img key={i} src={imgUrl} alt={`Question Diagram ${i+1}`} className="h-32 sm:h-40 md:h-48 lg:h-56 w-auto max-w-full rounded-xl shadow-sm border border-gray-200 object-contain bg-white" />
               ))}
             </div>
           )}
