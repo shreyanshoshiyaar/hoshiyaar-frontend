@@ -355,10 +355,14 @@ const LearnDashboard = ({ onboardingData }) => {
 
   const [progress, setProgress] = useState([]);
   const [pathAnimationData, setPathAnimationData] = useState(null);
-  const [activeTab, setActiveTab] = useState(() => {
-    const params = new URLSearchParams(location.search);
-    return params.get('go') === 'dashboard' ? 'practice' : 'home';
-  }); // 'home', 'practice', 'ranks', 'more'
+  // Derive active tab from URL path — no useState needed
+  const activeTab = (() => {
+    const p = location.pathname;
+    if (p === '/learn') return 'learn';
+    if (p === '/ranks') return 'ranks';
+    if (p === '/more') return 'more';
+    return 'home'; // /home or anything else
+  })();
   const [chapterTitle, setChapterTitle] = useState("");
   const [chapterId, setChapterId] = useState("");
   const [chaptersList, setChaptersList] = useState([]);
@@ -1405,14 +1409,7 @@ const LearnDashboard = ({ onboardingData }) => {
   }, []);
 
   // Handle direct navigation to specific tabs/views from URL params (e.g. from LessonComplete)
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const go = params.get('go');
-    if (go === 'dashboard') {
-      console.log('[Dashboard] Navigating to practice tab based on URL param');
-      setActiveTab('practice');
-    }
-  }, [location.search]);
+  // No longer needed — tab is derived directly from the URL pathname now.
 
   // Subject change functions
   const handleOpenSubjectModal = async () => {
@@ -1922,10 +1919,7 @@ const LearnDashboard = ({ onboardingData }) => {
           </div>
           <a
             href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              setActiveTab('home');
-            }}
+            onClick={(e) => { e.preventDefault(); navigate('/home'); }}
             className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors ${activeTab === 'home' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
           >
             <NavHomeIcon active={activeTab === 'home'} />
@@ -1933,21 +1927,15 @@ const LearnDashboard = ({ onboardingData }) => {
           </a>
           <a
             href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              setActiveTab('practice');
-            }}
-            className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors ${activeTab === 'practice' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
+            onClick={(e) => { e.preventDefault(); navigate('/learn'); }}
+            className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors ${activeTab === 'learn' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
           >
-            <NavPracticeIcon active={activeTab === 'practice'} />
-            <span>Practice</span>
+            <NavPracticeIcon active={activeTab === 'learn'} />
+            <span>Learn</span>
           </a>
           <a
             href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              setActiveTab('ranks');
-            }}
+            onClick={(e) => { e.preventDefault(); navigate('/ranks'); }}
             className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors ${activeTab === 'ranks' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
           >
             <NavRanksIcon active={activeTab === 'ranks'} />
@@ -1955,10 +1943,7 @@ const LearnDashboard = ({ onboardingData }) => {
           </a>
           <a
             href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              setActiveTab('more');
-            }}
+            onClick={(e) => { e.preventDefault(); navigate('/more'); }}
             className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors ${activeTab === 'more' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
           >
             <NavMoreIcon active={activeTab === 'more'} />
@@ -1972,7 +1957,7 @@ const LearnDashboard = ({ onboardingData }) => {
               <span className="text-blue-700 font-black text-sm">{user?.name?.split(' ')[0] || user?.username || 'Student'}! 👋</span>
             </p>
             <button
-              onClick={() => setActiveTab('practice')}
+              onClick={() => navigate('/learn')}
               className="w-full py-3 bg-[#FFC107] hover:bg-[#FFD54F] text-gray-900 rounded-xl font-black text-sm shadow-[0_4px_0_0_#F57F17] active:translate-y-1 active:shadow-none flex items-center justify-center gap-2 transition-all group"
             >
               <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
@@ -1990,16 +1975,16 @@ const LearnDashboard = ({ onboardingData }) => {
               stars={stars} 
               weeklyStars={weeklyStars} 
               leaderboardData={weeklyLeaderboardData} 
-              onNavigateToPractice={() => setActiveTab('practice')} 
-              onNavigateToRanks={() => setActiveTab('ranks')}
+              onNavigateToPractice={() => navigate('/learn')} 
+              onNavigateToRanks={() => navigate('/ranks')}
             />
           ) : (
             <DesktopHomeDashboard 
               user={user} 
               weeklyStars={weeklyStars} 
               leaderboardData={weeklyLeaderboardData} 
-              onNavigateToPractice={() => setActiveTab('practice')} 
-              onNavigateToRanks={() => setActiveTab('ranks')}
+              onNavigateToPractice={() => navigate('/learn')} 
+              onNavigateToRanks={() => navigate('/ranks')}
             />
           )
         ) : activeTab === 'ranks' ? (
@@ -2026,7 +2011,7 @@ const LearnDashboard = ({ onboardingData }) => {
               stars={stars}
               weeklyStars={weeklyStars}
               streak={streak}
-              onNavigateToPractice={() => setActiveTab('practice')}
+              onNavigateToPractice={() => navigate('/learn')}
             />
           ) : (
             <DesktopLeaderboard 
@@ -2051,7 +2036,7 @@ const LearnDashboard = ({ onboardingData }) => {
               stars={stars}
               weeklyStars={weeklyStars}
               streak={streak}
-              onNavigateToPractice={() => setActiveTab('practice')}
+              onNavigateToPractice={() => navigate('/learn')}
             />
           )
         ) : activeTab === 'more' ? (
@@ -3189,7 +3174,7 @@ const LearnDashboard = ({ onboardingData }) => {
         )}
 
         {isMobileLayout && (
-          <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+          <BottomNavigation />
         )}
       </div>
     </ReviewProvider>

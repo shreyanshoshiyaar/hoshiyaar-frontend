@@ -65,7 +65,7 @@ const Login = () => {
         // Mark entry type so Learn can decide flow
         try { sessionStorage.setItem('entryType', 'login'); } catch (_) {}
         // Redirect to the learn page
-        navigate('/learn');
+        navigate('/home');
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please try again.');

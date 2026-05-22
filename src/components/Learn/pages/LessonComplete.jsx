@@ -94,9 +94,8 @@ const LessonComplete = () => {
           const urlParams = new URLSearchParams(window.location.search);
           const chapterId = urlParams.get('chapterId');
           const params = new URLSearchParams();
-          params.set('go', 'dashboard');
           if (chapterId) params.set('chapterId', chapterId);
-          navigate(`/learn?${params.toString()}`);
+          navigate(`/learn${params.toString() ? '?' + params.toString() : ''}`);
         }
       }
     };
@@ -127,17 +126,17 @@ const LessonComplete = () => {
   const handleContinue = () => {
     const chapterId = getCurrentChapterId();
     const navParams = new URLSearchParams();
-    navParams.set('go', 'dashboard');
     if (chapterId) navParams.set('chapterId', chapterId);
-    navigate(`/learn?${navParams.toString()}`);
+    const q = navParams.toString();
+    navigate(`/learn${q ? '?' + q : ''}`);
   };
 
   const handleGoToDashboard = () => {
     const chapterId = getCurrentChapterId();
     const navParams = new URLSearchParams();
-    navParams.set('go', 'dashboard');
     if (chapterId) navParams.set('chapterId', chapterId);
-    navigate(`/learn?${navParams.toString()}`);
+    const q = navParams.toString();
+    navigate(`/learn${q ? '?' + q : ''}`);
   };
 
   if (isChecking) {

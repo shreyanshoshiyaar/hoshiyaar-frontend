@@ -116,14 +116,12 @@ const Learn = () => {
         }
         if (!user?._id) return;
 
-        const params = new URLSearchParams(window.location.search);
-        const go = params.get('go');
 
         const keys = getScopedKeys(user._id);
         // Always start from Welcome for first-time users (no skipping, no auto-resume)
         // Also handle legacy users incorrectly marked completed but missing selections
         const missingSelections = !(user.board && user.subject && user.chapter);
-        if (!go && (!user.onboardingCompleted || missingSelections)) {
+        if (!user.onboardingCompleted || missingSelections) {
           setOnboardingData({ board: null, subject: null, chapter: null });
           setStep(2); // Start from BoardSelect directly, skip Welcome
           return;

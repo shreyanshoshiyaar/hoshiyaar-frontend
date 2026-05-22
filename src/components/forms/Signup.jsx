@@ -96,7 +96,7 @@ const Signup = () => {
             try { sessionStorage.removeItem(sessionKey); } catch (_) {}
           }
         } catch (_) {}
-        navigate('/learn');
+        navigate('/home');
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Signup failed. Please try again.');

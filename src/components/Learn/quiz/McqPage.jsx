@@ -500,7 +500,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       const params = new URLSearchParams();
       if (chapterId) params.set('chapterId', chapterId);
       if (unitId) params.set('unitId', unitId);
-      params.set('go', 'dashboard');
+
       const query = params.toString();
       navigate(`/learn${query ? '?' + query : ''}`);
     }
@@ -877,7 +877,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
                 const params = new URLSearchParams();
                 if (chapterId) params.set('chapterId', chapterId);
                 if (unitId) params.set('unitId', unitId);
-                params.set('go', 'dashboard');
+
                 const query = params.toString();
                 navigate(`/learn${query ? '?' + query : ''}`);
               }}
@@ -1134,7 +1134,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
                 const params = new URLSearchParams();
                 if (chapterId) params.set('chapterId', chapterId);
                 if (unitId) params.set('unitId', unitId);
-                if (isRevision) params.set('go', 'dashboard');
+
                 const query = params.toString();
                 navigate(`/learn${query ? '?' + query : ''}`);
               }}
