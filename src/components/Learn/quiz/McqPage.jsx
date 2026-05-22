@@ -435,7 +435,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       e.stopPropagation();
       
       if (!showResult) {
-        if (selectedOption !== null && !isChecking) {
+        if (selectedOption !== null) {
           handleCheck();
         }
       } else {
@@ -448,7 +448,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
     };
     window.addEventListener('keydown', onKey, { capture: true });
     return () => window.removeEventListener('keydown', onKey, { capture: true });
-  }, [showResult, selectedOption, isChecking, isCorrect, handleNext, handleTryAgain]);
+  }, [showResult, selectedOption, isCorrect, handleNext, handleTryAgain]);
 
   function routeForType(type, idx) {
     switch (type) {
