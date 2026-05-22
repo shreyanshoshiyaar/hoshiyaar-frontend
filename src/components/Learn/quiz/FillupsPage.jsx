@@ -468,6 +468,9 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
     } else {
       // Haptic feedback for incorrect answer
       try {
+        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+          navigator.vibrate(200);
+        }
         Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
       } catch (_) {}
 
@@ -870,11 +873,11 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
               onFocus={() => setIsInputFocused(true)}
               onBlur={() => setIsInputFocused(false)}
               autoFocus
-              autoComplete="new-password"
+              autoComplete="off"
               autoCorrect="off"
-              autoCapitalize="none"
-              spellCheck={false}
-              inputMode="text"
+              autoCapitalize="off"
+              spellCheck="false"
+              inputMode="search"
               data-form-type="other"
               data-lpignore="true"
               data-1p-ignore="true"
