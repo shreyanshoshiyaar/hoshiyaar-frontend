@@ -33,7 +33,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
   const unitIdParam = urlParams.get('unitId');
   const actualReviewMode = isReviewMode || isReviewModeFromUrl || isRevisionModeFromUrl;
   const { user } = useAuth();
-  const { add: addToReview, removeActive, requeueActive, stageIncorrect, clearStagedForModule, active: activeReviewItem, queue } = useReview();
+  const { add: addToReview, removeActive, requeueActive, undoActive, stageIncorrect, clearStagedForModule, active: activeReviewItem, queue } = useReview();
   // Use revision data if in revision mode and available, otherwise use curriculum item
   // IMPORTANT: Only use activeReviewItem if it matches the current URL params
   const revisionItem = useMemo(() => {
@@ -395,6 +395,15 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
     }
     sessionStorage.setItem('last_back_press_time', String(now));
 
+    if (actualReviewMode) {
+      if (undoActive && undoActive()) {
+        navigate('/review-round');
+      } else {
+        navigate('/learn');
+      }
+      return;
+    }
+
     if (index > 0) {
       const prevIndex = index - 1;
       const prevItem = items[prevIndex];
@@ -718,6 +727,11 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
   }
 
   const handleMasterSkip = async () => {
+    if (actualReviewMode) {
+      removeActive();
+      navigate('/review-round');
+      return;
+    }
     const qid = `${moduleNumber}_${index}_rearrange`;
     const type = isRevisionModeFromUrl ? 'revision' : 'curriculum';
     awardCorrect(String(moduleNumber), qid, 3, { type });
@@ -873,17 +887,15 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
     >
       {/* Header - reduced padding for mobile */}
       <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
-        {!actualReviewMode && (
-          <button 
-            onClick={handleBack}
-            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-600"
-            title="Back"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-            </svg>
-          </button>
-        )}
+        <button 
+          onClick={handleBack}
+          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-600"
+          title="Back"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+        </button>
         <div className="flex-1 mx-1 sm:mx-2 md:mx-4 flex flex-col items-center">
           <span className="text-[10px] sm:text-xs font-black text-blue-600/80 uppercase tracking-widest mb-0.5">
             LEARN PROGRESS: {index + 1} / {items.length}

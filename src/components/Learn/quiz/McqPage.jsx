@@ -71,7 +71,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       localStorage.setItem(IDS_KEY, JSON.stringify(Array.from(set)));
     } catch (_) {}
   };
-  const { add: addToReview, removeActive, requeueActive, stageIncorrect, clearStagedForModule, active: activeReviewItem, queue } = useReview();
+  const { add: addToReview, removeActive, requeueActive, undoActive, stageIncorrect, clearStagedForModule, active: activeReviewItem, queue } = useReview();
   // Use revision data if in revision mode and available, otherwise use curriculum item
   // IMPORTANT: Only use activeReviewItem if it matches the current URL params
   const revisionItem = useMemo(() => {
@@ -427,29 +427,28 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
   // 2) After result is shown:
   //    - For incorrect: allow propagation so the incorrect modal can handle Enter (Try Again)
   //    - For correct: map Enter to Continue
+  // Enter handling on MCQ pages
   useEffect(() => {
     const onKey = (e) => {
       if (e.key !== 'Enter') return;
+      e.preventDefault();
+      e.stopPropagation();
+      
       if (!showResult) {
-        e.preventDefault();
-        e.stopPropagation();
+        if (selectedOption !== null && !isChecking) {
+          handleCheck();
+        }
+      } else {
+        if (isCorrect) {
+          handleNext();
+        } else {
+          handleTryAgain();
+        }
       }
     };
     window.addEventListener('keydown', onKey, { capture: true });
     return () => window.removeEventListener('keydown', onKey, { capture: true });
-  }, [showResult]);
-
-  // When the answer is correct and result is visible, pressing Enter should continue
-  useEffect(() => {
-    if (!(showResult && isCorrect)) return;
-    const onKey = (e) => {
-      if (e.key !== 'Enter') return;
-      e.preventDefault();
-      handleNext();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [showResult, isCorrect]);
+  }, [showResult, selectedOption, isChecking, isCorrect, handleNext, handleTryAgain]);
 
   function routeForType(type, idx) {
     switch (type) {
@@ -476,6 +475,15 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       return;
     }
     sessionStorage.setItem('last_back_press_time', String(now));
+
+    if (actualReviewMode) {
+      if (undoActive && undoActive()) {
+        navigate('/review-round');
+      } else {
+        navigate('/learn');
+      }
+      return;
+    }
 
     if (index > 0) {
       const prevIndex = index - 1;
@@ -746,6 +754,11 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
   }
 
   const handleMasterSkip = async () => {
+    if (actualReviewMode) {
+      removeActive();
+      navigate('/review-round');
+      return;
+    }
     // If master, award correct silently and move next
     const qid = `${moduleNumber}_${index}_mcq`;
     const type = isRevisionModeFromUrl ? 'revision' : 'curriculum';
@@ -810,18 +823,15 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
     return (
       <div className="h-screen bg-white flex flex-col overflow-hidden">
         <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
-          {!actualReviewMode && (
-            <button
-              onClick={handleBack}
-              className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-600"
-              title="Back"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-              </svg>
-            </button>
-          )}
-          {actualReviewMode && <div className="w-6 h-6 sm:w-8 sm:h-8"></div>}
+          <button
+            onClick={handleBack}
+            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-600"
+            title="Back"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+          </button>
           <div className="flex-1 mx-1 sm:mx-2 md:mx-4">
             <ProgressBar currentIndex={index} total={items.length} />
           </div>
@@ -892,18 +902,15 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
     >
       {/* Header - reduced padding for mobile */}
       <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
-        {!actualReviewMode && (
-          <button 
-            onClick={handleBack}
-            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-600"
-            title="Back"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-            </svg>
-          </button>
-        )}
-        <div className="flex-1 mx-1 sm:mx-2 md:mx-4 flex flex-col items-center">
+        <button
+          onClick={handleBack}
+          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-600 mb-2 sm:mb-0"
+          title="Back"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+        </button><div className="flex-1 mx-1 sm:mx-2 md:mx-4 flex flex-col items-center">
           <span className="text-[10px] sm:text-xs font-black text-blue-600/80 uppercase tracking-widest mb-0.5">
             LEARN PROGRESS: {index + 1} / {items.length}
           </span>

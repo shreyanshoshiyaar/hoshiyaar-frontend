@@ -24,7 +24,7 @@ export default function ConceptPage() {
   const chapterIdParam = searchParams.get('chapterId');
   const unitIdParam = searchParams.get('unitId');
   const isInReviewOrRevision = isReviewModeFromUrl || isRevisionModeFromUrl;
-  const { removeActive, active: activeReviewItem, queue } = useReview();
+  const { add: addToReview, removeActive, requeueActive, undoActive, stageIncorrect, clearStagedForModule, active: activeReviewItem, queue } = useReview();
   const [videoAcknowledged, setVideoAcknowledged] = useState(false);
   const [showEndVideo, setShowEndVideo] = useState(false);
   const [comicSlideIndex, setComicSlideIndex] = useState(0);
@@ -358,6 +358,15 @@ export default function ConceptPage() {
     }
     sessionStorage.setItem('last_back_press_time', String(now));
 
+    if (isInReviewOrRevision) {
+      if (undoActive && undoActive()) {
+        navigate('/review-round');
+      } else {
+        navigate('/learn');
+      }
+      return;
+    }
+
     if (index > 0) {
       const prevIndex = index - 1;
       const prevItem = items[prevIndex];
@@ -556,18 +565,15 @@ export default function ConceptPage() {
         className="h-screen flex flex-col overflow-hidden md:!bg-none md:!bg-[#d7efff]"
       >
         <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
-          {!isInReviewOrRevision && (
-            <button
-              onClick={handleBack}
-              className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-600"
-              title="Back"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-              </svg>
-            </button>
-          )}
-          {isInReviewOrRevision && <div className="w-6 h-6 sm:w-8 sm:h-8"></div>}
+        <button
+          onClick={handleBack}
+          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-600"
+          title="Back"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+        </button>
           <div className="flex-1 mx-1 sm:mx-2 md:mx-4">
             <ProgressBar currentIndex={index} total={items.length} />
           </div>
@@ -700,18 +706,15 @@ export default function ConceptPage() {
     >
       {/* Header - reduced padding for mobile */}
       <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
-        {!isInReviewOrRevision && (
-          <button
-            onClick={handleBack}
-            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-600"
-            title="Back"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-            </svg>
-          </button>
-        )}
-        {isInReviewOrRevision && <div className="w-6 h-6 sm:w-8 sm:h-8"></div>}
+        <button
+          onClick={handleBack}
+          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-600"
+          title="Back"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+        </button>
         <div className="flex-1 mx-1 sm:mx-2 md:mx-4 flex flex-col items-center">
           <span className="text-[10px] sm:text-xs font-black text-blue-600/80 uppercase tracking-widest mb-0.5">
             LEARN PROGRESS: {index + 1} / {items.length}

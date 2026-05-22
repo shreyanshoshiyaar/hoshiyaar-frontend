@@ -11,6 +11,7 @@ export const useReview = () => {
 export const ReviewProvider = ({ children }) => {
 	const [queue, setQueue] = useState([]); // [{questionId, moduleNumber, index, type}]
 	const [cursor, setCursor] = useState(0);
+	const [history, setHistory] = useState([]); // To support going back to previous questions
 	// Track the module scope for the current queue; reset when module changes
 	const [currentModule, setCurrentModule] = useState(null);
 	// Buffer incorrect questionIds per module for deferred persistence
@@ -40,6 +41,7 @@ export const ReviewProvider = ({ children }) => {
 	const reset = () => {
 		setQueue([]);
 		setCursor(0);
+		setHistory([]);
 		setCurrentModule(null);
 	};
 
@@ -54,6 +56,7 @@ export const ReviewProvider = ({ children }) => {
 
 	const removeActive = () => {
 		if (!active) return;
+		setHistory(prev => [...prev, active]);
 		setQueue(prev => {
 			const filtered = prev.filter(q => q.questionId !== active.questionId);
 			// Re-sort by _order to maintain revision sequence (if _order exists)
@@ -68,6 +71,7 @@ export const ReviewProvider = ({ children }) => {
 	// Move current active item to the end of the queue (for incorrect in review mode)
 	// Preserves all metadata including _order, _revisionData, etc.
 	const requeueActive = () => {
+		setHistory(prev => [...prev, active]); // Also add to history so they can undo a wrong answer
 		setQueue(prev => {
 			if (!prev || prev.length === 0 || !active) return prev;
 			// Remove the active item from its current position
@@ -79,6 +83,20 @@ export const ReviewProvider = ({ children }) => {
 			return newQueue;
 		});
 		setCursor(0);
+	};
+
+	const undoActive = () => {
+		if (history.length === 0) return false;
+		const lastItem = history[history.length - 1];
+		setHistory(prev => prev.slice(0, -1));
+		setQueue(prev => {
+			// Remove it from wherever it is (in case it was requeued to the end)
+			const filtered = prev.filter(q => q.questionId !== lastItem.questionId);
+			// Add it back to the very front
+			return [lastItem, ...filtered];
+		});
+		setCursor(0);
+		return true;
 	};
 
 	// Stage incorrect question for a given module (deferred save)
@@ -111,8 +129,26 @@ export const ReviewProvider = ({ children }) => {
 		return Array.isArray(arr) ? arr : [];
 	};
 
-	const value = { queue, active, hasItems, add, reset, start, next, removeActive, requeueActive, currentModule, stageIncorrect, clearStagedForModule, getStagedForModule };
 	return (
-		<ReviewContext.Provider value={value}>{children}</ReviewContext.Provider>
+		<ReviewContext.Provider
+			value={{
+				queue,
+				active,
+				add,
+				reset,
+				start,
+				next,
+				removeActive,
+				requeueActive,
+				undoActive,
+				hasHistory: history.length > 0,
+				stageIncorrect,
+				clearStagedForModule,
+				getStagedForModule,
+				pendingIncorrectByModule,
+			}}
+		>
+			{children}
+		</ReviewContext.Provider>
 	);
 };

@@ -28,7 +28,7 @@ export default function DescriptivePage() {
   const actualReviewMode = isReviewModeFromUrl || isRevisionModeFromUrl;
   const { user } = useAuth();
   const { awardCorrect, awardWrong, addToSession, clearSession } = useStars();
-  const { add: addToReview, removeActive, requeueActive, active: activeReviewItem } = useReview();
+  const { add: addToReview, removeActive, requeueActive, undoActive, stageIncorrect, clearStagedForModule, active: activeReviewItem, queue } = useReview();
 
   const [userInput, setUserInput] = useState('');
   const [showResult, setShowResult] = useState(false);
@@ -315,6 +315,15 @@ export default function DescriptivePage() {
     }
     sessionStorage.setItem('last_back_press_time', String(now));
 
+    if (actualReviewMode) {
+      if (undoActive && undoActive()) {
+        navigate('/review-round');
+      } else {
+        navigate('/learn');
+      }
+      return;
+    }
+
     if (index > 0) {
       const prevIndex = index - 1;
       const prevItem = items[prevIndex];
@@ -334,7 +343,29 @@ export default function DescriptivePage() {
     }
   }, [index, items, navigate, moduleNumber]);
 
+  // Enter to continue when result is shown
+  useEffect(() => {
+    if (!showResult) return;
+    const onKey = (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (isCorrect) {
+          handleNext(true);
+        } else {
+          handleNext(true); // In DescriptivePage, both correct/incorrect use handleNext(true) for "Got it"/"Continue"
+        }
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [showResult, isCorrect]);
+
   const handleMasterSkip = async () => {
+    if (actualReviewMode) {
+      removeActive();
+      navigate('/review-round');
+      return;
+    }
     const qid = `${moduleNumber}_${index}_descriptive`;
     const type = isRevisionModeFromUrl ? 'revision' : 'curriculum';
     awardCorrect(String(moduleNumber), qid, 3, { type });
@@ -354,17 +385,15 @@ export default function DescriptivePage() {
   return (
     <div className="fixed inset-0 bg-white flex flex-col overflow-hidden">
       <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
-        {!actualReviewMode && (
-          <button
-            onClick={handleBack}
-            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-600"
-            title="Back"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-            </svg>
-          </button>
-        )}
+        <button
+          onClick={handleBack}
+          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-600"
+          title="Back"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+        </button>
         <div className="flex-1 mx-1 sm:mx-2 md:mx-4 flex flex-col items-center">
           <span className="text-[10px] sm:text-xs font-black text-blue-600/80 uppercase tracking-widest mb-0.5">
             LEARN PROGRESS: {index + 1} / {items.length}
@@ -408,11 +437,16 @@ export default function DescriptivePage() {
               onChange={handleTextChange}
               disabled={showResult}
               placeholder="Type your answer here..."
-              autoComplete="one-time-code"
+              autoComplete="off"
               autoCorrect="off"
-              autoCapitalize="none"
+              autoCapitalize="off"
               spellCheck="false"
               inputMode="text"
+              data-gramm="false"
+              data-form-type="other"
+              data-lpignore="true"
+              data-1p-ignore="true"
+              name="descriptive-answer"
               className={`w-full h-40 p-4 border-2 rounded-xl text-lg font-medium focus:outline-none transition-colors ${
                 showResult 
                   ? (isCorrect ? 'border-green-400 bg-green-50' : 'border-red-400 bg-red-50') 
