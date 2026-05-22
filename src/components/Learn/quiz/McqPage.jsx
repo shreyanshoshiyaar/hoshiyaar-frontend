@@ -435,7 +435,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       e.stopPropagation();
       
       if (!showResult) {
-        if (selectedOption !== null) {
+        if (selectedIndex !== null) {
           handleCheck();
         }
       } else {
@@ -448,7 +448,8 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
     };
     window.addEventListener('keydown', onKey, { capture: true });
     return () => window.removeEventListener('keydown', onKey, { capture: true });
-  }, [showResult, selectedOption, isCorrect, handleNext, handleTryAgain]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showResult, selectedIndex, isCorrect]);
 
   function routeForType(type, idx) {
     switch (type) {
