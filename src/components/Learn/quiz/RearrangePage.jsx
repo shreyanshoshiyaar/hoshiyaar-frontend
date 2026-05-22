@@ -545,7 +545,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
     } else {
       // Haptic feedback for incorrect answer
       try {
-        Haptics.vibrate().catch(() => {});
+        Haptics.vibrate();
       } catch (_) {}
 
       playWrongSound();

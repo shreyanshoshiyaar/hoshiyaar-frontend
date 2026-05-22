@@ -164,7 +164,7 @@ export default function DescriptivePage() {
         src.play().catch(() => {});
       }
       if (!isCorrectStatus) {
-        Haptics.vibrate().catch(() => {});
+        Haptics.vibrate();
       }
     } catch (_) {}
 
@@ -438,10 +438,10 @@ export default function DescriptivePage() {
               onChange={handleTextChange}
               disabled={showResult}
               placeholder="Type your answer here..."
-              autoComplete="nope"
+              autoComplete="off"
               autoCorrect="off"
-              autoCapitalize="none"
-              spellCheck={false}
+              autoCapitalize="off"
+              spellCheck="false"
               inputMode="text"
               data-gramm="false"
               data-form-type="other"
