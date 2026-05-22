@@ -116,6 +116,9 @@ const Signup = () => {
                 value={formData.username}
                 onChange={onChange}
                 placeholder="Username (unique)"
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck="false"
                 className="w-full bg-[#3c3c3c] border-2 border-[#585858] rounded-xl sm:rounded-2xl p-3 sm:p-4 focus:outline-none focus:border-duo-blue text-sm sm:text-base"
                 required
               />
@@ -130,6 +133,9 @@ const Signup = () => {
                 value={formData.name}
                 onChange={onChange}
                 placeholder="Name"
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck="false"
                 className="w-full bg-[#3c3c3c] border-2 border-[#585858] rounded-xl sm:rounded-2xl p-3 sm:p-4 focus:outline-none focus:border-duo-blue text-sm sm:text-base text-white"
               />
               <input
@@ -138,6 +144,9 @@ const Signup = () => {
                 value={formData.email}
                 onChange={onChange}
                 placeholder="Email Address"
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck="false"
                 className="w-full bg-[#3c3c3c] border-2 border-[#585858] rounded-xl sm:rounded-2xl p-3 sm:p-4 focus:outline-none focus:border-duo-blue text-sm sm:text-base text-white"
               />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
@@ -150,6 +159,9 @@ const Signup = () => {
                       value={formData.dateOfBirth}
                       onChange={handleDobChange}
                       placeholder="DD/MM/YYYY"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      spellCheck="false"
                       className="w-full bg-[#3c3c3c] border-2 border-[#585858] rounded-xl sm:rounded-2xl p-3 sm:p-4 focus:outline-none focus:border-duo-blue text-sm sm:text-base text-white pr-12"
                       required
                     />

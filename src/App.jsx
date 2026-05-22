@@ -46,43 +46,51 @@ const DeleteAccountPage = lazy(() => import('./components/features/DeleteAccount
 const NavigationController = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const locationRef = React.useRef(location);
 
-  // Handle Startup and Back Button
+  // Update ref on every location change
   useEffect(() => {
-    // 1. Restore Path
+    locationRef.current = location;
+  }, [location]);
+
+  // Handle Startup (Restore Path)
+  useEffect(() => {
     try {
       const savedPath = localStorage.getItem('hoshiyaar_last_path');
       if (savedPath && savedPath !== '/' && savedPath !== window.location.pathname) {
-        // Small delay to ensure app is ready
         setTimeout(() => navigate(savedPath, { replace: true }), 100);
       }
     } catch (e) {
       console.warn('Could not read from localStorage', e);
     }
+  }, []); // Only once on mount
 
-    // 2. Back Button Listener (Native only)
-    let backListenerPromise = null;
+  // Handle Back Button (Native only)
+  useEffect(() => {
+    let backListener = null;
+
     if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
       import('@capacitor/app').then(({ App: CapApp }) => {
-        backListenerPromise = CapApp.addListener('backButton', ({ canGoBack }) => {
-          if (location.pathname === '/' || !canGoBack) {
+        CapApp.addListener('backButton', ({ canGoBack }) => {
+          const currentPath = locationRef.current.pathname;
+          // Exit if on home page or can't go back
+          if (currentPath === '/' || currentPath === '/login' || !canGoBack) {
             CapApp.exitApp();
           } else {
             window.history.back();
           }
+        }).then(l => {
+          backListener = l;
         });
       }).catch(e => console.warn('Failed to load capacitor app plugin', e));
     }
 
     return () => {
-      if (backListenerPromise) {
-        // Resolve the promise if it exists, then remove listener
-        Promise.resolve(backListenerPromise).then(l => {
-          if (l && l.remove) l.remove();
-        });
+      if (backListener) {
+        backListener.remove();
       }
     };
-  }, []);
+  }, []); // Listener is set once, uses ref for latest path
 
   // 3. Save current path
   useEffect(() => {

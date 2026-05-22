@@ -440,7 +440,7 @@ export default function DescriptivePage() {
               placeholder="Type your answer here..."
               autoComplete="off"
               autoCorrect="off"
-              autoCapitalize="off"
+              autoCapitalize="none"
               spellCheck="false"
               inputMode="text"
               data-gramm="false"

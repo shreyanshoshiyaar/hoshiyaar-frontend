@@ -112,6 +112,10 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
   const [feedback, setFeedback] = useState({ open: false, correct: false, expected: '' });
   const [userAnswer, setUserAnswer] = useState('');
   const [isInputFocused, setIsInputFocused] = useState(false);
+
+  // Generate a stable random name for the input to prevent keyboard suggestions
+  const inputName = useMemo(() => `field_${Math.random().toString(36).substring(7)}`, [item]);
+
   const [showResult, setShowResult] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [showTryAgainModal, setShowTryAgainModal] = useState(false);
@@ -860,35 +864,48 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
 
         {/* Text Input for fill-in-the-blank - mobile optimized */}
         <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mb-1 sm:mb-3">
+          <div
+            className={`w-full p-3 sm:p-3.5 md:p-4 text-base sm:text-base md:text-lg lg:text-xl border-2 rounded-xl sm:rounded-2xl font-bold relative min-h-[56px] sm:min-h-[64px] flex items-center ${
+              showResult
+                ? isCorrect
+                  ? 'bg-green-100 border-green-500 text-green-800'
+                  : 'bg-red-100 border-red-500 text-red-800'
+                    : 'bg-white border-gray-300 text-gray-700 focus-within:border-blue-400'
+            }`}
+            onClick={() => !showResult && inputRef.current?.focus()}
+          >
+            <div className="flex items-center overflow-hidden">
+              <span className={!userAnswer && !isInputFocused ? 'text-gray-400 font-normal' : ''}>
+                {userAnswer || (!isInputFocused ? "Type the full word here..." : "")}
+              </span>
+              {!showResult && isInputFocused && (
+                <span className="w-0.5 h-6 bg-blue-500 ml-0.5 animate-pulse"></span>
+              )}
+            </div>
+
             <input
-              type="text"
+              type="password"
+              autoComplete="new-password"
               ref={inputRef}
               value={userAnswer}
               onChange={(e) => setUserAnswer(e.target.value)}
-              placeholder="Type the full word here..."
-              disabled={showResult}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  if (userAnswer.trim() && !showResult) {
+                    handleSubmit();
+                  }
+                }
+              }}
               onFocus={() => setIsInputFocused(true)}
               onBlur={() => setIsInputFocused(false)}
+              disabled={showResult}
               autoFocus
-              autoComplete="off"
-              autoCorrect="off"
-              autoCapitalize="off"
-              spellCheck="false"
-              inputMode="text"
-              data-form-type="other"
-              data-lpignore="true"
-              data-1p-ignore="true"
-              name="fillups-input-field"
-              className={`w-full p-3 sm:p-3.5 md:p-4 text-base sm:text-base md:text-lg lg:text-xl border-2 rounded-xl sm:rounded-2xl font-bold ${
-                showResult
-                  ? isCorrect
-                    ? 'bg-green-100 border-green-500 text-green-800'
-                    : 'bg-red-100 border-red-500 text-red-800'
-                      : 'bg-white border-gray-300 text-gray-700 focus:border-blue-400 focus:outline-none'
-              }`}
+              className="absolute inset-0 opacity-0 w-full h-full cursor-default"
+              style={{ fontSize: '16px' }}
             />
           </div>
-        
+        </div>
+
         {/* Bottom padding - mobile only for fixed button */}
 
       </div>

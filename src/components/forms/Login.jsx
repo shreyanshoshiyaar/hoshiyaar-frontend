@@ -86,6 +86,9 @@ const Login = () => {
             value={formData.username}
             onChange={onChange}
             placeholder="Username"
+            autoComplete="off"
+            autoCorrect="off"
+            spellCheck="false"
             className="w-full bg-[#3c3c3c] border-2 border-[#585858] rounded-xl sm:rounded-2xl p-3 sm:p-4 focus:outline-none focus:border-duo-blue text-sm sm:text-base"
             required
           />
@@ -98,6 +101,9 @@ const Login = () => {
                 value={formData.dateOfBirth}
                 onChange={handleDobChange}
                 placeholder="DD/MM/YYYY"
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck="false"
                 className="w-full bg-[#3c3c3c] border-2 border-[#585858] rounded-xl sm:rounded-2xl p-3 sm:p-4 focus:outline-none focus:border-duo-blue text-sm sm:text-base text-white pr-12"
                 required
               />
