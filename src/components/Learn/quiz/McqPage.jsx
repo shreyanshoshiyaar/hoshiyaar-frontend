@@ -430,7 +430,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
   // Enter handling on MCQ pages
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key !== 'Enter') return;
+      if (e.key !== 'Enter' && e.keyCode !== 13) return;
       e.preventDefault();
       e.stopPropagation();
       
@@ -481,7 +481,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       if (undoActive && undoActive()) {
         navigate('/review-round');
       } else {
-        navigate('/learn');
+        navigate('/learn?go=dashboard');
       }
       return;
     }
@@ -500,6 +500,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       const params = new URLSearchParams();
       if (chapterId) params.set('chapterId', chapterId);
       if (unitId) params.set('unitId', unitId);
+      params.set('go', 'dashboard');
       const query = params.toString();
       navigate(`/learn${query ? '?' + query : ''}`);
     }
@@ -876,6 +877,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
                 const params = new URLSearchParams();
                 if (chapterId) params.set('chapterId', chapterId);
                 if (unitId) params.set('unitId', unitId);
+                params.set('go', 'dashboard');
                 const query = params.toString();
                 navigate(`/learn${query ? '?' + query : ''}`);
               }}
@@ -1125,13 +1127,14 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
             <ConceptExitConfirm
               progress={Math.round(((index+1)/Math.max(1, items.length))*100)}
               onQuit={() => {
-                // Preserve chapterId from URL when navigating back
                 const urlParams = new URLSearchParams(window.location.search);
                 const chapterId = urlParams.get('chapterId');
                 const unitId = urlParams.get('unitId');
+                const isRevision = urlParams.get('revision') === 'true' || urlParams.get('review') === 'true';
                 const params = new URLSearchParams();
                 if (chapterId) params.set('chapterId', chapterId);
                 if (unitId) params.set('unitId', unitId);
+                if (isRevision) params.set('go', 'dashboard');
                 const query = params.toString();
                 navigate(`/learn${query ? '?' + query : ''}`);
               }}

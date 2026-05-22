@@ -126,18 +126,18 @@ const LessonComplete = () => {
 
   const handleContinue = () => {
     const chapterId = getCurrentChapterId();
-    const params = new URLSearchParams();
-    params.set('go', 'dashboard');
-    if (chapterId) params.set('chapterId', chapterId);
-    navigate(`/learn?${params.toString()}`);
+    const navParams = new URLSearchParams();
+    navParams.set('go', 'dashboard');
+    if (chapterId) navParams.set('chapterId', chapterId);
+    navigate(`/learn?${navParams.toString()}`);
   };
 
   const handleGoToDashboard = () => {
     const chapterId = getCurrentChapterId();
-    const params = new URLSearchParams();
-    params.set('go', 'dashboard');
-    if (chapterId) params.set('chapterId', chapterId);
-    navigate(`/learn?${params.toString()}`);
+    const navParams = new URLSearchParams();
+    navParams.set('go', 'dashboard');
+    if (chapterId) navParams.set('chapterId', chapterId);
+    navigate(`/learn?${navParams.toString()}`);
   };
 
   if (isChecking) {
