@@ -141,7 +141,7 @@ const NavMoreIcon = React.memo(({ active }) => (
 ));
 
 // Cute bouncing "START" badge used above the active node
-const StartBadge = React.memo(({ color = "#2C6DEF" }) => (
+export const StartBadge = React.memo(({ color = "#2C6DEF" }) => (
   <div className="absolute -top-16 left-1/2 -translate-x-1/2 z-[100] select-none pointer-events-none">
     <div className="relative animate-bounce -mt-2">
       {/* DuoLingo Style Speech Bubble - White Background */}
@@ -240,7 +240,7 @@ const PathAnimation = React.memo(({ data, offset, top, isMobileLayout }) => {
   );
 });
 
-const PathNode = React.memo(({ status, onClick, disabled, color = "#2C6DEF", lightenFn, darkenFn, isDifficult = false, isDescriptive = false, offset = 0, children }) => {
+export const PathNode = React.memo(({ status, onClick, disabled, color = "#2C6DEF", lightenFn, darkenFn, isDifficult = false, isDescriptive = false, offset = 0, children }) => {
   const isCompleted = status === "completed";
   const isActive = status === "active";
   const isLocked = status === "locked";
@@ -312,12 +312,12 @@ const PathNode = React.memo(({ status, onClick, disabled, color = "#2C6DEF", lig
 });
 
 // Helper to calculate wave offset for each node (NOW STRAIGHT)
-const getWaveOffset = (index, isMobile) => {
+export const getWaveOffset = (index, isMobile) => {
   // User requested centered nodes (straight vertical line)
   return 0;
 };
 
-const OrganicPathSvg = ({ nodesCount, color, rowSpacing, isMobile }) => {
+export const OrganicPathSvg = ({ nodesCount, color, rowSpacing, isMobile }) => {
   const svgW = isMobile ? 300 : 500;
   const center = svgW / 2;
   const count = Math.max(2, nodesCount);

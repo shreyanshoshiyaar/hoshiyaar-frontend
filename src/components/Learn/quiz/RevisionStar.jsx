@@ -17,7 +17,7 @@ export default function RevisionStar({ align = 'left', moduleId, chapterId, unit
     if (!user) return;
     setLoading(true);
     reviewService
-      .listIncorrect(user._id, moduleId || undefined, chapterId || undefined)
+      .listDefaults({ moduleId, chapterId, page: 1, pageSize: 1000 })
       .then(list => { if (active) setCount(list.length || 0); })
       .catch(() => {})
       .finally(() => active && setLoading(false));
