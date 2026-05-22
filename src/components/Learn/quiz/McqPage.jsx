@@ -555,7 +555,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       setShowTryAgainOption(false);
       // Haptic feedback for incorrect answer
       try {
-        Haptics.vibrate();
+        Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
       } catch (_) {}
 
       if (isFirstAttempt && !actualReviewMode) {
