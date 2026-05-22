@@ -355,7 +355,10 @@ const LearnDashboard = ({ onboardingData }) => {
 
   const [progress, setProgress] = useState([]);
   const [pathAnimationData, setPathAnimationData] = useState(null);
-  const [activeTab, setActiveTab] = useState('home'); // 'home', 'practice', 'ranks', 'more'
+  const [activeTab, setActiveTab] = useState(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get('go') === 'dashboard' ? 'practice' : 'home';
+  }); // 'home', 'practice', 'ranks', 'more'
   const [chapterTitle, setChapterTitle] = useState("");
   const [chapterId, setChapterId] = useState("");
   const [chaptersList, setChaptersList] = useState([]);
