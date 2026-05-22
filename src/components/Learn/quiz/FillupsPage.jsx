@@ -1,4 +1,4 @@
-import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { Haptics } from '@capacitor/haptics';
 import ProgressBar from '../../ui/ProgressBar.jsx';
 import SimpleLoading from '../../ui/SimpleLoading.jsx';
 import TryAgainModal from '../../modals/TryAgainModal.jsx';
@@ -468,10 +468,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
     } else {
       // Haptic feedback for incorrect answer
       try {
-        if (typeof navigator !== 'undefined' && navigator.vibrate) {
-          navigator.vibrate(200);
-        }
-        Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
+        Haptics.vibrate().catch(() => {});
       } catch (_) {}
 
       // Immediate feedback and enqueue for review
@@ -873,11 +870,11 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
               onFocus={() => setIsInputFocused(true)}
               onBlur={() => setIsInputFocused(false)}
               autoFocus
-              autoComplete="off"
+              autoComplete="nope"
               autoCorrect="off"
-              autoCapitalize="off"
-              spellCheck="false"
-              inputMode="search"
+              autoCapitalize="none"
+              spellCheck={false}
+              inputMode="text"
               data-form-type="other"
               data-lpignore="true"
               data-1p-ignore="true"
