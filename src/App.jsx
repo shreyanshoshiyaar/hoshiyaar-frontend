@@ -146,9 +146,33 @@ function App() {
                   } 
                 />
 
-                {/* Protected Learning Route */}
+                {/* Protected Learning Routes (each tab is a separate URL) */}
+                <Route 
+                  path="/home" 
+                  element={
+                    <ProtectedRoute>
+                      <Learn />
+                    </ProtectedRoute>
+                  } 
+                />
                 <Route 
                   path="/learn" 
+                  element={
+                    <ProtectedRoute>
+                      <Learn />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/ranks" 
+                  element={
+                    <ProtectedRoute>
+                      <Learn />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/more" 
                   element={
                     <ProtectedRoute>
                       <Learn />
