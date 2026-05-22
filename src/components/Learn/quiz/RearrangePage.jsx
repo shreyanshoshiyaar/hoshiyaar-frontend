@@ -1,4 +1,4 @@
-import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { Haptics } from '@capacitor/haptics';
 import ProgressBar from '../../ui/ProgressBar.jsx';
 import SimpleLoading from '../../ui/SimpleLoading.jsx';
 import TryAgainModal from '../../modals/TryAgainModal.jsx';
@@ -545,10 +545,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
     } else {
       // Haptic feedback for incorrect answer
       try {
-        if (typeof navigator !== 'undefined' && navigator.vibrate) {
-          navigator.vibrate(200);
-        }
-        Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
+        Haptics.vibrate().catch(() => {});
       } catch (_) {}
 
       playWrongSound();

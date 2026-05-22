@@ -13,7 +13,7 @@ import pointsService from '../../../services/pointsService.js';
 import { progressKey } from '../../../utils/progressKey.js';
 import correctSfx from '../../../assets/sounds/correct-choice-43861.mp3';
 import errorSfx from '../../../assets/sounds/error-010-206498.mp3';
-import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { Haptics } from '@capacitor/haptics';
 
 export default function DescriptivePage() {
   const navigate = useNavigate();
@@ -164,10 +164,7 @@ export default function DescriptivePage() {
         src.play().catch(() => {});
       }
       if (!isCorrectStatus) {
-        if (typeof navigator !== 'undefined' && navigator.vibrate) {
-          navigator.vibrate(200);
-        }
-        Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
+        Haptics.vibrate().catch(() => {});
       }
     } catch (_) {}
 
@@ -441,11 +438,11 @@ export default function DescriptivePage() {
               onChange={handleTextChange}
               disabled={showResult}
               placeholder="Type your answer here..."
-              autoComplete="off"
+              autoComplete="nope"
               autoCorrect="off"
-              autoCapitalize="off"
-              spellCheck="false"
-              inputMode="search"
+              autoCapitalize="none"
+              spellCheck={false}
+              inputMode="text"
               data-gramm="false"
               data-form-type="other"
               data-lpignore="true"
