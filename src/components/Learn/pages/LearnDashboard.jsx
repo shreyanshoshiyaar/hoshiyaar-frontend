@@ -2047,7 +2047,7 @@ const LearnDashboard = ({ onboardingData }) => {
           )
         ) : (
           <>
-            <main className={`flex-grow ${isMobileLayout ? 'p-0' : 'p-3'} overflow-y-auto no-scrollbar bg-transparent ${isMobileLayout ? 'mt-0 overflow-x-hidden pb-10' : 'mt-16 md:mt-0 overflow-x-visible'}`}>
+            <main className={`flex-grow ${isMobileLayout ? 'p-0' : 'px-3 pb-3'} overflow-y-auto no-scrollbar bg-transparent ${isMobileLayout ? 'mt-0 overflow-x-hidden pb-10' : 'mt-16 md:mt-0 overflow-x-visible'}`}>
             {/* Mobile Score Display removed per request */}
 
           {/* Section Header (hide when viewing chapters list). If units exist, headers are shown per unit below, so hide this top one. */}
@@ -2454,14 +2454,14 @@ const LearnDashboard = ({ onboardingData }) => {
                                 const unitMods = unitModulesMap[u._id] || modulesList;
                                 const localLevels = unitMods;
                                 const localLineHeight = Math.max(
-                                  160,
+                                      160,
                                   (localLevels.length) * rowSpacing + 120
                                 );
                               return (
                                 <div
                                   key={u._id || unitIdx}
-                                  className={`relative ${isMobileLayout ? 'pb-10' : 'pb-28'} ${ (u.timelineBgUrl && isMobileLayout) ? 'pt-8 -mx-1 md:-mx-3 px-4 md:px-6 -mb-1 md:-mb-3' : (isMobileLayout ? 'pt-0' : 'pt-12')}`}
-                                  style={(u.timelineBgUrl && isMobileLayout) ? {
+                                  className={`relative ${isMobileLayout ? 'pb-10' : 'pb-28'} ${ u.timelineBgUrl ? 'pt-8 -mx-1 md:-mx-3 px-4 md:px-6 -mb-1 md:-mb-3' : (isMobileLayout ? 'pt-0' : 'pt-12')}`}
+                                  style={u.timelineBgUrl ? {
                                     background: `url(${u.timelineBgUrl}) center/cover no-repeat`
                                   } : {}}
                                   data-chapter-id={chapterId}
@@ -2522,7 +2522,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                       ) : (
                                         <div className="sticky top-0 z-[100] text-white px-6 py-5 rounded-3xl flex justify-between items-center mb-8 shadow-[0_10px_0_0_rgba(0,0,0,0.15)] w-full border-4 backdrop-blur-md"
                                           style={{ 
-                                            background: !isMobileLayout ? `linear-gradient(90deg, ${gradFrom}, ${gradTo})` : (u.headerBgUrl ? `url(${u.headerBgUrl}) center/cover no-repeat` : (u.timelineBgUrl ? `rgba(255, 255, 255, 0.12)` : `linear-gradient(135deg, ${gradFrom}, ${gradTo})`)), 
+                                            background: u.headerBgUrl ? `url(${u.headerBgUrl}) center/cover no-repeat` : (u.timelineBgUrl ? `rgba(255, 255, 255, 0.12)` : `linear-gradient(90deg, ${gradFrom}, ${gradTo})`), 
                                             borderColor: withAlpha(color, 0.25) 
                                           }}>
                                           <div>
