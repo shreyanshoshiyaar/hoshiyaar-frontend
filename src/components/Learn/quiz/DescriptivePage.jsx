@@ -164,6 +164,9 @@ export default function DescriptivePage() {
         src.play().catch(() => {});
       }
       if (!isCorrectStatus) {
+        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+          navigator.vibrate(200);
+        }
         Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
       }
     } catch (_) {}
@@ -438,11 +441,11 @@ export default function DescriptivePage() {
               onChange={handleTextChange}
               disabled={showResult}
               placeholder="Type your answer here..."
-              autoComplete="new-password"
+              autoComplete="off"
               autoCorrect="off"
-              autoCapitalize="none"
-              spellCheck={false}
-              inputMode="text"
+              autoCapitalize="off"
+              spellCheck="false"
+              inputMode="search"
               data-gramm="false"
               data-form-type="other"
               data-lpignore="true"
