@@ -21,20 +21,27 @@ export const ReviewProvider = ({ children }) => {
 	const active = useMemo(() => (hasItems ? queue[Math.min(cursor, queue.length - 1)] : null), [queue, cursor, hasItems]);
 
 	const add = (item) => {
+		const incomingModule = item?.moduleNumber != null ? String(item.moduleNumber) : null;
+		const shouldResetForModuleChange = incomingModule && currentModule && incomingModule !== currentModule;
+
+		if (shouldResetForModuleChange) {
+			setCursor(0);
+		}
+		if (incomingModule && incomingModule !== currentModule) {
+			setCurrentModule(incomingModule);
+		}
+
 		setQueue(prev => {
-			const incomingModule = item?.moduleNumber != null ? String(item.moduleNumber) : null;
-			const shouldResetForModuleChange = incomingModule && currentModule && incomingModule !== currentModule;
 			const baseQueue = shouldResetForModuleChange ? [] : prev;
 			const alreadyThere = baseQueue.some(q => q.questionId === item.questionId);
-			if (shouldResetForModuleChange) setCursor(0);
-			if (incomingModule && incomingModule !== currentModule) setCurrentModule(incomingModule);
-		if (alreadyThere) return baseQueue;
-		const newQueue = [...baseQueue, item];
-		// If adding items with _order, maintain sorted order (check if any item has _order)
-		if (item._order != null && newQueue.some(q => q._order != null)) {
-			return newQueue.sort((a, b) => Number(a._order || 0) - Number(b._order || 0));
-		}
-		return newQueue;
+			if (alreadyThere) return baseQueue;
+			
+			const newQueue = [...baseQueue, item];
+			// If adding items with _order, maintain sorted order (check if any item has _order)
+			if (item._order != null && newQueue.some(q => q._order != null)) {
+				return newQueue.sort((a, b) => Number(a._order || 0) - Number(b._order || 0));
+			}
+			return newQueue;
 		});
 	};
 

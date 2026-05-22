@@ -354,7 +354,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
   // Enter to submit/continue
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key !== 'Enter') return;
+      if (e.key !== 'Enter' && e.keyCode !== 13) return;
       console.log('[REARRANGE] Enter pressed', { showResult, arrangedWordsLen: arrangedWords.length });
       if (!item) return;
       if (!showResult) {
@@ -399,7 +399,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
       if (undoActive && undoActive()) {
         navigate('/review-round');
       } else {
-        navigate('/learn');
+        navigate('/learn?go=dashboard');
       }
       return;
     }
@@ -418,6 +418,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
       const params = new URLSearchParams();
       if (chapterId) params.set('chapterId', chapterId);
       if (unitId) params.set('unitId', unitId);
+      params.set('go', 'dashboard');
       const query = params.toString();
       navigate(`/learn${query ? '?' + query : ''}`);
     }
@@ -864,6 +865,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
                 const params = new URLSearchParams();
                 if (chapterId) params.set('chapterId', chapterId);
                 if (unitId) params.set('unitId', unitId);
+                params.set('go', 'dashboard');
                 const query = params.toString();
                 navigate(`/learn${query ? '?' + query : ''}`);
               }}
@@ -1090,6 +1092,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
                 const params = new URLSearchParams();
                 if (chapterId) params.set('chapterId', chapterId);
                 if (unitId) params.set('unitId', unitId);
+                params.set('go', 'dashboard');
                 const query = params.toString();
                 navigate(`/learn${query ? '?' + query : ''}`);
               }}

@@ -339,7 +339,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
   // Enter to submit/continue
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key !== 'Enter') return;
+      if (e.key !== 'Enter' && e.keyCode !== 13) return;
       console.log('[FILLUPS] Enter pressed', { showResult, userAnswer });
       if (!item) return;
       if (!showResult) {
@@ -391,7 +391,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
       if (undoActive && undoActive()) {
         navigate('/review-round');
       } else {
-        navigate('/learn');
+        navigate('/learn?go=dashboard');
       }
       return;
     }
@@ -410,6 +410,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
       const params = new URLSearchParams();
       if (chapterId) params.set('chapterId', chapterId);
       if (unitId) params.set('unitId', unitId);
+      params.set('go', 'dashboard');
       const query = params.toString();
       navigate(`/learn${query ? '?' + query : ''}`);
     }
@@ -769,6 +770,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
                 const params = new URLSearchParams();
                 if (chapterId) params.set('chapterId', chapterId);
                 if (unitId) params.set('unitId', unitId);
+                params.set('go', 'dashboard');
                 const query = params.toString();
                 navigate(`/learn${query ? '?' + query : ''}`);
               }}
@@ -868,11 +870,11 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
               onFocus={() => setIsInputFocused(true)}
               onBlur={() => setIsInputFocused(false)}
               autoFocus
-              autoComplete="off"
+              autoComplete="new-password"
               autoCorrect="off"
               autoCapitalize="none"
-              spellCheck="false"
-              inputMode="email"
+              spellCheck={false}
+              inputMode="text"
               data-form-type="other"
               data-lpignore="true"
               data-1p-ignore="true"

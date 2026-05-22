@@ -358,11 +358,11 @@ export default function ConceptPage() {
     }
     sessionStorage.setItem('last_back_press_time', String(now));
 
-    if (isInReviewOrRevision) {
+    if (actualReviewMode) {
       if (undoActive && undoActive()) {
         navigate('/review-round');
       } else {
-        navigate('/learn');
+        navigate('/learn?go=dashboard');
       }
       return;
     }
@@ -381,6 +381,7 @@ export default function ConceptPage() {
       const params = new URLSearchParams();
       if (chapterId) params.set('chapterId', chapterId);
       if (unitId) params.set('unitId', unitId);
+      params.set('go', 'dashboard');
       const query = params.toString();
       navigate(`/learn${query ? '?' + query : ''}`);
     }
@@ -504,7 +505,7 @@ export default function ConceptPage() {
   // Allow advancing with Enter key when the exit confirmation is not visible
   useEffect(() => {
     function handleKeyDown(event) {
-      if (event.key === 'Enter' && !showExitConfirm) {
+      if ((event.key === 'Enter' || event.keyCode === 13) && !showExitConfirm) {
         event.preventDefault();
         
         if (isComicActive && comicReadTimer > 0) return;
@@ -681,6 +682,7 @@ export default function ConceptPage() {
                 const params = new URLSearchParams();
                 if (chapterId) params.set('chapterId', chapterId);
                 if (unitId) params.set('unitId', unitId);
+                params.set('go', 'dashboard');
                 const query = params.toString();
                 navigate(`/learn${query ? '?' + query : ''}`);
               }}

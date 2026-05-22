@@ -319,7 +319,7 @@ export default function DescriptivePage() {
       if (undoActive && undoActive()) {
         navigate('/review-round');
       } else {
-        navigate('/learn');
+        navigate('/learn?go=dashboard');
       }
       return;
     }
@@ -338,6 +338,7 @@ export default function DescriptivePage() {
       const params = new URLSearchParams();
       if (chapterId) params.set('chapterId', chapterId);
       if (unitId) params.set('unitId', unitId);
+      params.set('go', 'dashboard');
       const query = params.toString();
       navigate(`/learn${query ? '?' + query : ''}`);
     }
@@ -347,7 +348,7 @@ export default function DescriptivePage() {
   useEffect(() => {
     if (!showResult) return;
     const onKey = (e) => {
-      if (e.key === 'Enter') {
+      if (e.key === 'Enter' || e.keyCode === 13) {
         e.preventDefault();
         if (isCorrect) {
           handleNext(true);
@@ -437,10 +438,10 @@ export default function DescriptivePage() {
               onChange={handleTextChange}
               disabled={showResult}
               placeholder="Type your answer here..."
-              autoComplete="off"
+              autoComplete="new-password"
               autoCorrect="off"
-              autoCapitalize="off"
-              spellCheck="false"
+              autoCapitalize="none"
+              spellCheck={false}
               inputMode="text"
               data-gramm="false"
               data-form-type="other"
@@ -602,6 +603,7 @@ export default function DescriptivePage() {
               const params = new URLSearchParams();
               if (chapterId) params.set('chapterId', chapterId);
               if (unitId) params.set('unitId', unitId);
+              params.set('go', 'dashboard');
               const query = params.toString();
               navigate(`/learn${query ? '?' + query : ''}`);
             }}
