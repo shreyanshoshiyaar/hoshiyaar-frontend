@@ -134,6 +134,7 @@ export const ReviewProvider = ({ children }) => {
 			value={{
 				queue,
 				active,
+				hasItems,
 				add,
 				reset,
 				start,
@@ -142,6 +143,7 @@ export const ReviewProvider = ({ children }) => {
 				requeueActive,
 				undoActive,
 				hasHistory: history.length > 0,
+				currentModule,
 				stageIncorrect,
 				clearStagedForModule,
 				getStagedForModule,
