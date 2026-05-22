@@ -468,7 +468,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
     } else {
       // Haptic feedback for incorrect answer
       try {
-        Haptics.vibrate().catch(() => {});
+        Haptics.vibrate();
       } catch (_) {}
 
       // Immediate feedback and enqueue for review
@@ -870,10 +870,10 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
               onFocus={() => setIsInputFocused(true)}
               onBlur={() => setIsInputFocused(false)}
               autoFocus
-              autoComplete="nope"
+              autoComplete="off"
               autoCorrect="off"
-              autoCapitalize="none"
-              spellCheck={false}
+              autoCapitalize="off"
+              spellCheck="false"
               inputMode="text"
               data-form-type="other"
               data-lpignore="true"
