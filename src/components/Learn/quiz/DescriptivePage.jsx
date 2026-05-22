@@ -13,7 +13,7 @@ import pointsService from '../../../services/pointsService.js';
 import { progressKey } from '../../../utils/progressKey.js';
 import correctSfx from '../../../assets/sounds/correct-choice-43861.mp3';
 import errorSfx from '../../../assets/sounds/error-010-206498.mp3';
-import { Haptics } from '@capacitor/haptics';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 export default function DescriptivePage() {
   const navigate = useNavigate();
@@ -164,7 +164,7 @@ export default function DescriptivePage() {
         src.play().catch(() => {});
       }
       if (!isCorrectStatus) {
-        Haptics.vibrate().catch(() => {});
+        Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
       }
     } catch (_) {}
 

@@ -1,4 +1,4 @@
-import { Haptics } from '@capacitor/haptics';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import ProgressBar from '../../ui/ProgressBar.jsx';
 import SimpleLoading from '../../ui/SimpleLoading.jsx';
 import TryAgainModal from '../../modals/TryAgainModal.jsx';
@@ -468,7 +468,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
     } else {
       // Haptic feedback for incorrect answer
       try {
-        Haptics.vibrate();
+        Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
       } catch (_) {}
 
       // Immediate feedback and enqueue for review
