@@ -885,7 +885,11 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
 
             <input
               type="password"
-              autoComplete="new-password"
+              name={inputName}
+              autoComplete="one-time-code"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck="false"
               ref={inputRef}
               value={userAnswer}
               onChange={(e) => setUserAnswer(e.target.value)}
@@ -902,6 +906,9 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
               autoFocus
               className="absolute inset-0 opacity-0 w-full h-full cursor-default"
               style={{ fontSize: '16px' }}
+              data-1p-ignore
+              data-lpignore="true"
+              data-form-no-save="true"
             />
           </div>
         </div>

@@ -145,19 +145,19 @@ const DesktopHome = () => {
                 <div className="orbit-ring"></div>
                 
                 <div className="orbit-icon">
-                  <img src="https://peru-dinosaur-951137.hostingersite.com/wp-content/uploads/2026/03/Pencil.png" alt="Pencil" />
+                  <span style={{fontSize: '2rem'}}>✏️</span>
                 </div>
                 <div className="orbit-icon">
-                  <img src="https://peru-dinosaur-951137.hostingersite.com/wp-content/uploads/2026/03/Idea.png" alt="Idea" />
+                  <span style={{fontSize: '2rem'}}>💡</span>
                 </div>
                 <div className="orbit-icon">
-                  <img src="https://peru-dinosaur-951137.hostingersite.com/wp-content/uploads/2026/03/Tubes.png" alt="Tubes" />
+                  <span style={{fontSize: '2rem'}}>⚗️</span>
                 </div>
                 <div className="orbit-icon">
-                  <img src="https://peru-dinosaur-951137.hostingersite.com/wp-content/uploads/2026/03/Test-Tue.png" alt="Test Tube" />
+                  <span style={{fontSize: '2rem'}}>🧪</span>
                 </div>
                 <div className="orbit-icon">
-                  <img src="https://peru-dinosaur-951137.hostingersite.com/wp-content/uploads/2026/03/Microscope.png" alt="Microscope" />
+                  <span style={{fontSize: '2rem'}}>🔬</span>
                 </div>
                 
                 <div className="hero-video-wrapper">
