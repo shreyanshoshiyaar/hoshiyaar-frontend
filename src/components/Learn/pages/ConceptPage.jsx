@@ -558,10 +558,7 @@ export default function ConceptPage() {
     return (
       <div 
         style={{ 
-          backgroundImage: `url("${bgImage}")`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
+          backgroundColor: '#FFFBEB'
         }}
         className="h-screen flex flex-col overflow-hidden md:!bg-none md:!bg-[#d7efff]"
       >
@@ -591,7 +588,7 @@ export default function ConceptPage() {
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 overflow-y-auto md:overflow-y-hidden md:justify-start mt-2 md:mt-4" style={{ maxHeight: 'calc(100vh - 80px)' }}>
+        <div className="flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 overflow-hidden md:justify-start mt-2 md:mt-4" style={{ maxHeight: 'calc(100vh - 80px)' }}>
           <div className="w-full max-w-3xl sm:max-w-4xl mt-2 md:mt-4">
             {shouldShowComic ? (
               <div className="flex items-center justify-center w-full -mt-2 md:-mt-6 pb-20 md:pb-2">
@@ -699,10 +696,7 @@ export default function ConceptPage() {
   return (
     <div 
       style={{ 
-        backgroundImage: `url("${bgImage}")`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
+        backgroundColor: '#FFFBEB'
       }}
       className="fixed inset-0 flex flex-col overflow-hidden md:!bg-none md:!bg-[#d7efff]"
     >
@@ -737,7 +731,7 @@ export default function ConceptPage() {
       </div>
 
       {/* Main Content - stable height to prevent background moving */}
-      <div className={`flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 pb-40 sm:pb-32 md:pb-0 md:justify-start mt-2 md:mt-4 overflow-y-auto`} style={{ maxHeight: 'calc(100vh - 80px)' }}>
+      <div className={`flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 pb-24 sm:pb-16 md:pb-0 md:justify-start mt-2 md:mt-4 overflow-hidden`} style={{ maxHeight: 'calc(100vh - 80px)' }}>
         {(itemVideoUrl || actualType === 'video') ? (
           <div className="flex-1 flex flex-col items-center justify-center p-4 w-full">
             <div 
