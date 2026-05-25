@@ -13,50 +13,58 @@ import Lottie from 'lottie-react';
 // Large Lottie files are now fetched from the public folder to avoid build issues
 
 const ComicLightbox = ({ src, alt, onClose }) => {
-  const [scale, setScale] = useState(1);
+  const [scale, setScale] = useState(2.5);
 
   return (
     <div 
-      className="fixed inset-0 z-[10000] bg-black/95"
-      onClick={onClose}
+      className="fixed inset-0 z-[10000] bg-black/95 overflow-auto custom-scrollbar"
+      style={{
+        display: 'flex',
+        alignItems: scale > 1 ? 'flex-start' : 'center',
+        justifyContent: scale > 1 ? 'flex-start' : 'center',
+      }}
+      onClick={() => setScale(s => s === 1 ? 2.5 : 1)}
     >
       <button
-        onClick={onClose}
-        className="absolute top-4 right-4 z-[10001] bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-colors shadow-lg"
+        onClick={(e) => {
+          e.stopPropagation();
+          onClose();
+        }}
+        className="fixed top-4 right-4 z-[10001] bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-colors shadow-lg"
       >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 sm:w-8 sm:h-8">
           <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
 
-      <div 
-        className="w-full h-full overflow-auto grid p-4 custom-scrollbar"
+      <div
+        className="p-2 sm:p-4"
         style={{
-          placeItems: scale > 1 ? 'start' : 'center'
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: scale > 1 ? '250%' : '100%',
+          minHeight: '100%',
+          flexShrink: 0,
+          transition: 'width 0.2s ease-out'
         }}
       >
         <img
           src={src}
           alt={alt}
-          onClick={(e) => {
-            e.stopPropagation();
-            setScale(s => s === 1 ? 2.5 : 1);
-          }}
-          className="transition-all duration-300 ease-out origin-top-left"
+          className="object-contain shadow-2xl transition-all duration-200 ease-out"
           style={{
             cursor: scale === 1 ? 'zoom-in' : 'zoom-out',
-            maxWidth: scale === 1 ? '100%' : 'none',
-            maxHeight: scale === 1 ? '100%' : 'none',
-            width: scale > 1 ? `${scale * 100}vw` : 'auto',
-            height: scale > 1 ? 'auto' : 'auto',
-            minWidth: scale > 1 ? `${scale * 100}vw` : 'auto',
-            flexShrink: 0
+            width: '100%',
+            height: scale > 1 ? 'auto' : '100%',
+            maxHeight: scale > 1 ? 'none' : '95vh',
+            display: 'block'
           }}
           draggable={false}
         />
       </div>
       
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/50 text-xs sm:text-sm font-bold tracking-wider pointer-events-none z-50 bg-black/50 px-4 py-2 rounded-full backdrop-blur-sm">
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 text-white/50 text-xs sm:text-sm font-bold tracking-wider pointer-events-none z-50 bg-black/50 px-4 py-2 rounded-full backdrop-blur-sm">
         {scale === 1 ? 'Click to Magnify' : 'Scroll to Pan • Click to Reset'}
       </div>
     </div>
@@ -316,7 +324,22 @@ export default function ConceptPage() {
     return false;
   }, [item, introVideoUrl]);
 
+  // DERIVED STATE MOVED UP FOR HOOKS
+  const actualType = (() => {
+    if (isRevisionModeFromUrl && revisionItem?.type) {
+      return String(revisionItem.type);
+    }
+    return String(item?.type || '');
+  })();
 
+  const bgImage = actualType === 'comic' 
+    ? 'https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778244662/img-to-link/eqapfsffgxkdty1pkq5f.webp'
+    : 'https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778244663/img-to-link/m6w3rzzraf0o5di82eui.webp';
+  const midLessonKey = `${moduleNumber}:${index}`;
+  const hasMidLessonVideo = midLessonVideos[midLessonKey];
+  const shouldShowVideo = introVideoUrl && !videoAcknowledged && (index === 0 || hasMidLessonVideo || showEndVideo);
+  const shouldShowComic = introComicUrls && introComicUrls.length > 0 && (!videoAcknowledged && index === 0 || actualType === 'comic');
+  const isComicActive = shouldShowComic || actualType === 'comic';
 
   // Reset gate when starting a new module (index 0) or reaching a card with mid-lesson video
   // Reset comicSlideIndex whenever advancing so new comics start at slide 0
@@ -410,44 +433,42 @@ export default function ConceptPage() {
   }
 
   const handleBack = useCallback(() => {
-    // Double press detection for quit popup
+    // 1. Comic slide backwards logic
+    if (shouldShowComic && comicSlideIndex > 0) {
+      setComicSlideIndex(prev => prev - 1);
+      return;
+    }
+
+    // 2. Double press detection for quit popup
     const lastPress = Number(sessionStorage.getItem('last_back_press_time') || 0);
     const now = Date.now();
-    if (now - lastPress < 2000) { // 2 seconds threshold
+    
+    if (now - lastPress < 2000) { 
+      // Double press confirmed! Show exit confirmation
       setShowExitConfirm(true);
-      sessionStorage.removeItem('last_back_press_time'); // Clear to allow normal back if they stay
+      sessionStorage.removeItem('last_back_press_time');
       return;
     }
+
+    // Record first press
     sessionStorage.setItem('last_back_press_time', String(now));
 
-    if (actualReviewMode) {
-      if (undoActive && undoActive()) {
-        navigate('/review-round');
-      } else {
-        navigate('/learn?go=dashboard');
-      }
+    // If at the very beginning of the lesson, do not navigate instantly, 
+    // wait for the double-press to show the quit confirm.
+    if (index === 0 || isInReviewOrRevision) {
+      // Optional: You could add a small toast notification here saying "Press back again to quit"
       return;
     }
 
-    if (index > 0) {
-      const prevIndex = index - 1;
-      const prevItem = items[prevIndex];
-      if (!prevItem) return;
-      const params = new URLSearchParams(window.location.search);
-      const suffix = params.toString() ? `?${params.toString()}` : '';
-      navigate(`${routeForType(prevItem.type, prevIndex)}${suffix}`);
-    } else {
-      const urlParams = new URLSearchParams(window.location.search);
-      const chapterId = urlParams.get('chapterId');
-      const unitId = urlParams.get('unitId');
-      const params = new URLSearchParams();
-      if (chapterId) params.set('chapterId', chapterId);
-      if (unitId) params.set('unitId', unitId);
-
-      const query = params.toString();
-      navigate(`/learn${query ? '?' + query : ''}`);
-    }
-  }, [index, items, navigate, moduleNumber]);
+    // 3. Normal navigation back to previous concept if index > 0
+    const prevIndex = index - 1;
+    const prevItem = items[prevIndex];
+    if (!prevItem) return;
+    const params = new URLSearchParams(window.location.search);
+    const suffix = params.toString() ? `?${params.toString()}` : '';
+    navigate(`${routeForType(prevItem.type, prevIndex)}${suffix}`);
+    
+  }, [index, items, navigate, moduleNumber, shouldShowComic, comicSlideIndex, isInReviewOrRevision]);
 
   const goNext = useCallback(async () => {
     // If in review or revision mode, navigate back to review-round instead of next sequential item
@@ -528,22 +549,6 @@ export default function ConceptPage() {
     goNext();
   };
 
-  // DERIVED STATE MOVED UP FOR HOOKS
-  const actualType = (() => {
-    if (isRevisionModeFromUrl && revisionItem?.type) {
-      return String(revisionItem.type);
-    }
-    return String(item?.type || '');
-  })();
-
-  const bgImage = actualType === 'comic' 
-    ? 'https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778244662/img-to-link/eqapfsffgxkdty1pkq5f.webp'
-    : 'https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778244664/img-to-link/rja5gjrge66m1grxi284.webp';
-  const midLessonKey = `${moduleNumber}:${index}`;
-  const hasMidLessonVideo = midLessonVideos[midLessonKey];
-  const shouldShowVideo = introVideoUrl && !videoAcknowledged && (index === 0 || hasMidLessonVideo || showEndVideo);
-  const shouldShowComic = introComicUrls && introComicUrls.length > 0 && (!videoAcknowledged && index === 0 || actualType === 'comic');
-  const isComicActive = shouldShowComic || actualType === 'comic';
 
   // COMIC TIMER EFFECT
   useEffect(() => {
@@ -622,7 +627,7 @@ export default function ConceptPage() {
         style={{ 
           backgroundColor: '#FFFBEB'
         }}
-        className="h-screen flex flex-col overflow-hidden md:!bg-none md:!bg-[#d7efff]"
+        className="h-screen flex flex-col overflow-hidden md:!bg-none md:!bg-[#f1eafc]"
       >
         <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
         <button
@@ -658,22 +663,9 @@ export default function ConceptPage() {
                   <img
                     src={introComicUrls[comicSlideIndex]}
                     alt={`Comic slide ${comicSlideIndex + 1}`}
-                    className="w-full h-auto max-h-[60vh] md:max-h-[calc(100vh-230px)] object-contain rounded-xl sm:rounded-2xl cursor-zoom-in shadow-md border-2 border-blue-50 bg-white"
+                    className="w-full h-auto max-h-[80vh] md:max-h-[calc(100vh-190px)] object-contain rounded-xl sm:rounded-2xl cursor-zoom-in shadow-md border-2 border-blue-50 bg-white"
                     onClick={() => setIsZoomed(true)}
                   />
-                  <button
-                    onClick={() => {
-                      console.log("Zoom button clicked");
-                      setIsZoomed(true);
-                    }}
-                    className="mt-3 flex items-center gap-2 px-4 py-2 bg-blue-50/50 text-blue-600 rounded-xl font-bold hover:bg-blue-100 transition-colors border border-blue-100 shadow-sm relative z-50"
-                    title="Zoom In"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
-                    </svg>
-                    <span className="text-sm">Zoom Image</span>
-                  </button>
                 </div>
               </div>
             ) : (
@@ -760,9 +752,12 @@ export default function ConceptPage() {
   return (
     <div 
       style={{ 
-        backgroundColor: '#FFFBEB'
+        backgroundImage: `url("${bgImage}")`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
       }}
-      className="fixed inset-0 flex flex-col overflow-hidden md:!bg-none md:!bg-[#d7efff]"
+      className="fixed inset-0 flex flex-col overflow-hidden md:!bg-none md:!bg-[#f1eafc]"
     >
       {/* Header - reduced padding for mobile */}
       <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
@@ -875,9 +870,9 @@ export default function ConceptPage() {
         <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative z-10">
           {!shouldShowComic && !(itemVideoUrl || actualType === 'video') && (
             <img 
-              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103896/img-to-link/uqj3uwzpd9sbb2z9mhxv.png" 
-              alt="Ruhaan" 
-              className="hidden md:block absolute bottom-0 right-4 lg:-right-4 w-[150px] lg:w-[200px] object-contain -z-10 pointer-events-none" 
+              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103895/img-to-link/prjwol57ayvxogrzua2z.png" 
+              alt="Hoshi" 
+              className="hidden md:block absolute bottom-0 right-4 lg:-right-4 w-[135px] lg:w-[180px] object-contain -z-10 pointer-events-none" 
             />
           )}
 
