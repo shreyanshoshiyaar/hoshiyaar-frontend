@@ -340,6 +340,7 @@ export default function ConceptPage() {
   const shouldShowVideo = introVideoUrl && !videoAcknowledged && (index === 0 || hasMidLessonVideo || showEndVideo);
   const shouldShowComic = introComicUrls && introComicUrls.length > 0 && (!videoAcknowledged && index === 0 || actualType === 'comic');
   const isComicActive = shouldShowComic || actualType === 'comic';
+  const isVideoShowing = shouldShowVideo || !!itemVideoUrl || actualType === 'video';
 
   // Reset gate when starting a new module (index 0) or reaching a card with mid-lesson video
   // Reset comicSlideIndex whenever advancing so new comics start at slide 0
@@ -752,7 +753,8 @@ export default function ConceptPage() {
   return (
     <div 
       style={{ 
-        backgroundImage: `url("${bgImage}")`,
+        backgroundImage: isVideoShowing ? 'none' : `url("${bgImage}")`,
+        backgroundColor: isVideoShowing ? '#f1eafc' : 'transparent',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
@@ -791,7 +793,7 @@ export default function ConceptPage() {
 
       {/* Main Content - stable height to prevent background moving */}
       <div className={`flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 pb-24 sm:pb-16 md:pb-0 md:justify-start mt-2 md:mt-4 overflow-hidden`} style={{ maxHeight: 'calc(100vh - 80px)' }}>
-        {(itemVideoUrl || actualType === 'video') ? (
+        {isVideoShowing ? (
           <div className="flex-1 flex flex-col items-center justify-center p-4 w-full">
             <div 
               className={`relative overflow-hidden border border-gray-100 shadow-lg bg-black flex-shrink-0 mt-2 sm:mt-6 rounded-3xl ${isShortVideo ? 'aspect-[9/16] h-[74vh] max-h-[calc(100vh-230px)]' : 'w-full aspect-video'}`}
@@ -868,7 +870,7 @@ export default function ConceptPage() {
 
       <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white/40 backdrop-blur-sm border-t-2 border-white/20 sm:border-t-0 shadow-lg sm:shadow-none px-2 sm:px-3 md:px-6 py-3 sm:py-4 z-50 sm:z-auto">
         <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative z-10">
-          {!shouldShowComic && !(itemVideoUrl || actualType === 'video') && (
+          {!shouldShowComic && !isVideoShowing && (
             <img 
               src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103895/img-to-link/prjwol57ayvxogrzua2z.png" 
               alt="Hoshi" 
