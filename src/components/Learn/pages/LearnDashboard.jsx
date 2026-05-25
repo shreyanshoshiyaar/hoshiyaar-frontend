@@ -2182,7 +2182,7 @@ const LearnDashboard = ({ onboardingData }) => {
 
                                     {/* Continue Button */}
                                     <div className={`w-full py-3.5 rounded-2xl bg-gradient-to-r ${cardGradient} text-white text-center font-black text-sm md:text-base shadow-lg hover:shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2`}>
-                                      <span>CONTINUE LEARNING</span>
+                                      <span>{st.completed > 0 ? 'CONTINUE LEARNING' : 'START LEARNING'}</span>
                                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                       </svg>

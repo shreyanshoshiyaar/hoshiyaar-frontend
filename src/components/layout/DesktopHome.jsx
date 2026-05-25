@@ -112,7 +112,7 @@ const DesktopHome = () => {
             <div className="hero-content">
               <div className="hero-badge">
                 <div className="hero-badge-dot"></div>
-                <span className="hero-badge-text">CBSE · CLASSES 3–7 · SCIENCE</span>
+                <span className="hero-badge-text" style={{fontSize: '1rem', fontWeight: 'bold'}}>CBSE · CLASSES 6–8 · SCIENCE</span>
               </div>
 
               <h1 className="hero-h1">Don't memorize</h1>
@@ -129,7 +129,7 @@ const DesktopHome = () => {
               </p>
 
               <div className="hero-actions">
-                <a className="btn-primary btn-blue" href="#hoshi-cases" onClick={(e) => handleSmoothScroll(e, '#hoshi-cases')}>Explore Hoshiyaar ✦</a>
+                <a className="btn-primary btn-blue" href="/login">Explore Hoshiyaar ✦</a>
                 <a className="btn-ghost" href="#hoshi-cases" onClick={(e) => handleSmoothScroll(e, '#hoshi-cases')}>▶ Watch the First Mystery</a>
               </div>
 
@@ -160,16 +160,32 @@ const DesktopHome = () => {
                   <span style={{fontSize: '2rem'}}>🔬</span>
                 </div>
                 
-                <div className="hero-video-wrapper">
-                  <div className="hero-video-inner">
-                    <iframe 
-                      style={{width: '100%', height: '100%', transform: 'scale(1.8)', pointerEvents: 'none'}}
-                      src="https://www.youtube.com/embed/NlXk4BVxScI?autoplay=1&mute=1&loop=1&playlist=NlXk4BVxScI&controls=0&showinfo=0&rel=0&modestbranding=1" 
-                      title="Hoshiyaar Science" 
-                      frameBorder="0" 
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    ></iframe>
-                  </div>
+                <div style={{
+                  position: 'relative',
+                  zIndex: 10,
+                  width: '100%',
+                  maxWidth: '190px',
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  transform: 'translateZ(0)'
+                }}>
+                  <video 
+                    id="heroVideo"
+                    src="/Video/Hoshi-Video.mp4" 
+                    autoPlay 
+                    muted 
+                    loop 
+                    playsInline
+                    style={{
+                      width: '102%',
+                      height: '102%',
+                      marginLeft: '-1%',
+                      marginTop: '-1%',
+                      objectFit: 'cover',
+                      pointerEvents: 'none',
+                      display: 'block'
+                    }}
+                  ></video>
                 </div>
               </div>
             </div>
@@ -188,14 +204,14 @@ const DesktopHome = () => {
             <div className="ticker-item">🧪 Concepts that click</div>
             <div className="ticker-item">🏆 Exam-ready answers</div>
             <div className="ticker-item">📱 Practice app — coming soon</div>
-            <div className="ticker-item">✦ CBSE Classes 3–7</div>
+            <div className="ticker-item" style={{fontSize: '1.2rem', fontWeight: 'bold'}}>✦ CBSE Classes 6–8</div>
             <div className="ticker-item">🌟 Curiosity that grows</div>
             <div className="ticker-item">🔍 One mystery at a time</div>
             <div className="ticker-item">🎵 Songs that stick</div>
             <div className="ticker-item">🧪 Concepts that click</div>
             <div className="ticker-item">🏆 Exam-ready answers</div>
             <div className="ticker-item">📱 Practice app — coming soon</div>
-            <div className="ticker-item">✦ CBSE Classes 3–7</div>
+            <div className="ticker-item" style={{fontSize: '1.2rem', fontWeight: 'bold'}}>✦ CBSE Classes 6–8</div>
             <div className="ticker-item">🌟 Curiosity that grows</div>
           </div>
         </div>
@@ -407,25 +423,7 @@ const DesktopHome = () => {
           </div>
         </section>
 
-        <section id="hoshi-explore" className="hoshi-section">
-          <div className="hoshi-container">
-            <div className="reveal" style={{textAlign:'center',marginBottom:'44px'}}>
-              <div className="section-label">Explore</div>
-              <h2 className="fraunces" style={{fontSize:'clamp(1.8rem,3.5vw,2.5rem)',fontWeight:900,letterSpacing:'-.03em',color:'var(--ink)',marginBottom:'12px'}}>What students can <span style={{color:'var(--indigo)'}}>discover</span></h2>
-              <p style={{color:'var(--ink3)',fontSize:'1rem'}}>CBSE-aligned mystery cases across all major science themes, Classes 3–7.</p>
-            </div>
-            <div className="explore-grid reveal">
-              <div className="hoshi-card explore-card"><div className="explore-emoji">🌡️</div><div className="explore-label">Heat &amp; Temperature</div></div>
-              <div className="hoshi-card explore-card"><div className="explore-emoji">💡</div><div className="explore-label">Light &amp; Optics</div></div>
-              <div className="hoshi-card explore-card"><div className="explore-emoji">⚡</div><div className="explore-label">Electricity</div></div>
-              <div className="hoshi-card explore-card"><div className="explore-emoji">🧲</div><div className="explore-label">Magnetism</div></div>
-              <div className="hoshi-card explore-card"><div className="explore-emoji">🧪</div><div className="explore-label">Chemical Changes</div></div>
-              <div className="hoshi-card explore-card"><div className="explore-emoji">🌱</div><div className="explore-label">Life Processes</div></div>
-              <div className="hoshi-card explore-card"><div className="explore-emoji">🌍</div><div className="explore-label">Our Universe</div></div>
-              <div className="hoshi-card explore-card"><div className="explore-emoji">⚗️</div><div className="explore-label">Acids &amp; Bases</div></div>
-            </div>
-          </div>
-        </section>
+
 
         <section id="hoshi-audience" className="hoshi-section">
           <div className="hoshi-container" style={{maxWidth:'960px'}}>
@@ -434,7 +432,7 @@ const DesktopHome = () => {
               <h2 className="fraunces" style={{fontSize:'clamp(2rem,4vw,3rem)',fontWeight:900,letterSpacing:'-.03em',color:'var(--ink)'}}>Who it's <span style={{color:'var(--blue)'}}>built for</span></h2>
             </div>
             <div className="audience-grid">
-              <div className="hoshi-card audience-card reveal-scale d1"><div className="audience-emoji">🎒</div><div className="audience-title">Students in Classes 3–7</div><p className="audience-desc">CBSE science explained in ways that make sense — and stay with you through exams and beyond.</p></div>
+              <div className="hoshi-card audience-card reveal-scale d1"><div className="audience-emoji">🎒</div><div className="audience-title" style={{fontSize: '1.4rem'}}>Students in Classes 6–8</div><p className="audience-desc">CBSE science explained in ways that make sense — and stay with you through exams and beyond.</p></div>
               <div className="hoshi-card audience-card reveal-scale d2"><div className="audience-emoji">👨👩👧</div><div className="audience-title">Parents who want more than marks</div><p className="audience-desc">Hoshiyaar builds curiosity alongside scores. Students who understand don't just pass — they remember.</p></div>
               <div className="hoshi-card audience-card reveal-scale d3"><div className="audience-emoji">👩🏫</div><div className="audience-title">Teachers who love science</div><p className="audience-desc">A supplementary resource that adds the 'why' behind every chapter — through story, song, and mystery.</p></div>
             </div>
@@ -496,7 +494,7 @@ const DesktopHome = () => {
               <a className="btn-white" href="#hoshi-app" onClick={(e) => handleSmoothScroll(e, '#hoshi-app')}>Get Notified ✦</a>
               <a className="btn-white-ghost" href="#hoshi-cases" onClick={(e) => handleSmoothScroll(e, '#hoshi-cases')}>View Cases</a>
             </div>
-            <p className="cta-note">Free to explore · CBSE Classes 3–7 · Coming soon</p>
+            <p className="cta-note" style={{fontSize: '1.1rem'}}>Free to explore · CBSE Classes 6–8 · Coming soon</p>
           </div>
         </section>
       </main>

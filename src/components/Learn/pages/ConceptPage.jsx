@@ -12,6 +12,57 @@ import ConceptExitConfirm from '../../modals/ConceptExitConfirm.jsx';
 import Lottie from 'lottie-react';
 // Large Lottie files are now fetched from the public folder to avoid build issues
 
+const ComicLightbox = ({ src, alt, onClose }) => {
+  const [scale, setScale] = useState(1);
+
+  return (
+    <div 
+      className="fixed inset-0 z-[10000] bg-black/95"
+      onClick={onClose}
+    >
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 z-[10001] bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-colors shadow-lg"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 sm:w-8 sm:h-8">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <div 
+        className="w-full h-full overflow-auto grid p-4 custom-scrollbar"
+        style={{
+          placeItems: scale > 1 ? 'start' : 'center'
+        }}
+      >
+        <img
+          src={src}
+          alt={alt}
+          onClick={(e) => {
+            e.stopPropagation();
+            setScale(s => s === 1 ? 2.5 : 1);
+          }}
+          className="transition-all duration-300 ease-out origin-top-left"
+          style={{
+            cursor: scale === 1 ? 'zoom-in' : 'zoom-out',
+            maxWidth: scale === 1 ? '100%' : 'none',
+            maxHeight: scale === 1 ? '100%' : 'none',
+            width: scale > 1 ? `${scale * 100}vw` : 'auto',
+            height: scale > 1 ? 'auto' : 'auto',
+            minWidth: scale > 1 ? `${scale * 100}vw` : 'auto',
+            flexShrink: 0
+          }}
+          draggable={false}
+        />
+      </div>
+      
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/50 text-xs sm:text-sm font-bold tracking-wider pointer-events-none z-50 bg-black/50 px-4 py-2 rounded-full backdrop-blur-sm">
+        {scale === 1 ? 'Click to Magnify' : 'Scroll to Pan • Click to Reset'}
+      </div>
+    </div>
+  );
+};
+
 export default function ConceptPage() {
   const navigate = useNavigate();
   const { moduleNumber, index: indexParam } = useParams();
@@ -46,6 +97,17 @@ export default function ConceptPage() {
     fetch('/lottie/Hoshi-Background.json').then(res => res.json()).then(data => setBgAnim(data)).catch(console.error);
     fetch('/lottie/Myra-Background.json').then(res => res.json()).then(data => setMyraBgAnim(data)).catch(console.error);
   }, []);
+
+  // Dynamically enable native pinch-to-zoom when viewing comic full screen
+  useEffect(() => {
+    const metaViewport = document.querySelector('meta[name="viewport"]');
+    if (!metaViewport) return;
+    if (isZoomed) {
+      metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes');
+    } else {
+      metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+    }
+  }, [isZoomed]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -599,9 +661,11 @@ export default function ConceptPage() {
                     className="w-full h-auto max-h-[60vh] md:max-h-[calc(100vh-230px)] object-contain rounded-xl sm:rounded-2xl cursor-zoom-in shadow-md border-2 border-blue-50 bg-white"
                     onClick={() => setIsZoomed(true)}
                   />
-                  {/* Zoom button below image */}
                   <button
-                    onClick={() => setIsZoomed(true)}
+                    onClick={() => {
+                      console.log("Zoom button clicked");
+                      setIsZoomed(true);
+                    }}
                     className="mt-3 flex items-center gap-2 px-4 py-2 bg-blue-50/50 text-blue-600 rounded-xl font-bold hover:bg-blue-100 transition-colors border border-blue-100 shadow-sm relative z-50"
                     title="Zoom In"
                   >
@@ -757,9 +821,11 @@ export default function ConceptPage() {
                   className="w-full h-auto max-h-[60vh] md:max-h-[calc(100vh-230px)] object-contain rounded-xl sm:rounded-2xl cursor-zoom-in shadow-md border-2 border-blue-50 bg-white"
                   onClick={() => setIsZoomed(true)}
                 />
+                
                 <button
                   onClick={() => setIsZoomed(true)}
                   className="mt-3 flex items-center gap-2 px-4 py-2 bg-blue-50/50 text-blue-600 rounded-xl font-bold hover:bg-blue-100 transition-colors border border-blue-100 shadow-sm relative z-50"
+                  title="Zoom In"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
@@ -858,22 +924,11 @@ export default function ConceptPage() {
       )}
 
       {isZoomed && shouldShowComic && (
-        <div className="fixed inset-0 z-[10000] bg-black/95 flex flex-col items-center justify-center p-4">
-          <button
-            onClick={() => setIsZoomed(false)}
-            className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-          <img
-            src={introComicUrls[comicSlideIndex]}
-            alt={`Zoomed Comic ${comicSlideIndex + 1}`}
-            className="max-w-[95%] max-h-[90vh] object-contain cursor-zoom-out"
-            onClick={() => setIsZoomed(false)}
-          />
-        </div>
+        <ComicLightbox 
+          src={introComicUrls[comicSlideIndex]} 
+          alt={`Zoomed Comic ${comicSlideIndex + 1}`} 
+          onClose={() => setIsZoomed(false)} 
+        />
       )}
     </div>
   );
