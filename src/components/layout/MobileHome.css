@@ -25,7 +25,7 @@
 .mobile-carousel-item img {
   width: 100%;
   height: 100%;
-  object-fit: fill; /* Stretches to fit the phone size exactly as requested */
+  object-fit: cover; /* Maintain aspect ratio and cover the entire container */
 }
 
 .dot-navigation {
