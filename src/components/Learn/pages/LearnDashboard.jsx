@@ -5,7 +5,7 @@ import heroChar from "../../../assets/images/heroChar.png";
 import RevisionStar from "../quiz/RevisionStar.jsx";
 import { ReviewProvider } from "../../../context/ReviewContext.jsx";
 import { useStars } from '../../../context/StarsContext.jsx';
-import chapterImg from "../../../assets/images/chapterImg.png";
+
 import authService from "../../../services/authService.js";
 import { progressKey } from "../../../utils/progressKey.js";
 import Lottie from "lottie-react";
@@ -2192,7 +2192,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                   {/* Illustration Container */}
                                   <div className="hidden sm:flex flex-shrink-0 items-center justify-center w-24 h-24 md:w-32 md:h-32 rounded-3xl bg-gray-50 group-hover:bg-blue-50 transition-colors relative">
                                     <img
-                                      src={chapterImg}
+                                      src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779775055/img-to-link/oqeihtqpvlhxq5cg8t6o.webp"
                                       alt=""
                                       className="w-16 h-16 md:w-20 md:h-20 object-contain drop-shadow-lg group-hover:scale-110 transition-transform duration-300"
                                     />

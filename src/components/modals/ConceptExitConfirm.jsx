@@ -1,11 +1,11 @@
 import React from 'react';
-import exitImg from '../../assets/images/exit.png';
+
 import { useStars } from '../../context/StarsContext.jsx';
 
 const ExitConfirmCard = ({ onQuit, onContinue }) => (
   <div className="w-full max-w-md bg-white border-2 border-blue-200 rounded-2xl p-4 shadow-[0_8px_0_0_rgba(0,0,0,0.10)]">
     <div className="flex items-center gap-4">
-      <img src={exitImg} alt="Bye" className="w-16 h-16 sm:w-20 sm:h-20 object-contain select-none" />
+      <img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779772905/img-to-link/gckzxx2cnidtzd3ylrto.webp" alt="Bye" className="w-16 h-16 sm:w-20 sm:h-20 object-contain select-none" />
       <div className="flex-1 text-gray-900 font-extrabold text-sm sm:text-base leading-snug">
         Uh-oh, leaving now means losing your progress points. Still want to exit?
       </div>
