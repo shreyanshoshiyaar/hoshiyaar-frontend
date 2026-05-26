@@ -13,7 +13,7 @@ import Lottie from 'lottie-react';
 // Large Lottie files are now fetched from the public folder to avoid build issues
 
 const ComicLightbox = ({ src, alt, onClose }) => {
-  const [scale, setScale] = useState(2.5);
+  const [scale, setScale] = useState(window.innerWidth < 768 ? 1 : 2.5);
 
   return (
     <div 
