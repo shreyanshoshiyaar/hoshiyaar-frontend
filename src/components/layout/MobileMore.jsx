@@ -325,6 +325,14 @@ const MobileMore = ({ stars, weeklyStars }) => {
 
         {/* Action Buttons */}
         <div className="pt-4 space-y-4">
+          {(user?.role === 'admin' || user?.role === 'master' || user?.username === 'Host' || user?.username === 'hostcbse') && (
+            <button 
+              onClick={() => navigate('/admin')}
+              className="w-full py-4 rounded-[24px] text-sm font-black uppercase tracking-widest text-indigo-600 border-2 border-indigo-100 bg-indigo-50 hover:bg-indigo-100 transition-all active:scale-[0.98]"
+            >
+              Admin Dashboard
+            </button>
+          )}
           <button 
             onClick={handleSave}
             disabled={saving}
