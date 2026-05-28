@@ -2469,13 +2469,9 @@ const LearnDashboard = ({ onboardingData }) => {
                                 >
                                   {/* Unit header card - sticky until next unit */}
                                   {(() => {
-                                    const color = unitPalette[unitIdx % unitPalette.length]; 
-                                    const gradFrom = color; 
-                                    const gradTo = darken(color, 0.15); 
-                                    const hasCustomBg = Boolean(u.headerBgUrl || u.timelineBgUrl);
-                                    return (
+                                    const color = unitPalette[unitIdx % unitPalette.length]; const gradFrom = color; const gradTo = darken(color, 0.15); return (
                                       isMobileLayout ? (
-                                        <div className={`sticky top-0 z-[100] px-5 py-5 rounded-[24px] mb-8 shadow-2xl w-full border relative overflow-hidden flex flex-col md:flex-row justify-between backdrop-blur-md ${hasCustomBg ? 'bg-white/20 border-white/40 text-slate-800' : 'bg-white/5 border-white/20 text-white'}`}>
+                                        <div className="sticky top-0 z-[100] text-white px-5 py-5 rounded-[24px] mb-8 shadow-2xl w-full border border-white/20 relative overflow-hidden flex flex-col md:flex-row justify-between backdrop-blur-md bg-black/40">
                                           
                                           {/* Sparkling Stars background effect */}
                                           {!u.headerBgUrl && (
@@ -2487,81 +2483,82 @@ const LearnDashboard = ({ onboardingData }) => {
                                           )}
 
                                           <div className="relative z-10 flex flex-col gap-3">
-                                            <h2 className="text-[22px] font-extrabold leading-tight drop-shadow-sm">
+                                            <h2 className="text-[22px] font-extrabold leading-tight text-white drop-shadow-md">
                                               {(u.title && u.title.toLowerCase() !== 'unit') ? u.title : `Unit ${unitIdx + 1}`}
                                             </h2>
                                             
                                             <div className="w-full h-[1px] bg-white/20 border-t border-dashed border-white/20 my-1" />
 
                                             {chapterTitle && (
-                                              <p className={`opacity-90 font-bold text-sm ${hasCustomBg ? 'text-slate-700' : 'text-blue-50'}`}>
+                                              <p className="opacity-90 font-bold text-sm text-blue-50">
                                                 {chapterTitle}
                                               </p>
                                             )}
 
                                             <div className="flex items-center justify-between gap-2 mt-3">
                                               <button
-                                                  onClick={handleOpenSubjectModal}
-                                                  disabled={isLoading || subjectChanging}
-                                                  className={`flex items-center gap-2 backdrop-blur-md px-3.5 py-1.5 rounded-full border text-xs font-black shadow-inner active:scale-95 transition-all ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''} ${hasCustomBg ? 'bg-white/30 border-slate-800/20 hover:bg-white/40 text-slate-800' : 'bg-white/10 border-white/20 hover:bg-white/20 text-white'}`}
-                                                >
-                                                  <span className="text-sm">🧪</span>
-                                                  <span className="uppercase tracking-wider">{subjectName}</span>
-                                                </button>
+                                                onClick={handleOpenSubjectModal}
+                                                disabled={isLoading || subjectChanging}
+                                                className={`flex items-center gap-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 text-xs font-black shadow-inner active:scale-95 transition-all hover:bg-white/20 ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                              >
+                                                <span className="text-sm">🧪</span>
+                                                <span className="text-white uppercase tracking-wider">{subjectName}</span>
+                                              </button>
                                               
                                               <div className="flex items-center gap-2">
                                                 <button
-                                                    onClick={() => setShowChapters(true)}
-                                                    className={`flex items-center gap-1.5 py-1.5 px-3 rounded-xl transition-colors border text-xs font-extrabold ${hasCustomBg ? 'bg-white/30 hover:bg-white/40 border-slate-800/20 text-slate-800' : 'bg-white/10 hover:bg-white/20 border-white/20 text-white'}`}
-                                                  >
-                                                    <span className="inline-flex items-center justify-center flex-shrink-0">
-                                                      <ChapterNavIcon />
-                                                    </span>
-                                                    <span>All Chapters</span>
-                                                  </button>
+                                                  onClick={() => setShowChapters(true)}
+                                                  className="flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-white/10 hover:bg-white/20 transition-colors border border-white/20 text-xs font-extrabold text-white"
+                                                >
+                                                  <span className="inline-flex items-center justify-center flex-shrink-0">
+                                                    <ChapterNavIcon />
+                                                  </span>
+                                                  <span>All Chapters</span>
+                                                </button>
                                               </div>
                                             </div>
                                           </div>
                                         </div>
                                       ) : (
-                                        <div className={`sticky top-0 z-[100] px-6 py-5 rounded-3xl flex justify-between items-center mb-8 shadow-[0_10px_0_0_rgba(0,0,0,0.15)] w-full border-4 backdrop-blur-md relative overflow-hidden ${hasCustomBg ? 'bg-white/30 border-slate-800/20 text-slate-800' : 'text-white'}`}
+                                        <div className="sticky top-0 z-[100] text-white px-6 py-5 rounded-3xl flex justify-between items-center mb-8 shadow-[0_10px_0_0_rgba(0,0,0,0.15)] w-full border-4 backdrop-blur-md relative overflow-hidden"
                                           style={{ 
-                                            background: u.headerBgUrl ? `url(${u.headerBgUrl}) center/cover no-repeat` : (u.timelineBgUrl ? `rgba(255, 255, 255, 0.3)` : `linear-gradient(90deg, ${gradFrom}, ${gradTo})`), 
-                                            borderColor: hasCustomBg ? withAlpha("#000", 0.1) : withAlpha(color, 0.25) 
+                                            background: u.headerBgUrl ? `url(${u.headerBgUrl}) center/cover no-repeat` : (u.timelineBgUrl ? `rgba(0, 0, 0, 0.4)` : `linear-gradient(90deg, ${gradFrom}, ${gradTo})`), 
+                                            borderColor: withAlpha(color, 0.25) 
                                           }}>
+                                          {u.headerBgUrl && <div className="absolute inset-0 bg-black/40 pointer-events-none" />}
                                           <div className="relative z-10">
                                             <p className="font-extrabold text-base md:text-lg">
                                               {(u.title && u.title.toLowerCase() !== 'unit') ? u.title : `Unit ${unitIdx + 1}`}
                                             </p>
                                             {chapterTitle && (
-                                              <p className={`opacity-95 text-base md:text-lg ${hasCustomBg ? 'text-slate-700' : ''}`}>
+                                              <p className="opacity-95 text-base md:text-lg">
                                                 {chapterTitle}
                                               </p>
                                             )}
                                             <div className="flex items-center gap-2 mt-1">
-                                              <p className={`opacity-90 text-sm md:text-base ${hasCustomBg ? 'text-slate-700' : ''}`}>
+                                              <p className="opacity-90 text-sm md:text-base">
                                                 {subjectName}
                                               </p>
                                               <button
-                                                  onClick={handleOpenSubjectModal}
-                                                  disabled={isLoading || subjectChanging}
-                                                  className={`flex items-center gap-2 py-2 px-3 rounded-2xl transition-colors ring-2 text-xs font-extrabold ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''} ${hasCustomBg ? 'bg-white/30 hover:bg-white/40 ring-slate-800/20 text-slate-800' : 'bg-white/15 hover:bg-white/25 ring-white/40 text-white'}`}
-                                                  title={subjectChanging ? "Switching Subject..." : "Change Subject"}
-                                                >
-                                                  {subjectChanging ? "Switching..." : "Change"}
-                                                </button>
+                                                onClick={handleOpenSubjectModal}
+                                                disabled={isLoading || subjectChanging}
+                                                className={`flex items-center gap-2 py-2 px-3 rounded-2xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-xs font-extrabold ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                title={subjectChanging ? "Switching Subject..." : "Change Subject"}
+                                              >
+                                                {subjectChanging ? "Switching..." : "Change"}
+                                              </button>
                                             </div>
                                           </div>
                                           <div className="flex items-center gap-2 relative z-10">
                                             <button
-                                                onClick={() => setShowChapters(true)}
-                                                className={`flex items-center gap-2.5 py-2 px-4 rounded-xl transition-colors ring-2 text-base ${hasCustomBg ? 'bg-white/30 hover:bg-white/40 ring-slate-800/20 text-slate-800' : 'bg-white/15 hover:bg-white/25 ring-white/40 text-white'}`}
-                                              >
-                                                <span className={`inline-flex items-center justify-center w-7 h-7 rounded-lg flex-shrink-0 ${hasCustomBg ? 'bg-slate-800/20' : 'bg-white/20'}`}>
-                                                  <ChapterNavIcon />
-                                                </span>
-                                                <span className="font-bold hidden sm:inline leading-tight self-center">All Chapters</span>
-                                              </button>
+                                              onClick={() => setShowChapters(true)}
+                                              className="flex items-center gap-2.5 py-2 px-4 rounded-xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-base"
+                                            >
+                                              <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-white/20 flex-shrink-0">
+                                                <ChapterNavIcon />
+                                              </span>
+                                              <span className="font-bold hidden sm:inline leading-tight self-center">All Chapters</span>
+                                            </button>
                                           </div>
                                         </div>
                                       )
