@@ -2443,14 +2443,39 @@ const LearnDashboard = ({ onboardingData }) => {
                         );
                       }
                       if (unitsList.length > 0) {
+                        const visibleUnits = unitsList.filter(u => {
+                          const mods = unitModulesMap[u._id] || (u.virtual ? modulesList : []);
+                          return mods.length > 0;
+                        });
+
+                        if (visibleUnits.length === 0) {
+                          return (
+                            <div className="flex flex-col items-center justify-center h-[60vh] px-6 text-center animate-in fade-in zoom-in duration-300">
+                              <div className="w-24 h-24 mb-6 text-slate-300">
+                                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                </svg>
+                              </div>
+                              <h3 className="text-2xl font-black text-slate-700 mb-2">No Lessons Available Yet</h3>
+                              <p className="text-slate-500 mb-8 max-w-md">
+                                This chapter doesn't have any lessons right now. Check back later or switch to another chapter!
+                              </p>
+                              <button
+                                onClick={() => setShowChapters(true)}
+                                className="bg-[#2563EB] hover:bg-blue-600 text-white px-8 py-3.5 rounded-2xl font-bold shadow-[0_4px_0_0_#1D4ED8] hover:shadow-[0_2px_0_0_#1D4ED8] hover:translate-y-[2px] transition-all flex items-center gap-2"
+                              >
+                                <span className="inline-flex items-center justify-center w-6 h-6">
+                                  <ChapterNavIcon />
+                                </span>
+                                Switch Chapter
+                              </button>
+                            </div>
+                          );
+                        }
+
                         return (
                           <>
-                            {unitsList
-                              .filter(u => {
-                                const mods = unitModulesMap[u._id] || (u.virtual ? modulesList : []);
-                                return mods.length > 0;
-                              })
-                              .map((u, unitIdx) => {
+                            {visibleUnits.map((u, unitIdx) => {
                                 const unitMods = unitModulesMap[u._id] || modulesList;
                                 const localLevels = unitMods;
                                 const localLineHeight = Math.max(
