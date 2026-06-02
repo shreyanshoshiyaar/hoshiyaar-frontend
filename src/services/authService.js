@@ -25,6 +25,15 @@ const adminLogin = (userData, opts) => {
   return api.post('/api/admin/login', userData, opts);
 };
 
+// WhatsApp OTP
+const sendOtp = (phone, opts) => {
+  return api.post('/api/auth/send-otp', { phone }, opts);
+};
+
+const verifyOtp = (phone, otp, opts) => {
+  return api.post('/api/auth/verify-otp', { phone, otp }, opts);
+};
+
 // Update onboarding selections
 const updateOnboarding = (data, opts) => {
   return api.put('/api/auth/onboarding', data, opts);
@@ -150,6 +159,8 @@ const authService = {
   updateBlog,
   deleteBlog,
   getUsersAnalytics,
+  sendOtp,
+  verifyOtp,
   deleteAccount: (userId, opts) => api.delete(`/api/auth/user/${userId}`, opts),
 };
 

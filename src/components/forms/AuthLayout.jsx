@@ -1,25 +1,47 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+const HoshiyaarLogo = "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778743597/img-to-link/bihseec7aigbmau4amnd.png";
+
 const AuthLayout = ({ children, title, linkTo, linkText }) => (
-  <div className="bg-[#131F24] min-h-screen text-white font-sans flex flex-col">
-    <header className="py-4 px-4 sm:py-6 sm:px-6 lg:px-8">
+  <div className="h-[100dvh] text-slate-900 font-sans flex flex-col relative overflow-hidden bg-slate-50">
+    {/* Dynamic Background Effects */}
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+      <div className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] rounded-full bg-blue-400/20 blur-[120px]" />
+      <div className="absolute top-[40%] -right-[10%] w-[50%] h-[50%] rounded-full bg-purple-400/20 blur-[120px]" />
+      <div className="absolute -bottom-[20%] left-[20%] w-[40%] h-[40%] rounded-full bg-cyan-400/20 blur-[100px]" />
+    </div>
+
+    <header className="py-4 px-6 lg:px-12 relative z-10 flex-none">
       <div className="container mx-auto flex justify-between items-center">
-        <Link to="/" className="text-xl sm:text-2xl font-bold">
-          <svg className="w-6 h-6 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-          </svg>
+        <Link to="/" className="flex items-center gap-2 group transition-transform hover:scale-105">
+           <img 
+              src={HoshiyaarLogo} 
+              alt="HoshiYaar Logo" 
+              className="h-8 md:h-10 w-auto object-contain"
+           />
         </Link>
-        <Link to={linkTo}>
-          <button className="text-duo-blue font-bold uppercase tracking-wider border-2 border-[#585858] rounded-xl sm:rounded-2xl py-2 px-3 sm:px-4 hover:bg-[#4c4c4c] transition text-sm sm:text-base">
-            {linkText}
-          </button>
-        </Link>
+        {linkTo && linkText && (
+          <Link to={linkTo}>
+            <button className="text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 px-6 py-2.5 rounded-full transition-all shadow-[0_0_15px_rgba(37,99,235,0.2)] hover:shadow-[0_0_20px_rgba(37,99,235,0.4)] transform hover:-translate-y-0.5">
+              {linkText}
+            </button>
+          </Link>
+        )}
       </div>
     </header>
-    <main className="flex-grow flex items-center justify-center p-4">
-      <div className="w-full max-w-sm sm:max-w-md lg:max-w-lg px-2 sm:px-4">
-        {children}
+    
+    <main className="flex-1 flex items-center justify-center px-4 relative z-10 overflow-hidden pb-4">
+      <div className="w-full max-w-md sm:max-w-lg px-2 sm:px-4">
+        <div 
+          className="bg-white/70 backdrop-blur-xl border border-white rounded-3xl p-5 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-y-auto max-h-[85vh]"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          <style>{`
+            .bg-white\\/70::-webkit-scrollbar { display: none; }
+          `}</style>
+          {children}
+        </div>
       </div>
     </main>
   </div>
