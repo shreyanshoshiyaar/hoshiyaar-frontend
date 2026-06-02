@@ -12,6 +12,7 @@ import AdminProtectedRoute from './components/layout/AdminProtectedRoute.jsx';
 // Lazy load components
 const Login = lazy(() => import('./components/forms/Login.jsx'));
 const Signup = lazy(() => import('./components/forms/Signup.jsx'));
+const ForgotPassword = lazy(() => import('./components/forms/ForgotPassword.jsx'));
 const HomePage = lazy(() => import('./components/layout/HomePage.jsx'));
 const OnboardingFlow = lazy(() => import('./components/Learn/selectors/OnboardingFlow.jsx'));
 const Learn = lazy(() => import('./components/Learn/pages/Learn.jsx'));
@@ -135,6 +136,7 @@ function App() {
                 {/* Public Routes */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/loading" element={<LoadingPage />} />
 
                 {/* Home Page Route */}
