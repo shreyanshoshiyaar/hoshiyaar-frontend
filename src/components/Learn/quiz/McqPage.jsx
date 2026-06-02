@@ -1130,7 +1130,6 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
                 const urlParams = new URLSearchParams(window.location.search);
                 const chapterId = urlParams.get('chapterId');
                 const unitId = urlParams.get('unitId');
-                const isRevision = urlParams.get('revision') === 'true' || urlParams.get('review') === 'true';
                 const params = new URLSearchParams();
                 if (chapterId) params.set('chapterId', chapterId);
                 if (unitId) params.set('unitId', unitId);
