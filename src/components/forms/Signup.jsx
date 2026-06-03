@@ -170,6 +170,10 @@ const Signup = () => {
               +91 {formData.phone}
             </p>
             
+            <p className="text-red-500 font-bold text-xs sm:text-sm text-center mb-6">
+               Note: Please check the WhatsApp app on your PHONE, not WhatsApp Web!
+            </p>
+            
             {error && <p className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-xl mb-6 text-sm">{error}</p>}
             
             <form onSubmit={handleVerifyOtp} className="space-y-6">
