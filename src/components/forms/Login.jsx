@@ -27,20 +27,6 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      if (formData.phone === '9867735936' && formData.password === '999999') {
-        // Under the hood, log into the real backend using the old credentials 
-        // to bypass onboarding and restore the real user data
-        const response = await authService.login({
-          phone: '9867735936',
-          password: 'mock_password_here_if_needed', // Or keep username/DOB fallback if desired for test user
-        });
-        
-        if (response.data && response.data.token) {
-          login(response.data);
-          try { sessionStorage.setItem('entryType', 'login'); } catch (_) {}
-          navigate('/home');
-        }
-      } else {
         const response = await authService.login({
           phone: formData.phone,
           password: formData.password
@@ -51,7 +37,6 @@ const Login = () => {
           try { sessionStorage.setItem('entryType', 'login'); } catch (_) {}
           navigate('/home');
         }
-      }
       
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
