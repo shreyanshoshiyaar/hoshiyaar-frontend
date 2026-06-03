@@ -155,7 +155,7 @@ const ForgotPassword = () => {
                   }}
                   placeholder="Enter 6-digit OTP"
                   autoComplete="one-time-code"
-                  className="w-full bg-white border border-slate-300 rounded-2xl p-4 text-center text-2xl tracking-[0.5em] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-slate-900 placeholder-slate-300 shadow-sm"
+                  className="w-full bg-white border border-slate-300 rounded-2xl p-3 sm:p-4 text-center text-xl sm:text-2xl tracking-[0.3em] sm:tracking-[0.5em] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-slate-900 placeholder-slate-300 shadow-sm"
                   required
                 />
               </div>
