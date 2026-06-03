@@ -32,11 +32,6 @@ const ForgotPassword = () => {
     setIsLoading(true);
     try {
       await authService.sendOtp(formData.phone);
-      
-      if (formData.phone === '9867735936') {
-        setFormData(prev => ({ ...prev, otp: '999999' }));
-      }
-      
       setStep(2);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to send OTP via WhatsApp. Please try again.');
@@ -54,11 +49,7 @@ const ForgotPassword = () => {
     setError('');
     setIsLoading(true);
     try {
-      if (formData.phone === '9867735936' && formData.otp === '999999') {
-        // Skip verification for test account
-      } else {
-        await authService.verifyOtp(formData.phone, formData.otp);
-      }
+      await authService.verifyOtp(formData.phone, formData.otp);
       setStep(3);
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid OTP. Please try again.');
