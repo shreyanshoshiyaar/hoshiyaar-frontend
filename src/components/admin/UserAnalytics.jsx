@@ -332,6 +332,40 @@ const UserAnalytics = () => {
 
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage) || 1;
 
+  const downloadCSV = () => {
+    if (!filteredUsers.length) return;
+
+    const headers = [
+      'Username', 'Name', 'Email', 'Phone', 'School', 'Class', 'Type', 'Points', 'Use Time (mins)', 'Accuracy (%)', 'Last Active', 'Registered At'
+    ];
+
+    const rows = filteredUsers.map(u => [
+      `"${(u.username || '').replace(/"/g, '""')}"`,
+      `"${(u.name || '').replace(/"/g, '""')}"`,
+      `"${(u.email || '').replace(/"/g, '""')}"`,
+      `"${(u.phone || '').replace(/"/g, '""')}"`,
+      `"${(u.school || '').replace(/"/g, '""')}"`,
+      `"${(u.classLevel || '').replace(/"/g, '""')}"`,
+      u.isGuest ? 'Guest' : 'Student',
+      u.totalPoints || 0,
+      u.useTime || 0,
+      u.accuracy || 0,
+      u.lastActive ? new Date(u.lastActive).toISOString() : '',
+      u.createdAt ? new Date(u.createdAt).toISOString() : ''
+    ]);
+
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `hoshiyaar_users_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
@@ -544,8 +578,17 @@ const UserAnalytics = () => {
               <h3 className="text-lg font-black text-slate-800">Student Logs & Individual Activity Tracking</h3>
               <p className="text-xs text-slate-400 font-medium">Comprehensive listing of all users, points milestones, active usage clustering and lesson progress.</p>
             </div>
-            <div className="text-xs font-bold text-slate-500 bg-slate-50 border border-slate-150 px-3 py-1.5 rounded-lg self-start md:self-auto">
-              Showing <strong className="text-slate-800">{filteredUsers.length}</strong> of {users.length} Students
+            <div className="flex items-center gap-3 self-start md:self-auto">
+              <div className="text-xs font-bold text-slate-500 bg-slate-50 border border-slate-150 px-3 py-1.5 rounded-lg">
+                Showing <strong className="text-slate-800">{filteredUsers.length}</strong> of {users.length} Students
+              </div>
+              <button
+                onClick={downloadCSV}
+                className="text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                Export CSV
+              </button>
             </div>
           </div>
 
