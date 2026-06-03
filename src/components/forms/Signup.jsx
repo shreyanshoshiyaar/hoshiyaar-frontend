@@ -103,10 +103,6 @@ const Signup = () => {
     setIsLoading(true);
     
     try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      /* Real API Code 
       const response = await authService.register({
         username: formData.username.trim(),
         name: formData.name,
@@ -120,11 +116,6 @@ const Signup = () => {
         try { sessionStorage.setItem('entryType', 'signup'); } catch (_) {}
         navigate('/home');
       }
-      */
-      
-      // Mock success
-      try { sessionStorage.setItem('entryType', 'signup'); } catch (_) {}
-      navigate('/home');
       
     } catch (err) {
       setError(err.response?.data?.message || 'Signup failed. Please try again.');

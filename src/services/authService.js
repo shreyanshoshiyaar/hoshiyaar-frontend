@@ -34,6 +34,10 @@ const verifyOtp = (phone, otp, opts) => {
   return api.post('/api/auth/verify-otp', { phone, otp }, opts);
 };
 
+const resetPassword = (phone, otp, newPassword, opts) => {
+  return api.post('/api/auth/reset-password', { phone, otp, newPassword }, opts);
+};
+
 // Update onboarding selections
 const updateOnboarding = (data, opts) => {
   return api.put('/api/auth/onboarding', data, opts);
@@ -161,6 +165,7 @@ const authService = {
   getUsersAnalytics,
   sendOtp,
   verifyOtp,
+  resetPassword,
   deleteAccount: (userId, opts) => api.delete(`/api/auth/user/${userId}`, opts),
 };
 

@@ -31,8 +31,8 @@ const Login = () => {
         // Under the hood, log into the real backend using the old credentials 
         // to bypass onboarding and restore the real user data
         const response = await authService.login({
-          username: 'AKSHITRAVULA',
-          dateOfBirth: '2003-11-30',
+          phone: '9867735936',
+          password: 'mock_password_here_if_needed', // Or keep username/DOB fallback if desired for test user
         });
         
         if (response.data && response.data.token) {
@@ -41,11 +41,16 @@ const Login = () => {
           navigate('/home');
         }
       } else {
-        // Fallback generic mock user
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        login({ username: 'testuser', name: 'Test User', _id: 'mock_test_id', token: 'mock_token' });
-        try { sessionStorage.setItem('entryType', 'login'); } catch (_) {}
-        navigate('/home');
+        const response = await authService.login({
+          phone: formData.phone,
+          password: formData.password
+        });
+        
+        if (response.data && response.data.token) {
+          login(response.data);
+          try { sessionStorage.setItem('entryType', 'login'); } catch (_) {}
+          navigate('/home');
+        }
       }
       
     } catch (err) {
