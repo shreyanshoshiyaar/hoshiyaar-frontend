@@ -82,8 +82,7 @@ const ForgotPassword = () => {
     setIsLoading(true);
     
     try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await authService.resetPassword(formData.phone, formData.otp, formData.newPassword);
       
       setSuccess('Password reset successfully! Redirecting to login...');
       setTimeout(() => {
