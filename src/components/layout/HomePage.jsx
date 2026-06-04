@@ -86,7 +86,7 @@ const MobileHomeCarousel = () => {
                   
                   <iframe 
                     className="w-full h-full scale-[1.02]"
-                    src="https://www.youtube.com/embed/NlXk4BVxScI?autoplay=1&mute=1&loop=1&playlist=NlXk4BVxScI&controls=0&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3" 
+                    src="https://www.youtube.com/embed/NlXk4BVxScI?autoplay=1&mute=1&loop=1&playlist=NlXk4BVxScI&controls=1&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3" 
                     title="Hoshiyaar Social" 
                     frameBorder="0" 
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
