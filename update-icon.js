@@ -2,7 +2,7 @@ import fs from 'fs';
 import https from 'https';
 import path from 'path';
 
-const imageUrl = 'https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779865189/img-to-link/emlr2ztxhocc7qkbetx7.webp';
+const imageUrl = 'https://res.cloudinary.com/dcxlzfyfp/image/upload/v1780567289/img-to-link/z6nplbhfjaxd34mu0bqb.jpg';
 const resDir = path.join(process.cwd(), 'android', 'app', 'src', 'main', 'res');
 
 const mipmapFolders = [
