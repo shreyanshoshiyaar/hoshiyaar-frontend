@@ -283,7 +283,7 @@ const MobileHome = ({
 
 
         {/* Sticky Bottom CTA (X-Large Text) */}
-        <div className="fixed bottom-[80px] left-0 right-0 px-10 z-[100] pb-2 pt-3 bg-gradient-to-t from-[#F0F6FF] via-[#F0F6FF]/90 to-transparent pointer-events-none">
+        <div className="fixed bottom-[80px] left-0 right-0 px-10 z-[100] pb-2 pt-3 pointer-events-none">
           <button
             onClick={onNavigateToPractice}
             className="w-full py-2.5 bg-[#FFC107] hover:bg-[#FFD54F] text-gray-900 rounded-full font-black text-[14px] shadow-[0_4px_0_0_#F57F17] active:translate-y-1 active:shadow-none flex items-center justify-center gap-2 transition-all pointer-events-auto group"
