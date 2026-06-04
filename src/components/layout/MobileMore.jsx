@@ -138,6 +138,8 @@ const MobileMore = ({ stars, weeklyStars }) => {
         dob = `${yyyy}-${mm}-${dd}`;
       }
 
+      const isAcademicChanged = form.board !== user.board || String(form.classLevel) !== String(user.classLevel);
+
       const updateData = {
         userId: user._id,
         name: form.name,
@@ -148,6 +150,13 @@ const MobileMore = ({ stars, weeklyStars }) => {
         school: form.school,
         dateOfBirth: dob || null,
       };
+
+      if (isAcademicChanged) {
+         updateData.subject = '';
+         updateData.chapter = '';
+         updateData.subjectId = null;
+         updateData.chapterId = null;
+      }
 
       const res = await authService.updateProfile(updateData);
       if (res.data && updateUser) {

@@ -103,18 +103,21 @@ export default function ProfilePage() {
       } else {
         dob = null;
       }
+      const isAcademicChanged = form.board !== (user.board || 'Not Defined') || String(form.classLevel) !== String(user.classLevel || 'Not Defined');
+
       await authService.updateProfile({
         userId: user._id,
         username: form.username || undefined,
         board: form.board === 'Not Defined' ? null : form.board,
-        subject: user.subject,
-        chapter: user.chapter,
+        subject: isAcademicChanged ? '' : user.subject,
+        chapter: isAcademicChanged ? '' : user.chapter,
         name: form.name === 'Not Defined' ? null : form.name,
         phone: form.phone === 'Not Defined' ? null : form.phone,
         classLevel: form.classLevel === 'Not Defined' ? null : form.classLevel,
         school: form.school === 'Not Defined' ? null : form.school,
         dateOfBirth: dob,
         email: form.email === 'Not Defined' ? null : form.email,
+        ...(isAcademicChanged ? { subjectId: null, chapterId: null } : {})
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 1500);
