@@ -26,6 +26,35 @@ const MobileHomeCarousel = () => {
   const scrollRef = useRef(null);
   const navigate = useNavigate();
 
+  // Custom Video Controls
+  const mobileVideoIframeRef = useRef(null);
+  const [isMobileVideoMuted, setIsMobileVideoMuted] = useState(true);
+  const [isMobileVideoPlaying, setIsMobileVideoPlaying] = useState(true);
+
+  const toggleMobileVideoMute = (e) => {
+    e.stopPropagation();
+    const newMuted = !isMobileVideoMuted;
+    setIsMobileVideoMuted(newMuted);
+    if (mobileVideoIframeRef.current) {
+      mobileVideoIframeRef.current.contentWindow.postMessage(
+        JSON.stringify({ event: "command", func: newMuted ? "mute" : "unMute", args: [] }),
+        "*"
+      );
+    }
+  };
+
+  const toggleMobileVideoPlay = (e) => {
+    e.stopPropagation();
+    const newPlaying = !isMobileVideoPlaying;
+    setIsMobileVideoPlaying(newPlaying);
+    if (mobileVideoIframeRef.current) {
+      mobileVideoIframeRef.current.contentWindow.postMessage(
+        JSON.stringify({ event: "command", func: newPlaying ? "playVideo" : "pauseVideo", args: [] }),
+        "*"
+      );
+    }
+  };
+
   // Fetch dynamic slides
   useEffect(() => {
     const fetchSlides = async () => {
@@ -85,13 +114,32 @@ const MobileHomeCarousel = () => {
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-14 h-3.5 bg-gray-900 rounded-b-xl z-10"></div>
                   
                   <iframe 
-                    className="w-full h-full scale-[1.02]"
-                    src="https://www.youtube.com/embed/NlXk4BVxScI?autoplay=1&mute=1&loop=1&playlist=NlXk4BVxScI&controls=1&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3" 
+                    ref={mobileVideoIframeRef}
+                    className="w-full h-full scale-[1.02] z-0 pointer-events-none"
+                    src="https://www.youtube.com/embed/NlXk4BVxScI?autoplay=1&mute=1&loop=1&playlist=NlXk4BVxScI&controls=0&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&enablejsapi=1" 
                     title="Hoshiyaar Social" 
                     frameBorder="0" 
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                     allowFullScreen
                   ></iframe>
+
+                  {/* Custom Controls Overlay */}
+                  <div className="absolute inset-0 z-10 flex flex-col justify-end p-2 pointer-events-none">
+                     <div className="flex justify-between items-center bg-black/40 backdrop-blur-sm rounded-full px-3 py-1.5 pointer-events-auto shadow-md border border-white/10">
+                        <button 
+                          onClick={toggleMobileVideoPlay} 
+                          className="text-white text-lg hover:scale-110 transition-transform flex items-center justify-center w-6 h-6"
+                        >
+                           {isMobileVideoPlaying ? '⏸' : '▶'}
+                        </button>
+                        <button 
+                          onClick={toggleMobileVideoMute} 
+                          className="text-white text-lg hover:scale-110 transition-transform flex items-center justify-center w-6 h-6"
+                        >
+                           {isMobileVideoMuted ? '🔇' : '🔊'}
+                        </button>
+                     </div>
+                  </div>
                 </div>
               </div>
             )}
