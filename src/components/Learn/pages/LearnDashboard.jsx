@@ -892,7 +892,8 @@ const LearnDashboard = ({ onboardingData }) => {
               cur.listSubjects(selectedBoard, { signal: ac.signal })
             ]);
             const boards = boardsResp?.data || [];
-            const subjects = subjectsResp?.data || [];
+            const rawSubjects = subjectsResp?.data || [];
+            const subjects = rawSubjects.filter((s, i, arr) => arr.findIndex(t => t.name === s.name) === i);
             console.log('Dashboard: Available options fetched', { boards: boards.length, subjects: subjects.length });
             setAvailableBoards(boards);
             setAvailableSubjects(subjects);
@@ -958,7 +959,8 @@ const LearnDashboard = ({ onboardingData }) => {
           try {
             if (!subjectsToTry || subjectsToTry.length === 0) {
               const sr = await cur.listSubjects(finalBoard);
-              subjectsToTry = sr?.data || [];
+              const rawSubjects = sr?.data || [];
+              subjectsToTry = rawSubjects.filter((s, i, arr) => arr.findIndex(t => t.name === s.name) === i);
               setAvailableSubjects(subjectsToTry);
             }
           } catch (_) { }
@@ -1417,7 +1419,7 @@ const LearnDashboard = ({ onboardingData }) => {
       setSubjectChanging(true);
       const cur = (await import("../../../services/curriculumService.js")).default;
       const res = await cur.listSubjects(selectedBoard);
-      const subjects = (res?.data || []).map(s => s.name);
+      const subjects = Array.from(new Set((res?.data || []).map(s => s.name)));
       setSubjectOptions(subjects);
       setShowSubjectModal(true);
     } catch (error) {
@@ -2253,14 +2255,21 @@ const LearnDashboard = ({ onboardingData }) => {
                                   <div className="w-full h-[1px] bg-white/20 border-t border-dashed border-white/20 my-1" />
 
                                   <div className="flex items-center justify-between gap-2 mt-2">
-                                    <button
-                                      onClick={handleOpenSubjectModal}
-                                      disabled={isLoading || subjectChanging}
-                                      className={`flex items-center gap-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 text-xs font-black shadow-inner active:scale-95 transition-all hover:bg-white/20 ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                    >
-                                      <span className="text-sm">🧪</span>
-                                      <span className="text-white uppercase tracking-wider">{subjectName}</span>
-                                    </button>
+                                    {availableSubjects.length > 1 ? (
+                                      <button
+                                        onClick={handleOpenSubjectModal}
+                                        disabled={isLoading || subjectChanging}
+                                        className={`flex items-center gap-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 text-xs font-black shadow-inner active:scale-95 transition-all hover:bg-white/20 ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                      >
+                                        <span className="text-sm">🧪</span>
+                                        <span className="text-white uppercase tracking-wider">{subjectName} <span className="text-[10px] ml-1 opacity-70">▼</span></span>
+                                      </button>
+                                    ) : (
+                                      <div className="flex items-center gap-2 bg-white/5 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 text-xs font-black shadow-inner opacity-90">
+                                        <span className="text-sm">🧪</span>
+                                        <span className="text-white uppercase tracking-wider">{subjectName}</span>
+                                      </div>
+                                    )}
                                     
                                     <div className="flex items-center gap-2">
                                       <button
@@ -2287,14 +2296,16 @@ const LearnDashboard = ({ onboardingData }) => {
                                     <p className="opacity-95 text-base md:text-lg">
                                       {subjectName}
                                     </p>
-                                    <button
-                                      onClick={handleOpenSubjectModal}
-                                      disabled={isLoading || subjectChanging}
-                                      className={`flex items-center gap-2 py-2 px-4 rounded-2xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-sm font-extrabold ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                      title={subjectChanging ? "Switching Subject..." : "Change Subject"}
-                                    >
-                                      {subjectChanging ? "Switching..." : "Change"}
-                                    </button>
+                                    {availableSubjects.length > 1 && (
+                                      <button
+                                        onClick={handleOpenSubjectModal}
+                                        disabled={isLoading || subjectChanging}
+                                        className={`flex items-center gap-2 py-2 px-4 rounded-2xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-sm font-extrabold ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        title={subjectChanging ? "Switching Subject..." : "Change Subject"}
+                                      >
+                                        {subjectChanging ? "Switching..." : "Change"}
+                                      </button>
+                                    )}
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -2521,14 +2532,21 @@ const LearnDashboard = ({ onboardingData }) => {
                                             )}
 
                                             <div className="flex items-center justify-between gap-2 mt-3">
-                                              <button
-                                                onClick={handleOpenSubjectModal}
-                                                disabled={isLoading || subjectChanging}
-                                                className={`flex items-center gap-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 text-xs font-black shadow-inner active:scale-95 transition-all hover:bg-white/20 ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                              >
-                                                <span className="text-sm">🧪</span>
-                                                <span className="text-white uppercase tracking-wider">{subjectName}</span>
-                                              </button>
+                                              {availableSubjects.length > 1 ? (
+                                                <button
+                                                  onClick={handleOpenSubjectModal}
+                                                  disabled={isLoading || subjectChanging}
+                                                  className={`flex items-center gap-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 text-xs font-black shadow-inner active:scale-95 transition-all hover:bg-white/20 ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                >
+                                                  <span className="text-sm">🧪</span>
+                                                  <span className="text-white uppercase tracking-wider">{subjectName} <span className="text-[10px] ml-1 opacity-70">▼</span></span>
+                                                </button>
+                                              ) : (
+                                                <div className="flex items-center gap-2 bg-white/5 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 text-xs font-black shadow-inner opacity-90">
+                                                  <span className="text-sm">🧪</span>
+                                                  <span className="text-white uppercase tracking-wider">{subjectName}</span>
+                                                </div>
+                                              )}
                                               
                                               <div className="flex items-center gap-2">
                                                 <button
