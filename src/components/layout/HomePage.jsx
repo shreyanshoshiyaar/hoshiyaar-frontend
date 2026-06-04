@@ -118,7 +118,21 @@ const MobileHomeCarousel = () => {
                     rel="noopener noreferrer"
                     className="flex-1 max-w-[150px] py-3 bg-white rounded-2xl flex items-center justify-center gap-2 text-gray-700 font-bold uppercase tracking-wider text-[11px] shadow-xl transition-all active:scale-95 active:translate-y-1"
                   >
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/9/95/Instagram_logo_2022.svg" alt="Instagram" className="w-6 h-6" />
+                    <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0">
+                      <defs>
+                        <linearGradient id="ig-grad-mobile" x1="0%" y1="100%" x2="100%" y2="0%">
+                          <stop offset="0%" stopColor="#f09433" />
+                          <stop offset="25%" stopColor="#e6683c" />
+                          <stop offset="50%" stopColor="#dc2743" />
+                          <stop offset="75%" stopColor="#cc2366" />
+                          <stop offset="100%" stopColor="#bc1888" />
+                        </linearGradient>
+                      </defs>
+                      <rect x="2" y="2" width="20" height="20" rx="5.5" ry="5.5" fill="url(#ig-grad-mobile)" />
+                      <circle cx="12" cy="12" r="4.5" fill="none" stroke="white" strokeWidth="2" />
+                      <circle cx="17" cy="7" r="1.2" fill="white" />
+                      <rect x="2" y="2" width="20" height="20" rx="5.5" ry="5.5" fill="none" stroke="white" strokeWidth="1.2" />
+                    </svg>
                     Instagram
                   </a>
                   <a 
@@ -127,7 +141,7 @@ const MobileHomeCarousel = () => {
                     rel="noopener noreferrer"
                     className="flex-1 max-w-[150px] py-3 rounded-2xl flex items-center justify-center gap-2 text-white font-bold uppercase tracking-wider text-[11px] shadow-xl bg-[#FF0000] border-b-4 border-[#CC0000] transition-all active:scale-95 active:translate-y-1"
                   >
-                    <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>
+                    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current shrink-0"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>
                     YouTube
                   </a>
                 </div>
