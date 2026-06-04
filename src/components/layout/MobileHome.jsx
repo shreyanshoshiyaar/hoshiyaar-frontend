@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import curriculumService from '../../services/curriculumService';
 import { useStars } from '../../context/StarsContext.jsx';
 import heroChar from '../../assets/images/heroChar.png'; // Fallback image
@@ -31,6 +31,35 @@ const MobileHome = ({
 }) => {
   const { stars, refresh } = useStars();
   const hasSchool = !!user?.school;
+
+  // Custom Video Controls
+  const mobileVideoIframeRef = useRef(null);
+  const [isMobileVideoMuted, setIsMobileVideoMuted] = useState(true);
+  const [isMobileVideoPlaying, setIsMobileVideoPlaying] = useState(true);
+
+  const toggleMobileVideoMute = (e) => {
+    e.stopPropagation();
+    const newMuted = !isMobileVideoMuted;
+    setIsMobileVideoMuted(newMuted);
+    if (mobileVideoIframeRef.current) {
+      mobileVideoIframeRef.current.contentWindow.postMessage(
+        JSON.stringify({ event: "command", func: newMuted ? "mute" : "unMute", args: [] }),
+        "*"
+      );
+    }
+  };
+
+  const toggleMobileVideoPlay = (e) => {
+    e.stopPropagation();
+    const newPlaying = !isMobileVideoPlaying;
+    setIsMobileVideoPlaying(newPlaying);
+    if (mobileVideoIframeRef.current) {
+      mobileVideoIframeRef.current.contentWindow.postMessage(
+        JSON.stringify({ event: "command", func: newPlaying ? "playVideo" : "pauseVideo", args: [] }),
+        "*"
+      );
+    }
+  };
 
   // Ensure stars data is refreshed when MobileHome mounts (e.g., after login or navigation)
   React.useEffect(() => {
@@ -166,13 +195,32 @@ const MobileHome = ({
               {/* Mission YouTube Video */}
               <div className="absolute inset-0 z-0 overflow-hidden">
                 <iframe 
-                  className="w-full h-full"
-                  src={`${missionVideoUrl}${missionVideoUrl.includes('?') ? '&' : '?'}autoplay=1&mute=1&loop=1&playlist=${missionVideoUrl.split('/').pop().split('?')[0]}&controls=1&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3`} 
+                  ref={mobileVideoIframeRef}
+                  className="w-full h-full scale-[1.05] pointer-events-none"
+                  src={`${missionVideoUrl}${missionVideoUrl.includes('?') ? '&' : '?'}autoplay=1&mute=1&loop=1&playlist=${missionVideoUrl.split('/').pop().split('?')[0]}&controls=0&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&enablejsapi=1`} 
                   title="Today's Mission" 
                   frameBorder="0" 
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                   allowFullScreen
                 ></iframe>
+
+                {/* Custom Controls Overlay */}
+                <div className="absolute inset-0 z-10 flex flex-col justify-end p-2 pointer-events-none">
+                   <div className="flex justify-between items-center bg-black/40 backdrop-blur-sm rounded-full px-3 py-1.5 pointer-events-auto shadow-md border border-white/10">
+                      <button 
+                        onClick={toggleMobileVideoPlay} 
+                        className="text-white text-[15px] hover:scale-110 transition-transform flex items-center justify-center w-6 h-6"
+                      >
+                         {isMobileVideoPlaying ? '⏸' : '▶'}
+                      </button>
+                      <button 
+                        onClick={toggleMobileVideoMute} 
+                        className="text-white text-[15px] hover:scale-110 transition-transform flex items-center justify-center w-6 h-6"
+                      >
+                         {isMobileVideoMuted ? '🔇' : '🔊'}
+                      </button>
+                   </div>
+                </div>
               </div>
             </div>
           </div>
