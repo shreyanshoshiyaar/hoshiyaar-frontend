@@ -359,7 +359,7 @@ const DesktopMore = ({ stars, weeklyStars }) => {
                  <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-wider">Account Actions</h3>
                </div>
                <div className="p-1 flex flex-col">
-                 {(user?.role === 'admin' || user?.role === 'master' || user?.username === 'Host' || user?.username === 'hostcbse') && (
+                 {(user?.role === 'admin' || user?.role === 'master' || user?.username === 'Host' || user?.username === 'hostcbse' || user?.phone === '+917021970672' || user?.phone === '7021970672' || user?.phone === '+91 70219 70672') && (
                    <button 
                     onClick={() => navigate('/admin')}
                     className="px-4 py-2.5 text-left font-bold text-xs text-blue-700 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-between"
