@@ -2145,17 +2145,11 @@ const LearnDashboard = ({ onboardingData }) => {
                                 <div className={`relative overflow-hidden rounded-[2rem] p-6 bg-white border-b-[6px] border-gray-200 hover:border-b-[4px] hover:translate-y-[2px] active:border-b-0 active:translate-y-[6px] transition-all flex items-center gap-6`}>
                                   
                                   <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-1">
-                                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-widest text-white bg-gradient-to-r ${cardGradient}`}>
-                                        CHAPTER {index + 1}
-                                      </span>
-                                      {pct === 100 && (
-                                        <span className="text-yellow-500 text-lg">🏆</span>
-                                      )}
-                                    </div>
-                                    
-                                    <h3 className="text-xl md:text-2xl font-black text-gray-800 leading-tight mb-4 group-hover:text-blue-600 transition-colors truncate">
+                                    <h3 className="text-xl md:text-2xl font-black text-gray-800 leading-tight mb-4 group-hover:text-blue-600 transition-colors truncate flex items-center gap-2">
                                       {ch.title}
+                                      {pct === 100 && (
+                                        <span className="text-yellow-500 text-lg shrink-0">🏆</span>
+                                      )}
                                     </h3>
 
                                     {/* Progress Section */}

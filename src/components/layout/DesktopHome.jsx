@@ -6,6 +6,14 @@ const DesktopHome = () => {
   const [toastMsg, setToastMsg] = useState("");
   const [showToast, setShowToast] = useState(false);
   const [typedText, setTypedText] = useState("");
+  const [isMuted, setIsMuted] = useState(true);
+
+  useEffect(() => {
+    const video = document.getElementById('heroVideo');
+    if (video) {
+      video.muted = isMuted;
+    }
+  }, [isMuted]);
 
   useEffect(() => {
     // Add Google Fonts for Fraunces and Instrument Sans if not already in document
@@ -173,7 +181,7 @@ const DesktopHome = () => {
                     id="heroVideo"
                     src="/Video/Hoshi-Video.mp4" 
                     autoPlay 
-                    muted 
+                    muted={isMuted} 
                     loop 
                     playsInline
                     style={{
@@ -186,6 +194,36 @@ const DesktopHome = () => {
                       display: 'block'
                     }}
                   ></video>
+                  <button 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsMuted(!isMuted);
+                    }}
+                    style={{
+                      position: 'absolute',
+                      bottom: '8px',
+                      right: '8px',
+                      background: 'rgba(0,0,0,0.4)',
+                      backdropFilter: 'blur(4px)',
+                      color: 'white',
+                      border: '1px solid rgba(255,255,255,0.2)',
+                      borderRadius: '50%',
+                      width: '32px',
+                      height: '32px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      zIndex: 20,
+                      fontSize: '14px',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.6)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.4)'}
+                    title={isMuted ? "Unmute video" : "Mute video"}
+                  >
+                    {isMuted ? '🔇' : '🔊'}
+                  </button>
                 </div>
               </div>
             </div>

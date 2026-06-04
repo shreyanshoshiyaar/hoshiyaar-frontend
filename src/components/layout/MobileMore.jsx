@@ -191,6 +191,15 @@ const MobileMore = ({ stars, weeklyStars }) => {
     <div className="flex-grow flex flex-col bg-[#F8FAFC] pb-24 overflow-y-auto no-scrollbar pt-20">
       {/* Settings Sections */}
       <div className="px-6 space-y-6">
+        {/* Header */}
+        <div className="flex items-center gap-4 bg-white rounded-3xl p-5 shadow-sm border border-gray-100 shrink-0">
+           <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-2xl shrink-0">⚙️</div>
+           <div>
+             <h1 className="text-xl font-black text-gray-800 leading-tight">Settings & Profile</h1>
+             <p className="text-gray-500 font-bold text-[10px] mt-1 leading-snug">Manage your account details and view your progress.</p>
+           </div>
+        </div>
+
         {/* Daily Progress Graph */}
         <div>
           <h3 className="text-sm font-black text-blue-900/40 uppercase tracking-widest ml-1 mb-3">Star Progress (Last 7 Days)</h3>
