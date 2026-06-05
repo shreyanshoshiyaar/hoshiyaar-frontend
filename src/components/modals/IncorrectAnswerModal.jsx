@@ -59,9 +59,9 @@ export default function IncorrectAnswerModal({
         <div className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 border-2 shadow-xl bg-pink-50 border-pink-400 rounded-2xl transition-all duration-300 ease-out ${
           isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
         }`}>
-          <div className="max-w-md mx-auto px-6 py-4 flex flex-row items-center gap-4">
-            <div className="flex items-center gap-3 flex-1">
-              <div className="text-left">
+          <div className="w-[90vw] max-w-sm mx-auto px-5 py-5 flex flex-col items-center gap-4 text-center">
+            <div className="flex flex-col items-center gap-2 w-full">
+              <div className="text-center w-full">
                 <div className="text-base font-extrabold text-gray-900">Incorrect answer</div>
                 {!hideCorrectAnswer && (
                   <div className="text-sm text-gray-700">
@@ -93,11 +93,11 @@ export default function IncorrectAnswerModal({
                 )}
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2 w-full">
               {typeof onViewExpertAnswer === 'function' && (
                 <button
                   onClick={onViewExpertAnswer}
-                  className="px-4 py-2 rounded-xl text-white font-extrabold text-sm bg-blue-600 hover:bg-blue-700 transition-colors"
+                  className="w-full px-4 py-3 rounded-xl text-white font-extrabold text-sm bg-blue-600 hover:bg-blue-700 transition-colors"
                 >
                   View Expert Answer
                 </button>
@@ -106,7 +106,7 @@ export default function IncorrectAnswerModal({
                 <button
                   ref={tryAgainBtnRef}
                   onClick={onTryAgain}
-                  className="px-4 py-2 rounded-xl text-white font-extrabold text-sm bg-orange-600 hover:bg-orange-700 transition-colors"
+                  className="w-full px-4 py-3 rounded-xl text-white font-extrabold text-sm bg-orange-600 hover:bg-orange-700 transition-colors"
                 >
                   Try Again
                 </button>
@@ -115,7 +115,7 @@ export default function IncorrectAnswerModal({
                 <button
                   ref={continueBtnRef}
                   onClick={onContinue}
-                  className="px-4 py-2 rounded-xl text-white font-extrabold text-sm bg-green-600 hover:bg-green-700 transition-colors"
+                  className="w-full px-4 py-3 rounded-xl text-white font-extrabold text-sm bg-green-600 hover:bg-green-700 transition-colors"
                 >
                   Continue
                 </button>
