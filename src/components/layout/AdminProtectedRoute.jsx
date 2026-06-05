@@ -19,8 +19,13 @@ const AdminProtectedRoute = ({ children }) => {
 
   // Sync state with AuthContext and session
   React.useEffect(() => {
-    let isActuallyAdmin = user?.role === 'admin' || sessionStorage.getItem('isAdmin') === 'true';
-    if (user && user.role !== 'admin') isActuallyAdmin = false;
+    const sessionAdmin = sessionStorage.getItem('isAdmin') === 'true';
+    let isActuallyAdmin = user?.role === 'admin' || sessionAdmin;
+    
+    // Only override if we DON'T have an active admin session but our user role changed to non-admin
+    if (user && user.role !== 'admin' && !sessionAdmin) {
+      isActuallyAdmin = false;
+    }
     
     if (isActuallyAdmin !== isAdmin) {
       setIsAdmin(isActuallyAdmin);
