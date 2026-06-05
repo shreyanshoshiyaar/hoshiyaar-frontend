@@ -43,7 +43,7 @@ const SubjectSelect = ({ onContinue, onBack, updateData, selectedBoard, autoAdva
                 if (cached.length > 0) setSubjects(cached);
                 // Fetch subjects for the selected board
                 const res = await curriculumService.listSubjects(selectedBoard);
-                const names = (res?.data || []).map(s => s.name);
+                const names = [...new Set((res?.data || []).map(s => s.name))];
                 setSubjects(names);
                 if (names && names.length > 0) saveCache(selectedBoard, names);
                 // Manual selection only - no auto-selection
@@ -57,7 +57,7 @@ const SubjectSelect = ({ onContinue, onBack, updateData, selectedBoard, autoAdva
     }, [selectedBoard]);
 
     return (
-        <div className="flex flex-col h-screen bg-transparent md:bg-gradient-to-b md:from-blue-50 md:via-white md:to-blue-50 overflow-hidden relative font-sans">
+        <div className="flex flex-col h-[100dvh] bg-transparent md:bg-gradient-to-b md:from-blue-50 md:via-white md:to-blue-50 overflow-hidden relative font-sans">
             
             {/* Top Content Group - Tightened */}
             <div className="px-6 pt-6 flex flex-col items-center relative z-10 w-full max-w-sm mx-auto">
