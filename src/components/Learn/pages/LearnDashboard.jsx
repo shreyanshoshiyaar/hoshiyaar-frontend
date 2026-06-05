@@ -2379,7 +2379,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                         color="#2C6DEF"
                                         lightenFn={lighten}
                                         darkenFn={darken}
-                                        isDifficult={mod?.isDifficult}
+                                        isDifficult={mod?.isDifficult || mod?.title?.toLowerCase() === 'hot module' || mod?.title?.toLowerCase() === 'difficult module'}
                                         isDescriptive={mod?.isDescriptive}
                                         offset={offset}
                                         onClick={() => {
@@ -2664,7 +2664,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                               color={unitPalette[unitIdx % unitPalette.length]}
                                               lightenFn={lighten}
                                               darkenFn={darken}
-                                              isDifficult={mod?.isDifficult}
+                                              isDifficult={mod?.isDifficult || mod?.title?.toLowerCase() === 'hot module' || mod?.title?.toLowerCase() === 'difficult module'}
                                               isDescriptive={mod?.isDescriptive}
                                               offset={offset}
                                               onClick={() => {

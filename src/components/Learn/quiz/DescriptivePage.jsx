@@ -101,10 +101,25 @@ export default function DescriptivePage() {
       const nk = normalize(kw);
       if (!nk) return;
       
-      // Lenient matching: Check if the keyword exists as a sub-word
-      // OR if any word in the student answer matches/contains the keyword
-      const isMatch = normalizedInput.includes(nk) || 
-                      inputWords.some(w => w.includes(nk) || nk.includes(w));
+      // 1. Exact phrase match or phrase is a substring of the input
+      let isMatch = normalizedInput.includes(nk);
+      
+      // 2. If no exact match, allow fuzzy word-level matching for single-word keywords
+      if (!isMatch) {
+        const nkWords = nk.split(/\s+/);
+        if (nkWords.length === 1) {
+          isMatch = inputWords.some(w => {
+            if (w === nk) return true;
+            // Allow substring match only if both words are reasonably long (>= 4 chars)
+            // This prevents short inputs like "a" or "is" from matching longer keywords,
+            // and prevents "i" from matching "kinetic" (nk.includes(w))
+            if (nk.length >= 4 && w.length >= 4) {
+              return w.includes(nk) || nk.includes(w);
+            }
+            return false;
+          });
+        }
+      }
       
       if (isMatch) {
         matched.push(kw);
