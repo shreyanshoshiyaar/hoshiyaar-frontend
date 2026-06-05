@@ -152,7 +152,7 @@ const ContentEditor = ({
     };
 
     let newItem;
-    if (newType === 'statement') {
+    if (['statement', 'concept', 'video'].includes(newType)) {
       newItem = {
         ...baseItem,
         text: oldItem.text || oldItem.question || '',
@@ -207,7 +207,7 @@ const ContentEditor = ({
     const newOrder = lastItem ? (lastItem.order || 0) + 1024 : 1024;
     const newItem = {
       _id: `new-${Date.now()}`,
-      type: 'statement',
+      type: 'concept',
       text: '',
       order: newOrder,
     };
@@ -462,8 +462,9 @@ const ContentEditor = ({
           console.log('[ContentEditor] No _id or temporary ID for item:', item.type, itemId);
         }
 
-        if (item.type === 'statement') {
+        if (['statement', 'concept', 'video'].includes(item.type)) {
           concept.text = item.text || '';
+          if (item.question) concept.question = item.question;
         } else if (item.type === 'multiple-choice') {
           concept.question = item.question || '';
           concept.options = (item.options || []).filter(Boolean);
@@ -612,11 +613,13 @@ const ContentEditor = ({
                   <div className="flex items-center gap-3">
                     <label className="text-sm font-medium text-gray-700">Type:</label>
                     <select
-                      value={item.type || 'statement'}
+                      value={item.type || 'concept'}
                       onChange={(e) => changeItemType(actualIndex, e.target.value)}
                       className="px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     >
+                      <option value="concept">Concept</option>
                       <option value="statement">Statement</option>
+                      <option value="video">Video</option>
                       <option value="comic">Comic Slides</option>
                       <option value="multiple-choice">MCQ</option>
                       <option value="fill-in-the-blank">Fill in the Blank</option>
@@ -659,8 +662,8 @@ const ContentEditor = ({
                   </button>
                 </div>
 
-                {/* Statement Type */}
-                {item.type === 'statement' && (
+                {/* Concept / Statement / Video Type */}
+                {['statement', 'concept', 'video'].includes(item.type) && (
                   <div className="space-y-3">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
