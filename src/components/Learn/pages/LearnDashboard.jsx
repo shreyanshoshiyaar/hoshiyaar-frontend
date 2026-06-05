@@ -2090,8 +2090,9 @@ const LearnDashboard = ({ onboardingData }) => {
                         )}
                         <div className="grid grid-cols-1 gap-4 md:gap-6 max-h-[65vh] overflow-y-auto custom-scrollbar pr-2">
                           {chaptersList.map((ch, index) => {
+                            const isAdmin = user?.role === 'admin';
                             const st = chapterStats[ch._id] || { total: 0, completed: 0 };
-                            const pct = st.total > 0 ? Math.min(100, Math.round((st.completed / st.total) * 100)) : 0;
+                            const pct = isAdmin ? 100 : (st.total > 0 ? Math.min(100, Math.round((st.completed / st.total) * 100)) : 0);
                             
                             const gradients = [
                               "from-blue-600 to-indigo-700",
@@ -2351,8 +2352,9 @@ const LearnDashboard = ({ onboardingData }) => {
                                   return !completedCompositeKeys.has(key) && !completedIdSet.has(String(id));
                                 });
 
+                                const isAdmin = user?.role === 'admin';
                                 let status = "locked";
-                                if (isCompleted) {
+                                if (isCompleted || isAdmin) {
                                   status = "completed";
                                 } else if (index === firstIncompleteGlobal) {
                                   status = "active";
@@ -2629,8 +2631,9 @@ const LearnDashboard = ({ onboardingData }) => {
                                         return !completedCompositeKeys.has(key) && !completedIdSet.has(String(id));
                                       });
 
+                                      const isAdmin = user?.role === 'admin';
                                       let status = "locked";
-                                      if (isCompleted) {
+                                      if (isCompleted || isAdmin) {
                                         status = "completed";
                                       } else if (index === firstIncompleteForUnit) {
                                         status = "active";
