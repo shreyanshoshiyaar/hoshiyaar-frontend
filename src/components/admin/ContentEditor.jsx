@@ -149,6 +149,8 @@ const ContentEditor = ({
       _id: oldItem._id,
       type: newType,
       order: oldItem.order || index + 1,
+      imageUrl: oldItem.imageUrl,
+      images: oldItem.images || [],
     };
 
     let newItem;
@@ -156,6 +158,9 @@ const ContentEditor = ({
       newItem = {
         ...baseItem,
         text: oldItem.text || oldItem.question || '',
+        title: oldItem.title || '',
+        question: oldItem.question || oldItem.videoUrl || '',
+        videoUrl: oldItem.videoUrl || oldItem.question || '',
       };
     } else if (newType === 'comic') {
       newItem = {
@@ -464,7 +469,13 @@ const ContentEditor = ({
 
         if (['statement', 'concept', 'video'].includes(item.type)) {
           concept.text = item.text || '';
-          if (item.question) concept.question = item.question;
+          if (item.title) concept.title = item.title;
+          if (item.type === 'video') {
+            concept.question = item.question || item.videoUrl || '';
+            concept.videoUrl = item.question || item.videoUrl || '';
+          } else {
+            if (item.question) concept.question = item.question;
+          }
         } else if (item.type === 'multiple-choice') {
           concept.question = item.question || '';
           concept.options = (item.options || []).filter(Boolean);
@@ -665,6 +676,39 @@ const ContentEditor = ({
                 {/* Concept / Statement / Video Type */}
                 {['statement', 'concept', 'video'].includes(item.type) && (
                   <div className="space-y-3">
+                    {item.type !== 'statement' && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Title
+                        </label>
+                        <input
+                          type="text"
+                          value={item.title || ''}
+                          onChange={(e) => updateItem(actualIndex, 'title', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          placeholder={`Enter ${item.type} title...`}
+                        />
+                      </div>
+                    )}
+                    
+                    {item.type === 'video' && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Video URL (YouTube)
+                        </label>
+                        <input
+                          type="text"
+                          value={item.question || item.videoUrl || ''}
+                          onChange={(e) => {
+                            updateItem(actualIndex, 'question', e.target.value);
+                            updateItem(actualIndex, 'videoUrl', e.target.value);
+                          }}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          placeholder="Enter YouTube URL..."
+                        />
+                      </div>
+                    )}
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Text Content
@@ -674,7 +718,7 @@ const ContentEditor = ({
                         onChange={(e) => updateItem(actualIndex, 'text', e.target.value)}
                         rows={3}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        placeholder="Enter statement text..."
+                        placeholder="Enter text..."
                       />
                     </div>
 

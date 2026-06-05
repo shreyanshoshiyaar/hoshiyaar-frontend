@@ -86,7 +86,19 @@ export default function ConceptPage() {
   const { add: addToReview, removeActive, requeueActive, undoActive, stageIncorrect, clearStagedForModule, active: activeReviewItem, queue } = useReview();
   const [videoAcknowledged, setVideoAcknowledged] = useState(false);
   const [showEndVideo, setShowEndVideo] = useState(false);
-  const [comicSlideIndex, setComicSlideIndex] = useState(0);
+  const [comicSlideIndex, setComicSlideIndex] = useState(() => {
+    try {
+      const saved = localStorage.getItem(`resume_lesson_comic_${moduleNumber}_${indexParam || 0}`);
+      if (saved) return parseInt(saved, 10) || 0;
+    } catch (_) {}
+    return 0;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(`resume_lesson_comic_${moduleNumber}_${index}`, comicSlideIndex);
+    } catch (e) {}
+  }, [comicSlideIndex, moduleNumber, index]);
   const { stars: totalStars } = useStars();
   const [isZoomed, setIsZoomed] = useState(false);
   const [comicReadTimer, setComicReadTimer] = useState(0);
@@ -640,10 +652,13 @@ export default function ConceptPage() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
           </svg>
         </button>
-          <div className="flex-1 mx-1 sm:mx-2 md:mx-4">
-            <ProgressBar currentIndex={index} total={items.length} />
-          </div>
-          <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
+        <div className="flex-1 mx-1 sm:mx-2 md:mx-4 flex flex-col items-center">
+          <span className="text-[10px] sm:text-xs font-black text-blue-600/80 uppercase tracking-widest mb-0.5 text-center">
+            LEARN PROGRESS: {index + 1} / {items.length}
+          </span>
+          <ProgressBar currentIndex={index} total={items.length} />
+        </div>
+        <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
             {(user?.role === 'admin' || user?.role === 'master' || user?.username === 'Host' || user?.username === 'hostcbse') && (
               <button
                 onClick={handleMasterSkip}
@@ -659,12 +674,12 @@ export default function ConceptPage() {
         <div className="flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 overflow-hidden md:justify-start mt-2 md:mt-4" style={{ maxHeight: 'calc(100vh - 80px)' }}>
           <div className="w-full max-w-3xl sm:max-w-4xl mt-2 md:mt-4">
             {shouldShowComic ? (
-              <div className="flex items-center justify-center w-full -mt-2 md:-mt-6 pb-20 md:pb-2">
+              <div className="flex items-center justify-center w-full -mt-2 pb-4">
                 <div className="relative inline-block max-w-full flex flex-col items-center">
                   <img
                     src={introComicUrls[comicSlideIndex]}
                     alt={`Comic slide ${comicSlideIndex + 1}`}
-                    className="w-full h-auto max-h-[80vh] md:max-h-[calc(100vh-190px)] object-contain rounded-xl sm:rounded-2xl cursor-zoom-in shadow-md border-2 border-blue-50 bg-white"
+                    className="max-w-full h-auto max-h-[70vh] md:max-h-[calc(100vh-250px)] object-contain rounded-xl sm:rounded-2xl cursor-zoom-in shadow-md border-2 border-blue-50 bg-white"
                     onClick={() => setIsZoomed(true)}
                   />
                 </div>
@@ -773,7 +788,7 @@ export default function ConceptPage() {
           </svg>
         </button>
         <div className="flex-1 mx-1 sm:mx-2 md:mx-4 flex flex-col items-center">
-          <span className="text-[10px] sm:text-xs font-black text-blue-600/80 uppercase tracking-widest mb-0.5">
+          <span className="text-[10px] sm:text-xs font-black text-blue-600/80 uppercase tracking-widest mb-0.5 text-center">
             LEARN PROGRESS: {index + 1} / {items.length}
           </span>
           <ProgressBar currentIndex={index} total={items.length} />
@@ -815,7 +830,7 @@ export default function ConceptPage() {
                 <img
                   src={introComicUrls[comicSlideIndex]}
                   alt={`Comic slide ${comicSlideIndex + 1}`}
-                  className="w-full h-auto max-h-[60vh] md:max-h-[calc(100vh-230px)] object-contain rounded-xl sm:rounded-2xl cursor-zoom-in shadow-md border-2 border-blue-50 bg-white"
+                  className="max-w-full h-auto max-h-[60vh] md:max-h-[calc(100vh-230px)] object-contain rounded-xl sm:rounded-2xl cursor-zoom-in shadow-md border-2 border-blue-50 bg-white"
                   onClick={() => setIsZoomed(true)}
                 />
                 

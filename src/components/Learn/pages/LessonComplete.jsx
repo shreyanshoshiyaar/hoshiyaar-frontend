@@ -66,6 +66,23 @@ const LessonComplete = () => {
   }, [user, moduleNumber]);
 
   useEffect(() => {
+    if (moduleNumber) {
+      // Clear main lesson resume path
+      localStorage.removeItem(`resume_lesson_${moduleNumber}`);
+      
+      // Clear all comic slide resume states for this module
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(`resume_lesson_comic_${moduleNumber}_`)) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach(k => localStorage.removeItem(k));
+    }
+  }, [moduleNumber]);
+
+  useEffect(() => {
     if (isNewBest) {
       setShowConfetti(true);
       try { setTimeout(() => setShowConfetti(false), 1600); } catch (_) {}

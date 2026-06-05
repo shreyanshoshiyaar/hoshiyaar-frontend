@@ -104,6 +104,26 @@ const NavigationController = () => {
         console.warn('Could not save to localStorage', e);
       }
     }
+
+    // 4. Save lesson module resume path
+    const match = location.pathname.match(/^\/learn\/module\/([^/]+)\/(concept|mcq|fillups|rearrange|descriptive)\/([0-9]+)\/?$/);
+    if (match) {
+      try {
+        const moduleNumber = match[1];
+        const index = parseInt(match[3], 10);
+        // Save the progress if we're past the first slide, otherwise remove it
+        if (index > 0) {
+          localStorage.setItem(`resume_lesson_${moduleNumber}`, location.pathname + location.search);
+        } else {
+          localStorage.removeItem(`resume_lesson_${moduleNumber}`);
+        }
+      } catch (e) {
+        console.warn('Could not save resume path', e);
+      }
+    } else if (location.pathname === '/lesson-complete') {
+      // Clear progress if lesson is complete. We need to parse module from URL search params if present?
+      // Actually lesson-complete might not have moduleNumber in URL, we'll handle clear there if needed.
+    }
   }, [location]);
 
   return null;
