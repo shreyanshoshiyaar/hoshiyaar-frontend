@@ -5,8 +5,10 @@ export function getApiBase() {
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
 
-    // If it's local development on a laptop, return empty (uses Vite proxy)
-    if ((hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]') && !navigator.userAgent.includes('Android')) {
+    const isLocalNetwork = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]' || hostname.startsWith('192.168.') || hostname.startsWith('10.') || hostname.startsWith('172.');
+
+    // If it's local development on a laptop or local network, return empty (uses Vite proxy)
+    if (isLocalNetwork && !navigator.userAgent.includes('Android')) {
       // Check if we are in a production build even on localhost
       if (import.meta.env.PROD) return DEFAULT_PRODUCTION_API_BASE;
       return '';
