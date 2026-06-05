@@ -128,18 +128,18 @@ export default function DescriptivePage() {
       starsEarned = 3;
       dbResult = 'correct';
       isCorrectStatus = true;
-    } else if (scoreRatio >= 0.6) {
+    } else if (scoreRatio >= 0.65) {
       matchStatus = 'partial-high';
       pts = 3;
       starsEarned = 2;
       dbResult = 'correct';
       isCorrectStatus = true;
-    } else if (scoreRatio >= 0.1) {
+    } else if (scoreRatio > 0) {
       matchStatus = 'partial-low';
-      pts = 3;
-      starsEarned = 1;
-      dbResult = 'correct';
-      isCorrectStatus = true;
+      pts = -3;
+      starsEarned = 0;
+      dbResult = 'incorrect';
+      isCorrectStatus = false;
     } else {
       matchStatus = 'incorrect';
       pts = -3;
