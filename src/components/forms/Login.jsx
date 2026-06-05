@@ -46,7 +46,7 @@ const Login = () => {
   };
 
   return (
-    <AuthLayout title="Log in" linkTo="/signup" linkText="Sign up">
+    <AuthLayout title="Log in" linkTo="/signup" linkText="Sign Up">
       <div className="text-center w-full">
         <h1 className="text-2xl sm:text-3xl font-extrabold mb-2 text-slate-900">Welcome back</h1>
         <p className="text-slate-500 text-sm sm:text-base mb-8">Enter your details to continue</p>

@@ -116,7 +116,7 @@ const Signup = () => {
   };
 
   return (
-    <AuthLayout title="Sign up" linkTo="/login" linkText="Log in">
+    <AuthLayout title="Sign Up" linkTo="/login" linkText="Log in">
       <div className="w-full">
         {step === 1 && (
           <div className="animate-fade-in">
