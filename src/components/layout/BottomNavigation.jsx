@@ -48,7 +48,7 @@ const BottomNavigation = () => {
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 flex justify-around items-center pb-safe pt-2 z-[2000] shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
       <button 
-        onClick={() => navigate('/home')}
+        onClick={() => navigate('/home', { replace: true })}
         className={`flex flex-col items-center justify-center w-1/4 pb-2 relative transition-all ${isHome ? 'text-[#2563EB]' : 'text-gray-400'}`}
       >
         <HomeIcon active={isHome} />
@@ -57,7 +57,7 @@ const BottomNavigation = () => {
       </button>
 
       <button 
-        onClick={() => navigate('/learn')}
+        onClick={() => navigate('/learn', { replace: true })}
         className={`flex flex-col items-center justify-center w-1/4 pb-2 relative transition-all ${isLearn ? 'text-[#2563EB]' : 'text-gray-400'}`}
       >
         <LearnIcon active={isLearn} />
@@ -66,7 +66,7 @@ const BottomNavigation = () => {
       </button>
 
       <button 
-        onClick={() => navigate('/ranks')}
+        onClick={() => navigate('/ranks', { replace: true })}
         className={`flex flex-col items-center justify-center w-1/4 pb-2 relative transition-all ${isRanks ? 'text-[#2563EB]' : 'text-gray-400'}`}
       >
         <RanksIcon active={isRanks} />
@@ -75,7 +75,7 @@ const BottomNavigation = () => {
       </button>
 
       <button 
-        onClick={() => navigate('/more')}
+        onClick={() => navigate('/more', { replace: true })}
         className={`flex flex-col items-center justify-center w-1/4 pb-2 relative transition-all ${isMore ? 'text-[#2563EB]' : 'text-gray-400'}`}
       >
         <MoreIcon active={isMore} />
