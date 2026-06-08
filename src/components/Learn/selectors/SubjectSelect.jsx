@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import heroChar from '../../../assets/images/heroChar.png';
 import curriculumService from '../../../services/curriculumService.js';
+import { useAuth } from '../../../context/AuthContext.jsx';
 
 // Reusable component for the Hoshi character display
 const HoshiCharacter = () => (
@@ -18,6 +19,7 @@ const BackArrow = ({ onClick }) => (
 
 
 const SubjectSelect = ({ onContinue, onBack, updateData, selectedBoard, autoAdvance = false }) => {
+    const { user } = useAuth();
     const [selectedSubject, setSelectedSubject] = useState(null);
     const [subjects, setSubjects] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -42,8 +44,21 @@ const SubjectSelect = ({ onContinue, onBack, updateData, selectedBoard, autoAdva
                 const cached = loadCache(selectedBoard);
                 if (cached.length > 0) setSubjects(cached);
                 // Fetch subjects for the selected board
-                const res = await curriculumService.listSubjects(selectedBoard);
-                const names = [...new Set((res?.data || []).map(s => s.name))];
+                const opts = {};
+                if (user?._id) {
+                    opts.params = { userId: user._id, classTitle: user?.classLevel || undefined };
+                }
+                const res = await curriculumService.listSubjects(selectedBoard, opts);
+                const rawNames = (res?.data || res || []).map(s => s.name || s);
+                const uniqueMap = new Map();
+                rawNames.forEach(name => {
+                    if (!name) return;
+                    const normalized = String(name).trim();
+                    if (!uniqueMap.has(normalized.toLowerCase())) {
+                        uniqueMap.set(normalized.toLowerCase(), normalized);
+                    }
+                });
+                const names = Array.from(uniqueMap.values());
                 setSubjects(names);
                 if (names && names.length > 0) saveCache(selectedBoard, names);
                 // Manual selection only - no auto-selection

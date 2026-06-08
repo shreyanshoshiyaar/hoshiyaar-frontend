@@ -49,7 +49,10 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
                 // Hydrate from cache first for instant paint
                 const cached = loadCache(board, subject);
                 if (cached.length > 0) setChapters(cached);
-                const res = await curriculumService.listChapters(board, subject);
+                const extraChapterParams = user?._id
+                  ? { userId: user._id, classTitle: user?.classLevel || user?.classTitle || undefined }
+                  : {};
+                const res = await curriculumService.listChapters(board, subject, extraChapterParams);
                 const list = (res?.data || []).map((c, idx) => ({ id: c._id, name: c.title, order: c.order ?? idx + 1 }));
                 setChapters(list);
                 if (list && list.length > 0) saveCache(board, subject, list);
