@@ -30,7 +30,9 @@ const curriculumService = {
     return cachedGet(`/api/curriculum/classes`, { params: { board }, ...passOpts(opts) });
   },
   listSubjects(board = 'CBSE', opts) {
-    return cachedGet(`/api/curriculum/subjects`, { params: { board }, ...passOpts(opts) });
+    const passedOpts = passOpts(opts);
+    const params = { board, ...(passedOpts.params || {}) };
+    return cachedGet(`/api/curriculum/subjects`, { ...passedOpts, params });
   },
   listChapters(board = 'CBSE', subject = 'Science', extraParams = {}, opts) {
     return cachedGet(`/api/curriculum/chapters`, { params: { board, subject, ...(extraParams || {}) }, ...passOpts(opts) });
