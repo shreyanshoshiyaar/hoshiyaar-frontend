@@ -142,7 +142,7 @@ const DesktopMore = ({ stars, weeklyStars }) => {
         phone: form.phone,
         board: form.board,
         classLevel: form.classLevel,
-        school: form.school,
+        school: isAcademicChanged ? null : form.school,
         dateOfBirth: dob || null,
       };
 
