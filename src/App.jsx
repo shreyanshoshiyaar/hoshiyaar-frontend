@@ -74,11 +74,37 @@ const NavigationController = () => {
       import('@capacitor/app').then(({ App: CapApp }) => {
         CapApp.addListener('backButton', ({ canGoBack }) => {
           const currentPath = locationRef.current.pathname;
-          // Exit if on home page or can't go back
-          if (currentPath === '/' || currentPath === '/login' || !canGoBack) {
-            CapApp.exitApp();
+          
+          // Define base/dashboard routes where back should exit the app
+          const dashboardRoutes = ['/', '/login', '/home', '/learn', '/ranks', '/more'];
+          
+          if (dashboardRoutes.includes(currentPath) || !canGoBack) {
+            // Exit app from dashboard routes with a confirmation
+            if (window.confirm('Do you want to exit HoshiYaar?')) {
+              CapApp.exitApp();
+            }
           } else {
-            window.history.back();
+            // Check if user is inside a lesson
+            const isLesson = currentPath.includes('/learn/module/') && (
+              currentPath.includes('/concept') || 
+              currentPath.includes('/mcq') || 
+              currentPath.includes('/fillups') || 
+              currentPath.includes('/rearrange') || 
+              currentPath.includes('/descriptive') ||
+              currentPath.includes('/review-round')
+            );
+
+            if (isLesson) {
+              if (window.confirm('Are you sure you want to leave this lesson? Your progress is saved.')) {
+                // Navigate to the main dashboard rather than relying on history.back
+                // which might take them back to another lesson page or intermediate step
+                // Note: navigate is available via closure because NavigationController uses useNavigate
+                navigate('/learn', { replace: true });
+              }
+            } else {
+              // Standard behavior for other pages
+              window.history.back();
+            }
           }
         }).then(l => {
           backListener = l;

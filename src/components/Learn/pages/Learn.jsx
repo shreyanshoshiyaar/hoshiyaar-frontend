@@ -50,6 +50,9 @@ const Learn = () => {
             localStorage.removeItem(`onboarding_progress_${user._id}`);
           } catch (_) {}
         }
+        
+        // Clear onboardingData so it stops overriding user context for future updates
+        setOnboardingData({ board: null, subject: null, chapter: null });
         setIsSaving(false);
         return true;
       } catch (err) {
@@ -128,10 +131,11 @@ const Learn = () => {
         }
 
         // Otherwise go to dashboard
+        // We set onboardingData to null so it doesn't override user's active selections in LearnDashboard
         setOnboardingData({
-          board: user.board ?? onboardingData.board,
-          subject: user.subject ?? onboardingData.subject,
-          chapter: user.chapter ?? onboardingData.chapter,
+          board: null,
+          subject: null,
+          chapter: null,
         });
         setStep(5);
       } catch (_) {
