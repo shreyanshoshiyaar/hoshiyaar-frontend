@@ -8,7 +8,7 @@ import ProgressPanel from './ProgressPanel.jsx';
 import { CalendarIcon } from '../ui/Icons';
 
 export default function ProfilePage() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const [form, setForm] = useState({ username: '', name: '', email: '', phone: '', board: '', classLevel: '', school: '', dateOfBirth: '' });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -104,8 +104,10 @@ export default function ProfilePage() {
         dob = null;
       }
       const isAcademicChanged = form.board !== (user.board || 'Not Defined') || String(form.classLevel) !== String(user.classLevel || 'Not Defined');
+      
+      const newSchool = isAcademicChanged ? null : (form.school === 'Not Defined' ? null : form.school);
 
-      await authService.updateProfile({
+      const updateData = {
         userId: user._id,
         username: form.username || undefined,
         board: form.board === 'Not Defined' ? null : form.board,
@@ -114,11 +116,17 @@ export default function ProfilePage() {
         name: form.name === 'Not Defined' ? null : form.name,
         phone: form.phone === 'Not Defined' ? null : form.phone,
         classLevel: form.classLevel === 'Not Defined' ? null : form.classLevel,
-        school: form.school === 'Not Defined' ? null : form.school,
+        school: newSchool,
         dateOfBirth: dob,
         email: form.email === 'Not Defined' ? null : form.email,
         ...(isAcademicChanged ? { subjectId: null, chapterId: null } : {})
-      });
+      };
+
+      await authService.updateProfile(updateData);
+      
+      // Update local context so app immediately reflects changes
+      updateUser({ ...user, ...updateData });
+
       setSaved(true);
       setTimeout(() => setSaved(false), 1500);
     } catch (e) {
