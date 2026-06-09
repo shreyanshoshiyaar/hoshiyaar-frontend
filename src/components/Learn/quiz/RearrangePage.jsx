@@ -782,7 +782,14 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
 
   if (loading) return <SimpleLoading />;
   if (error) return <div className="p-6 text-red-600">{error}</div>;
-  if (!item) return <SimpleLoading />;
+  if (!item) {
+    setTimeout(() => {
+      localStorage.removeItem('hoshiyaar_last_path');
+      localStorage.removeItem(`resume_lesson_${moduleNumber}`);
+      navigate('/learn', { replace: true });
+    }, 0);
+    return <SimpleLoading text="Redirecting to dashboard..." />;
+  }
   // Check type: In revision mode, use revisionItem.type; in normal mode, use item.type
   let actualType = String(item?.type || '');
   if (isRevisionModeFromUrl && revisionItem?.type) {

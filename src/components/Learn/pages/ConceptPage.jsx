@@ -613,7 +613,14 @@ export default function ConceptPage() {
 
   if (loading) return <SimpleLoading />;
   if (error) return <div className="p-6 text-red-600">{error}</div>;
-  if (!item) return <SimpleLoading />;
+  if (!item) {
+    setTimeout(() => {
+      localStorage.removeItem('hoshiyaar_last_path');
+      localStorage.removeItem(`resume_lesson_${moduleNumber}`);
+      navigate('/learn', { replace: true });
+    }, 0);
+    return <SimpleLoading text="Redirecting to dashboard..." />;
+  }
 
   const isConceptOrStatement = actualType === 'concept' || actualType === 'statement' || actualType === 'comic' || actualType === 'video';
   if (!isConceptOrStatement) {
