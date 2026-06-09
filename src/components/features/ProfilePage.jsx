@@ -204,7 +204,9 @@ export default function ProfilePage() {
               className="mt-1 w-full px-4 py-3 rounded-2xl border-2 border-blue-200 focus:outline-none focus:border-blue-400 bg-white text-gray-800"
             >
               <option value="" disabled>Select class</option>
-              {['6', '7', '8'].map(c => (
+              {['6', '7', '8']
+                .filter(c => !(form.board === 'Eduvate' && (c === '7' || c === '8')))
+                .map(c => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
