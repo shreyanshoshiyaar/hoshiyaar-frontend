@@ -21,6 +21,8 @@ export default function ReviewRound() {
 			case 'descriptive': return `/learn/module/${mod}/descriptive/${idx}?${modeParam}`;
 			case 'statement':
 			case 'concept':
+			case 'comic':
+			case 'video':
 				return `/learn/module/${mod}/concept/${idx}?${modeParam}`;
 			default: return null;
 		}

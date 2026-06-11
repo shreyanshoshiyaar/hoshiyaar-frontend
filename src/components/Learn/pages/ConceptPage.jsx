@@ -661,7 +661,7 @@ export default function ConceptPage() {
         </button>
           <div className="flex-1 mx-1 sm:mx-2 md:mx-4 flex flex-col items-center">
             <span className="text-[10px] sm:text-xs font-black text-blue-600/80 uppercase tracking-widest mb-0.5 text-center">
-              {isInReviewOrRevision ? 'REVISION PROGRESS' : 'LEARN PROGRESS'}: {isInReviewOrRevision ? `${initialQueueCount - queue.length + 1} / ${initialQueueCount}` : `${index + 1} / ${items.length}`}
+              {isInReviewOrRevision ? 'REVISE PROGRESS' : 'LEARN PROGRESS'}: {isInReviewOrRevision ? `${initialQueueCount - queue.length + 1} / ${initialQueueCount}` : `${index + 1} / ${items.length}`}
             </span>
             {isInReviewOrRevision ? (
               <ProgressBar currentIndex={initialQueueCount - queue.length} total={Math.max(1, initialQueueCount)} />
@@ -800,7 +800,7 @@ export default function ConceptPage() {
         </button>
           <div className="flex-1 mx-1 sm:mx-2 md:mx-4 flex flex-col items-center">
             <span className="text-[10px] sm:text-xs font-black text-blue-600/80 uppercase tracking-widest mb-0.5 text-center">
-              {isInReviewOrRevision ? 'REVISION PROGRESS' : 'LEARN PROGRESS'}: {isInReviewOrRevision ? `${initialQueueCount - queue.length + 1} / ${initialQueueCount}` : `${index + 1} / ${items.length}`}
+              {isInReviewOrRevision ? 'REVISE PROGRESS' : 'LEARN PROGRESS'}: {isInReviewOrRevision ? `${initialQueueCount - queue.length + 1} / ${initialQueueCount}` : `${index + 1} / ${items.length}`}
             </span>
             {isInReviewOrRevision ? (
               <ProgressBar currentIndex={initialQueueCount - queue.length} total={Math.max(1, initialQueueCount)} />
