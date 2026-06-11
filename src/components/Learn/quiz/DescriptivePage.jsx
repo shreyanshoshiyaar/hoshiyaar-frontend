@@ -527,7 +527,7 @@ export default function DescriptivePage() {
                       </div>
 
                       {/* Keywords */}
-                      {item.keywords && item.keywords.length > 0 && (
+                      {(foundKeywords.length > 0 || missedKeywords.length > 0) && (
                         <div className="pt-2">
                            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Keyword Evaluation</p>
                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
