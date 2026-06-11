@@ -10,6 +10,7 @@ export const useReview = () => {
 
 export const ReviewProvider = ({ children }) => {
 	const [queue, setQueue] = useState([]); // [{questionId, moduleNumber, index, type}]
+	const [initialQueueCount, setInitialQueueCount] = useState(0);
 	const [cursor, setCursor] = useState(0);
 	const [history, setHistory] = useState([]); // To support going back to previous questions
 	// Track the module scope for the current queue; reset when module changes
@@ -22,8 +23,7 @@ export const ReviewProvider = ({ children }) => {
 
 	const add = (item) => {
 		const incomingModule = item?.moduleNumber != null ? String(item.moduleNumber) : null;
-		const isRevisionMode = item._source === 'default' || item._source === 'incorrect';
-		const shouldResetForModuleChange = !isRevisionMode && incomingModule && currentModule && incomingModule !== currentModule;
+		const shouldResetForModuleChange = incomingModule && currentModule && incomingModule !== currentModule;
 
 		if (shouldResetForModuleChange) {
 			setCursor(0);
@@ -38,6 +38,7 @@ export const ReviewProvider = ({ children }) => {
 			if (alreadyThere) return baseQueue;
 			
 			const newQueue = [...baseQueue, item];
+            setInitialQueueCount(newQueue.length); // Update initial count as items are added
 			// If adding items with _order, maintain sorted order (check if any item has _order)
 			if (item._order != null && newQueue.some(q => q._order != null)) {
 				return newQueue.sort((a, b) => Number(a._order || 0) - Number(b._order || 0));
@@ -48,6 +49,7 @@ export const ReviewProvider = ({ children }) => {
 
 	const reset = () => {
 		setQueue([]);
+		setInitialQueueCount(0);
 		setCursor(0);
 		setHistory([]);
 		setCurrentModule(null);
@@ -141,7 +143,7 @@ export const ReviewProvider = ({ children }) => {
 		<ReviewContext.Provider
 			value={{
 				queue,
-				cursor,
+                initialQueueCount,
 				active,
 				hasItems,
 				add,

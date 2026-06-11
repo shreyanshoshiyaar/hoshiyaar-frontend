@@ -71,9 +71,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       localStorage.setItem(IDS_KEY, JSON.stringify(Array.from(set)));
     } catch (_) {}
   };
-  const { add: addToReview, removeActive, requeueActive, undoActive, stageIncorrect, clearStagedForModule, active: activeReviewItem, queue, cursor } = useReview();
-  const currentProgressIndex = actualReviewMode ? cursor : index;
-  const currentProgressTotal = actualReviewMode ? Math.max(1, queue.length) : items.length;
+  const { add: addToReview, removeActive, requeueActive, undoActive, stageIncorrect, clearStagedForModule, active: activeReviewItem, queue, initialQueueCount } = useReview();
   // Use revision data if in revision mode and available, otherwise use curriculum item
   // IMPORTANT: Only use activeReviewItem if it matches the current URL params
   const revisionItem = useMemo(() => {
@@ -845,7 +843,11 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
             </svg>
           </button>
           <div className="flex-1 mx-1 sm:mx-2 md:mx-4">
-            <ProgressBar currentIndex={currentProgressIndex} total={currentProgressTotal} />
+            {actualReviewMode ? (
+              <ProgressBar currentIndex={initialQueueCount - queue.length} total={Math.max(1, initialQueueCount)} />
+            ) : (
+              <ProgressBar currentIndex={index} total={items.length} />
+            )}
           </div>
           <StarCounter />
         </div>
@@ -925,9 +927,13 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
           </svg>
         </button><div className="flex-1 mx-1 sm:mx-2 md:mx-4 flex flex-col items-center">
           <span className="text-[10px] sm:text-xs font-black text-blue-600/80 uppercase tracking-widest mb-0.5">
-            LEARN PROGRESS: {currentProgressIndex + 1} / {currentProgressTotal}
+            {actualReviewMode ? 'REVISION PROGRESS' : 'LEARN PROGRESS'}: {actualReviewMode ? `${initialQueueCount - queue.length + 1} / ${initialQueueCount}` : `${index + 1} / ${items.length}`}
           </span>
-          <ProgressBar currentIndex={currentProgressIndex} total={currentProgressTotal} />
+          {actualReviewMode ? (
+            <ProgressBar currentIndex={initialQueueCount - queue.length} total={Math.max(1, initialQueueCount)} />
+          ) : (
+            <ProgressBar currentIndex={index} total={items.length} />
+          )}
         </div>
         <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
           {(user?.role === 'admin' || user?.role === 'master' || user?.username === 'Host' || user?.username === 'hostcbse') && (

@@ -5,7 +5,7 @@ import reviewService from '../../../services/reviewService.js';
 import curriculumService from '../../../services/curriculumService.js';
 import { useReview } from '../../../context/ReviewContext.jsx';
 import BackButton from '../../ui/BackButton.jsx';
-import SimpleLoading from '../../ui/SimpleLoading.jsx';
+
 import { PathNode, OrganicPathSvg, getWaveOffset, StartBadge } from '../pages/LearnDashboard.jsx';
 
 export default function RevisionList() {
@@ -92,13 +92,11 @@ export default function RevisionList() {
         let validUnits = [];
 
         if (units.length > 0) {
-          // Fetch ALL defaults for this chapter in ONE network call to avoid N+1 queries lag
-          const allChapterDefaults = await reviewService.listDefaults({ chapterId, page: 1, pageSize: 1000 }).catch(() => []);
-          
+          // Check defaults for each unit
           for (const u of units) {
-            const uDefaults = allChapterDefaults.filter(d => String(d.unitId) === String(u._id));
-            if (uDefaults && uDefaults.length > 0) {
-              defaultsByUnit[u._id] = uDefaults;
+            const defaults = await reviewService.listDefaults({ unitId: u._id, page: 1, pageSize: 1000 }).catch(() => []);
+            if (defaults && defaults.length > 0) {
+              defaultsByUnit[u._id] = defaults;
               validUnits.push(u);
             }
           }
@@ -196,7 +194,10 @@ export default function RevisionList() {
         </div>
 
         {loading ? (
-          <SimpleLoading spinnerOnly={true} />
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="w-16 h-16 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mb-4"></div>
+            <p className="text-xl font-bold text-purple-800 tracking-wider">Loading your questions...</p>
+          </div>
         ) : moduleId ? (
           <div className="text-center font-bold text-gray-500 text-lg mt-10">No revision questions found for this module.</div>
         ) : !chapterId ? (
