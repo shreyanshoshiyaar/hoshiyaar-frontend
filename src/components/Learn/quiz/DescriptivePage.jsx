@@ -441,19 +441,21 @@ export default function DescriptivePage() {
           <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-gray-900 text-center mb-6">
             {item.question}
           </h2>
-          {item.imageUrl && (!item.images || item.images.length === 0) && (
-            <div className="w-full flex justify-center mb-6">
-              <img src={item.imageUrl} alt="Question Diagram" className="max-w-full w-auto max-h-64 rounded-xl shadow-sm border border-gray-200 object-contain bg-white" />
-            </div>
-          )}
-
-          {item.images && item.images.length > 0 && (
-            <div className="w-full flex justify-center gap-4 flex-wrap mb-6">
-              {item.images.map((imgUrl, i) => (
-                <img key={i} src={imgUrl} alt={`Question Diagram ${i+1}`} className="max-w-full w-auto max-h-64 rounded-xl shadow-sm border border-gray-200 object-contain bg-white" />
-              ))}
-            </div>
-          )}
+          {(() => {
+            const imgs = (item.images || []).filter(Boolean);
+            if (imgs.length === 0 && item.imageUrl) imgs.push(item.imageUrl);
+            return imgs.length > 0 ? (
+              <div className="w-full max-w-xl sm:max-w-2xl md:max-w-3xl mb-4 sm:mb-6 flex justify-center mx-auto">
+                <div className="flex flex-wrap md:flex-nowrap items-center justify-center gap-1 sm:gap-3 md:gap-5">
+                  {imgs.slice(0,5).map((src, i) => (
+                    <div key={i} className="border border-blue-300 rounded-lg sm:rounded-2xl p-1 sm:p-3 bg-white shadow-sm">
+                      <img src={src} alt={'desc-'+i} className="h-40 w-36 sm:h-32 sm:w-24 md:h-24 md:w-20 lg:h-32 lg:w-24 xl:h-40 xl:w-32 object-contain rounded-md sm:rounded-xl" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null;
+          })()}
           <div className="w-full space-y-4">
             <textarea
               value={userInput}
