@@ -83,7 +83,7 @@ export default function ConceptPage() {
   const chapterIdParam = searchParams.get('chapterId');
   const unitIdParam = searchParams.get('unitId');
   const isInReviewOrRevision = isReviewModeFromUrl || isRevisionModeFromUrl;
-  const { add: addToReview, removeActive, requeueActive, undoActive, stageIncorrect, clearStagedForModule, active: activeReviewItem, queue } = useReview();
+  const { add: addToReview, removeActive, requeueActive, undoActive, stageIncorrect, clearStagedForModule, active: activeReviewItem, queue, initialQueueCount } = useReview();
   const [videoAcknowledged, setVideoAcknowledged] = useState(false);
   const [showEndVideo, setShowEndVideo] = useState(false);
   const [comicSlideIndex, setComicSlideIndex] = useState(() => {
@@ -659,12 +659,16 @@ export default function ConceptPage() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
           </svg>
         </button>
-        <div className="flex-1 mx-1 sm:mx-2 md:mx-4 flex flex-col items-center">
-          <span className="text-[10px] sm:text-xs font-black text-blue-600/80 uppercase tracking-widest mb-0.5 text-center">
-            LEARN PROGRESS: {index + 1} / {items.length}
-          </span>
-          <ProgressBar currentIndex={index} total={items.length} />
-        </div>
+          <div className="flex-1 mx-1 sm:mx-2 md:mx-4 flex flex-col items-center">
+            <span className="text-[10px] sm:text-xs font-black text-blue-600/80 uppercase tracking-widest mb-0.5 text-center">
+              {isInReviewOrRevision ? 'REVISION PROGRESS' : 'LEARN PROGRESS'}: {isInReviewOrRevision ? `${initialQueueCount - queue.length + 1} / ${initialQueueCount}` : `${index + 1} / ${items.length}`}
+            </span>
+            {isInReviewOrRevision ? (
+              <ProgressBar currentIndex={initialQueueCount - queue.length} total={Math.max(1, initialQueueCount)} />
+            ) : (
+              <ProgressBar currentIndex={index} total={items.length} />
+            )}
+          </div>
         <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
             {(user?.role === 'admin' || user?.role === 'master' || user?.username === 'Host' || user?.username === 'hostcbse') && (
               <button
@@ -794,12 +798,16 @@ export default function ConceptPage() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
           </svg>
         </button>
-        <div className="flex-1 mx-1 sm:mx-2 md:mx-4 flex flex-col items-center">
-          <span className="text-[10px] sm:text-xs font-black text-blue-600/80 uppercase tracking-widest mb-0.5 text-center">
-            LEARN PROGRESS: {index + 1} / {items.length}
-          </span>
-          <ProgressBar currentIndex={index} total={items.length} />
-        </div>
+          <div className="flex-1 mx-1 sm:mx-2 md:mx-4 flex flex-col items-center">
+            <span className="text-[10px] sm:text-xs font-black text-blue-600/80 uppercase tracking-widest mb-0.5 text-center">
+              {isInReviewOrRevision ? 'REVISION PROGRESS' : 'LEARN PROGRESS'}: {isInReviewOrRevision ? `${initialQueueCount - queue.length + 1} / ${initialQueueCount}` : `${index + 1} / ${items.length}`}
+            </span>
+            {isInReviewOrRevision ? (
+              <ProgressBar currentIndex={initialQueueCount - queue.length} total={Math.max(1, initialQueueCount)} />
+            ) : (
+              <ProgressBar currentIndex={index} total={items.length} />
+            )}
+          </div>
         <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
           {(user?.role === 'admin' || user?.role === 'master' || user?.username === 'Host' || user?.username === 'hostcbse') && (
             <button
