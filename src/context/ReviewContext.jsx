@@ -22,7 +22,8 @@ export const ReviewProvider = ({ children }) => {
 
 	const add = (item) => {
 		const incomingModule = item?.moduleNumber != null ? String(item.moduleNumber) : null;
-		const shouldResetForModuleChange = incomingModule && currentModule && incomingModule !== currentModule;
+		const isRevisionMode = item._source === 'default' || item._source === 'incorrect';
+		const shouldResetForModuleChange = !isRevisionMode && incomingModule && currentModule && incomingModule !== currentModule;
 
 		if (shouldResetForModuleChange) {
 			setCursor(0);
@@ -140,6 +141,7 @@ export const ReviewProvider = ({ children }) => {
 		<ReviewContext.Provider
 			value={{
 				queue,
+				cursor,
 				active,
 				hasItems,
 				add,

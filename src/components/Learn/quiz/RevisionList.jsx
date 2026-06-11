@@ -92,11 +92,13 @@ export default function RevisionList() {
         let validUnits = [];
 
         if (units.length > 0) {
-          // Check defaults for each unit
+          // Fetch ALL defaults for this chapter in ONE network call to avoid N+1 queries lag
+          const allChapterDefaults = await reviewService.listDefaults({ chapterId, page: 1, pageSize: 1000 }).catch(() => []);
+          
           for (const u of units) {
-            const defaults = await reviewService.listDefaults({ unitId: u._id, page: 1, pageSize: 1000 }).catch(() => []);
-            if (defaults && defaults.length > 0) {
-              defaultsByUnit[u._id] = defaults;
+            const uDefaults = allChapterDefaults.filter(d => String(d.unitId) === String(u._id));
+            if (uDefaults && uDefaults.length > 0) {
+              defaultsByUnit[u._id] = uDefaults;
               validUnits.push(u);
             }
           }
@@ -194,7 +196,7 @@ export default function RevisionList() {
         </div>
 
         {loading ? (
-          <SimpleLoading />
+          <SimpleLoading spinnerOnly={true} />
         ) : moduleId ? (
           <div className="text-center font-bold text-gray-500 text-lg mt-10">No revision questions found for this module.</div>
         ) : !chapterId ? (

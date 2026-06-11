@@ -71,7 +71,9 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       localStorage.setItem(IDS_KEY, JSON.stringify(Array.from(set)));
     } catch (_) {}
   };
-  const { add: addToReview, removeActive, requeueActive, undoActive, stageIncorrect, clearStagedForModule, active: activeReviewItem, queue } = useReview();
+  const { add: addToReview, removeActive, requeueActive, undoActive, stageIncorrect, clearStagedForModule, active: activeReviewItem, queue, cursor } = useReview();
+  const currentProgressIndex = actualReviewMode ? cursor : index;
+  const currentProgressTotal = actualReviewMode ? Math.max(1, queue.length) : items.length;
   // Use revision data if in revision mode and available, otherwise use curriculum item
   // IMPORTANT: Only use activeReviewItem if it matches the current URL params
   const revisionItem = useMemo(() => {
@@ -843,7 +845,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
             </svg>
           </button>
           <div className="flex-1 mx-1 sm:mx-2 md:mx-4">
-            <ProgressBar currentIndex={index} total={items.length} />
+            <ProgressBar currentIndex={currentProgressIndex} total={currentProgressTotal} />
           </div>
           <StarCounter />
         </div>
@@ -923,9 +925,9 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
           </svg>
         </button><div className="flex-1 mx-1 sm:mx-2 md:mx-4 flex flex-col items-center">
           <span className="text-[10px] sm:text-xs font-black text-blue-600/80 uppercase tracking-widest mb-0.5">
-            LEARN PROGRESS: {index + 1} / {items.length}
+            LEARN PROGRESS: {currentProgressIndex + 1} / {currentProgressTotal}
           </span>
-          <ProgressBar currentIndex={index} total={items.length} />
+          <ProgressBar currentIndex={currentProgressIndex} total={currentProgressTotal} />
         </div>
         <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
           {(user?.role === 'admin' || user?.role === 'master' || user?.username === 'Host' || user?.username === 'hostcbse') && (
