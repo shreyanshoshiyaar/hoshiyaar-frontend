@@ -79,7 +79,7 @@ export default function DescriptivePage() {
 
     // Safely extract and split keywords. 
     // Mongoose sometimes casts a comma string "A, B" into an array ["A, B"]. We must split strings.
-    let keywordsSource = item.keywords || [];
+    let keywordsSource = (item.keywords && item.keywords.length > 0) ? item.keywords : (item.answer || []);
     if (typeof keywordsSource === 'string') {
       // Split by common separators: comma, semicolon, pipe
       keywordsSource = keywordsSource.split(/[,;|]+/).map(s => s.trim()).filter(Boolean);

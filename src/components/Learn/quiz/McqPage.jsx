@@ -514,7 +514,8 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
   async function handleSubmit() {
     if (selectedIndex === null || showResult) return;
     
-    const selectedOption = item?.options?.[selectedIndex];
+    const isImagesOnlyMCQ = (!item.options || item.options.length === 0) && (item.images && item.images.length > 0);
+    const selectedOption = isImagesOnlyMCQ ? item.images[selectedIndex] : item?.options?.[selectedIndex];
     const correct = String(selectedOption || '').trim().toLowerCase() === String(item?.answer || '').trim().toLowerCase();
     setIsCorrect(correct);
     setShowResult(true);
@@ -946,20 +947,63 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         </h2>
 
         {(() => { 
+          const isImagesOnlyMCQ = (!item.options || item.options.length === 0) && (item.images && item.images.length > 0);
+          
           // Check if options are image URLs - if so, don't show question images
           const hasImageOptions = item.options?.some(opt => typeof opt === 'string' && (opt.startsWith('http') || opt.startsWith('https')));
-          if (hasImageOptions) return null;
+          if (hasImageOptions && !isImagesOnlyMCQ) return null;
           
           const imgs = (item.images || []).filter(Boolean); 
           if (imgs.length === 0 && item.imageUrl) imgs.push(item.imageUrl); 
           return imgs.length > 0 ? (
             <div className="w-full max-w-xl sm:max-w-2xl md:max-w-3xl mb-1 sm:mb-3 flex justify-center">
               <div className="flex flex-wrap md:flex-nowrap items-center justify-center gap-1 sm:gap-3 md:gap-5">
-                {((item.images && item.images.filter(Boolean)) || (item.imageUrl ? [item.imageUrl] : [])).slice(0,5).map((src, i) => (
-                  <div key={i} className="border border-blue-300 rounded-lg sm:rounded-2xl p-1 sm:p-3 bg-white shadow-sm">
-                    <img src={src} alt={'mcq-'+i} className="h-40 w-36 sm:h-32 sm:w-24 md:h-24 md:w-20 lg:h-32 lg:w-24 xl:h-40 xl:w-32 object-contain rounded-md sm:rounded-xl" />
-                  </div>
-                ))}
+                {imgs.slice(0,5).map((src, idx) => {
+                  if (isImagesOnlyMCQ) {
+                    const isSelected = selectedIndex === idx;
+                    const isCorrectOption = String(src).trim().toLowerCase() === String(item.answer || '').trim().toLowerCase();
+                    
+                    let buttonClass = "border-2 rounded-lg sm:rounded-2xl p-1 sm:p-3 shadow-sm transition-all duration-200 overflow-hidden relative cursor-pointer focus:outline-none ";
+                    
+                    if (showResult) {
+                      if (isSelected) {
+                        buttonClass += isCorrect ? "bg-green-100 border-green-500 ring-4 ring-green-200 " : "bg-red-100 border-red-500 ring-4 ring-red-200 ";
+                      } else if (isCorrectOption) {
+                        buttonClass += "bg-green-50 border-green-400 ring-4 ring-green-100 ";
+                      } else {
+                        buttonClass += "bg-gray-50 border-gray-200 opacity-50 ";
+                      }
+                    } else {
+                      if (isSelected) {
+                        buttonClass += "bg-blue-50 border-blue-500 ring-4 ring-blue-200 scale-105 ";
+                      } else {
+                        buttonClass += "bg-white border-blue-200 hover:border-blue-400 hover:shadow-md ";
+                      }
+                    }
+
+                    return (
+                      <button 
+                        key={idx} 
+                        className={buttonClass}
+                        onClick={() => handleOptionClick(idx)}
+                        disabled={showResult}
+                      >
+                        <img src={src} alt={'mcq-'+idx} className="h-40 w-36 sm:h-32 sm:w-24 md:h-24 md:w-20 lg:h-32 lg:w-24 xl:h-40 xl:w-32 object-contain rounded-md sm:rounded-xl" />
+                        {showResult && (
+                          <div className={`absolute top-2 right-2 flex-shrink-0 font-black text-lg sm:text-xl rounded-full w-8 h-8 flex items-center justify-center shadow-sm ${isSelected ? (isCorrect ? 'bg-green-500 text-white' : 'bg-red-500 text-white') : (isCorrectOption ? 'bg-green-500 text-white' : 'bg-white/80')}`}>
+                            {isSelected ? (isCorrect ? '✓' : '✕') : (isCorrectOption ? '✓' : '')}
+                          </div>
+                        )}
+                      </button>
+                    );
+                  } else {
+                    return (
+                      <div key={idx} className="border border-blue-300 rounded-lg sm:rounded-2xl p-1 sm:p-3 bg-white shadow-sm">
+                        <img src={src} alt={'mcq-'+idx} className="h-40 w-36 sm:h-32 sm:w-24 md:h-24 md:w-20 lg:h-32 lg:w-24 xl:h-40 xl:w-32 object-contain rounded-md sm:rounded-xl" />
+                      </div>
+                    );
+                  }
+                })}
               </div>
             </div>
           ) : null 
@@ -967,16 +1011,18 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
 
         <div className="w-full max-w-2xl sm:max-w-3xl md:max-w-4xl mb-2 sm:mb-4">
           {(() => {
-            const hasImageOptions = item.options?.some(opt => typeof opt === 'string' && (opt.startsWith('http') || opt.startsWith('https')));
+            if (!item.options || item.options.length === 0) return null;
+            
+            const hasImageOptions = item.options.some(opt => typeof opt === 'string' && (opt.startsWith('http') || opt.startsWith('https')));
             const containerClass = hasImageOptions 
               ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4 md:gap-6" 
               : "flex flex-col sm:flex-row gap-2 sm:gap-4 w-full";
             
             return (
               <div className={containerClass}>
-                {item.options?.map((opt, idx) => {
+                {item.options.map((opt, idx) => {
                   const isSelected = selectedIndex === idx;
-                  const isCorrectOption = String(opt).trim().toLowerCase() === item.answer.trim().toLowerCase();
+                  const isCorrectOption = String(opt).trim().toLowerCase() === String(item.answer || '').trim().toLowerCase();
                   const isImageUrl = typeof opt === 'string' && (opt.startsWith('http') || opt.startsWith('https'));
                   
                   let buttonClass = hasImageOptions 
