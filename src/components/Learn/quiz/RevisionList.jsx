@@ -43,8 +43,37 @@ export default function RevisionList() {
       // Handle direct Unit ID jump (e.g. from RevisionStar on LearnDashboard)
       if (unitId) {
         try {
-          const udefs = await reviewService.listDefaults({ unitId, page: 1, pageSize: 1000 }).catch(() => []);
-          startReviewDirect(udefs);
+          const modsResponse = await curriculumService.listModulesByUnit(unitId).catch(() => null);
+          const mods = modsResponse?.data || [];
+          const unitMediaItems = [];
+
+          for (const m of mods) {
+            const itemsResponse = await curriculumService.listItems(m._id).catch(() => null);
+            const items = itemsResponse?.data || [];
+            
+            items.forEach((item, index) => {
+              const actualType = item.type || 'concept';
+              const isVideo = actualType === 'youtube' || (actualType === 'concept' && item.videoUrl);
+              const isComic = actualType === 'comic' || (actualType === 'concept' && Array.isArray(item.comicUrls) && item.comicUrls.length > 0);
+              
+              if (isVideo || isComic) {
+                unitMediaItems.push({
+                  moduleId: m._id,
+                  lessonIndex: index,
+                  order: unitMediaItems.length,
+                  type: isComic ? 'comic' : 'video',
+                  question: item.title || '',
+                  videoUrl: item.videoUrl,
+                  comicUrls: item.comicUrls,
+                  images: item.images,
+                  text: item.text,
+                  options: item.options,
+                  answer: item.answer,
+                });
+              }
+            });
+          }
+          startReviewDirect(unitMediaItems);
         } catch (_) {
           setLoading(false);
         }
@@ -54,8 +83,32 @@ export default function RevisionList() {
       // Handle direct Module ID jump
       if (moduleId) {
         try {
-          const mdefs = await reviewService.listDefaults({ moduleId, page: 1, pageSize: 1000 }).catch(() => []);
-          startReviewDirect(mdefs);
+          const itemsResponse = await curriculumService.listItems(moduleId).catch(() => null);
+          const items = itemsResponse?.data || [];
+          const modMediaItems = [];
+          
+          items.forEach((item, index) => {
+            const actualType = item.type || 'concept';
+            const isVideo = actualType === 'youtube' || (actualType === 'concept' && item.videoUrl);
+            const isComic = actualType === 'comic' || (actualType === 'concept' && Array.isArray(item.comicUrls) && item.comicUrls.length > 0);
+            
+            if (isVideo || isComic) {
+              modMediaItems.push({
+                moduleId: moduleId,
+                lessonIndex: index,
+                order: modMediaItems.length,
+                type: isComic ? 'comic' : 'video',
+                question: item.title || '',
+                videoUrl: item.videoUrl,
+                comicUrls: item.comicUrls,
+                images: item.images,
+                text: item.text,
+                options: item.options,
+                answer: item.answer,
+              });
+            }
+          });
+          startReviewDirect(modMediaItems);
         } catch (_) {
           setLoading(false);
         }
@@ -92,21 +145,50 @@ export default function RevisionList() {
         let validUnits = [];
 
         if (units.length > 0) {
-          // Check defaults for each unit
+          // Check curriculum media for each unit
           for (const u of units) {
-            const defaults = await reviewService.listDefaults({ unitId: u._id, page: 1, pageSize: 1000 }).catch(() => []);
-            if (defaults && defaults.length > 0) {
-              defaultsByUnit[u._id] = defaults;
+            const modsResponse = await curriculumService.listModulesByUnit(u._id).catch(() => null);
+            const mods = modsResponse?.data || [];
+            if (mods.length === 0) continue;
+
+            const unitMediaItems = [];
+
+            // Fetch items for each module sequentially to preserve order
+            for (const m of mods) {
+              const itemsResponse = await curriculumService.listItems(m._id).catch(() => null);
+              const items = itemsResponse?.data || [];
+              
+              items.forEach((item, index) => {
+                const actualType = item.type || 'concept';
+                const isVideo = actualType === 'youtube' || (actualType === 'concept' && item.videoUrl);
+                const isComic = actualType === 'comic' || (actualType === 'concept' && Array.isArray(item.comicUrls) && item.comicUrls.length > 0);
+                
+                if (isVideo || isComic) {
+                  unitMediaItems.push({
+                    moduleId: m._id,
+                    lessonIndex: index,
+                    order: unitMediaItems.length,
+                    type: isComic ? 'comic' : 'video',
+                    question: item.title || '',
+                    videoUrl: item.videoUrl,
+                    comicUrls: item.comicUrls,
+                    images: item.images,
+                    text: item.text,
+                    options: item.options,
+                    answer: item.answer,
+                  });
+                }
+              });
+            }
+
+            if (unitMediaItems.length > 0) {
+              defaultsByUnit[u._id] = unitMediaItems;
               validUnits.push(u);
             }
           }
         } else {
-          // Fallback: If no units, get defaults for the whole chapter and create a virtual unit
-          const cdefs = await reviewService.listDefaults({ chapterId }).catch(() => []);
-          if (cdefs && cdefs.length > 0) {
-            defaultsByUnit['virtual_unit'] = cdefs;
-            validUnits = [{ _id: 'virtual_unit', title: 'Chapter Revision', virtual: true }];
-          }
+          // Fallback: If no units, we would need to fetch all modules for the chapter.
+          // Since all chapters should have units, we can skip for now.
         }
 
         setUnitDefaults(defaultsByUnit);
