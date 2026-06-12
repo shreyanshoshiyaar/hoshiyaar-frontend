@@ -21,6 +21,31 @@
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://hoshiyaar.info/privacy-policy</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://hoshiyaar.info/terms-conditions</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://hoshiyaar.info/disclaimer</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://hoshiyaar.info/login</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://hoshiyaar.info/signup</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://hoshiyaar.info/learn/module/6a295e52aaca404456c8b39c</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
