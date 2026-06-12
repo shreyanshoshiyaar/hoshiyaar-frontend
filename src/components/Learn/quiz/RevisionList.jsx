@@ -53,7 +53,7 @@ export default function RevisionList() {
             
             items.forEach((item, index) => {
               const actualType = item.type || 'concept';
-              const isVideo = actualType === 'youtube' || (actualType === 'concept' && item.videoUrl);
+              const isVideo = actualType === 'youtube' || actualType === 'video' || (actualType === 'concept' && item.videoUrl);
               const isComic = actualType === 'comic' || (actualType === 'concept' && Array.isArray(item.comicUrls) && item.comicUrls.length > 0);
               
               if (isVideo || isComic) {
@@ -89,7 +89,7 @@ export default function RevisionList() {
           
           items.forEach((item, index) => {
             const actualType = item.type || 'concept';
-            const isVideo = actualType === 'youtube' || (actualType === 'concept' && item.videoUrl);
+            const isVideo = actualType === 'youtube' || actualType === 'video' || (actualType === 'concept' && item.videoUrl);
             const isComic = actualType === 'comic' || (actualType === 'concept' && Array.isArray(item.comicUrls) && item.comicUrls.length > 0);
             
             if (isVideo || isComic) {
@@ -118,8 +118,8 @@ export default function RevisionList() {
       // Subject Level View
       if (!chapterId) {
         try {
-          const subj = user?.subject || 'Science';
-          const brd = user?.board || 'CBSE';
+          const subj = user?.subject || localStorage.getItem('last_selected_subject') || 'Science';
+          const brd = user?.board || localStorage.getItem('last_selected_board') || 'CBSE';
           const chResp = await curriculumService.listChapters(brd, subj);
           setChapters(chResp?.data || []);
         } catch (_) {
@@ -132,99 +132,37 @@ export default function RevisionList() {
       // Chapter Level View: Units on Winding Path
       try {
         // Fetch chapter title
-        const chs = await curriculumService.listChapters('CBSE', user?.subject || 'Science');
+        const brd = user?.board || localStorage.getItem('last_selected_board') || 'CBSE';
+        const subj = user?.subject || localStorage.getItem('last_selected_subject') || 'Science';
+        const chs = await curriculumService.listChapters(brd, subj);
         const chObj = (chs?.data || []).find(c => c._id === chapterId);
         if (chObj?.title) setChapterName(chObj.title);
 
-        const defaultsByUnit = {};
+        // Fetch counts from backend API
+        const countsResp = await curriculumService.getRevisionCounts(chapterId).catch(() => ({ data: {} }));
+        const countsByUnit = countsResp?.data || {};
 
         // Fetch units
         const un = await curriculumService.listUnits(chapterId);
         let units = un?.data || [];
         
         let validUnits = [];
+        const defaultsByUnit = {};
 
         if (units.length > 0) {
-          // Check curriculum media for each unit
           for (const u of units) {
-            const modsResponse = await curriculumService.listModulesByUnit(u._id).catch(() => null);
-            const mods = modsResponse?.data || [];
-            if (mods.length === 0) continue;
-
-            const unitMediaItems = [];
-
-            // Fetch items for each module sequentially to preserve order
-            for (const m of mods) {
-              const itemsResponse = await curriculumService.listItems(m._id).catch(() => null);
-              const items = itemsResponse?.data || [];
-              
-              items.forEach((item, index) => {
-                const actualType = item.type || 'concept';
-                const isVideo = actualType === 'youtube' || (actualType === 'concept' && item.videoUrl);
-                const isComic = actualType === 'comic' || (actualType === 'concept' && Array.isArray(item.comicUrls) && item.comicUrls.length > 0);
-                
-                if (isVideo || isComic) {
-                  unitMediaItems.push({
-                    moduleId: m._id,
-                    lessonIndex: index,
-                    order: unitMediaItems.length,
-                    type: isComic ? 'comic' : 'video',
-                    question: item.title || '',
-                    videoUrl: item.videoUrl,
-                    comicUrls: item.comicUrls,
-                    images: item.images,
-                    text: item.text,
-                    options: item.options,
-                    answer: item.answer,
-                  });
-                }
-              });
-            }
-
-            if (unitMediaItems.length > 0) {
-              defaultsByUnit[u._id] = unitMediaItems;
+            const count = countsByUnit[u._id] || 0;
+            if (count > 0) {
               validUnits.push(u);
+              defaultsByUnit[u._id] = Array(count).fill({});
             }
           }
         } else {
-          // Fallback: If no units, fetch all modules for the chapter.
-          const modsResponse = await curriculumService.listModules(chapterId).catch(() => null);
-          const mods = modsResponse?.data || [];
-          
-          if (mods.length > 0) {
-            const unitMediaItems = [];
-
-            for (const m of mods) {
-              const itemsResponse = await curriculumService.listItems(m._id).catch(() => null);
-              const items = itemsResponse?.data || [];
-              
-              items.forEach((item, index) => {
-                const actualType = item.type || 'concept';
-                const isVideo = actualType === 'youtube' || (actualType === 'concept' && item.videoUrl);
-                const isComic = actualType === 'comic' || (actualType === 'concept' && Array.isArray(item.comicUrls) && item.comicUrls.length > 0);
-                
-                if (isVideo || isComic) {
-                  unitMediaItems.push({
-                    moduleId: m._id,
-                    lessonIndex: index,
-                    order: unitMediaItems.length,
-                    type: isComic ? 'comic' : 'video',
-                    question: item.title || '',
-                    videoUrl: item.videoUrl,
-                    comicUrls: item.comicUrls,
-                    images: item.images,
-                    text: item.text,
-                    options: item.options,
-                    answer: item.answer,
-                  });
-                }
-              });
-            }
-
-            if (unitMediaItems.length > 0) {
-              defaultsByUnit['virtual_unit'] = unitMediaItems;
-              validUnits = [{ _id: 'virtual_unit', title: 'Chapter Revision', virtual: true }];
-            }
+          // Fallback: If no units, create a virtual unit if chapter has items
+          const virtualCount = countsByUnit['virtual_unit'] || Object.values(countsByUnit).reduce((a, b) => a + b, 0);
+          if (virtualCount > 0) {
+            validUnits = [{ _id: 'virtual_unit', title: 'Chapter Revision', virtual: true }];
+            defaultsByUnit['virtual_unit'] = Array(virtualCount).fill({});
           }
         }
 
@@ -289,9 +227,56 @@ export default function RevisionList() {
     }
   };
 
-  const startReviewForUnit = (uId) => {
-    const uDefaults = unitDefaults[uId] || [];
-    startReviewDirect(uDefaults);
+  const startReviewForUnit = async (uId) => {
+    setLoading(true);
+    try {
+      let mods = [];
+      if (uId === 'virtual_unit') {
+        const modsResponse = await curriculumService.listModules(chapterId).catch(() => null);
+        mods = modsResponse?.data || [];
+      } else {
+        const modsResponse = await curriculumService.listModulesByUnit(uId).catch(() => null);
+        mods = modsResponse?.data || [];
+      }
+
+      const unitMediaItems = [];
+
+      for (const m of mods) {
+        const itemsResponse = await curriculumService.listItems(m._id).catch(() => null);
+        const items = itemsResponse?.data || [];
+        
+        items.forEach((item, index) => {
+          const actualType = item.type || 'concept';
+          const isVideo = actualType === 'youtube' || actualType === 'video' || (actualType === 'concept' && item.videoUrl);
+          const isComic = actualType === 'comic' || (actualType === 'concept' && Array.isArray(item.comicUrls) && item.comicUrls.length > 0);
+          
+          if (isVideo || isComic) {
+            unitMediaItems.push({
+              moduleId: m._id,
+              lessonIndex: index,
+              order: unitMediaItems.length,
+              type: isComic ? 'comic' : 'video',
+              question: item.title || '',
+              videoUrl: item.videoUrl,
+              comicUrls: item.comicUrls,
+              images: item.images,
+              text: item.text,
+              options: item.options,
+              answer: item.answer,
+            });
+          }
+        });
+      }
+
+      if (!unitMediaItems || unitMediaItems.length === 0) {
+        setLoading(false);
+        return;
+      }
+      startReviewDirect(unitMediaItems);
+    } catch (e) {
+      console.error(e);
+      setLoading(false);
+    }
   };
 
   const localLineHeight = Math.max(160, unitsList.length * rowSpacing + 120);
