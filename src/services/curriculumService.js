@@ -54,6 +54,9 @@ const curriculumService = {
       return { data: null };
     });
   },
+  getRevisionCounts(chapterId, opts) {
+    return cachedGet(`/api/curriculum/revision-counts`, { params: { chapterId }, ...passOpts(opts) });
+  },
   updateUnit(unitId, data, opts) {
     // Clear cache when updating
     cache.clear();
