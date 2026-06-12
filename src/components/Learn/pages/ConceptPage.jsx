@@ -9,6 +9,7 @@ import { useAuth } from '../../../context/AuthContext.jsx';
 import { useStars } from '../../../context/StarsContext.jsx';
 import { useReview } from '../../../context/ReviewContext.jsx';
 import ConceptExitConfirm from '../../modals/ConceptExitConfirm.jsx';
+import NoSkipsModal from '../../modals/NoSkipsModal.jsx';
 import Lottie from 'lottie-react';
 // Large Lottie files are now fetched from the public folder to avoid build issues
 
@@ -84,8 +85,14 @@ export default function ConceptPage() {
   const unitIdParam = searchParams.get('unitId');
   const isInReviewOrRevision = isReviewModeFromUrl || isRevisionModeFromUrl;
   const { add: addToReview, removeActive, requeueActive, undoActive, stageIncorrect, clearStagedForModule, active: activeReviewItem, queue, initialQueueCount } = useReview();
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [showNoSkipsModal, setShowNoSkipsModal] = useState(false);
   const [videoAcknowledged, setVideoAcknowledged] = useState(false);
   const [showEndVideo, setShowEndVideo] = useState(false);
+  const [skipsLeft, setSkipsLeft] = useState(() => {
+    const stored = sessionStorage.getItem(`skips_${moduleNumber}`);
+    return stored !== null ? parseInt(stored, 10) : 5;
+  });
   const [comicSlideIndex, setComicSlideIndex] = useState(() => {
     try {
       const saved = localStorage.getItem(`resume_lesson_comic_${moduleNumber}_${indexParam || 0}`);
@@ -213,7 +220,6 @@ export default function ConceptPage() {
   const curriculumItem = useMemo(() => items[index] || null, [items, index]);
   // Prefer revision data over curriculum item when in revision mode
   const item = revisionItem || curriculumItem;
-  const [showExitConfirm, setShowExitConfirm] = useState(false);
   // Hardwire intro videos per module when requested
   // Format: { moduleId: videoUrl } for start-of-lesson videos (index 0)
   const forcedIntroByModule = useMemo(() => ({
@@ -562,6 +568,22 @@ export default function ConceptPage() {
     goNext();
   };
 
+  const handlePlayerSkip = async () => {
+    if (skipsLeft > 0) {
+      const newSkips = skipsLeft - 1;
+      setSkipsLeft(newSkips);
+      sessionStorage.setItem(`skips_${moduleNumber}`, newSkips.toString());
+      if (isInReviewOrRevision) {
+        removeActive();
+        navigate('/review-round');
+        return;
+      }
+      goNext();
+    } else {
+      setShowNoSkipsModal(true);
+    }
+  };
+
 
   // COMIC TIMER EFFECT
   useEffect(() => {
@@ -670,12 +692,19 @@ export default function ConceptPage() {
             )}
           </div>
         <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
-            {(user?.role === 'admin' || user?.role === 'master' || user?.username === 'Host' || user?.username === 'hostcbse') && (
+            {(user?.role === 'admin' || user?.role === 'master' || user?.username === 'Host' || user?.username === 'hostcbse') ? (
               <button
                 onClick={handleMasterSkip}
                 className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-black rounded-lg shadow-sm border-b-4 border-yellow-700 active:border-b-0 active:translate-y-1 transition-all mr-2 uppercase"
               >
                 Skip ⚡️
+              </button>
+            ) : (
+              <button
+                onClick={handlePlayerSkip}
+                className={`px-3 py-1 text-white text-xs font-black rounded-lg shadow-sm border-b-4 transition-all mr-2 uppercase ${skipsLeft > 0 ? 'bg-yellow-500 hover:bg-yellow-600 border-yellow-700 active:border-b-0 active:translate-y-1' : 'bg-gray-300 border-gray-400 opacity-80 cursor-not-allowed'}`}
+              >
+                Skip ({skipsLeft})
               </button>
             )}
             <StarCounter />
@@ -770,6 +799,7 @@ export default function ConceptPage() {
             />
           </div>
         )}
+        <NoSkipsModal isOpen={showNoSkipsModal} onClose={() => setShowNoSkipsModal(false)} />
       </div>
     );
   }
@@ -809,12 +839,19 @@ export default function ConceptPage() {
             )}
           </div>
         <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
-          {(user?.role === 'admin' || user?.role === 'master' || user?.username === 'Host' || user?.username === 'hostcbse') && (
+          {(user?.role === 'admin' || user?.role === 'master' || user?.username === 'Host' || user?.username === 'hostcbse') ? (
             <button
               onClick={handleMasterSkip}
               className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-black rounded-lg shadow-sm border-b-4 border-yellow-700 active:border-b-0 active:translate-y-1 transition-all mr-2 uppercase"
             >
               Skip ⚡️
+            </button>
+          ) : (
+            <button
+              onClick={handlePlayerSkip}
+              className={`px-3 py-1 text-white text-xs font-black rounded-lg shadow-sm border-b-4 transition-all mr-2 uppercase ${skipsLeft > 0 ? 'bg-yellow-500 hover:bg-yellow-600 border-yellow-700 active:border-b-0 active:translate-y-1' : 'bg-gray-300 border-gray-400 opacity-80 cursor-not-allowed'}`}
+            >
+              Skip ({skipsLeft})
             </button>
           )}
           <StarCounter />
@@ -957,6 +994,7 @@ export default function ConceptPage() {
           onClose={() => setIsZoomed(false)} 
         />
       )}
+      <NoSkipsModal isOpen={showNoSkipsModal} onClose={() => setShowNoSkipsModal(false)} />
     </div>
   );
 }

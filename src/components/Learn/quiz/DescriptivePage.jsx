@@ -3,6 +3,7 @@ import SimpleLoading from '../../ui/SimpleLoading.jsx';
 import IncorrectAnswerModal from '../../modals/IncorrectAnswerModal.jsx';
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import ConceptExitConfirm from '../../modals/ConceptExitConfirm.jsx';
+import NoSkipsModal from '../../modals/NoSkipsModal.jsx';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useModuleItems } from '../../../hooks/useModuleItems';
 import authService from '../../../services/authService.js';
@@ -37,8 +38,13 @@ export default function DescriptivePage() {
   const [missedKeywords, setMissedKeywords] = useState([]);
   const [showIncorrectModal, setShowIncorrectModal] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [showNoSkipsModal, setShowNoSkipsModal] = useState(false);
   const [hasAttempted, setHasAttempted] = useState(false);
   const [forceShowExpert, setForceShowExpert] = useState(false);
+  const [skipsLeft, setSkipsLeft] = useState(() => {
+    const stored = sessionStorage.getItem(`skips_${moduleNumber}`);
+    return stored !== null ? parseInt(stored, 10) : 5;
+  });
 
   const correctAudio = useRef(null);
   const errorAudio = useRef(null);
@@ -394,6 +400,22 @@ export default function DescriptivePage() {
     handleNext(true);
   };
 
+  const handlePlayerSkip = async () => {
+    if (skipsLeft > 0) {
+      const newSkips = skipsLeft - 1;
+      setSkipsLeft(newSkips);
+      sessionStorage.setItem(`skips_${moduleNumber}`, newSkips.toString());
+      if (actualReviewMode) {
+        removeActive();
+        navigate('/review-round');
+        return;
+      }
+      handleNext(true);
+    } else {
+      setShowNoSkipsModal(true);
+    }
+  };
+
   if (loading) return <SimpleLoading />;
   if (error) return <div className="p-6 text-red-600">{error}</div>;
   if (!item) {
@@ -428,12 +450,19 @@ export default function DescriptivePage() {
           )}
         </div>
         <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
-          {(user?.role === 'admin' || user?.role === 'master' || user?.username === 'Host' || user?.username === 'hostcbse') && (
+          {(user?.role === 'admin' || user?.role === 'master' || user?.username === 'Host' || user?.username === 'hostcbse') ? (
             <button
               onClick={handleMasterSkip}
               className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-black rounded-lg shadow-sm border-b-4 border-yellow-700 active:border-b-0 active:translate-y-1 transition-all mr-2 uppercase"
             >
               Skip ⚡️
+            </button>
+          ) : (
+            <button
+              onClick={handlePlayerSkip}
+              className={`px-3 py-1 text-white text-xs font-black rounded-lg shadow-sm border-b-4 transition-all mr-2 uppercase ${skipsLeft > 0 ? 'bg-yellow-500 hover:bg-yellow-600 border-yellow-700 active:border-b-0 active:translate-y-1' : 'bg-gray-300 border-gray-400 opacity-80 cursor-not-allowed'}`}
+            >
+              Skip ({skipsLeft})
             </button>
           )}
           <StarCounter />
@@ -639,6 +668,7 @@ export default function DescriptivePage() {
           />
         </div>
       )}
+      <NoSkipsModal isOpen={showNoSkipsModal} onClose={() => setShowNoSkipsModal(false)} />
     </div>
   );
 }

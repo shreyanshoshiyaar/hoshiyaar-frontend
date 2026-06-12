@@ -5,6 +5,7 @@ import TryAgainModal from '../../modals/TryAgainModal.jsx';
 import IncorrectAnswerModal from '../../modals/IncorrectAnswerModal.jsx';
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import ConceptExitConfirm from '../../modals/ConceptExitConfirm.jsx';
+import NoSkipsModal from '../../modals/NoSkipsModal.jsx';
 import correctSfx from '../../../assets/sounds/correct-choice-43861.mp3';
 import errorSfx from '../../../assets/sounds/error-010-206498.mp3';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -151,6 +152,11 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
   const [hasAttempted, setHasAttempted] = useState(false);
   const [videoAcknowledged, setVideoAcknowledged] = useState(false);
   const [showEndVideo, setShowEndVideo] = useState(false);
+  const [showNoSkipsModal, setShowNoSkipsModal] = useState(false);
+  const [skipsLeft, setSkipsLeft] = useState(() => {
+    const stored = sessionStorage.getItem(`skips_${moduleNumber}`);
+    return stored !== null ? parseInt(stored, 10) : 5;
+  });
 
   // Start-of-lesson videos (index 0)
   const forcedIntroByModule = useMemo(() => ({
@@ -775,6 +781,22 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
     handleNext(true);
   };
 
+  const handlePlayerSkip = async () => {
+    if (skipsLeft > 0) {
+      const newSkips = skipsLeft - 1;
+      setSkipsLeft(newSkips);
+      sessionStorage.setItem(`skips_${moduleNumber}`, newSkips.toString());
+      if (actualReviewMode) {
+        removeActive();
+        navigate('/review-round');
+        return;
+      }
+      handleNext(true);
+    } else {
+      setShowNoSkipsModal(true);
+    }
+  };
+
   const handleFeedbackClose = () => {
     setFeedback({ open: false, correct: false, expected: '' });
   };
@@ -936,12 +958,19 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
           )}
         </div>
         <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
-          {(user?.role === 'admin' || user?.role === 'master' || user?.username === 'Host' || user?.username === 'hostcbse') && (
+          {(user?.role === 'admin' || user?.role === 'master' || user?.username === 'Host' || user?.username === 'hostcbse') ? (
             <button
               onClick={handleMasterSkip}
               className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-black rounded-lg shadow-sm border-b-4 border-yellow-700 active:border-b-0 active:translate-y-1 transition-all mr-2 uppercase"
             >
               Skip ⚡️
+            </button>
+          ) : (
+            <button
+              onClick={handlePlayerSkip}
+              className={`px-3 py-1 text-white text-xs font-black rounded-lg shadow-sm border-b-4 transition-all mr-2 uppercase ${skipsLeft > 0 ? 'bg-yellow-500 hover:bg-yellow-600 border-yellow-700 active:border-b-0 active:translate-y-1' : 'bg-gray-300 border-gray-400 opacity-80 cursor-not-allowed'}`}
+            >
+              Skip ({skipsLeft})
             </button>
           )}
           <StarCounter />
@@ -1204,6 +1233,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
           </div>
         </div>
       )}
+      <NoSkipsModal isOpen={showNoSkipsModal} onClose={() => setShowNoSkipsModal(false)} />
     </div>
   );
 }
