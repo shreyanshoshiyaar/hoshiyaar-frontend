@@ -187,8 +187,45 @@ export default function RevisionList() {
             }
           }
         } else {
-          // Fallback: If no units, we would need to fetch all modules for the chapter.
-          // Since all chapters should have units, we can skip for now.
+          // Fallback: If no units, fetch all modules for the chapter.
+          const modsResponse = await curriculumService.listModules(chapterId).catch(() => null);
+          const mods = modsResponse?.data || [];
+          
+          if (mods.length > 0) {
+            const unitMediaItems = [];
+
+            for (const m of mods) {
+              const itemsResponse = await curriculumService.listItems(m._id).catch(() => null);
+              const items = itemsResponse?.data || [];
+              
+              items.forEach((item, index) => {
+                const actualType = item.type || 'concept';
+                const isVideo = actualType === 'youtube' || (actualType === 'concept' && item.videoUrl);
+                const isComic = actualType === 'comic' || (actualType === 'concept' && Array.isArray(item.comicUrls) && item.comicUrls.length > 0);
+                
+                if (isVideo || isComic) {
+                  unitMediaItems.push({
+                    moduleId: m._id,
+                    lessonIndex: index,
+                    order: unitMediaItems.length,
+                    type: isComic ? 'comic' : 'video',
+                    question: item.title || '',
+                    videoUrl: item.videoUrl,
+                    comicUrls: item.comicUrls,
+                    images: item.images,
+                    text: item.text,
+                    options: item.options,
+                    answer: item.answer,
+                  });
+                }
+              });
+            }
+
+            if (unitMediaItems.length > 0) {
+              defaultsByUnit['virtual_unit'] = unitMediaItems;
+              validUnits = [{ _id: 'virtual_unit', title: 'Chapter Revision', virtual: true }];
+            }
+          }
         }
 
         setUnitDefaults(defaultsByUnit);
@@ -235,7 +272,9 @@ export default function RevisionList() {
             answer: d.answer,
             options: d.options || [],
             words: d.words || [],
-            images: d.images || []
+            images: d.images || [],
+            videoUrl: d.videoUrl || '',
+            comicUrls: d.comicUrls || []
           }
         });
       }

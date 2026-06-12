@@ -485,7 +485,7 @@ export default function ConceptPage() {
     if (!prevItem) return;
     const params = new URLSearchParams(window.location.search);
     const suffix = params.toString() ? `?${params.toString()}` : '';
-    navigate(`${routeForType(prevItem.type, prevIndex)}${suffix}`);
+    navigate(`${routeForType(prevItem?.type || 'concept', prevIndex)}${suffix}`);
     
   }, [index, items, navigate, moduleNumber, shouldShowComic, comicSlideIndex, isInReviewOrRevision]);
 
@@ -551,7 +551,7 @@ export default function ConceptPage() {
       }
     });
     const suffix = persistent.toString() ? `?${persistent.toString()}` : '';
-    navigate(`${routeForType(nextItem.type, nextIndex)}${suffix}`);
+    navigate(`${routeForType(nextItem?.type || 'concept', nextIndex)}${suffix}`);
   }, [index, items, user, moduleNumber, navigate, isInReviewOrRevision, removeActive, midLessonVideos, showEndVideo, videoAcknowledged, chapterIdParam, unitIdParam]);
 
   const handleMasterSkip = async () => {

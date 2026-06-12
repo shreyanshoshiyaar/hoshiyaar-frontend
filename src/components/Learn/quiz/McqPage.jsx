@@ -498,7 +498,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       if (!prevItem) return;
       const params = new URLSearchParams(window.location.search);
       const suffix = params.toString() ? `?${params.toString()}` : '';
-      navigate(`${routeForType(prevItem.type, prevIndex)}${suffix}`);
+      navigate(`${routeForType(prevItem?.type || 'concept', prevIndex)}${suffix}`);
     } else {
       const urlParams = new URLSearchParams(window.location.search);
       const chapterId = urlParams.get('chapterId');
@@ -759,7 +759,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       if (unitIdForStorage) completionParams.set('unitId', unitIdForStorage);
       return navigate(`/lesson-complete?${completionParams.toString()}`);
     }
-    navigate(`${routeForType(nextItem.type, nextIndex)}${suffix}`);
+    navigate(`${routeForType(nextItem?.type || 'concept', nextIndex)}${suffix}`);
   }
 
   const handleMasterSkip = async () => {
