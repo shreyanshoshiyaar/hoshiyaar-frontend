@@ -520,7 +520,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
   async function handleSubmit() {
     if (selectedIndex === null || showResult) return;
     
-    const isImagesOnlyMCQ = (!item.options || item.options.length === 0) && (item.images && item.images.length > 0);
+    const isImagesOnlyMCQ = (!item.options || item.options.length === 0) && (Array.isArray(item.images) && item.images.length > 0);
     const selectedOption = isImagesOnlyMCQ ? item.images[selectedIndex] : item?.options?.[selectedIndex];
     const correct = String(selectedOption || '').trim().toLowerCase() === String(item?.answer || '').trim().toLowerCase();
     setIsCorrect(correct);
@@ -984,13 +984,13 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         </h2>
 
         {(() => { 
-          const isImagesOnlyMCQ = (!item.options || item.options.length === 0) && (item.images && item.images.length > 0);
+          const isImagesOnlyMCQ = (!item.options || item.options.length === 0) && (Array.isArray(item.images) && item.images.length > 0);
           
           // Check if options are image URLs - if so, don't show question images
           const hasImageOptions = item.options?.some(opt => typeof opt === 'string' && (opt.startsWith('http') || opt.startsWith('https')));
           if (hasImageOptions && !isImagesOnlyMCQ) return null;
           
-          const imgs = (item.images || []).filter(Boolean); 
+          const imgs = (Array.isArray(item.images) ? item.images : (item.images ? [item.images] : [])).filter(Boolean); 
           if (imgs.length === 0 && item.imageUrl) imgs.push(item.imageUrl); 
           return imgs.length > 0 ? (
             <div className="w-full max-w-xl sm:max-w-2xl md:max-w-3xl mb-1 sm:mb-3 flex justify-center">

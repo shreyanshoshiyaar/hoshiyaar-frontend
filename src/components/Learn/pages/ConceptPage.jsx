@@ -916,10 +916,10 @@ export default function ConceptPage() {
 
             {/* Images block - mobile optimized, desktop unchanged */}
             {(() => {
-              const imgs = (item.images || []).filter(Boolean); if (imgs.length === 0 && item.imageUrl) imgs.push(item.imageUrl); return imgs.length > 0 ? (
+              const imgs = (Array.isArray(item.images) ? item.images : (item.images ? [item.images] : [])).filter(Boolean); if (imgs.length === 0 && item.imageUrl) imgs.push(item.imageUrl); return imgs.length > 0 ? (
                 <div className="w-full max-w-2xl sm:max-w-3xl md:max-w-4xl mt-2 sm:mt-6 md:mt-8 flex justify-center">
                   <div className="flex flex-wrap justify-center gap-1 sm:gap-3 md:gap-5">
-                    {((item.images && item.images.filter(Boolean)) || (item.imageUrl ? [item.imageUrl] : [])).slice(0, 5).map((src, i) => (
+                    {(Array.isArray(item.images) ? item.images.filter(Boolean) : (item.images ? [item.images].filter(Boolean) : (item.imageUrl ? [item.imageUrl] : []))).slice(0, 5).map((src, i) => (
                       <div key={i} className="border border-blue-300 rounded-lg sm:rounded-2xl p-1 sm:p-3 bg-white shadow-sm">
                         <img src={src} alt={'concept-' + i} className="h-40 w-32 sm:h-32 sm:w-24 md:h-24 md:w-20 lg:h-32 lg:w-24 xl:h-40 xl:w-32 object-contain rounded-md sm:rounded-xl" />
                       </div>

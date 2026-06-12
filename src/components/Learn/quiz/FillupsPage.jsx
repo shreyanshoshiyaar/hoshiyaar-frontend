@@ -122,6 +122,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
   const [showTryAgainModal, setShowTryAgainModal] = useState(false);
   const [showIncorrectModal, setShowIncorrectModal] = useState(false);
   const [hasAnsweredCorrectly, setHasAnsweredCorrectly] = useState(false);
+  const [showTryAgainOption, setShowTryAgainOption] = useState(false);
   const [isFlagged] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [showNoSkipsModal, setShowNoSkipsModal] = useState(false);
@@ -882,7 +883,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
 
         {/* Image block */}
         {(() => {
-          const imgs = (item.images || []).filter(Boolean);
+          const imgs = (Array.isArray(item.images) ? item.images : (item.images ? [item.images] : [])).filter(Boolean);
           const primary = item.imageUrl ? [item.imageUrl] : [];
           const list = imgs.length > 0 ? imgs : primary;
           if (list.length === 0) {
