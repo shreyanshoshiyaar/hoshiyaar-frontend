@@ -475,7 +475,7 @@ export default function DescriptivePage() {
             {item.question}
           </h2>
           {(() => {
-            const imgs = (item.images || []).filter(Boolean);
+            const imgs = (Array.isArray(item.images) ? item.images : (item.images ? [item.images] : [])).filter(Boolean);
             if (imgs.length === 0 && item.imageUrl) imgs.push(item.imageUrl);
             return imgs.length > 0 ? (
               <div className="w-full max-w-xl sm:max-w-2xl md:max-w-3xl mb-4 sm:mb-6 flex justify-center mx-auto">
