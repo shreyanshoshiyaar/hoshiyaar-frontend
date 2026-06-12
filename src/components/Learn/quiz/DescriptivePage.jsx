@@ -307,7 +307,7 @@ export default function DescriptivePage() {
     const params = new URLSearchParams(window.location.search);
     const suffix = params.toString() ? `?${params.toString()}` : '';
 
-    navigate(`${routeForType(nextItem.type, nextIndex)}${suffix}`);
+    navigate(`${routeForType(nextItem?.type || 'concept', nextIndex)}${suffix}`);
   };
 
   function routeForType(type, idx) {
@@ -351,7 +351,7 @@ export default function DescriptivePage() {
       if (!prevItem) return;
       const params = new URLSearchParams(window.location.search);
       const suffix = params.toString() ? `?${params.toString()}` : '';
-      navigate(`${routeForType(prevItem.type, prevIndex)}${suffix}`);
+      navigate(`${routeForType(prevItem?.type || 'concept', prevIndex)}${suffix}`);
     } else {
       const urlParams = new URLSearchParams(window.location.search);
       const chapterId = urlParams.get('chapterId');
