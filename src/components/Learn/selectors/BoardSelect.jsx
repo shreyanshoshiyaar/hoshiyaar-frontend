@@ -45,7 +45,8 @@ const BoardSelect = ({ onContinue, onBack, updateData, autoAdvance = false }) =>
         const loadBoards = async () => {
             try {
                 setError(null);
-                const res = await curriculumService.listBoards();
+                const opts = user?.classLevel ? { params: { classLevel: user.classLevel } } : {};
+                const res = await curriculumService.listBoards(opts);
                 console.log('Boards API response:', res); // Debug log
                 
                 let boardNames = [];
