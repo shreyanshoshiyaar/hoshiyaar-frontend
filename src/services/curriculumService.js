@@ -24,7 +24,8 @@ const cachedGet = async (url, config = {}) => {
 
 const curriculumService = {
   listBoards(opts) {
-    return cachedGet(`/api/curriculum/boards`, passOpts(opts));
+    const passedOpts = passOpts(opts);
+    return cachedGet(`/api/curriculum/boards`, passedOpts);
   },
   listClasses(board = 'CBSE', opts) {
     return cachedGet(`/api/curriculum/classes`, { params: { board }, ...passOpts(opts) });
