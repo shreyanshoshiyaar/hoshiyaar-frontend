@@ -13,7 +13,7 @@ dependencies {
     implementation project(':capacitor-haptics')
 
 }
-
+apply from: "../../node_modules/cordova-clarity/src/android/build.gradle"
 
 if (hasProperty('postBuildExtras')) {
   postBuildExtras()
