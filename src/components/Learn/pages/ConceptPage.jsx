@@ -11,6 +11,7 @@ import { useReview } from '../../../context/ReviewContext.jsx';
 import ConceptExitConfirm from '../../modals/ConceptExitConfirm.jsx';
 import NoSkipsModal from '../../modals/NoSkipsModal.jsx';
 import Lottie from 'lottie-react';
+import NetworkError from '../../ui/NetworkError.jsx';
 // Large Lottie files are now fetched from the public folder to avoid build issues
 
 const ComicLightbox = ({ src, alt, onClose }) => {
@@ -312,17 +313,35 @@ export default function ConceptPage() {
       item?.imageUrl,
       item?.videoUrl,
       item?.introVideoUrl,
+      item?.question,
       item?.text,
       item?.content,
       item?.title,
       ...(item?.images || []),
     ];
+    
+    // First pass: try to find and normalize a YouTube URL
     for (const src of sources) {
       if (typeof src === 'string' && (src.includes('youtube.com') || src.includes('youtu.be') || isYouTubeUrl(src))) {
         const normalized = normalizeVideoUrl(src);
         if (normalized) return normalized;
       }
     }
+    
+    // Second pass: if no YouTube URL, just return the first valid HTTP URL (e.g. Cloudinary/S3 MP4)
+    // We prioritize videoUrl fields first over text/images
+    if (introVideoUrl && typeof introVideoUrl === 'string' && introVideoUrl.startsWith('http')) return introVideoUrl;
+    if (item?.videoUrl && typeof item.videoUrl === 'string' && item.videoUrl.startsWith('http')) return item.videoUrl;
+    if (item?.introVideoUrl && typeof item.introVideoUrl === 'string' && item.introVideoUrl.startsWith('http')) return item.introVideoUrl;
+    if (item?.question && typeof item.question === 'string' && item.question.startsWith('http')) return item.question;
+    
+    // Fallback to searching through all sources
+    for (const src of sources) {
+      if (typeof src === 'string' && src.trim().startsWith('http')) {
+        return src.trim();
+      }
+    }
+    
     return '';
   }, [item, introVideoUrl, normalizeVideoUrl, isYouTubeUrl]);
 
@@ -331,6 +350,7 @@ export default function ConceptPage() {
       introVideoUrl,
       item?.imageUrl,
       item?.videoUrl,
+      item?.question,
       item?.text,
       ...(item?.images || []),
     ];
@@ -634,7 +654,11 @@ export default function ConceptPage() {
   }, [goNext, showExitConfirm, isComicActive, comicReadTimer, shouldShowComic, shouldShowVideo, videoAcknowledged, comicSlideIndex, introComicUrls, actualType]);
 
   if (loading) return <SimpleLoading />;
-  if (error) return <div className="p-6 text-red-600">{error}</div>;
+  if (error) return (
+    <div className="h-screen w-full flex items-center justify-center bg-white">
+      <NetworkError />
+    </div>
+  );
   if (!item) {
     setTimeout(() => {
       localStorage.removeItem('hoshiyaar_last_path');
@@ -866,13 +890,30 @@ export default function ConceptPage() {
               className={`relative overflow-hidden border border-gray-100 shadow-lg bg-black flex-shrink-0 mt-2 sm:mt-6 rounded-3xl ${isShortVideo ? 'aspect-[9/16] h-[74vh] max-h-[calc(100vh-230px)]' : 'w-full aspect-video'}`}
               style={!isShortVideo ? { maxWidth: 'max(320px, min(72rem, calc((100vh - 320px) * 16 / 9)))', width: '100%' } : {}}
             >
-              <iframe
-                src={itemVideoUrl || (introVideoUrl || 'https://www.youtube.com/embed/i59cR7MPD5M')}
-                title="Concept video"
-                className="absolute inset-0 w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen={true}
-              />
+              {(() => {
+                const finalSrc = itemVideoUrl || introVideoUrl || '';
+                const isYt = finalSrc.includes('youtube.com') || finalSrc.includes('youtu.be');
+                if (isYt || !finalSrc) {
+                  return (
+                    <iframe
+                      src={finalSrc}
+                      title="Concept video"
+                      className="absolute inset-0 w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen={true}
+                    />
+                  );
+                }
+                return (
+                  <video
+                    src={finalSrc}
+                    controls
+                    className="absolute inset-0 w-full h-full object-contain bg-black"
+                    controlsList="nodownload"
+                    playsInline
+                  />
+                );
+              })()}
             </div>
           </div>
         ) : shouldShowComic ? (

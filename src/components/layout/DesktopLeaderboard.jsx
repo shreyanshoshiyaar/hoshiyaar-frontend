@@ -1,10 +1,12 @@
 import React from 'react';
 import heroChar from '../../assets/images/heroChar.png';
+import NetworkError from '../ui/NetworkError.jsx';
 
 const DesktopLeaderboard = ({ 
   user, 
   leaderboardData, 
   leaderboardLoading, 
+  leaderboardError,
   leaderboardTimeframe, 
   setLeaderboardTimeframe, 
   leaderboardScope,
@@ -183,9 +185,13 @@ const DesktopLeaderboard = ({
           </div>
 
           {/* Table Body */}
-          <div className="p-2 md:p-4">
-            {leaderboardLoading ? (
-              <div className="flex flex-col items-center justify-center h-full gap-3">
+          <div className="p-2 md:p-4 min-h-[300px]">
+            {leaderboardError ? (
+              <div className="flex flex-col items-center justify-center h-full gap-3 py-10">
+                <NetworkError />
+              </div>
+            ) : leaderboardLoading ? (
+              <div className="flex flex-col items-center justify-center h-full gap-3 py-10">
                 <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
                 <span className="font-bold text-xs text-gray-500 uppercase tracking-widest">Loading rankings...</span>
               </div>

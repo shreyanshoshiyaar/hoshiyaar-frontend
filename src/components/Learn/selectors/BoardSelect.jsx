@@ -3,6 +3,7 @@ import { useAuth } from '../../../context/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
 import heroChar from '../../../assets/images/heroChar.png';
 import curriculumService from '../../../services/curriculumService.js';
+import NetworkError from '../../ui/NetworkError.jsx';
 
 // A placeholder for the character icon
 const HoshiIcon = () => (
@@ -143,8 +144,14 @@ const BoardSelect = ({ onContinue, onBack, updateData, autoAdvance = false }) =>
                     {loading && (
                         <div className="text-center text-gray-400 text-sm animate-pulse py-4">Loading...</div>
                     )}
+
+                    {!loading && error && (
+                        <div className="col-span-1 py-4">
+                            <NetworkError compact={true} />
+                        </div>
+                    )}
                     
-                    {!loading && boards.length > 0 && boards.map(board => (
+                    {!loading && !error && boards.length > 0 && boards.map(board => (
                         <label key={board} className="block transition-all active:scale-[0.98]">
                             <input 
                                 type="radio" 

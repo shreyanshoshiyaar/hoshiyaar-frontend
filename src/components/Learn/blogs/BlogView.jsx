@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import authService from '../../../services/authService';
 import SimpleLoading from '../../ui/SimpleLoading';
+import NetworkError from '../../ui/NetworkError.jsx';
 
 const BlogView = () => {
   const { id } = useParams();
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,6 +18,7 @@ const BlogView = () => {
         setBlog(res.data?.data);
       } catch (err) {
         console.error('Failed to fetch blog', err);
+        setError(true);
       } finally {
         setLoading(false);
       }
@@ -24,6 +27,23 @@ const BlogView = () => {
   }, [id]);
 
   if (loading) return <SimpleLoading />;
+  if (error) return (
+    <div className="min-h-screen bg-white pb-24">
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md px-6 py-4 flex items-center">
+        <button 
+          onClick={() => navigate(-1)}
+          className="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600 active:scale-95 transition-all"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+      </div>
+      <div className="pt-24 px-4 h-full flex items-center justify-center">
+        <NetworkError />
+      </div>
+    </div>
+  );
   if (!blog) return (
     <div className="min-h-screen flex items-center justify-center">
       <p className="font-bold text-gray-500">Blog not found.</p>

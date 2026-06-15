@@ -9,6 +9,7 @@ import { useStars } from '../../../context/StarsContext.jsx';
 import authService from "../../../services/authService.js";
 import { progressKey } from "../../../utils/progressKey.js";
 import Lottie from "lottie-react";
+import NetworkError from "../../ui/NetworkError.jsx";
 // pathAnimationData will be fetched dynamically to avoid build/performance issues
 import MobileHome from "../../layout/MobileHome.jsx";
 import BottomNavigation from "../../layout/BottomNavigation.jsx";
@@ -379,6 +380,7 @@ const LearnDashboard = ({ onboardingData }) => {
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [weeklyLeaderboardData, setWeeklyLeaderboardData] = useState([]);
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
+  const [leaderboardError, setLeaderboardError] = useState(false);
   const [leaderboardSearched, setLeaderboardSearched] = useState(false);
   const [schoolSuggestions, setSchoolSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -450,6 +452,7 @@ const LearnDashboard = ({ onboardingData }) => {
   const [streak, setStreak] = useState(1);
   const [showConfetti, setShowConfetti] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [statsLoading, setStatsLoading] = useState(false);
   // Track when the first fetch completes to avoid false "No units" while fetching
   const [hasFetched, setHasFetched] = useState(false);
@@ -830,29 +833,29 @@ const LearnDashboard = ({ onboardingData }) => {
         subjectId: null,
         order: 1
       };
-      const dummyModules = [
-        { _id: 'immediate-dummy-module-1', title: 'Getting Started', order: 1 },
-        { _id: 'immediate-dummy-module-2', title: 'First Lesson', order: 2 },
-        { _id: 'immediate-dummy-module-3', title: 'Practice Time', order: 3 }
-      ];
-      const dummyUnit = { _id: 'immediate-dummy-unit', title: 'Unit 1 (Welcome)', virtual: true };
-
-      setChaptersList([dummyChapter]);
-      setUnitsList([dummyUnit]);
-      setModulesList(dummyModules);
-      setUnitModulesMap({ [dummyUnit._id]: dummyModules });
-      setChapterTitle(dummyChapter.title);
-      setUnitTitle(dummyUnit.title);
-      setModuleTitle(dummyModules[0].title);
-      setIsLoading(false);
+      setChapters([dummyChapter]);
+      setUnitsList([
+        { _id: 'dummy-unit-1', title: 'Getting Started', order: 1 }
+      ]);
+      setModulesList([
+        { _id: 'dummy-mod-1', title: 'Explore the App', unitId: 'dummy-unit-1', order: 1, type: 'concept' }
+      ]);
+      setItemsMap({
+        'dummy-mod-1': [
+          { _id: 'dummy-item-1', title: 'Welcome Module', type: 'concept' }
+        ]
+      });
     }
   }, [authLoading, isNewUser, unitsList.length, modulesList.length]);
+
+
 
   useEffect(() => {
     // Defer data loading until auth state resolves to avoid fetching with wrong defaults
     if (authLoading) return;
     const load = async () => {
       try {
+        setFetchError(false);
         setIsLoading(true);
         console.log('Dashboard: Starting load...', {
           user: user?._id,
@@ -1072,19 +1075,6 @@ const LearnDashboard = ({ onboardingData }) => {
                 console.log('Dashboard: Created virtual unit', virtualUnit);
                 setUnitModulesMap({ [virtualUnit._id]: list });
                 console.log('Dashboard: Set unit modules map for virtual unit', { [virtualUnit._id]: list });
-              } else if (ch._id === 'dummy-chapter') {
-                // Create dummy modules for dummy chapter
-                console.log('Dashboard: Creating dummy modules for dummy chapter');
-                const dummyModules = [
-                  { _id: 'dummy-module-1', title: 'Getting Started', order: 1 },
-                  { _id: 'dummy-module-2', title: 'First Lesson', order: 2 },
-                  { _id: 'dummy-module-3', title: 'Practice Time', order: 3 }
-                ];
-                const virtualUnit = { _id: `virtual-${ch._id}`, title: 'Unit 1 (Welcome)', virtual: true };
-                units = [virtualUnit];
-                setUnitModulesMap({ [virtualUnit._id]: dummyModules });
-                setModulesList(dummyModules);
-                console.log('Dashboard: Created dummy modules', dummyModules);
               }
             }
             setUnitsList(units);
@@ -1193,34 +1183,11 @@ const LearnDashboard = ({ onboardingData }) => {
           finalModulesMap: finalModulesMapVar
         });
 
-        // Clear immediate fallback if we loaded real data
-        if (showImmediateFallback && ((finalUnitsArr && finalUnitsArr.length > 0) || modulesList.length > 0)) {
-          console.log('Dashboard: Clearing immediate fallback, real data loaded');
-          setShowImmediateFallback(false);
-        }
-
         setIsLoading(false);
         setHasFetched(true);
       } catch (e) {
         console.error("Error loading dashboard data:", e);
-        // Fallback: render a minimal dummy path so the UI is usable even on errors
-        try {
-          const dummyChapter = { _id: 'dummy-chapter', title: 'Welcome to Learning!', subjectId: null, order: 1 };
-          const dummyUnit = { _id: 'dummy-unit', title: 'Unit 1 (Welcome)', virtual: true };
-          const dummyModules = [
-            { _id: 'dummy-module-1', title: 'Getting Started', order: 1 },
-            { _id: 'dummy-module-2', title: 'First Lesson', order: 2 },
-            { _id: 'dummy-module-3', title: 'Practice Time', order: 3 },
-          ];
-          setChaptersList([dummyChapter]);
-          setChapterId(dummyChapter._id);
-          setChapterTitle(dummyChapter.title);
-          setUnitsList([dummyUnit]);
-          setUnitTitle(dummyUnit.title);
-          setUnitModulesMap({ [dummyUnit._id]: dummyModules });
-          setModulesList(dummyModules);
-          setModuleTitle(dummyModules[0].title);
-        } catch (_) { }
+        setFetchError(true);
         setIsLoading(false);
         setHasFetched(true);
       }
@@ -1530,11 +1497,13 @@ const LearnDashboard = ({ onboardingData }) => {
     let data = [];
     
     try {
+      setLeaderboardError(false);
       setLeaderboardLoading(true);
       const response = await authService.getLeaderboard(targetSchool, targetTimeframe);
       data = response?.data?.leaderboard || [];
     } catch (error) {
       console.error('Leaderboard fetch failed:', error);
+      setLeaderboardError(true);
       data = []; // Use empty list on failure to allow user-only display
     } finally {
       // Ensure current user is always visible in the list
@@ -1995,6 +1964,7 @@ const LearnDashboard = ({ onboardingData }) => {
               user={user}
               leaderboardData={leaderboardData}
               leaderboardLoading={leaderboardLoading}
+              leaderboardError={leaderboardError}
               leaderboardTimeframe={leaderboardTimeframe}
               setLeaderboardTimeframe={setLeaderboardTimeframe}
               leaderboardScope={leaderboardScope}
@@ -2020,6 +1990,7 @@ const LearnDashboard = ({ onboardingData }) => {
               user={user}
               leaderboardData={leaderboardData}
               leaderboardLoading={leaderboardLoading}
+              leaderboardError={leaderboardError}
               leaderboardTimeframe={leaderboardTimeframe}
               setLeaderboardTimeframe={setLeaderboardTimeframe}
               leaderboardScope={leaderboardScope}
@@ -2058,9 +2029,18 @@ const LearnDashboard = ({ onboardingData }) => {
           {/* Loading screen removed per request */}
 
           {/* Vertical timelines - stacked per unit (scroll to view more) */}
-          {(
-            unitsList.length > 0 || modulesList.length > 0 || true
-          ) && (
+          {fetchError ? (
+            <NetworkError />
+          ) : isLoading ? (
+              <div className="pt-24 pb-48 px-6 text-center">
+                <div className="animate-pulse flex flex-col items-center">
+                  <div className="w-16 h-16 bg-blue-100 rounded-full mb-4 flex items-center justify-center">
+                    <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-400">Loading your path...</h3>
+                </div>
+              </div>
+            ) : (unitsList.length > 0 || modulesList.length > 0 || true) && (
               <div
                 id="tree-scroll-container"
                 className="relative w-full mx-auto bg-transparent"
@@ -2804,9 +2784,7 @@ const LearnDashboard = ({ onboardingData }) => {
                 )}
               </div>
             )}
-
-          {/* No Data State removed per request */}
-        </main>
+          </main>
 
         {/* Right Panel - Leaderboard and Stats */}
         <aside className="hidden md:flex w-80 p-6 flex-col justify-start shrink-0 bg-white border-l border-blue-200 shadow-lg h-full overflow-y-auto no-scrollbar gap-6 relative">
