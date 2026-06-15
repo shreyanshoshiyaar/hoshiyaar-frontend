@@ -442,10 +442,17 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
     const answer = normalizeAnswer(userAnswer);
     let correct = false;
     
+    const checkPluralS = (a, b) => {
+      if (a === b) return true;
+      if (a + 's' === b) return true;
+      if (b + 's' === a) return true;
+      return false;
+    };
+    
     if (Array.isArray(item.answer)) {
-      correct = item.answer.some(ans => normalizeAnswer(ans) === answer);
+      correct = item.answer.some(ans => checkPluralS(normalizeAnswer(ans), answer));
     } else {
-      correct = normalizeAnswer(item.answer) === answer;
+      correct = checkPluralS(normalizeAnswer(item.answer), answer);
     }
     
     setIsCorrect(correct);

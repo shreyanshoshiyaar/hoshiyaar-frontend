@@ -21,6 +21,8 @@
     "@capacitor/haptics": "^8.0.2",
     "@tailwindcss/typography": "^0.5.19",
     "axios": "^1.12.2",
+    "cordova-clarity": "^3.0.0",
+    "cordova-plugin-device": "^3.0.0",
     "express": "^4.21.2",
     "lottie-react": "^2.4.1",
     "react": "^19.1.1",

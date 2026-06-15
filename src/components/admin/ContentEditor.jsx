@@ -25,6 +25,7 @@ const ContentEditor = ({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [warnings, setWarnings] = useState([]);
   const [uploadingImages, setUploadingImages] = useState({});
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -244,6 +245,7 @@ const ContentEditor = ({
     setHasUnsavedChanges(false);
     setError('');
     setSuccess('');
+    setWarnings([]);
     setUploadingImages({});
   };
 
@@ -449,6 +451,7 @@ const ContentEditor = ({
       setSaving(true);
       setError('');
       setSuccess('');
+      setWarnings([]);
 
       const sortedItems = [...items].sort((a, b) => (a.order || 0) - (b.order || 0));
 
@@ -530,11 +533,15 @@ const ContentEditor = ({
       // Check if items were actually updated or if new ones were created
       const importedCount = response.data.importedItems || 0;
       const skippedCount = response.data.skipped || 0;
+      const resWarnings = response.data.warnings || [];
 
-      if (importedCount === concepts.length && skippedCount === 0) {
+      if (importedCount === concepts.length && skippedCount === 0 && resWarnings.length === 0) {
         setSuccess(`Successfully saved! ${importedCount} items imported.`);
       } else {
-        setSuccess(`Saved with warnings: ${importedCount} items imported, ${skippedCount} skipped. Check backend logs for details.`);
+        setSuccess(`Saved with warnings: ${importedCount} items imported, ${skippedCount} skipped.`);
+        if (resWarnings.length > 0) {
+          setWarnings(resWarnings);
+        }
       }
 
       setHasUnsavedChanges(false);
@@ -609,7 +616,15 @@ const ContentEditor = ({
 
       {success && (
         <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-          {success}
+          <p>{success}</p>
+          {warnings.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-green-300 text-sm text-amber-700">
+              <p className="font-semibold mb-1">Warnings during import (auto-fixed):</p>
+              <ul className="list-disc pl-5 space-y-1">
+                {warnings.map((w, i) => <li key={i}>{w}</li>)}
+              </ul>
+            </div>
+          )}
         </div>
       )}
 
