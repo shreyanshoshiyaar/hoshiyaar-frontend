@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import heroChar from '../../../assets/images/heroChar.png';
 import curriculumService from '../../../services/curriculumService.js';
 import { useAuth } from '../../../context/AuthContext.jsx';
+import NetworkError from '../../ui/NetworkError.jsx';
 
 // Reusable component for the Hoshi character display
 const HoshiCharacter = () => (
@@ -23,6 +24,7 @@ const SubjectSelect = ({ onContinue, onBack, updateData, selectedBoard, autoAdva
     const [selectedSubject, setSelectedSubject] = useState(null);
     const [subjects, setSubjects] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
 
     const cacheKey = (board) => `subjects_cache_v1__${board}`;
     const loadCache = (board) => {
@@ -40,6 +42,7 @@ const SubjectSelect = ({ onContinue, onBack, updateData, selectedBoard, autoAdva
         }
         const loadSubjects = async () => {
             try {
+                setError(false);
                 // Hydrate from cache first for instant paint
                 const cached = loadCache(selectedBoard);
                 if (cached.length > 0) setSubjects(cached);
@@ -63,6 +66,7 @@ const SubjectSelect = ({ onContinue, onBack, updateData, selectedBoard, autoAdva
                 if (names && names.length > 0) saveCache(selectedBoard, names);
                 // Manual selection only - no auto-selection
             } catch (_) {
+                setError(true);
                 setSubjects([]);
             } finally {
                 setLoading(false);
@@ -93,12 +97,17 @@ const SubjectSelect = ({ onContinue, onBack, updateData, selectedBoard, autoAdva
                             Loading...
                         </div>
                     )}
-                    {!loading && subjects.length === 0 && (
+                    {!loading && error && (
+                        <div className="col-span-2 py-4">
+                            <NetworkError compact={true} />
+                        </div>
+                    )}
+                    {!loading && !error && subjects.length === 0 && (
                         <div className="col-span-2 text-center text-gray-400 text-sm py-6">
                             No subjects found.
                         </div>
                     )}
-                    {!loading && subjects.map((subject) => (
+                    {!loading && !error && subjects.map((subject) => (
                         <button
                             key={subject}
                             onClick={() => setSelectedSubject(subject)}

@@ -64,6 +64,10 @@ const curriculumService = {
     return api.put(`/api/curriculum/units/${unitId}`, data, passOpts(opts));
   },
   
+  clearCache() {
+    cache.clear();
+  },
+  
   // Settings API
   getSetting(key, opts) {
     return api.get(`/api/settings/${key}`, passOpts(opts));

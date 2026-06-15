@@ -3,6 +3,7 @@ import { useAuth } from '../../../context/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
 import heroChar from '../../../assets/images/heroChar.png';
 import curriculumService from '../../../services/curriculumService.js';
+import NetworkError from '../../ui/NetworkError.jsx';
 
 // Reusable component for the Hoshi character display
 const HoshiCharacter = () => (
@@ -30,6 +31,7 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
     const [selectedChapter, setSelectedChapter] = useState(null);
     const [chapters, setChapters] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
 
     useEffect(() => {
         if (user?._id && (user?.onboardingCompleted || (user?.board && user?.subject))) {
@@ -46,6 +48,7 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
         }
         const loadChapters = async () => {
             try {
+                setError(false);
                 // Hydrate from cache first for instant paint
                 const cached = loadCache(board, subject);
                 if (cached.length > 0) setChapters(cached);
@@ -58,6 +61,7 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
                 if (list && list.length > 0) saveCache(board, subject, list);
                 // Manual selection only - no auto-selection
             } catch (_) {
+                setError(true);
                 setChapters([]);
             } finally {
                 setLoading(false);
@@ -93,8 +97,13 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
                             Loading...
                         </div>
                     )}
-                    {!loading && chapters.length === 0 && (<div className="text-center text-gray-400 text-sm py-6">No chapters found.</div>)}
-                    {!loading && chapters.map((chapter) => (
+                    {!loading && error && (
+                        <div className="py-4">
+                            <NetworkError compact={true} />
+                        </div>
+                    )}
+                    {!loading && !error && chapters.length === 0 && (<div className="text-center text-gray-400 text-sm py-6">No chapters found.</div>)}
+                    {!loading && !error && chapters.map((chapter) => (
                         <button
                             key={chapter.id}
                             onClick={() => { 

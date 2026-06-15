@@ -7,6 +7,7 @@ import { useReview } from '../../../context/ReviewContext.jsx';
 import BackButton from '../../ui/BackButton.jsx';
 
 import { PathNode, OrganicPathSvg, getWaveOffset, StartBadge } from '../pages/LearnDashboard.jsx';
+import NetworkError from '../../ui/NetworkError.jsx';
 
 export default function RevisionList() {
   const [params] = useSearchParams();
@@ -18,6 +19,7 @@ export default function RevisionList() {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [chapters, setChapters] = useState([]);
   
   // Chapter View state
@@ -39,6 +41,7 @@ export default function RevisionList() {
     const load = async () => {
       if (!user?._id) return;
       setLoading(true);
+      setError(false);
 
       // Handle direct Unit ID jump (e.g. from RevisionStar on LearnDashboard)
       if (unitId) {
@@ -75,6 +78,8 @@ export default function RevisionList() {
           }
           startReviewDirect(unitMediaItems);
         } catch (_) {
+          setError(true);
+        } finally {
           setLoading(false);
         }
         return;
@@ -110,6 +115,8 @@ export default function RevisionList() {
           });
           startReviewDirect(modMediaItems);
         } catch (_) {
+          setError(true);
+        } finally {
           setLoading(false);
         }
         return;
@@ -123,9 +130,11 @@ export default function RevisionList() {
           const chResp = await curriculumService.listChapters(brd, subj);
           setChapters(chResp?.data || []);
         } catch (_) {
+          setError(true);
           setChapters([]);
+        } finally {
+          setLoading(false);
         }
-        setLoading(false);
         return;
       }
 
@@ -170,10 +179,11 @@ export default function RevisionList() {
         setUnitsList(validUnits);
 
       } catch (_) {
+        setError(true);
         setUnitsList([]);
+      } finally {
+        setLoading(false);
       }
-      
-      setLoading(false);
     };
     load();
   }, [user, chapterId, moduleId, unitId]);
@@ -275,6 +285,8 @@ export default function RevisionList() {
       startReviewDirect(unitMediaItems);
     } catch (e) {
       console.error(e);
+      setError(true);
+    } finally {
       setLoading(false);
     }
   };
@@ -304,6 +316,8 @@ export default function RevisionList() {
             <div className="w-16 h-16 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mb-4"></div>
             <p className="text-xl font-bold text-purple-800 tracking-wider">Loading your questions...</p>
           </div>
+        ) : error ? (
+          <NetworkError />
         ) : moduleId ? (
           <div className="text-center font-bold text-gray-500 text-lg mt-10">No revision questions found for this module.</div>
         ) : !chapterId ? (

@@ -5,6 +5,7 @@ import TryAgainModal from '../../modals/TryAgainModal.jsx';
 import IncorrectAnswerModal from '../../modals/IncorrectAnswerModal.jsx';
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import ConceptExitConfirm from '../../modals/ConceptExitConfirm.jsx';
+import NetworkError from '../../ui/NetworkError.jsx';
 import NoSkipsModal from '../../modals/NoSkipsModal.jsx';
 import correctSfx from '../../../assets/sounds/correct-choice-43861.mp3';
 import errorSfx from '../../../assets/sounds/error-010-206498.mp3';
@@ -809,7 +810,11 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
   // Flagging removed with revision context
 
   if (loading) return <SimpleLoading />;
-  if (error) return <div className="p-6 text-red-600">{error}</div>;
+  if (error) return (
+    <div className="h-screen w-full flex items-center justify-center bg-white">
+      <NetworkError />
+    </div>
+  );
   if (!item) {
     setTimeout(() => {
       localStorage.removeItem('hoshiyaar_last_path');

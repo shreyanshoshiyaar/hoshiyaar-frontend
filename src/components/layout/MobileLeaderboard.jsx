@@ -1,10 +1,12 @@
 import React from 'react';
 import heroChar from '../../assets/images/heroChar.png';
+import NetworkError from '../ui/NetworkError.jsx';
 
 const MobileLeaderboard = ({ 
   user, 
   leaderboardData, 
   leaderboardLoading, 
+  leaderboardError,
   leaderboardTimeframe, 
   setLeaderboardTimeframe, 
   leaderboardScope,
@@ -202,7 +204,11 @@ const MobileLeaderboard = ({
 
         {/* Ranking List */}
         <div className="space-y-2 px-1">
-          {leaderboardLoading ? (
+          {leaderboardError ? (
+            <div className="py-8">
+              <NetworkError />
+            </div>
+          ) : leaderboardLoading ? (
             <div className="flex flex-col items-center py-8 gap-3">
               <div className="w-8 h-8 border-3 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
               <span className="text-[11px] font-black text-blue-900">UPDATING...</span>

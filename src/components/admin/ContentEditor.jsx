@@ -539,6 +539,9 @@ const ContentEditor = ({
 
       setHasUnsavedChanges(false);
 
+      // Clear the front-end cache so fetchItems retrieves fresh data
+      curriculumService.clearCache();
+
       setTimeout(() => {
         fetchItems();
       }, 1000);
