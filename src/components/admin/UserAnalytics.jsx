@@ -336,7 +336,7 @@ const UserAnalytics = () => {
     if (!filteredUsers.length) return;
 
     const headers = [
-      'Username', 'Name', 'Email', 'Phone', 'School', 'Class', 'Type', 'Points', 'Use Time (mins)', 'Accuracy (%)', 'Last Active', 'Registered At'
+      'Username', 'Name', 'Email', 'Phone', 'School', 'Class', 'Type', 'Points', 'Use Time (mins)', 'Accuracy (%)', 'Last Active', 'Last Session Module', 'Registered At'
     ];
 
     const rows = filteredUsers.map(u => [
@@ -351,6 +351,7 @@ const UserAnalytics = () => {
       u.useTime || 0,
       u.accuracy || 0,
       u.lastActive ? new Date(u.lastActive).toISOString() : '',
+      `"${(u.lastSessionLocation || 'N/A').replace(/"/g, '""')}"`,
       u.createdAt ? new Date(u.createdAt).toISOString() : ''
     ]);
 
@@ -361,6 +362,30 @@ const UserAnalytics = () => {
     const link = document.createElement('a');
     link.setAttribute('href', url);
     link.setAttribute('download', `hoshiyaar_users_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const downloadTimelineCSV = () => {
+    if (!chartsData.activeTimeline || !chartsData.activeTimeline.length) return;
+    
+    const headers = ['Date', 'New Signups', 'Active Users'];
+    // Output backwards (most recent first) for CSV
+    const sortedData = [...chartsData.activeTimeline].sort((a,b) => new Date(b.date) - new Date(a.date));
+    
+    const rows = sortedData.map(d => [
+      d.date,
+      d.signups || 0,
+      d.activeUsers || 0
+    ]);
+    
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `hoshiyaar_engagement_timeline_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -458,9 +483,18 @@ const UserAnalytics = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Active Usage & Signups Timeline */}
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm lg:col-span-8 flex flex-col">
-          <div className="mb-4">
-            <h3 className="text-lg font-black text-slate-800">Signups & Active Users Timeline</h3>
-            <p className="text-xs text-slate-400 font-medium">Daily registration signups compared to student activity over the last 30 days.</p>
+          <div className="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 className="text-lg font-black text-slate-800">Signups & Active Users Timeline</h3>
+              <p className="text-xs text-slate-400 font-medium">Daily registration signups compared to student activity over the last 30 days.</p>
+            </div>
+            <button
+                onClick={downloadTimelineCSV}
+                className="text-[10px] font-bold text-slate-600 bg-slate-50 border border-slate-200 hover:bg-slate-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm whitespace-nowrap self-start sm:self-auto"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                Export CSV
+            </button>
           </div>
           <div className="h-[280px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -498,6 +532,31 @@ const UserAnalytics = () => {
                 <Area type="monotone" dataKey="activeUsers" name="Active Students" stroke="#10b981" strokeWidth={2.5} fillOpacity={1} fill="url(#colorActive)" />
               </AreaChart>
             </ResponsiveContainer>
+          </div>
+          
+          {/* Day by Day Data Table */}
+          <div className="mt-6 border-t border-slate-100 pt-4">
+            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Day by Day Data</h4>
+            <div className="max-h-[160px] overflow-y-auto border border-slate-100 rounded-lg text-xs">
+              <table className="w-full text-left">
+                <thead className="bg-slate-50 text-slate-500 sticky top-0">
+                  <tr>
+                    <th className="py-2 px-4 font-semibold border-b border-slate-100">Date</th>
+                    <th className="py-2 px-4 font-semibold border-b border-slate-100 text-center">New Signups</th>
+                    <th className="py-2 px-4 font-semibold border-b border-slate-100 text-center">Active Users</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50 text-slate-600">
+                  {chartsData.activeTimeline && [...chartsData.activeTimeline].sort((a,b) => new Date(b.date) - new Date(a.date)).map((d, idx) => (
+                    <tr key={idx} className="hover:bg-slate-50/50">
+                      <td className="py-2 px-4 font-medium">{d.date}</td>
+                      <td className="py-2 px-4 text-center">{d.signups || 0}</td>
+                      <td className="py-2 px-4 text-center font-bold text-indigo-600">{d.activeUsers || 0}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
@@ -784,8 +843,15 @@ const UserAnalytics = () => {
                         </td>
 
                         {/* Last Active */}
-                        <td className="py-4 px-6 text-slate-500 font-semibold text-xs whitespace-nowrap">
-                          {formatRelativeDate(user.lastActive)}
+                        <td className="py-4 px-6">
+                          <div className="flex flex-col">
+                            <span className="text-slate-500 font-semibold text-xs whitespace-nowrap">
+                              {formatRelativeDate(user.lastActive)}
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-medium truncate max-w-[150px]" title={user.lastSessionLocation}>
+                              {user.lastSessionLocation && user.lastSessionLocation !== 'N/A' ? `In: ${user.lastSessionLocation}` : ''}
+                            </span>
+                          </div>
                         </td>
 
                         {/* Action Expand */}
