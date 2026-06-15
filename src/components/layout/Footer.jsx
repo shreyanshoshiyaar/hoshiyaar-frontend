@@ -82,9 +82,10 @@ const Footer = () => {
                     <p className="text-center md:text-left order-2 md:order-1 mt-2 md:mt-0">
                         © {currentYear} HoshiYaar. All rights reserved.
                     </p>
-                    <p className="order-1 md:order-2">
-                        Designed with ❤️ for Students.
-                    </p>
+                    <div className="order-1 md:order-2 flex flex-col items-center md:items-end">
+                        <p>Designed with ❤️ for Students.</p>
+                        <p className="mt-1 font-semibold text-white/80">Powered by Creative Garage</p>
+                    </div>
                 </div>
             </div>
         </footer>
