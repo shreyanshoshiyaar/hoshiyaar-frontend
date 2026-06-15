@@ -310,14 +310,12 @@ export default function ConceptPage() {
   const itemVideoUrl = useMemo(() => {
     const sources = [
       introVideoUrl,
-      item?.imageUrl,
       item?.videoUrl,
       item?.introVideoUrl,
       item?.question,
       item?.text,
       item?.content,
       item?.title,
-      ...(item?.images || []),
     ];
     
     // First pass: try to find and normalize a YouTube URL
@@ -328,16 +326,15 @@ export default function ConceptPage() {
       }
     }
     
-    // Second pass: if no YouTube URL, just return the first valid HTTP URL (e.g. Cloudinary/S3 MP4)
-    // We prioritize videoUrl fields first over text/images
+    // Second pass: if no YouTube URL, just return explicit video fields if they start with http
     if (introVideoUrl && typeof introVideoUrl === 'string' && introVideoUrl.startsWith('http')) return introVideoUrl;
     if (item?.videoUrl && typeof item.videoUrl === 'string' && item.videoUrl.startsWith('http')) return item.videoUrl;
     if (item?.introVideoUrl && typeof item.introVideoUrl === 'string' && item.introVideoUrl.startsWith('http')) return item.introVideoUrl;
-    if (item?.question && typeof item.question === 'string' && item.question.startsWith('http')) return item.question;
     
-    // Fallback to searching through all sources
+    // Third pass: check other text fields ONLY if they contain a video extension
     for (const src of sources) {
-      if (typeof src === 'string' && src.trim().startsWith('http')) {
+      if (typeof src === 'string' && src.trim().startsWith('http') && 
+         (src.toLowerCase().includes('.mp4') || src.toLowerCase().includes('.webm') || src.toLowerCase().includes('.mov'))) {
         return src.trim();
       }
     }
