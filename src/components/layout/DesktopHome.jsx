@@ -137,7 +137,7 @@ const DesktopHome = () => {
               </p>
 
               <div className="hero-actions">
-                <a className="btn-primary btn-blue" href="/login">Explore Hoshiyaar ✦</a>
+                <a className="btn-primary btn-blue" href="/signup">Explore Hoshiyaar ✦</a>
                 <a className="btn-ghost" href="#hoshi-cases" onClick={(e) => handleSmoothScroll(e, '#hoshi-cases')}>▶ Watch the First Mystery</a>
               </div>
 

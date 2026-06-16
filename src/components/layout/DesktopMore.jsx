@@ -410,7 +410,7 @@ const DesktopMore = ({ stars, weeklyStars }) => {
                  <button onClick={() => navigate('/blogs')} className="px-4 py-2 text-left font-bold text-gray-600 hover:bg-gray-50 rounded-lg transition-colors text-xs">Blogs & Articles</button>
                  <button onClick={() => navigate('/privacy-policy')} className="px-4 py-2 text-left font-bold text-gray-600 hover:bg-gray-50 rounded-lg transition-colors text-xs">Privacy Policy</button>
                  <button onClick={() => navigate('/terms-conditions')} className="px-4 py-2 text-left font-bold text-gray-600 hover:bg-gray-50 rounded-lg transition-colors text-xs">Terms & Conditions</button>
-                 <button onClick={() => window.location.href = 'mailto:cg.hoshiyaar@gmail.com'} className="px-4 py-2 text-left font-bold text-blue-600 hover:bg-blue-50 rounded-lg transition-colors text-xs mt-1 border border-blue-50">Contact Support</button>
+                 <button onClick={() => navigate('/contact')} className="px-4 py-2 text-left font-bold text-blue-600 hover:bg-blue-50 rounded-lg transition-colors text-xs mt-1 border border-blue-50">Contact Support</button>
                </div>
             </div>
             
