@@ -343,6 +343,7 @@ function App() {
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/terms-conditions" element={<TermsConditions />} />
                 <Route path="/blogs" element={<BlogList />} />
+                <Route path="/blogs/:category/:slug" element={<BlogView />} />
                 <Route path="/blogs/:id" element={<BlogView />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
