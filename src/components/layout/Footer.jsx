@@ -80,7 +80,7 @@ const Footer = () => {
                 {/* BOTTOM BAR: No extra top margin, compact */}
                 <div className="border-t border-white/20 pt-4 flex flex-col md:flex-row justify-between items-center text-xs sm:text-sm text-white/70">
                     <p className="text-center md:text-left order-2 md:order-1 mt-2 md:mt-0">
-                        © {currentYear} HoshiYaar. All rights reserved.
+                        © {currentYear} Creative Garage. All rights reserved.
                     </p>
                     <div className="order-1 md:order-2 flex flex-col items-center md:items-end">
                         <p>Designed with ❤️ for Students.</p>

@@ -422,7 +422,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         if (user?._id) {
           const params = new URLSearchParams(window.location.search);
           const title = params.get('title') || item?.title || `Module ${moduleNumber}`;
-          await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: title, isCorrect: true, deltaScore: 0, resetLesson: true });
+          await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: title, isCorrect: true, deltaScore: 0, resetLesson: index === 0 });
         }
       } catch (_) {}
     })();
