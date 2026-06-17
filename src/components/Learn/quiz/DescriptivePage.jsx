@@ -69,6 +69,20 @@ export default function DescriptivePage() {
     setForceShowExpert(false);
   }, [moduleNumber, index]);
 
+  // Reset server-side lesson score at entry
+  useEffect(() => {
+    (async () => {
+      try {
+        if (user?._id) {
+          const params = new URLSearchParams(window.location.search);
+          const title = params.get('title') || item?.title || `Module ${moduleNumber}`;
+          await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: title, isCorrect: true, deltaScore: 0, resetLesson: index === 0 });
+        }
+      } catch (_) {}
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [moduleNumber]);
+
   const normalize = (text) => {
     return String(text || '').toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
   };
