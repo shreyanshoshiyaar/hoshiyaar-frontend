@@ -9,7 +9,7 @@ const Contact = () => {
     <div className="min-h-screen lg:h-[100dvh] lg:overflow-hidden bg-[#F8FAFC] flex flex-col justify-center">
       <div className="w-full max-w-6xl mx-auto py-8 lg:py-0 px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-4 mb-12">
-          <BackButton onClick={() => navigate('/')} />
+          <BackButton onClick={() => navigate('/more')} />
           <h1 className="text-4xl md:text-5xl font-black text-blue-700 tracking-tight">Contact Us</h1>
         </div>
 
