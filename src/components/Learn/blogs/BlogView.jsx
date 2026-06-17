@@ -5,16 +5,98 @@ import SimpleLoading from '../../ui/SimpleLoading';
 import NetworkError from '../../ui/NetworkError.jsx';
 
 const BlogView = () => {
-  const { id } = useParams();
+  const { id, slug } = useParams();
+  const fetchId = slug || id;
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!blog) return;
+
+    const contentDiv = document.getElementById('blog-content-container');
+    if (!contentDiv) return;
+
+    // 1. Fill In The Blanks
+    const fitbs = contentDiv.querySelectorAll('.interactive-fitb');
+    fitbs.forEach(container => {
+      const input = container.querySelector('input');
+      const btn = container.querySelector('button');
+      const feedback = container.querySelector('.feedback');
+      const answers = container.dataset.answer?.toLowerCase().split(',');
+      
+      btn?.addEventListener('click', () => {
+        const val = input.value.trim().toLowerCase();
+        if (answers?.includes(val) && val.length > 0) {
+          feedback.innerHTML = '<span class="text-green-600 font-bold">✅ Correct!</span>';
+          feedback.classList.remove('hidden');
+        } else {
+          const displayAnswer = container.dataset.display || answers[0];
+          feedback.innerHTML = `
+            <div class="text-red-600 font-bold mb-2">❌ Incorrect, try again.</div>
+            <button type="button" class="text-sm text-blue-600 underline font-bold" onclick="this.nextElementSibling.classList.toggle('hidden')">Show correct answer</button>
+            <div class="hidden mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-blue-800">The correct answer is: <strong>${displayAnswer}</strong></div>
+          `;
+          feedback.classList.remove('hidden');
+        }
+      });
+    });
+
+    // 2. MCQs
+    const mcqs = contentDiv.querySelectorAll('.interactive-mcq');
+    mcqs.forEach(container => {
+      const btns = container.querySelectorAll('.mcq-option');
+      const feedback = container.querySelector('.feedback');
+      const answer = container.dataset.answer;
+
+      btns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          btns.forEach(b => {
+            b.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
+            b.classList.add('bg-white', 'text-gray-700', 'border-gray-200');
+          });
+          btn.classList.remove('bg-white', 'text-gray-700', 'border-gray-200');
+          btn.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+          
+          if (btn.dataset.option === answer) {
+            feedback.innerHTML = '<span class="text-green-600 font-bold">✅ Correct!</span>';
+            feedback.classList.remove('hidden');
+          } else {
+            feedback.innerHTML = `
+              <div class="text-red-600 font-bold mb-2">❌ Incorrect.</div>
+              <button type="button" class="text-sm text-blue-600 underline font-bold" onclick="this.nextElementSibling.classList.toggle('hidden')">Show correct answer</button>
+              <div class="hidden mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-blue-800">The correct answer is Option <strong>${answer}</strong>.</div>
+            `;
+            feedback.classList.remove('hidden');
+          }
+        });
+      });
+    });
+
+    // 3. Descriptive (Typing)
+    const descriptives = contentDiv.querySelectorAll('.interactive-descriptive');
+    descriptives.forEach(container => {
+      const btn = container.querySelector('button');
+      const feedback = container.querySelector('.feedback');
+      
+      btn?.addEventListener('click', () => {
+        if (feedback.classList.contains('hidden')) {
+          feedback.classList.remove('hidden');
+          btn.textContent = 'Hide Answer';
+        } else {
+          feedback.classList.add('hidden');
+          btn.textContent = 'Compare Answer';
+        }
+      });
+    });
+
+  }, [blog]);
+
+  useEffect(() => {
     const fetchBlog = async () => {
       try {
-        const res = await authService.getBlogById(id);
+        const res = await authService.getBlogById(fetchId);
         setBlog(res.data?.data);
       } catch (err) {
         console.error('Failed to fetch blog', err);
@@ -23,8 +105,10 @@ const BlogView = () => {
         setLoading(false);
       }
     };
-    fetchBlog();
-  }, [id]);
+    if (fetchId) {
+      fetchBlog();
+    }
+  }, [fetchId]);
 
   if (loading) return <SimpleLoading />;
   if (error) return (
@@ -66,7 +150,7 @@ const BlogView = () => {
 
       <div className="pt-20">
         {blog.image && (
-          <img src={blog.image} alt={blog.title} className="w-full h-64 object-cover mb-8" />
+          <img src={blog.image} alt={blog.title} className="w-full h-auto object-contain mb-8 max-h-[60vh] bg-gray-50" />
         )}
         
         <div className="px-6">
@@ -93,6 +177,7 @@ const BlogView = () => {
           </div>
           
           <div 
+            id="blog-content-container"
             className="prose prose-blue max-w-none text-gray-700 leading-relaxed space-y-4"
             dangerouslySetInnerHTML={{ __html: blog.content }}
           />
