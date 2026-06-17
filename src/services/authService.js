@@ -46,6 +46,11 @@ const updateOnboarding = (data, opts) => {
 // Update profile (alias to onboarding update for now)
 const updateProfile = (data, opts) => api.put('/api/auth/onboarding', data, opts);
 
+// Update user activity and FCM token
+const updateActivity = (userId, fcmToken, opts) => {
+  return api.post('/api/auth/update-activity', { userId, fcmToken }, opts);
+};
+
 // Simple in-memory cache for GET requests to reduce redundant network calls
 const cache = new Map();
 const CACHE_TTL = 30000; // 30 seconds
@@ -147,6 +152,7 @@ const authService = {
   adminLogin,
   updateOnboarding,
   updateProfile,
+  updateActivity,
   getUser,
   getProgress,
   updateProgress,
