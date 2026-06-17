@@ -1,9 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export default function BackButton({ className = '' }) {
+export default function BackButton({ className = '', onClick }) {
   const navigate = useNavigate();
-  const goBack = () => {
+  const goBack = (e) => {
+    if (onClick) {
+      onClick(e);
+      return;
+    }
     try {
       if (window.history.length > 1) navigate(-1);
       else navigate(-1);

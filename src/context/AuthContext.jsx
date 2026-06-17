@@ -3,6 +3,7 @@ import authService from '../services/authService.js';
 import { logDev } from '../utils/logger.js';
 import pointsService from '../services/pointsService.js';
 import { useStars } from './StarsContext.jsx';
+import { setupPushNotifications } from '../utils/pushNotifications.js';
 
 const AuthContext = createContext(null);
 
@@ -23,6 +24,12 @@ export const AuthProvider = ({ children }) => {
                 if (storedUser) {
                     const parsed = JSON.parse(storedUser);
                     setUser(parsed);
+
+                    // Initialize Push Notifications and update activity
+                    if (parsed?._id) {
+                        setupPushNotifications(parsed._id).catch(console.error);
+                    }
+
                     // Always hydrate stars from server to ensure cross-device sync
                     try {
                         await hydrateStarsFromServer(parsed?._id);
@@ -125,6 +132,10 @@ export const AuthProvider = ({ children }) => {
         } catch (_) {}
         localStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
+        // Initialize Push Notifications for the newly logged in user
+        if (userData?._id) {
+            setupPushNotifications(userData._id).catch(console.error);
+        }
         // Hydrate stars for this user from server best scores
         try { hydrateStarsFromServer(userData?._id); } catch (_) {}
     };
