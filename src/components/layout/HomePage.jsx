@@ -7,7 +7,7 @@ import curriculumService from '../../services/curriculumService';
 import './MobileHome.css';
 
 const MOBILE_IMAGES = [
-  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778578700/img-to-link/wunxaopn4qfirxnfdwa6.webp",
+  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1781765430/img-to-link/bl4qst643oasldck6fqw.webp",
   "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567489/img-to-link/n9fo2moxpmfwyp04ueob.webp",
   "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567487/img-to-link/zy3aaizcfjl5qwm9ewjx.webp",
   "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778579285/img-to-link/eqdx0kyjrhkruh0ownxd.webp",
@@ -17,7 +17,7 @@ const MOBILE_IMAGES = [
 
 const MobileHomeCarousel = () => {
   const [mobileImages, setMobileImages] = useState([
-    "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778578700/img-to-link/wunxaopn4qfirxnfdwa6.webp",
+    "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1781765430/img-to-link/bl4qst643oasldck6fqw.webp",
     "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567489/img-to-link/n9fo2moxpmfwyp04ueob.webp",
     "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567487/img-to-link/zy3aaizcfjl5qwm9ewjx.webp",
     "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778579285/img-to-link/eqdx0kyjrhkruh0ownxd.webp",
@@ -268,7 +268,7 @@ const MobileHomeCarousel = () => {
                 <div className="flex-1 flex flex-col items-center justify-center text-center w-full max-w-sm animate-fade-in-up relative z-20">
                   
                   {/* Hoshi Character */}
-                  <div className="w-[260px] -mt-8 mb-[-15px] mx-auto drop-shadow-2xl z-30 relative">
+                  <div className="w-[200px] -mt-8 mb-[-15px] mx-auto drop-shadow-2xl z-30 relative">
                     <img 
                       src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1781765430/img-to-link/bl4qst643oasldck6fqw.webp" 
                       alt="Hoshi" 
