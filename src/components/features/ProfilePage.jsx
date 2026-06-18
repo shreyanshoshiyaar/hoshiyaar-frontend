@@ -177,8 +177,13 @@ export default function ProfilePage() {
             <input placeholder={form.email || 'Not Defined'} value={form.email} onChange={e=>update('email', e.target.value)} className="mt-1 w-full px-4 py-3 rounded-2xl border-2 border-blue-200 focus:outline-none focus:border-blue-400" />
           </label>
           <label className="block">
-            <span className="text-sm font-bold text-gray-700">Phone number</span>
-            <input placeholder={form.phone || 'Not Defined'} value={form.phone} onChange={e=>update('phone', e.target.value)} className="mt-1 w-full px-4 py-3 rounded-2xl border-2 border-blue-200 focus:outline-none focus:border-blue-400" />
+            <span className="text-sm font-bold text-gray-700">Phone number <span className="text-xs text-gray-400 font-normal ml-2">(Cannot be changed)</span></span>
+            <input 
+              readOnly
+              placeholder={form.phone || 'Not Defined'} 
+              value={form.phone} 
+              className="mt-1 w-full px-4 py-3 rounded-2xl border-2 border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed focus:outline-none" 
+            />
           </label>
           <label className="block">
             <span className="text-sm font-bold text-gray-700">Board</span>

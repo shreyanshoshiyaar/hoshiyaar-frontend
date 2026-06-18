@@ -184,6 +184,28 @@ const UserAnalytics = () => {
   const [filterGrade, setFilterGrade] = useState('all');
   const [filterSchool, setFilterSchool] = useState('all');
   const [filterAccuracy, setFilterAccuracy] = useState('all'); // all, high, med, low
+  const [filterPlatform, setFilterPlatform] = useState('all'); // all, web, app
+
+  const [appliedFilters, setAppliedFilters] = useState({
+    search: '',
+    type: 'all',
+    grade: 'all',
+    school: 'all',
+    accuracy: 'all',
+    platform: 'all'
+  });
+
+  const applyFilters = () => {
+    setAppliedFilters({
+      search,
+      type: filterType,
+      grade: filterGrade,
+      school: filterSchool,
+      accuracy: filterAccuracy,
+      platform: filterPlatform
+    });
+    setCurrentPage(1);
+  };
 
   // Expanded user detail rows map
   const [expandedUsers, setExpandedUsers] = useState({});
@@ -264,8 +286,8 @@ const UserAnalytics = () => {
     let result = [...users];
 
     // Search
-    if (search.trim()) {
-      const q = search.toLowerCase();
+    if (appliedFilters.search.trim()) {
+      const q = appliedFilters.search.toLowerCase();
       result = result.filter(
         u =>
           (u.username && u.username.toLowerCase().includes(q)) ||
@@ -275,29 +297,38 @@ const UserAnalytics = () => {
     }
 
     // Filter by type
-    if (filterType === 'guest') {
+    if (appliedFilters.type === 'guest') {
       result = result.filter(u => u.isGuest);
-    } else if (filterType === 'registered') {
+    } else if (appliedFilters.type === 'registered') {
       result = result.filter(u => !u.isGuest);
     }
 
     // Filter by grade
-    if (filterGrade !== 'all') {
-      result = result.filter(u => u.classLevel === filterGrade);
+    if (appliedFilters.grade !== 'all') {
+      result = result.filter(u => u.classLevel === appliedFilters.grade);
     }
 
     // Filter by school
-    if (filterSchool !== 'all') {
-      result = result.filter(u => u.school === filterSchool);
+    if (appliedFilters.school !== 'all') {
+      result = result.filter(u => u.school === appliedFilters.school);
     }
 
     // Filter by accuracy
-    if (filterAccuracy === 'high') {
+    if (appliedFilters.accuracy === 'high') {
       result = result.filter(u => u.accuracy >= 80);
-    } else if (filterAccuracy === 'med') {
+    } else if (appliedFilters.accuracy === 'med') {
       result = result.filter(u => u.accuracy >= 50 && u.accuracy < 80);
-    } else if (filterAccuracy === 'low') {
+    } else if (appliedFilters.accuracy === 'low') {
       result = result.filter(u => u.useTime > 0 && u.accuracy < 50);
+    }
+
+    // Filter by platform
+    if (appliedFilters.platform !== 'all') {
+      if (appliedFilters.platform === 'app') {
+        result = result.filter(u => u.platform === 'android' || u.platform === 'ios');
+      } else {
+        result = result.filter(u => u.platform === appliedFilters.platform || u.platform === 'unknown' || !u.platform);
+      }
     }
 
     // Sort
@@ -322,7 +353,7 @@ const UserAnalytics = () => {
     });
 
     return result;
-  }, [users, search, filterType, filterGrade, filterSchool, filterAccuracy, sortField, sortDirection]);
+  }, [users, appliedFilters, sortField, sortDirection]);
 
   // Paginated users
   const paginatedUsers = useMemo(() => {
@@ -560,42 +591,84 @@ const UserAnalytics = () => {
           </div>
         </div>
 
-        {/* Grade Distribution */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm lg:col-span-4 flex flex-col justify-between">
-          <div>
-            <h3 className="text-lg font-black text-slate-800 mb-1">Class Levels</h3>
-            <p className="text-xs text-slate-400 font-medium mb-4">Breakdown of student counts by class grade level.</p>
+        {/* Right Column: Distributions */}
+        <div className="lg:col-span-4 flex flex-col gap-6">
+          {/* Grade Distribution */}
+          <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex-1 flex flex-col justify-between">
+            <div>
+              <h3 className="text-lg font-black text-slate-800 mb-1">Class Levels</h3>
+              <p className="text-xs text-slate-400 font-medium mb-4">Breakdown of student counts by class grade level.</p>
+            </div>
+            <div className="h-[200px] w-full flex items-center justify-center">
+              {chartsData.gradeDistribution && chartsData.gradeDistribution.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={chartsData.gradeDistribution}
+                      innerRadius={50}
+                      outerRadius={80}
+                      paddingAngle={3}
+                      dataKey="value"
+                    >
+                      {chartsData.gradeDistribution.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip contentStyle={{ borderRadius: '8px', fontSize: '11px' }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <span className="text-sm italic text-gray-400">No grade data available.</span>
+              )}
+            </div>
+            {/* Custom Legends */}
+            <div className="mt-4 grid grid-cols-2 gap-2 text-[10px] font-bold text-slate-600 max-h-[80px] overflow-y-auto">
+              {chartsData.gradeDistribution?.map((entry, index) => (
+                <div key={entry.name} className="flex items-center gap-1.5 truncate">
+                  <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }}></span>
+                  <span className="truncate">{entry.name} ({entry.value})</span>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="h-[200px] w-full flex items-center justify-center">
-            {chartsData.gradeDistribution && chartsData.gradeDistribution.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={chartsData.gradeDistribution}
-                    innerRadius={50}
-                    outerRadius={80}
-                    paddingAngle={3}
-                    dataKey="value"
-                  >
-                    {chartsData.gradeDistribution.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip contentStyle={{ borderRadius: '8px', fontSize: '11px' }} />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <span className="text-sm italic text-gray-400">No grade data available.</span>
-            )}
-          </div>
-          {/* Custom Legends */}
-          <div className="mt-4 grid grid-cols-2 gap-2 text-[10px] font-bold text-slate-600 max-h-[80px] overflow-y-auto">
-            {chartsData.gradeDistribution.map((entry, index) => (
-              <div key={entry.name} className="flex items-center gap-1.5 truncate">
-                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }}></span>
-                <span className="truncate">{entry.name} ({entry.value})</span>
-              </div>
-            ))}
+
+          {/* Platform Distribution */}
+          <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex-1 flex flex-col justify-between">
+            <div>
+              <h3 className="text-lg font-black text-slate-800 mb-1">Platform Distribution</h3>
+              <p className="text-xs text-slate-400 font-medium mb-4">Breakdown of App vs Website users.</p>
+            </div>
+            <div className="h-[200px] w-full flex items-center justify-center">
+              {chartsData.platformDistribution && chartsData.platformDistribution.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={chartsData.platformDistribution}
+                      innerRadius={50}
+                      outerRadius={80}
+                      paddingAngle={3}
+                      dataKey="value"
+                    >
+                      {chartsData.platformDistribution.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={CHART_COLORS[(index + 3) % CHART_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip contentStyle={{ borderRadius: '8px', fontSize: '11px' }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <span className="text-sm italic text-gray-400">No platform data available.</span>
+              )}
+            </div>
+            {/* Custom Legends */}
+            <div className="mt-4 grid grid-cols-2 gap-2 text-[10px] font-bold text-slate-600 max-h-[80px] overflow-y-auto">
+              {chartsData.platformDistribution?.map((entry, index) => (
+                <div key={entry.name} className="flex items-center gap-1.5 truncate">
+                  <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: CHART_COLORS[(index + 3) % CHART_COLORS.length] }}></span>
+                  <span className="truncate">{entry.name} ({entry.value})</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -643,7 +716,7 @@ const UserAnalytics = () => {
               </div>
               <button
                 onClick={downloadCSV}
-                className="text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
+className="text-[10px] font-bold text-slate-600 bg-slate-50 border border-slate-200 hover:bg-slate-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm whitespace-nowrap self-start sm:self-auto"
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                 Export CSV
@@ -652,14 +725,14 @@ const UserAnalytics = () => {
           </div>
 
           {/* Search and Filters grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3">
             {/* Search Input */}
             <div className="relative">
               <input
                 type="text"
                 value={search}
-                onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
-                placeholder="Search username, name, school..."
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search..."
                 className="w-full pl-3 pr-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
               />
             </div>
@@ -667,18 +740,29 @@ const UserAnalytics = () => {
             {/* User Type */}
             <select
               value={filterType}
-              onChange={(e) => { setFilterType(e.target.value); setCurrentPage(1); }}
+              onChange={(e) => setFilterType(e.target.value)}
               className="px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
             >
               <option value="all">All User Types</option>
-              <option value="registered">Registered Accounts Only</option>
-              <option value="guest">Guest Profiles Only</option>
+              <option value="registered">Registered Only</option>
+              <option value="guest">Guest Only</option>
+            </select>
+
+            {/* Platform */}
+            <select
+              value={filterPlatform}
+              onChange={(e) => setFilterPlatform(e.target.value)}
+              className="px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+            >
+              <option value="all">All Platforms</option>
+              <option value="web">Web Users</option>
+              <option value="app">Mobile App</option>
             </select>
 
             {/* School */}
             <select
               value={filterSchool}
-              onChange={(e) => { setFilterSchool(e.target.value); setCurrentPage(1); }}
+              onChange={(e) => setFilterSchool(e.target.value)}
               className="px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 truncate"
             >
               <option value="all">All Schools</option>
@@ -691,7 +775,7 @@ const UserAnalytics = () => {
             {/* Grade Level */}
             <select
               value={filterGrade}
-              onChange={(e) => { setFilterGrade(e.target.value); setCurrentPage(1); }}
+              onChange={(e) => setFilterGrade(e.target.value)}
               className="px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
             >
               <option value="all">All Grades</option>
@@ -704,14 +788,22 @@ const UserAnalytics = () => {
             {/* Accuracy Rate */}
             <select
               value={filterAccuracy}
-              onChange={(e) => { setFilterAccuracy(e.target.value); setCurrentPage(1); }}
+              onChange={(e) => setFilterAccuracy(e.target.value)}
               className="px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
             >
-              <option value="all">All Performance Levels</option>
-              <option value="high">High Accuracy (≥80%)</option>
-              <option value="med">Moderate Accuracy (50% - 79%)</option>
-              <option value="low">Needs Support (&lt;50% active)</option>
+              <option value="all">All Accuracy</option>
+              <option value="high">High (&ge;80%)</option>
+              <option value="med">Medium (50-79%)</option>
+              <option value="low">Low (&lt;50%)</option>
             </select>
+
+            {/* Apply Button */}
+            <button
+              onClick={applyFilters}
+              className="w-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold text-sm px-4 py-2 rounded-xl transition-all shadow-sm border border-[#7C3AED]"
+            >
+              Apply Filters
+            </button>
           </div>
         </div>
 
@@ -725,6 +817,9 @@ const UserAnalytics = () => {
                 </th>
                 <th className="py-4 px-5 select-none">Email</th>
                 <th className="py-4 px-5 select-none">Phone</th>
+                <th className="py-4 px-5 select-none text-center cursor-pointer hover:bg-slate-100/50" onClick={() => handleSort('platform')}>
+                  Platform {sortField === 'platform' ? (sortDirection === 'asc' ? '▴' : '▾') : ''}
+                </th>
                 <th className="py-4 px-6 select-none cursor-pointer hover:bg-slate-100/50" onClick={() => handleSort('school')}>
                   School / Institution {sortField === 'school' ? (sortDirection === 'asc' ? '▴' : '▾') : ''}
                 </th>
@@ -800,6 +895,19 @@ const UserAnalytics = () => {
                             </a>
                           ) : (
                             <span className="text-slate-300 font-medium italic">No phone</span>
+                          )}
+                        </td>
+
+                        {/* Platform */}
+                        <td className="py-4 px-5 text-center">
+                          {user.platform === 'android' || user.platform === 'ios' ? (
+                            <span className="bg-blue-50 text-blue-600 border border-blue-200 text-[10px] font-bold px-2 py-1 rounded-full uppercase whitespace-nowrap">
+                              App ({user.platform})
+                            </span>
+                          ) : (
+                            <span className="bg-purple-50 text-purple-600 border border-purple-200 text-[10px] font-bold px-2 py-1 rounded-full uppercase whitespace-nowrap">
+                              Web
+                            </span>
                           )}
                         </td>
 

@@ -4,7 +4,7 @@ import curriculumService from '../../services/curriculumService';
 const SystemSettingsManager = () => {
   const [missionVideoUrl, setMissionVideoUrl] = useState('');
   const [missionVideoDesktopUrl, setMissionVideoDesktopUrl] = useState('');
-  const [homepageSlides, setHomepageSlides] = useState(['', '', '', '', '']);
+  const [homepageSlides, setHomepageSlides] = useState(['', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
@@ -26,7 +26,9 @@ const SystemSettingsManager = () => {
       }
       const resSlides = await curriculumService.getSetting('homepage_slides');
       if (resSlides.data && Array.isArray(resSlides.data.value)) {
-        setHomepageSlides(resSlides.data.value);
+        let slides = [...resSlides.data.value];
+        while (slides.length < 6) slides.push('');
+        setHomepageSlides(slides);
       }
     } catch (err) {
       console.error('Failed to fetch setting', err);
@@ -111,7 +113,7 @@ const SystemSettingsManager = () => {
       await curriculumService.updateSetting({
         key: 'homepage_slides',
         value: homepageSlides,
-        description: "List of 5 image URLs for the mobile homepage carousel"
+        description: "List of 6 image URLs for the mobile homepage carousel"
       });
       setMessage({ text: 'Slides updated successfully! ✨', type: 'success' });
       setTimeout(() => setMessage({ text: '', type: '' }), 3000);
@@ -228,7 +230,7 @@ const SystemSettingsManager = () => {
           </div>
           <div>
             <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight">Homepage Carousel Slides</h2>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Update the 5 images on the mobile home page</p>
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Update the 6 images on the mobile home page</p>
           </div>
         </div>
 
