@@ -5,14 +5,21 @@ import { logDev } from '../utils/logger.js';
 
 const BASE = getApiBase();
 
+const getPlatform = () => {
+  if (window.Capacitor) {
+    return window.Capacitor.getPlatform();
+  }
+  return 'web';
+};
+
 // Register user (username-based)
 const register = (userData, opts) => {
-  return api.post('/api/auth/register', userData, opts);
+  return api.post('/api/auth/register', { ...userData, platform: getPlatform() }, opts);
 };
 
 // Register guest (anonymous)
 const registerGuest = (opts) => {
-  return api.post('/api/auth/register-guest', {}, opts);
+  return api.post('/api/auth/register-guest', { platform: getPlatform() }, opts);
 };
 
 // Login user with username

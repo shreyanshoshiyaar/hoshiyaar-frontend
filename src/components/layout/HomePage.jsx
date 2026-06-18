@@ -11,6 +11,7 @@ const MOBILE_IMAGES = [
   "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567489/img-to-link/n9fo2moxpmfwyp04ueob.webp",
   "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567487/img-to-link/zy3aaizcfjl5qwm9ewjx.webp",
   "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778579285/img-to-link/eqdx0kyjrhkruh0ownxd.webp",
+  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778578699/img-to-link/tynaqnlzmbvoaafwu3do.webp",
   "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778578699/img-to-link/tynaqnlzmbvoaafwu3do.webp"
 ];
 
@@ -20,6 +21,7 @@ const MobileHomeCarousel = () => {
     "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567489/img-to-link/n9fo2moxpmfwyp04ueob.webp",
     "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567487/img-to-link/zy3aaizcfjl5qwm9ewjx.webp",
     "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778579285/img-to-link/eqdx0kyjrhkruh0ownxd.webp",
+    "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778578699/img-to-link/tynaqnlzmbvoaafwu3do.webp",
     "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778578699/img-to-link/tynaqnlzmbvoaafwu3do.webp"
   ]);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -61,7 +63,9 @@ const MobileHomeCarousel = () => {
       try {
         const res = await curriculumService.getSetting('homepage_slides');
         if (res.data && Array.isArray(res.data.value) && res.data.value.length > 0) {
-          setMobileImages(res.data.value);
+          let slides = [...res.data.value];
+          while (slides.length < 6) slides.push(slides[slides.length - 1] || '');
+          setMobileImages(slides);
         }
       } catch (err) {
         console.error('Failed to fetch homepage slides', err);
@@ -144,9 +148,65 @@ const MobileHomeCarousel = () => {
               </div>
             )}
 
-            {/* Get Started Button on 1st, 2nd, and 3rd images */}
-            {(index === 0 || index === 1 || index === 2) && (
-              <div className={`absolute ${index === 0 ? 'bottom-8' : 'bottom-14'} left-0 right-0 flex justify-center px-6`}>
+            {/* Custom Get Started UI for 1st slide */}
+            {index === 0 && (
+              <div className="absolute bottom-[8%] left-0 right-0 flex flex-col items-center justify-center px-4 z-10 w-full">
+                {/* Huge Button */}
+                <button 
+                  onClick={() => navigate('/signup')}
+                  className="relative w-full max-w-sm rounded-full bg-white p-[4px] shadow-[0_0_30px_rgba(255,255,255,0.6)] active:scale-95 transition-transform"
+                >
+                  <div className="bg-gradient-to-b from-[#FFDF00] via-[#FFB300] to-[#FF8C00] rounded-full py-3 px-2 flex items-center justify-center gap-2 border-b-[5px] border-[#E65100]">
+                    <span className="text-4xl drop-shadow-md transform -rotate-12">🚀</span>
+                    <span 
+                      className="text-[32px] font-black text-white tracking-widest uppercase leading-none mt-1"
+                      style={{
+                        WebkitTextStroke: '2px #3B0764',
+                        textShadow: '0px 4px 0px #3B0764',
+                        fontFamily: "'Poppins', sans-serif"
+                      }}
+                    >
+                      GET STARTED
+                    </span>
+                  </div>
+                </button>
+
+                {/* Pill Container */}
+                <div className="flex items-center justify-between w-full max-w-sm bg-white rounded-full py-2 px-4 shadow-lg mt-3">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-8 h-8 rounded-full bg-[#3B82F6] flex items-center justify-center text-[16px] shadow-[inset_0_-2px_4px_rgba(0,0,0,0.2)]">🧠</div>
+                    <div className="flex flex-col leading-[1.1]">
+                      <span className="text-[#3B82F6] font-black text-[11px]">Super</span>
+                      <span className="text-[#3B82F6] font-black text-[11px]">Simple</span>
+                    </div>
+                  </div>
+                  
+                  <div className="w-px h-6 bg-gray-200"></div>
+                  
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-8 h-8 rounded-full bg-[#EC4899] flex items-center justify-center text-[16px] shadow-[inset_0_-2px_4px_rgba(0,0,0,0.2)]">⭐</div>
+                    <div className="flex flex-col leading-[1.1]">
+                      <span className="text-[#EC4899] font-black text-[11px]">Super</span>
+                      <span className="text-[#EC4899] font-black text-[11px]">Fun</span>
+                    </div>
+                  </div>
+                  
+                  <div className="w-px h-6 bg-gray-200"></div>
+                  
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-8 h-8 rounded-full bg-[#8B5CF6] flex items-center justify-center text-[16px] shadow-[inset_0_-2px_4px_rgba(0,0,0,0.2)]">🏆</div>
+                    <div className="flex flex-col leading-[1.1]">
+                      <span className="text-[#8B5CF6] font-black text-[11px]">Super</span>
+                      <span className="text-[#8B5CF6] font-black text-[11px]">Memorable</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Normal Get Started Button on 2nd and 3rd slides */}
+            {(index === 1 || index === 2) && (
+              <div className="absolute bottom-14 left-0 right-0 flex justify-center px-6 z-10">
                 <button 
                   onClick={() => navigate('/signup')}
                   className="w-full max-w-sm bg-duo-blue text-white font-bold uppercase tracking-wider py-4 rounded-2xl border-b-4 border-duo-blue-dark hover:bg-blue-500 transition-all text-base shadow-xl"
@@ -158,7 +218,7 @@ const MobileHomeCarousel = () => {
 
             {/* Social Buttons on 4th and 5th images */}
             {(index === 3 || index === 4) && (
-              <div className="absolute bottom-6 left-0 right-0 flex flex-col items-center gap-2 px-6">
+              <div className="absolute bottom-[calc(1.5rem+3vh)] left-0 right-0 flex flex-col items-center gap-2 px-6">
                 <div className="flex flex-row gap-3 w-full justify-center">
                   <a 
                     href="https://www.instagram.com/hoshiyaar_club/" 
@@ -192,6 +252,74 @@ const MobileHomeCarousel = () => {
                     <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current shrink-0"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>
                     YouTube
                   </a>
+                </div>
+              </div>
+            )}
+
+            {/* Contact Us on 6th slide */}
+            {index === 5 && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center px-6 z-10 w-full pt-10 pb-16 bg-[#FDF4FF] overflow-hidden">
+                
+                {/* Decorative background stars */}
+                <div className="absolute top-10 left-10 text-yellow-300 text-3xl animate-pulse">✨</div>
+                <div className="absolute bottom-40 right-10 text-pink-300 text-4xl animate-bounce" style={{animationDuration: '3s'}}>⭐</div>
+                <div className="absolute top-40 right-8 text-blue-300 text-2xl animate-pulse" style={{animationDuration: '2.5s'}}>✨</div>
+
+                <div className="flex-1 flex flex-col items-center justify-center text-center w-full max-w-sm animate-fade-in-up relative z-20">
+                  
+                  {/* Hoshi Character */}
+                  <div className="w-[260px] -mt-8 mb-[-15px] mx-auto drop-shadow-2xl z-30 relative">
+                    <img 
+                      src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1781765430/img-to-link/bl4qst643oasldck6fqw.webp" 
+                      alt="Hoshi" 
+                      className="w-full h-auto object-contain"
+                    />
+                  </div>
+
+                  {/* Huge Colorful Text */}
+                  <div className="flex flex-col items-center justify-center w-full mb-8 font-['Fredoka']">
+                    <span 
+                      className="text-[48px] font-black uppercase text-[#5B21B6] leading-none transform -rotate-2"
+                      style={{
+                        WebkitTextStroke: '8px white', 
+                        paintOrder: 'stroke fill',
+                        textShadow: '0 8px 15px rgba(0,0,0,0.1)'
+                      }}
+                    >
+                      FACING ANY
+                    </span>
+                    <span 
+                      className="text-[64px] font-black uppercase text-[#EC4899] leading-none transform rotate-2 z-10 mt-1"
+                      style={{
+                        WebkitTextStroke: '10px white', 
+                        paintOrder: 'stroke fill',
+                        textShadow: '0 8px 15px rgba(0,0,0,0.1)'
+                      }}
+                    >
+                      ISSUES?
+                    </span>
+                    <span 
+                      className="text-[32px] font-black uppercase text-[#3B82F6] leading-none mt-2 transform -rotate-1"
+                      style={{
+                        WebkitTextStroke: '6px white', 
+                        paintOrder: 'stroke fill',
+                        textShadow: '0 8px 15px rgba(0,0,0,0.1)'
+                      }}
+                    >
+                      WE'RE HERE!
+                    </span>
+                  </div>
+                  
+                  <p className="text-[16px] font-bold text-[#4B5563] leading-relaxed mb-10 font-['Nunito'] px-2">
+                    Don't worry! We are here to make everything <span className="text-[#5B21B6]">super smooth</span> and <span className="text-[#EC4899]">super easy</span> for you!
+                  </p>
+                  
+                  <button 
+                    onClick={() => navigate('/contact')}
+                    className="w-full bg-duo-blue text-white rounded-full py-4 px-2 flex items-center justify-center font-black text-[22px] uppercase tracking-widest shadow-2xl active:scale-95 border-b-[5px] border-duo-blue-dark hover:bg-blue-500 transition-all font-['Poppins']"
+                  >
+                    CONTACT US
+                  </button>
                 </div>
               </div>
             )}
