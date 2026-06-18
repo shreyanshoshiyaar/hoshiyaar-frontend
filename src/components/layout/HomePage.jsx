@@ -7,7 +7,7 @@ import curriculumService from '../../services/curriculumService';
 import './MobileHome.css';
 
 const MOBILE_IMAGES = [
-  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1781765430/img-to-link/bl4qst643oasldck6fqw.webp",
+  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1781776052/img-to-link/jzjm9p3tfjfaca4sqgey.webp",
   "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567489/img-to-link/n9fo2moxpmfwyp04ueob.webp",
   "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567487/img-to-link/zy3aaizcfjl5qwm9ewjx.webp",
   "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778579285/img-to-link/eqdx0kyjrhkruh0ownxd.webp",
@@ -17,7 +17,7 @@ const MOBILE_IMAGES = [
 
 const MobileHomeCarousel = () => {
   const [mobileImages, setMobileImages] = useState([
-    "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1781765430/img-to-link/bl4qst643oasldck6fqw.webp",
+    "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1781776052/img-to-link/jzjm9p3tfjfaca4sqgey.webp",
     "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567489/img-to-link/n9fo2moxpmfwyp04ueob.webp",
     "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567487/img-to-link/zy3aaizcfjl5qwm9ewjx.webp",
     "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778579285/img-to-link/eqdx0kyjrhkruh0ownxd.webp",
