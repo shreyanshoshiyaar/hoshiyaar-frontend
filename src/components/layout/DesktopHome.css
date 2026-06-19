@@ -180,13 +180,7 @@
 }
 
 /* HERO */
-.desktop-home-wrapper #hoshi-hero {
-  min-height: calc(100vh - 80px);
-  padding: 40px clamp(16px,5vw,64px) 40px;
-  position: relative; overflow: hidden;
-  display: flex; align-items: center;
-  background: var(--bg);
-}
+
 .desktop-home-wrapper .hero-grid {
   display: grid; 
   grid-template-columns: 1fr 1.4fr;
@@ -916,7 +910,7 @@
 }
 
 @media (max-width: 768px) {
-  .desktop-home-wrapper #hoshi-hero { min-height: auto; padding: 80px 16px 50px; }
+
   .desktop-home-wrapper .hero-badge { padding: 5px 12px; margin-bottom: 22px; }
   .desktop-home-wrapper .hero-badge-text { font-size: .62rem; }
   .desktop-home-wrapper .hero-h1 { font-size: clamp(2rem,8vw,2.8rem); }

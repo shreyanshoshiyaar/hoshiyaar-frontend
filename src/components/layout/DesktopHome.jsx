@@ -5,15 +5,6 @@ import './DesktopHome.css';
 const DesktopHome = () => {
   const [toastMsg, setToastMsg] = useState("");
   const [showToast, setShowToast] = useState(false);
-  const [typedText, setTypedText] = useState("");
-  const [isMuted, setIsMuted] = useState(true);
-
-  useEffect(() => {
-    const video = document.getElementById('heroVideo');
-    if (video) {
-      video.muted = isMuted;
-    }
-  }, [isMuted]);
 
   useEffect(() => {
     // Add Google Fonts for Fraunces and Instrument Sans if not already in document
@@ -57,35 +48,11 @@ const DesktopHome = () => {
     
     window.addEventListener('scroll', handleScroll);
 
-    const video = document.getElementById('heroVideo');
-    if (video) video.play().catch(() => {});
 
-    // Typewriter effect
-    const lines = ["Why won't the ice warm up?", "The thermometer is lying.", "A spoon burned Babloo.", "Science is full of mysteries."];
-    let li = 0, ci = 0, del = false, done = false;
-    let typeTimeout;
-
-    const type = () => {
-      if (done) return;
-      const line = lines[li];
-      if (!del && ci === line.length) { 
-        if (li === lines.length - 1) { done = true; return; } 
-        typeTimeout = setTimeout(() => { del = true; type(); }, 1500); 
-        return; 
-      }
-      if (del && ci === 0) { del = false; li++; type(); return; }
-      
-      setTypedText(del ? line.slice(0, ci - 1) : line.slice(0, ci + 1));
-      ci += del ? -1 : 1;
-      typeTimeout = setTimeout(type, del ? 22 : 42);
-    };
-    
-    typeTimeout = setTimeout(type, 800);
 
     return () => {
       io.disconnect();
       window.removeEventListener('scroll', handleScroll);
-      clearTimeout(typeTimeout);
     };
   }, []);
 
@@ -111,127 +78,136 @@ const DesktopHome = () => {
       <div className="scroll-progress" id="scrollProgress"></div>
 
       <main>
-        <section id="hoshi-hero">
-          <div style={{position:'absolute',inset:0,backgroundImage:'radial-gradient(circle,rgba(30,101,250,.06) 1px,transparent 1px)',backgroundSize:'28px 28px',pointerEvents:'none'}}></div>
-          <div style={{position:'absolute',top:'10%',right:'-5%',width:'600px',height:'600px',background:'radial-gradient(circle,rgba(30,101,250,.1),transparent 65%)',borderRadius:'50%',filter:'blur(60px)',pointerEvents:'none'}}></div>
-          <div style={{position:'absolute',bottom:0,left:'-8%',width:'700px',height:'500px',background:'radial-gradient(circle,rgba(79,94,199,.08),transparent 65%)',borderRadius:'50%',filter:'blur(80px)',pointerEvents:'none'}}></div>
-
-          <div className="hero-grid">
-            <div className="hero-content">
-              <div className="hero-badge">
-                <div className="hero-badge-dot"></div>
-                <span className="hero-badge-text" style={{fontSize: '1rem', fontWeight: 'bold'}}>CBSE · CLASSES 6–8 · SCIENCE</span>
-              </div>
-
-              <h1 className="hero-h1">Don't memorize</h1>
-              <h1 className="hero-h1 shimmer">science.</h1>
-              <h1 className="hero-h1" style={{marginBottom:'28px'}}>Solve it. Remember it.</h1>
-
-              <div className="hero-typewriter">
-                <span className="q">?</span>
-                <span>{typedText}</span><span className="cursor"></span>
-              </div>
-
-              <p className="hero-desc">
-                Hoshiyaar turns CBSE science into detective mysteries, sticky songs, and memory hooks — so students actually understand concepts and write great exam answers.
-              </p>
-
-              <div className="hero-actions">
-                <a className="btn-primary btn-blue" href="/signup">Explore Hoshiyaar ✦</a>
-                <a className="btn-ghost" href="#hoshi-cases" onClick={(e) => handleSmoothScroll(e, '#hoshi-cases')}>▶ Watch the First Mystery</a>
-              </div>
-
-              <div className="hero-trust">
-                <div className="hero-trust-item"><span>🔍</span> Mystery-first learning</div>
-                <div className="hero-trust-item"><span>🎵</span> Songs &amp; hooks</div>
-                <div className="hero-trust-item"><span>✏️</span> Exam-ready answers</div>
-              </div>
-            </div>
-
-            <div className="hero-visual">
-              <div className="orbit-container">
-                <div className="orbit-ring"></div>
-                
-                <div className="orbit-icon">
-                  <span style={{fontSize: '2rem'}}>✏️</span>
-                </div>
-                <div className="orbit-icon">
-                  <span style={{fontSize: '2rem'}}>💡</span>
-                </div>
-                <div className="orbit-icon">
-                  <span style={{fontSize: '2rem'}}>⚗️</span>
-                </div>
-                <div className="orbit-icon">
-                  <span style={{fontSize: '2rem'}}>🧪</span>
-                </div>
-                <div className="orbit-icon">
-                  <span style={{fontSize: '2rem'}}>🔬</span>
-                </div>
-                
-                <div style={{
-                  position: 'relative',
-                  zIndex: 10,
-                  width: '100%',
-                  maxWidth: '190px',
-                  borderRadius: '16px',
-                  overflow: 'hidden',
-                  transform: 'translateZ(0)'
-                }}>
-                  <video 
-                    id="heroVideo"
-                    src="/Video/Hoshi-Video.mp4" 
-                    autoPlay 
-                    muted={isMuted} 
-                    loop 
-                    playsInline
-                    style={{
-                      width: '102%',
-                      height: '102%',
-                      marginLeft: '-1%',
-                      marginTop: '-1%',
-                      objectFit: 'cover',
-                      pointerEvents: 'none',
-                      display: 'block'
-                    }}
-                  ></video>
-                  <button 
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setIsMuted(!isMuted);
-                    }}
-                    style={{
-                      position: 'absolute',
-                      bottom: '8px',
-                      right: '8px',
-                      background: 'rgba(0,0,0,0.4)',
-                      backdropFilter: 'blur(4px)',
-                      color: 'white',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: '50%',
-                      width: '32px',
-                      height: '32px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: 'pointer',
-                      zIndex: 20,
-                      fontSize: '14px',
-                      transition: 'all 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.6)'}
-                    onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.4)'}
-                    title={isMuted ? "Unmute video" : "Mute video"}
-                  >
-                    {isMuted ? '🔇' : '🔊'}
-                  </button>
-                </div>
-              </div>
-            </div>
+        <section id="hoshi-hero" className="new-hero-section relative bg-white overflow-hidden pt-8 pb-16">
+          {/* Decorative Elements */}
+          <div className="absolute top-[15%] left-[3%] text-blue-400 text-3xl animate-bounce" style={{animationDuration: '3s'}}>✨</div>
+          <div className="absolute top-[25%] right-[8%] text-pink-400 text-2xl animate-pulse">❤️</div>
+          <div className="absolute bottom-[35%] left-[2%] text-purple-400 text-4xl animate-pulse">⭐</div>
+          <div className="absolute top-[5%] left-[30%] opacity-50 text-indigo-300">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          </div>
+          <div className="absolute top-[10%] right-[30%] opacity-40">
+            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#FCD34D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           </div>
 
-          <div style={{position:'absolute',bottom:'32px',left:'50%',transform:'translateX(-50%)',display:'flex',flexDirection:'column',alignItems:'center',gap:'8px',opacity:'.35'}}>
-            <span className="mono" style={{fontSize:'.6rem',letterSpacing:'.12em',color:'var(--muted)'}}>SCROLL</span>
-            <div style={{width:'1px',height:'36px',background:'linear-gradient(to bottom,var(--blue),transparent)',animation:'desktop-pulse 2s ease-in-out infinite'}}></div>
+          <div className="max-w-[1400px] mx-auto px-6 lg:px-12 relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
+            {/* Left Content */}
+            <div className="flex-1 text-left max-w-2xl mt-4 lg:mt-0">
+              <div className="inline-block bg-[#EBF4FF] text-[#1D4ED8] font-bold px-4 py-1.5 rounded-full text-[13px] tracking-wide mb-6 border border-[#BFDBFE]">
+                FOR CLASS 6–8
+              </div>
+              
+              <h1 className="text-5xl lg:text-[72px] font-extrabold text-[#1E3A8A] leading-[1.05] mb-6 font-['Fraunces'] tracking-tight">
+                Enter the <br/>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F97316] to-[#FBBF24]">HoshiYaar</span> <br/>
+                Universe.
+              </h1>
+              
+              <p className="text-[17px] text-slate-700 mb-2 font-semibold max-w-[500px] leading-relaxed">
+                Science should not feel like pressure.<br/> It should feel like a journey that pulls children in.
+              </p>
+              
+              <p className="text-[15px] text-slate-600 mb-10 max-w-[500px] leading-relaxed">
+                At HoshiYaar, Class 6–8 students learn Science through comics, videos, practice missions, quizzes, revision tools, and exam-ready answers.
+              </p>
+              
+              <div className="flex flex-wrap items-center gap-4 mb-10">
+                <a href="/signup" className="bg-[#FFC107] hover:bg-[#FFB300] text-[#4527A0] font-extrabold text-[16px] px-8 py-4 rounded-xl transition-transform hover:scale-105 shadow-md flex items-center gap-2">
+                  Start Learning 🚀
+                </a>
+                <a href="#hoshi-cases" onClick={(e) => handleSmoothScroll(e, '#hoshi-cases')} className="bg-white hover:bg-slate-50 text-[#1E3A8A] font-bold text-[16px] px-8 py-4 rounded-xl transition-all border border-[#CBD5E1] shadow-sm hover:border-[#94A3B8]">
+                  Explore the Universe
+                </a>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                <div className="flex -space-x-3">
+                  <img className="w-[42px] h-[42px] rounded-full border-2 border-white object-cover shadow-sm bg-blue-100" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix&backgroundColor=b6e3f4" alt="Student" />
+                  <img className="w-[42px] h-[42px] rounded-full border-2 border-white object-cover shadow-sm bg-purple-100" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka&backgroundColor=c0aede" alt="Student" />
+                  <img className="w-[42px] h-[42px] rounded-full border-2 border-white object-cover shadow-sm bg-orange-100" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Jocelyn&backgroundColor=ffdfbf" alt="Student" />
+                  <img className="w-[42px] h-[42px] rounded-full border-2 border-white object-cover shadow-sm bg-green-100" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Liam&backgroundColor=d1d4f9" alt="Student" />
+                </div>
+                <p className="text-[13px] text-slate-500 font-medium max-w-[200px] leading-snug">
+                  <span className="text-[#1E3A8A] font-bold">50,000+</span> students learning<br/>and growing every day!
+                </p>
+              </div>
+            </div>
+            
+            {/* Right Visual */}
+            <div className="flex-1 relative w-full lg:min-w-[650px] max-w-[850px] mt-8 lg:mt-0 lg:ml-[-40px]">
+              <img 
+                src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1781793363/img-to-link/pgmviebjucysv1rcmtda.webp" 
+                alt="Hoshiyaar Universe" 
+                className="w-full h-auto object-contain"
+              />
+            </div>
+          </div>
+          
+          {/* Bottom Features Bar */}
+          <div className="max-w-[1400px] mx-auto px-6 lg:px-12 mt-6 relative z-20">
+            <div className="bg-white rounded-3xl shadow-[0_4px_25px_rgba(0,0,0,0.06)] border border-slate-100 py-6 px-4 xl:px-8 flex flex-nowrap justify-between items-center gap-2 xl:gap-6 overflow-x-auto no-scrollbar">
+              
+              <div className="flex items-center gap-4">
+                <div className="flex items-center justify-center shrink-0">
+                  <span className="text-[44px]">📖</span>
+                </div>
+                <div>
+                  <h4 className="font-extrabold text-slate-800 text-[14px]">Comics</h4>
+                  <p className="text-[12px] text-slate-500 leading-snug font-medium mt-0.5">Stories that make<br/>science exciting</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                <div className="flex items-center justify-center shrink-0">
+                  <span className="text-[44px]">▶️</span>
+                </div>
+                <div>
+                  <h4 className="font-extrabold text-slate-800 text-[14px]">Videos</h4>
+                  <p className="text-[12px] text-slate-500 leading-snug font-medium mt-0.5">Visual lessons<br/>that make it click</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="flex items-center justify-center shrink-0">
+                  <span className="text-[44px]">🎯</span>
+                </div>
+                <div>
+                  <h4 className="font-extrabold text-slate-800 text-[14px]">Practice Missions</h4>
+                  <p className="text-[12px] text-slate-500 leading-snug font-medium mt-0.5">Solve, practice<br/>and level up</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="flex items-center justify-center shrink-0">
+                  <span className="text-[44px]">🛡️</span>
+                </div>
+                <div>
+                  <h4 className="font-extrabold text-slate-800 text-[14px]">Exam Answers</h4>
+                  <p className="text-[12px] text-slate-500 leading-snug font-medium mt-0.5">Exam-ready answers<br/>you can trust</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="flex items-center justify-center shrink-0">
+                  <span className="text-[44px]">🧠</span>
+                </div>
+                <div>
+                  <h4 className="font-extrabold text-slate-800 text-[14px]">Revision Tools</h4>
+                  <p className="text-[12px] text-slate-500 leading-snug font-medium mt-0.5">Remember more<br/>with smart revision</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="flex items-center justify-center shrink-0">
+                  <span className="text-[44px]">📊</span>
+                </div>
+                <div>
+                  <h4 className="font-extrabold text-slate-800 text-[14px]">Progress Tracking</h4>
+                  <p className="text-[12px] text-slate-500 leading-snug font-medium mt-0.5">Track progress.<br/>See growth.<br/>Stay motivated.</p>
+                </div>
+              </div>
+
+            </div>
           </div>
         </section>
 
