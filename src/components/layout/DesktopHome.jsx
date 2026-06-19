@@ -211,156 +211,128 @@ const DesktopHome = () => {
           </div>
         </section>
 
-        <div id="hoshi-ticker">
-          <div className="ticker-track">
-            <div className="ticker-item">🔍 One mystery at a time</div>
-            <div className="ticker-item">🎵 Songs that stick</div>
-            <div className="ticker-item">🧪 Concepts that click</div>
-            <div className="ticker-item">🏆 Exam-ready answers</div>
-            <div className="ticker-item">📱 Practice app — coming soon</div>
-            <div className="ticker-item" style={{fontSize: '1.2rem', fontWeight: 'bold'}}>✦ CBSE Classes 6–8</div>
-            <div className="ticker-item">🌟 Curiosity that grows</div>
-            <div className="ticker-item">🔍 One mystery at a time</div>
-            <div className="ticker-item">🎵 Songs that stick</div>
-            <div className="ticker-item">🧪 Concepts that click</div>
-            <div className="ticker-item">🏆 Exam-ready answers</div>
-            <div className="ticker-item">📱 Practice app — coming soon</div>
-            <div className="ticker-item" style={{fontSize: '1.2rem', fontWeight: 'bold'}}>✦ CBSE Classes 6–8</div>
-            <div className="ticker-item">🌟 Curiosity that grows</div>
-          </div>
-        </div>
+        <section id="hoshi-overview">
+          <div className="hoshi-container" style={{maxWidth: '1350px'}}>
+            <div className="section-label-center">
+              <span style={{color: '#ea580c', fontSize: '16px'}}>🎉</span> HOW HOSHIYAAR WORKS <span style={{color: '#ea580c', fontSize: '16px'}}>🎉</span>
+            </div>
 
-        <section id="hoshi-forget" className="hoshi-section">
-          <div className="hoshi-container">
-            <div className="reveal" style={{textAlign:'center',marginBottom:'clamp(36px,5vw,64px)'}}>
-              <div className="section-label">The Problem</div>
-              <h2 className="fraunces" style={{fontSize:'clamp(2rem,4vw,3rem)',fontWeight:900,letterSpacing:'-.03em',color:'var(--ink)',marginBottom:'14px'}}>
-                Why students forget science<br/><em style={{color:'var(--blue)', fontStyle: 'italic'}}>the moment exams begin</em>
-              </h2>
-              <p style={{color:'var(--ink3)',fontSize:'1.05rem',maxWidth:'480px',margin:'0 auto'}}>It's not ability. It's how science is usually taught.</p>
-            </div>
-            <div className="forget-grid">
-              <div className="hoshi-card forget-card reveal d1">
-                <div className="forget-icon">📖</div>
-                <div><div className="forget-title">They read, not understand</div><div className="forget-desc">Textbooks give definitions. Hoshiyaar gives the 'why' behind them — understanding first, always.</div></div>
-              </div>
-              <div className="hoshi-card forget-card reveal d2">
-                <div className="forget-icon">🔄</div>
-                <div><div className="forget-title">They memorize, not connect</div><div className="forget-desc">Facts without stories vanish overnight. Stories build lasting, retrievable memory.</div></div>
-              </div>
-              <div className="hoshi-card forget-card reveal d3">
-                <div className="forget-icon">😴</div>
-                <div><div className="forget-title">The explanation bores them</div><div className="forget-desc">Science chapters feel like walls of text. A mystery pulls students in before they know they're learning.</div></div>
-              </div>
-              <div className="hoshi-card forget-card reveal d4">
-                <div className="forget-icon">✏️</div>
-                <div><div className="forget-title">Nobody shows how to write answers</div><div className="forget-desc">Knowing a concept and writing it clearly in an exam are two completely different skills. Hoshiyaar bridges both.</div></div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section id="hoshi-meet" className="hoshi-section">
-          <div className="hoshi-container" style={{maxWidth:'900px'}}>
-            <div className="reveal" style={{textAlign:'center',marginBottom:'52px'}}>
-              <div className="section-label">What is Hoshiyaar</div>
-              <h2 className="fraunces" style={{fontSize:'clamp(2rem,4vw,3rem)',fontWeight:900,letterSpacing:'-.03em',color:'var(--ink)',marginBottom:'18px'}}>
-                Not a course. Not a chapter.<br/><span className="shimmer">A way of thinking about science.</span>
-              </h2>
-              <p style={{color:'var(--ink3)',fontSize:'1.1rem',lineHeight:1.8,maxWidth:'580px',margin:'0 auto'}}>
-                Hoshiyaar is built around one insight: <strong style={{color:'var(--ink)'}}>students remember what surprises them.</strong> So every concept starts as a mystery — and solves itself through curiosity.
-              </p>
-            </div>
-            <div className="pillars">
-              <div className="hoshi-card pillar reveal d1"><div className="pillar-num">01</div><div className="pillar-text">One mystery at a time</div></div>
-              <div className="hoshi-card pillar reveal d2"><div className="pillar-num" style={{color:'var(--indigo)'}}>02</div><div className="pillar-text">One scoring concept at a time</div></div>
-              <div className="hoshi-card pillar reveal d3"><div className="pillar-num" style={{color:'var(--amber)'}}>03</div><div className="pillar-text">One answer you can write in an exam</div></div>
-            </div>
-            <div className="quote-block reveal">
-              <blockquote>
-                <p className="quote-text">"Science should feel like discovery — not rote learning. Hoshiyaar starts with a mystery, builds curiosity, and lands at the concept. By the time the science is explained, you already want to know it."</p>
-                <cite className="quote-cite">THE HOSHIYAAR PHILOSOPHY</cite>
-              </blockquote>
-            </div>
-          </div>
-        </section>
-
-        <section id="hoshi-characters" className="hoshi-section">
-          <div className="hoshi-container">
-            <div className="reveal" style={{textAlign:'center',marginBottom:'52px'}}>
-              <div className="section-label">The Cast</div>
-              <h2 className="fraunces" style={{fontSize:'clamp(2rem,4vw,3rem)',fontWeight:900,letterSpacing:'-.03em',color:'var(--ink)',marginBottom:'14px'}}>Meet the <span style={{color:'var(--blue)'}}>characters</span></h2>
-              <p style={{color:'var(--ink3)',fontSize:'1.05rem',maxWidth:'420px',margin:'0 auto'}}>Four voices that make science feel like a conversation — not a chapter.</p>
-            </div>
-            <div className="char-grid">
-              <div className="hoshi-card char-card reveal-scale d1" style={{'--c-color':'var(--blue)','--c-bg':'var(--blue-lt)'}}>
-                <div className="char-avatar">
-                  <img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779100397/img-to-link/rtyoddo8fjqspbtngsri.webp" alt="Hoshi" />
+            <div className="overview-timeline">
+              <div className="timeline-step t1">
+                <div className="timeline-header">
+                  <div className="timeline-badge">1</div>
+                  <div className="timeline-title">Spark Curiosity</div>
                 </div>
-                <div className="char-name">Hoshi</div>
-                <div className="char-role">The Calm Thinker</div>
-                <p className="char-bio">Notices strange clues and reveals the real science. Never rushes. Always right.</p>
+                <div className="timeline-icon">🪐</div>
+                <p className="timeline-desc">Every concept begins with a story, comic, video or question.</p>
               </div>
-
-              <div className="hoshi-card char-card reveal-scale d2" style={{'--c-color':'var(--indigo)','--c-bg':'var(--indigo-lt)'}}>
-                <div className="char-avatar">
-                  <img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779100398/img-to-link/ayqvapvovlppgkniud7k.webp" alt="Myra" />
+              <div className="timeline-arrow">→</div>
+              <div className="timeline-step t2">
+                <div className="timeline-header">
+                  <div className="timeline-badge">2</div>
+                  <div className="timeline-title">Explain Simply</div>
                 </div>
-                <div className="char-name">Myra</div>
-                <div className="char-role">The Sharp Verifier</div>
-                <p className="char-bio">Checks every piece of evidence. Keeps the logic clean. Doesn't accept guesses.</p>
+                <div className="timeline-icon">💻</div>
+                <p className="timeline-desc">Concepts are explained in short, clear steps with visuals &amp; examples.</p>
               </div>
-
-              <div className="hoshi-card char-card reveal-scale d3" style={{'--c-color':'var(--rose)','--c-bg':'var(--rose-lt)'}}>
-                <div className="char-avatar">
-                  <img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779100399/img-to-link/cgel5nvus6jbhxlbghhu.webp" alt="Ruhaan" />
+              <div className="timeline-arrow">→</div>
+              <div className="timeline-step t3">
+                <div className="timeline-header">
+                  <div className="timeline-badge">3</div>
+                  <div className="timeline-title">Practice<br/>Immediately</div>
                 </div>
-                <div className="char-name">Ruhaan</div>
-                <div className="char-role">The Live Reaction</div>
-                <p className="char-bio">Says exactly what students are thinking when something surprising happens.</p>
+                <div className="timeline-icon">🎯</div>
+                <p className="timeline-desc">Students solve questions right after learning.</p>
               </div>
-
-              <div className="hoshi-card char-card reveal-scale d4" style={{'--c-color':'var(--amber)','--c-bg':'var(--amber-lt)'}}>
-                <div className="char-avatar">
-                  <img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779100396/img-to-link/rqwxrpdymyzbhqd74eiy.webp" alt="Babloo" />
+              <div className="timeline-arrow">→</div>
+              <div className="timeline-step t4">
+                <div className="timeline-header">
+                  <div className="timeline-badge">4</div>
+                  <div className="timeline-title">Fix the Gaps</div>
                 </div>
-                <div className="char-name">Babloo</div>
-                <div className="char-role">The Funny Wrong Guess</div>
-                <p className="char-bio">Voices the common misconception — so students recognize it and never forget it.</p>
+                <div className="timeline-icon">🧩</div>
+                <p className="timeline-desc">Mistakes are identified and concepts are strengthened.</p>
+              </div>
+              <div className="timeline-arrow">→</div>
+              <div className="timeline-step t5">
+                <div className="timeline-header">
+                  <div className="timeline-badge">5</div>
+                  <div className="timeline-title">Revise Smartly</div>
+                </div>
+                <div className="timeline-icon">🧠</div>
+                <p className="timeline-desc">Daily recall, notes, memory tools and revision cycles help you remember.</p>
+              </div>
+              <div className="timeline-arrow">→</div>
+              <div className="timeline-step t6">
+                <div className="timeline-header">
+                  <div className="timeline-badge">6</div>
+                  <div className="timeline-title">Become<br/>Exam-Ready</div>
+                </div>
+                <div className="timeline-icon">📝</div>
+                <p className="timeline-desc">Clear, writeable answers for every scoring question.</p>
               </div>
             </div>
-          </div>
-        </section>
 
-        <section id="hoshi-features" className="hoshi-section">
-          <div className="hoshi-container">
-            <div className="reveal" style={{textAlign:'center',marginBottom:'52px'}}>
-              <div className="section-label">How It's Built</div>
-              <h2 className="fraunces" style={{fontSize:'clamp(2rem,4vw,3rem)',fontWeight:900,letterSpacing:'-.03em',color:'var(--ink)',marginBottom:'14px'}}>More than just <span style={{color:'var(--amber)'}}>explanation</span></h2>
-              <p style={{color:'var(--ink3)',fontSize:'1.05rem',maxWidth:'460px',margin:'0 auto'}}>Every Hoshiyaar mystery is built to do four things — in the right order.</p>
-            </div>
-            <div className="feat-grid">
-              <div className="hoshi-card feat-card reveal d1"><div className="feat-icon" style={{background:'var(--blue-lt)',border:'1px solid rgba(30,101,250,.2)'}}>🔍</div><div className="feat-title">Detective Mysteries</div><p className="feat-desc">Every concept hides inside a genuine puzzle. You want to solve it before the science reveals itself.</p></div>
-              <div className="hoshi-card feat-card reveal d2"><div className="feat-icon" style={{background:'var(--amber-lt)',border:'1px solid rgba(224,123,42,.2)'}}>🎵</div><div className="feat-title">Songs That Stick</div><p className="feat-desc">Catchy, rhythmic mnemonics built around scoring concepts. You'll hum them during the exam.</p></div>
-              <div className="hoshi-card feat-card reveal d3"><div className="feat-icon" style={{background:'var(--indigo-lt)',border:'1px solid rgba(79,94,199,.2)'}}>🧠</div><div className="feat-title">Memory Hooks</div><p className="feat-desc">Vivid, specific associations that build retrieval — not just vague recognition.</p></div>
-              <div className="hoshi-card feat-card reveal d4"><div className="feat-icon" style={{background:'var(--rose-lt)',border:'1px solid rgba(201,79,58,.2)'}}>✏️</div><div className="feat-title">Exam-Ready Answers</div><p className="feat-desc">Structured natural-language answers students can actually write in their answer sheets.</p></div>
-              <div className="hoshi-card feat-card reveal d5"><div className="feat-icon" style={{background:'var(--amber-lt)',border:'1px solid rgba(224,123,42,.2)'}}>⚡</div><div className="feat-title">Curiosity First</div><p className="feat-desc">The "why does this happen?" comes before the definition. Always. Without exception.</p></div>
-              <div className="hoshi-card feat-card reveal d6"><div className="feat-icon" style={{background:'var(--blue-lt)',border:'1px solid rgba(30,101,250,.2)'}}>📱</div><div className="feat-title">Practice App — Soon</div><p className="feat-desc">Adaptive practice per concept. Track recall, revisit mysteries, and prep for exams systematically.</p></div>
-            </div>
-          </div>
-        </section>
+            <div className="overview-bottom-grid">
+              {/* Left Side: Squad */}
+              <div className="overview-squad">
+                <div className="section-label-center" style={{marginBottom: '24px'}}>
+                  <span style={{color: '#facc15', fontSize: '16px'}}>✨</span> MEET THE HOSHIYAAR SQUAD <span style={{color: '#facc15', fontSize: '16px'}}>✨</span>
+                </div>
+                <div className="squad-grid">
+                  <div className="squad-card" style={{backgroundColor: '#fffbeb'}}>
+                    <div className="squad-avatar"><img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779100397/img-to-link/rtyoddo8fjqspbtngsri.webp" alt="Hoshi" /></div>
+                    <div className="squad-name">Hoshi</div>
+                    <div className="squad-role" style={{color: '#2563eb', backgroundColor: '#dbeafe'}}>The Calm Thinker</div>
+                    <p className="squad-desc">Notices strange clues and reveals the real science. Never rushes. Always right.</p>
+                  </div>
+                  <div className="squad-card" style={{backgroundColor: '#faf5ff'}}>
+                    <div className="squad-avatar"><img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779100398/img-to-link/ayqvapvovlppgkniud7k.webp" alt="Myra" /></div>
+                    <div className="squad-name">Myra</div>
+                    <div className="squad-role" style={{color: '#7c3aed', backgroundColor: '#ede9fe'}}>The Sharp Verifier</div>
+                    <p className="squad-desc">Checks every piece of evidence. Keeps the logic clean. Doesn't accept guesses.</p>
+                  </div>
+                  <div className="squad-card" style={{backgroundColor: '#eff6ff'}}>
+                    <div className="squad-avatar"><img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779100399/img-to-link/cgel5nvus6jbhxlbghhu.webp" alt="Ruhaan" /></div>
+                    <div className="squad-name">Ruhaan</div>
+                    <div className="squad-role" style={{color: '#4f46e5', backgroundColor: '#e0e7ff'}}>The Live Reaction</div>
+                    <p className="squad-desc">Says exactly what students are thinking when something surprising happens.</p>
+                  </div>
+                  <div className="squad-card" style={{backgroundColor: '#f0fdf4'}}>
+                    <div className="squad-avatar"><img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779100396/img-to-link/rqwxrpdymyzbhqd74eiy.webp" alt="Babloo" /></div>
+                    <div className="squad-name">Babloo</div>
+                    <div className="squad-role" style={{color: '#ea580c', backgroundColor: '#ffedd5'}}>The Funny Wrong Guess</div>
+                    <p className="squad-desc">Voices the common misconception — so students recognize it and never forget it.</p>
+                  </div>
+                </div>
+              </div>
 
-        <section id="hoshi-steps" className="hoshi-section">
-          <div className="hoshi-container">
-            <div className="reveal" style={{textAlign:'center',marginBottom:'52px'}}>
-              <div className="section-label">The Process</div>
-              <h2 className="fraunces" style={{fontSize:'clamp(2rem,4vw,3rem)',fontWeight:900,letterSpacing:'-.03em',color:'var(--ink)'}}>How <span style={{color:'var(--blue)'}}>Hoshiyaar</span> works</h2>
-            </div>
-            <div className="step-grid">
-              <div className="hoshi-card step-card reveal d1" style={{'--c-color':'var(--blue)'}}><div className="step-num">01</div><div className="step-title">A Mystery Drops</div><p className="step-desc">Something strange happens. Ice refuses to warm. A thermometer lies. Students want to know why.</p></div>
-              <div className="hoshi-card step-card reveal d2" style={{'--c-color':'var(--indigo)'}}><div className="step-num">02</div><div className="step-title">Characters React</div><p className="step-desc">Ruhaan panics. Babloo guesses wrong. Myra investigates. Hoshi quietly connects the clues.</p></div>
-              <div className="hoshi-card step-card reveal d3" style={{'--c-color':'var(--amber)'}}><div className="step-num">03</div><div className="step-title">Science Reveals Itself</div><p className="step-desc">The concept unfolds naturally — no definitions first, no walls of text. Just understanding.</p></div>
-              <div className="hoshi-card step-card reveal d4" style={{'--c-color':'var(--rose)'}}><div className="step-num">04</div><div className="step-title">It Stays</div><p className="step-desc">A memory hook. A song. A crisp exam answer. The learning sticks — because it was never forced.</p></div>
+              {/* Right Side: Features */}
+              <div className="overview-features">
+                <div className="section-label-center" style={{marginBottom: '24px'}}>
+                  <span style={{color: '#38bdf8', fontSize: '16px'}}>✨</span> WHY HOSHIYAAR IS DIFFERENT <span style={{color: '#38bdf8', fontSize: '16px'}}>✨</span>
+                </div>
+                <div className="why-card">
+                  <ul className="why-list">
+                    <li><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#ea580c"/><path d="M8 12.5l3 3 5-6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg> We turn textbook science into exciting stories.</li>
+                    <li><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#ea580c"/><path d="M8 12.5l3 3 5-6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg> We explain concepts in the simplest way.</li>
+                    <li><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#3b82f6"/><path d="M8 12.5l3 3 5-6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg> We make practice fun, quick and effective.</li>
+                    <li><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#a855f7"/><path d="M8 12.5l3 3 5-6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg> We help you remember more with smart revision.</li>
+                    <li><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#6366f1"/><path d="M8 12.5l3 3 5-6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg> We prepare you to write better answers in exams.</li>
+                    <li><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#ef4444"/><path d="M8 12.5l3 3 5-6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg> We build confidence, not pressure.</li>
+                  </ul>
+                  <div className="why-highlight">
+                    <div className="why-highlight-text">
+                      <p>Stories make them curious.</p>
+                      <p>Videos make it clear.</p>
+                      <p>Practice makes it stick.</p>
+                      <p>Revision makes it strong.</p>
+                      <p>Answers make it exam-ready.</p>
+                    </div>
+                    <div className="why-highlight-icon">🎯</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
