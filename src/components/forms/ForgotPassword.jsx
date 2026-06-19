@@ -41,7 +41,7 @@ const ForgotPassword = () => {
     setIsLoading(true);
     setError('');
     try {
-      await authService.sendOtp(formData.phone);
+      await authService.sendOtp(formData.phone, 'forgot_password');
       setResendTimer(60);
       setResendCount(prev => prev + 1);
     } catch (err) {
@@ -60,7 +60,7 @@ const ForgotPassword = () => {
     setError('');
     setIsLoading(true);
     try {
-      await authService.sendOtp(formData.phone);
+      await authService.sendOtp(formData.phone, 'forgot_password');
       setStep(2);
       setResendTimer(60);
       setResendCount(0);
