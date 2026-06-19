@@ -7,22 +7,22 @@ import curriculumService from '../../services/curriculumService';
 import './MobileHome.css';
 
 const MOBILE_IMAGES = [
-  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1781776052/img-to-link/jzjm9p3tfjfaca4sqgey.webp",
-  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567489/img-to-link/n9fo2moxpmfwyp04ueob.webp",
-  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567487/img-to-link/zy3aaizcfjl5qwm9ewjx.webp",
+  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1781872055/img-to-link/tm90kowxqrsdtxxzlmki.webp",
+  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779864570/img-to-link/dv3bklhkmryuc4flx9dw.webp",
+  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779454631/img-to-link/v7ay4l74oxcqheyhi7p6.webp",
   "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778579285/img-to-link/eqdx0kyjrhkruh0ownxd.webp",
-  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778578699/img-to-link/tynaqnlzmbvoaafwu3do.webp",
-  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778578699/img-to-link/tynaqnlzmbvoaafwu3do.webp"
+  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779454630/img-to-link/wnc0unb3lt3m0pcvnwcr.webp",
+  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1781872054/img-to-link/lvndgld8zxovtdffnxan.webp"
 ];
 
 const MobileHomeCarousel = () => {
   const [mobileImages, setMobileImages] = useState([
-    "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1781776052/img-to-link/jzjm9p3tfjfaca4sqgey.webp",
-    "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567489/img-to-link/n9fo2moxpmfwyp04ueob.webp",
-    "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778567487/img-to-link/zy3aaizcfjl5qwm9ewjx.webp",
+    "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1781872055/img-to-link/tm90kowxqrsdtxxzlmki.webp",
+    "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779864570/img-to-link/dv3bklhkmryuc4flx9dw.webp",
+    "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779454631/img-to-link/v7ay4l74oxcqheyhi7p6.webp",
     "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778579285/img-to-link/eqdx0kyjrhkruh0ownxd.webp",
-    "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778578699/img-to-link/tynaqnlzmbvoaafwu3do.webp",
-    "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778578699/img-to-link/tynaqnlzmbvoaafwu3do.webp"
+    "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779454630/img-to-link/wnc0unb3lt3m0pcvnwcr.webp",
+    "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1781872054/img-to-link/lvndgld8zxovtdffnxan.webp"
   ]);
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollRef = useRef(null);
@@ -316,9 +316,9 @@ const MobileHomeCarousel = () => {
                   
                   <button 
                     onClick={() => navigate('/contact')}
-                    className="w-[85%] bg-[#1e65fa] text-white rounded-full py-4 px-6 flex items-center justify-center font-black text-[24px] uppercase tracking-widest shadow-2xl active:scale-95 border-b-[5px] border-[#0d47b5] hover:bg-blue-500 transition-all font-['Poppins']"
+                    className="w-[90%] sm:w-[85%] max-w-[320px] bg-[#1e65fa] text-white rounded-full py-3 sm:py-4 px-4 sm:px-6 flex items-center justify-center font-black text-lg sm:text-[22px] uppercase tracking-wider sm:tracking-widest shadow-2xl active:scale-95 border-b-[5px] border-[#0d47b5] hover:bg-blue-500 transition-all font-['Poppins'] whitespace-nowrap"
                   >
-                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 mr-3 shrink-0">
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 sm:w-8 sm:h-8 mr-2 sm:mr-3 shrink-0">
                       <path d="M12 2.5c-5.5 0-10 3.8-10 8.5 0 2.8 1.6 5.3 4 6.9-.2.8-.7 2.2-1.6 3.4-.1.2-.1.4 0 .6.1.2.3.3.5.3 2.4 0 4.6-1 6-2.4.7.1 1.4.2 2.1.2 5.5 0 10-3.8 10-8.5S17.5 2.5 12 2.5zm3 9.5H9c-.8 0-1.5-.7-1.5-1.5s.7-1.5 1.5-1.5h6c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5z"/>
                     </svg>
                     CONTACT US
