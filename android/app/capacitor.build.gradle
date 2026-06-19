@@ -11,6 +11,7 @@ apply from: "../capacitor-cordova-android-plugins/cordova.variables.gradle"
 dependencies {
     implementation project(':capacitor-app')
     implementation project(':capacitor-haptics')
+    implementation project(':capacitor-push-notifications')
 
 }
 apply from: "../../node_modules/cordova-clarity/src/android/build.gradle"
