@@ -33,8 +33,8 @@ const adminLogin = (userData, opts) => {
 };
 
 // WhatsApp OTP
-const sendOtp = (phone, opts) => {
-  return api.post('/api/auth/send-otp', { phone }, opts);
+const sendOtp = (phone, type, opts) => {
+  return api.post('/api/auth/send-otp', { phone, type }, opts);
 };
 
 const verifyOtp = (phone, otp, opts) => {

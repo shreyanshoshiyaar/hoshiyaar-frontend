@@ -66,7 +66,7 @@ const Signup = () => {
     setIsLoading(true);
     setError('');
     try {
-      await authService.sendOtp(formData.phone);
+      await authService.sendOtp(formData.phone, 'signup');
       setResendTimer(60);
       setResendCount(prev => prev + 1);
     } catch (err) {
@@ -85,7 +85,7 @@ const Signup = () => {
     setError('');
     setIsLoading(true);
     try {
-      await authService.sendOtp(formData.phone);
+      await authService.sendOtp(formData.phone, 'signup');
       setStep(2);
       setResendTimer(60);
       setResendCount(0);
