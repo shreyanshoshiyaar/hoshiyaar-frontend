@@ -258,7 +258,7 @@ const MobileHomeCarousel = () => {
 
             {/* Contact Us on 6th slide */}
             {index === 5 && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center px-6 z-10 w-full pt-10 pb-16 bg-[#FDF4FF] overflow-hidden">
+              <div className="absolute inset-0 flex flex-col items-center justify-center px-6 z-10 w-full pt-10 pb-16 bg-transparent overflow-hidden">
                 
                 {/* Decorative background stars */}
                 <div className="absolute top-10 left-10 text-yellow-300 text-3xl animate-pulse">✨</div>
