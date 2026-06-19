@@ -9,6 +9,8 @@ const Signup = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [resendTimer, setResendTimer] = useState(0);
+  const [resendCount, setResendCount] = useState(0);
   
   const [formData, setFormData] = useState({
     phone: '',
@@ -49,6 +51,31 @@ const Signup = () => {
     return () => clearTimeout(id);
   }, [formData.username, step]);
 
+  useEffect(() => {
+    let interval;
+    if (step === 2 && resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [step, resendTimer]);
+
+  const handleResendOtp = async () => {
+    if (resendTimer > 0 || resendCount >= 3) return;
+    setIsLoading(true);
+    setError('');
+    try {
+      await authService.sendOtp(formData.phone);
+      setResendTimer(60);
+      setResendCount(prev => prev + 1);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to resend OTP. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSendOtp = async (e) => {
     e.preventDefault();
     if (formData.phone.length < 10) {
@@ -60,6 +87,8 @@ const Signup = () => {
     try {
       await authService.sendOtp(formData.phone);
       setStep(2);
+      setResendTimer(60);
+      setResendCount(0);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to send OTP via WhatsApp. Please try again.');
     } finally {
@@ -69,8 +98,8 @@ const Signup = () => {
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
-    if (formData.otp.length < 4) {
-      setError('Please enter a valid OTP');
+    if (formData.otp.length < 6) {
+      setError('Please enter a valid 6-digit OTP');
       return;
     }
     setError('');
@@ -203,16 +232,34 @@ const Signup = () => {
               
               <button 
                 type="submit" 
-                disabled={isLoading || formData.otp.length < 4}
-                className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-bold tracking-wide py-3.5 sm:py-4 rounded-2xl transition-all shadow-[0_0_20px_rgba(37,99,235,0.2)] hover:shadow-[0_0_25px_rgba(37,99,235,0.4)] hover:scale-[1.02] active:scale-[0.98] flex justify-center items-center ${(isLoading || formData.otp.length < 4) ? 'opacity-70 cursor-not-allowed' : ''}`}
+                disabled={isLoading || formData.otp.length < 6}
+                className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-bold tracking-wide py-3.5 sm:py-4 rounded-2xl transition-all shadow-[0_0_20px_rgba(37,99,235,0.2)] hover:shadow-[0_0_25px_rgba(37,99,235,0.4)] hover:scale-[1.02] active:scale-[0.98] flex justify-center items-center ${(isLoading || formData.otp.length < 6) ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
                 {isLoading ? (
                   <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                 ) : 'Verify'}
               </button>
               
-              <div className="text-center">
-                <button type="button" onClick={() => setStep(1)} className="text-sm text-slate-500 hover:text-slate-800 font-medium transition-colors">
+              <div className="text-center space-y-3">
+                {resendCount >= 3 ? (
+                  <p className="text-sm text-red-500 font-medium">
+                    Maximum resend attempts reached.
+                  </p>
+                ) : resendTimer > 0 ? (
+                  <p className="text-sm text-slate-500 font-medium">
+                    Resend OTP in <span className="text-blue-600 font-bold">{resendTimer}s</span>
+                  </p>
+                ) : (
+                  <button 
+                    type="button" 
+                    onClick={handleResendOtp}
+                    disabled={isLoading}
+                    className="text-sm text-blue-600 hover:text-blue-800 font-bold transition-colors disabled:opacity-50"
+                  >
+                    Resend OTP
+                  </button>
+                )}
+                <button type="button" onClick={() => setStep(1)} className="block w-full text-sm text-slate-500 hover:text-slate-800 font-medium transition-colors">
                   Change phone number
                 </button>
               </div>

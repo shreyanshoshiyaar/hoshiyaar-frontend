@@ -28,7 +28,7 @@
   color: var(--ink);
   font-family: 'Instrument Sans', sans-serif;
   line-height: 1.6;
-  overflow-x: hidden;
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -1026,4 +1026,253 @@
 .desktop-home-wrapper input:focus-visible {
   outline: 2px solid var(--blue);
   outline-offset: 3px;
+}
+
+/* =========================================
+   OVERVIEW SECTION (How it works & Squad)
+   ========================================= */
+#hoshi-overview {
+  background-color: #ffffff;
+  padding: 40px 20px 80px 20px;
+  position: relative;
+}
+
+/* Timeline */
+.overview-timeline {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  max-width: 1350px;
+  margin: 0 auto 60px auto;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 20px;
+}
+.overview-timeline::-webkit-scrollbar {
+  height: 6px;
+}
+.overview-timeline::-webkit-scrollbar-thumb {
+  background: var(--slate-200);
+  border-radius: 10px;
+}
+
+.timeline-step {
+  flex: 1;
+  min-width: 120px;
+  background: var(--white);
+  border: 1.5px solid var(--slate-200);
+  border-radius: 16px;
+  padding: 16px 12px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline-step.t1 { border-color: #bbf7d0; }
+.timeline-step.t2 { border-color: #bfdbfe; }
+.timeline-step.t3 { border-color: #e9d5ff; }
+.timeline-step.t4 { border-color: #fed7aa; }
+.timeline-step.t5 { border-color: #bbf7d0; }
+.timeline-step.t6 { border-color: #bfdbfe; }
+
+.timeline-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 auto 16px auto;
+  text-align: left;
+}
+
+.timeline-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.timeline-step.t1 .timeline-badge { background: #16a34a; }
+.timeline-step.t2 .timeline-badge { background: #2563eb; }
+.timeline-step.t3 .timeline-badge { background: #9333ea; }
+.timeline-step.t4 .timeline-badge { background: #ea580c; }
+.timeline-step.t5 .timeline-badge { background: #16a34a; }
+.timeline-step.t6 .timeline-badge { background: #2563eb; }
+
+.timeline-title {
+  font-weight: 800;
+  color: var(--slate-800);
+  font-size: 13px;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.timeline-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+  line-height: 1;
+  display: inline-block;
+  transform: scale(1);
+  transition: transform 0.3s;
+}
+.timeline-step:hover .timeline-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.timeline-desc {
+  font-size: 12px;
+  color: var(--slate-600);
+  line-height: 1.4;
+  margin-top: auto;
+}
+
+.timeline-arrow {
+  color: var(--slate-800);
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 50px;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+/* Bottom Grid */
+.overview-bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  max-width: 1350px;
+  margin: 0 auto;
+}
+@media (min-width: 1024px) {
+  .overview-bottom-grid {
+    grid-template-columns: 1fr 380px;
+  }
+}
+
+/* Squad Grid */
+.squad-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+@media (min-width: 640px) {
+  .squad-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.squad-card {
+  border-radius: 16px;
+  padding: 0px 16px 24px 16px;
+  text-align: center;
+  border: none;
+}
+.squad-avatar {
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 12px auto;
+  overflow: hidden;
+}
+.squad-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.squad-name {
+  font-weight: 800;
+  color: var(--slate-900);
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+.squad-role {
+  font-size: 11px;
+  font-weight: 800;
+  margin: 0 auto 12px auto;
+  padding: 4px 12px;
+  border-radius: 100px;
+  display: inline-block;
+}
+.squad-desc {
+  font-size: 13px;
+  color: var(--slate-700);
+  line-height: 1.5;
+}
+
+/* Why Hoshiyaar */
+.why-card {
+  background: white;
+  border: 1.5px solid #e0f2fe;
+  border-radius: 20px;
+  padding: 32px 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+}
+.why-header {
+  text-align: center;
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--slate-800);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.why-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px 0;
+}
+.why-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--slate-700);
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+.why-list li svg {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+}
+
+.why-highlight {
+  background: #fef3c7;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.why-highlight-text p {
+  margin: 0 0 6px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--slate-800);
+}
+.why-highlight-icon {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.section-label-center {
+  text-align: center;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  font-size: 13px;
+  text-transform: uppercase;
+  color: var(--slate-500);
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }

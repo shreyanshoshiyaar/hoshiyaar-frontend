@@ -316,8 +316,11 @@ const MobileHomeCarousel = () => {
                   
                   <button 
                     onClick={() => navigate('/contact')}
-                    className="w-full bg-duo-blue text-white rounded-full py-4 px-2 flex items-center justify-center font-black text-[22px] uppercase tracking-widest shadow-2xl active:scale-95 border-b-[5px] border-duo-blue-dark hover:bg-blue-500 transition-all font-['Poppins']"
+                    className="w-[85%] bg-[#1e65fa] text-white rounded-full py-4 px-6 flex items-center justify-center font-black text-[24px] uppercase tracking-widest shadow-2xl active:scale-95 border-b-[5px] border-[#0d47b5] hover:bg-blue-500 transition-all font-['Poppins']"
                   >
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 mr-3 shrink-0">
+                      <path d="M12 2.5c-5.5 0-10 3.8-10 8.5 0 2.8 1.6 5.3 4 6.9-.2.8-.7 2.2-1.6 3.4-.1.2-.1.4 0 .6.1.2.3.3.5.3 2.4 0 4.6-1 6-2.4.7.1 1.4.2 2.1.2 5.5 0 10-3.8 10-8.5S17.5 2.5 12 2.5zm3 9.5H9c-.8 0-1.5-.7-1.5-1.5s.7-1.5 1.5-1.5h6c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5z"/>
+                    </svg>
                     CONTACT US
                   </button>
                 </div>
