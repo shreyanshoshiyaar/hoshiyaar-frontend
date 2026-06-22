@@ -2307,7 +2307,7 @@ const LearnDashboard = ({ onboardingData }) => {
                             )}
 
                             {/* Render modules directly along the wavy path */}
-                            <div className="relative w-full mx-auto pb-32 pt-20 mt-24 overflow-x-clip overflow-y-visible" style={{ minHeight: Math.max(modulesList.length * rowSpacing, 400) }}>
+                            <div className="relative w-full mx-auto pb-32 pt-20 mt-24 overflow-x-clip overflow-y-visible" style={{ minHeight: Math.max(modulesList.length * rowSpacing + 120, 400) }}>
                               <OrganicPathSvg
                                 nodesCount={modulesList.length}
                                 color={lighten("#2C6DEF", 0.3)}
@@ -2584,7 +2584,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                     );
                                   })()}
                                   <div className={`relative w-full mx-auto pb-40 pt-20 mt-28 rounded-3xl overflow-x-clip overflow-y-visible`} style={{
-                                    minHeight: Math.max((localLevels.length + 1) * rowSpacing, 400)
+                                    minHeight: Math.max((localLevels.length + 1) * rowSpacing + 120, 400)
                                   }}>
                                     <OrganicPathSvg
                                       nodesCount={localLevels.length + 1}
@@ -2724,7 +2724,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                     {/* Revision star at the end of the wavy path */}
                                     <div
                                       className="absolute w-full flex justify-center items-center px-4"
-                                      style={{ top: localLevels.length * rowSpacing + 60, zIndex: 10, height: 0 }}
+                                      style={{ top: localLevels.length * rowSpacing + 120, zIndex: 10, height: 0 }}
                                     >
                                       <div className="relative group" style={{ transform: `translateX(${getWaveOffset(localLevels.length, isMobileLayout)}px)` }}>
                                         <RevisionStar
