@@ -143,20 +143,18 @@ const NavMoreIcon = React.memo(({ active }) => (
 
 // Cute bouncing "START" badge used above the active node
 export const StartBadge = React.memo(({ color = "#2C6DEF" }) => (
-  <div className="absolute -top-16 left-1/2 -translate-x-1/2 z-[100] select-none pointer-events-none">
-    <div className="relative animate-bounce -mt-2">
-      {/* DuoLingo Style Speech Bubble - White Background */}
-      <div
-        className="px-4 py-1.5 rounded-xl font-black tracking-widest bg-white shadow-[0_4px_0_0_rgba(0,0,0,0.1)] flex items-center justify-center border-2 border-gray-100 min-w-[90px] whitespace-nowrap text-sm"
-        style={{ color: color }}
-      >
-        CLICK HERE TO START
-      </div>
-      {/* Triangle pointer */}
-      <div
-        className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-0 h-0 border-l-[10px] border-r-[10px] border-t-[10px] border-l-transparent border-r-transparent border-t-white"
-      />
+  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-[100] select-none pointer-events-none flex flex-col items-center animate-bounce">
+    {/* DuoLingo Style Speech Bubble - White Background */}
+    <div
+      className="px-3 md:px-4 py-1.5 rounded-xl font-black tracking-widest bg-white shadow-[0_4px_0_0_rgba(0,0,0,0.1)] flex items-center justify-center border-2 border-gray-100 whitespace-nowrap text-xs md:text-sm"
+      style={{ color: color }}
+    >
+      CLICK HERE TO START
     </div>
+    {/* Triangle pointer */}
+    <div
+      className="w-0 h-0 border-l-[8px] border-r-[8px] border-t-[8px] border-l-transparent border-r-transparent border-t-white -mt-0.5"
+    />
   </div>
 ));
 
