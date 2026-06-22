@@ -137,7 +137,7 @@ const Learn = () => {
           subject: null,
           chapter: null,
         });
-        setStep(5);
+        setStep(4);
       } catch (_) {
         // ignore storage errors
       }
@@ -152,10 +152,18 @@ const Learn = () => {
       case 1:
         return <Welcome onContinue={nextStep} />;
       case 2:
-        return <BoardSelect onContinue={nextStep} onBack={prevStep} updateData={updateOnboardingData} autoAdvance={false} />;
+        return (
+          <BoardSelect 
+            onContinue={() => {
+              updateOnboardingData({ subject: 'Science' });
+              nextStep();
+            }} 
+            onBack={prevStep} 
+            updateData={updateOnboardingData} 
+            autoAdvance={false} 
+          />
+        );
       case 3:
-        return <SubjectSelect onContinue={nextStep} onBack={prevStep} updateData={updateOnboardingData} selectedBoard={onboardingData.board} autoAdvance={false} />;
-      case 4:
         return (
           <ChapterSelect
             onContinue={nextStep}
@@ -163,10 +171,10 @@ const Learn = () => {
             updateData={updateOnboardingData}
             autoAdvance={false}
             board={onboardingData.board}
-            subject={onboardingData.subject}
+            subject="Science"
           />
         );
-      case 5:
+      case 4:
         return (
           <ErrorBoundary>
             <LearnDashboard onboardingData={onboardingData} />
