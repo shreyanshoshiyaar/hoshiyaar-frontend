@@ -2349,7 +2349,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                     onMouseEnter={() => setHoveredIndex(index)}
                                     onMouseLeave={() => setHoveredIndex(null)}
                                     style={{
-                                      top: index * rowSpacing + 60,
+                                      top: index * rowSpacing + 120,
                                       zIndex: status === "active" ? 50 : 10 + (modulesList.length - index),
                                       height: 0
                                     }}
@@ -2635,7 +2635,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                             setHoveredUnitModule(null);
                                           }}
                                           style={{
-                                            top: index * rowSpacing + 60,
+                                            top: index * rowSpacing + 120,
                                             zIndex: status === "active" ? 50 : 10 + (localLevels.length - index),
                                             height: 0
                                           }}
