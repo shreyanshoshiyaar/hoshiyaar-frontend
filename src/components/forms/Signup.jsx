@@ -131,7 +131,7 @@ const Signup = () => {
       if (response.data && response.data.token) {
         login(response.data);
         try { sessionStorage.setItem('entryType', 'signup'); } catch (_) {}
-        navigate('/home');
+        navigate('/learn');
       }
       
     } catch (err) {
