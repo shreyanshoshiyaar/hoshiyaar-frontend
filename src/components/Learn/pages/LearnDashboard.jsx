@@ -142,15 +142,15 @@ const NavMoreIcon = React.memo(({ active }) => (
 ));
 
 // Cute bouncing "START" badge used above the active node
-export const StartBadge = React.memo(({ color = "#2C6DEF" }) => (
+export const StartBadge = React.memo(({ color = "#2C6DEF", isFirstTimeUser = false }) => (
   <div className="absolute -top-16 left-1/2 -translate-x-1/2 z-[100] select-none pointer-events-none">
     <div className="relative animate-bounce -mt-2">
       {/* DuoLingo Style Speech Bubble - White Background */}
       <div
-        className="px-4 py-1.5 rounded-xl font-black tracking-widest bg-white shadow-[0_4px_0_0_rgba(0,0,0,0.1)] flex items-center justify-center border-2 border-gray-100 min-w-[90px] text-sm"
+        className="px-4 py-1.5 rounded-xl font-black tracking-widest bg-white shadow-[0_4px_0_0_rgba(0,0,0,0.1)] flex items-center justify-center border-2 border-gray-100 min-w-[90px] whitespace-nowrap text-sm"
         style={{ color: color }}
       >
-        START
+        {isFirstTimeUser ? "CLICK HERE TO START" : "START"}
       </div>
       {/* Triangle pointer */}
       <div
@@ -2307,7 +2307,7 @@ const LearnDashboard = ({ onboardingData }) => {
                             )}
 
                             {/* Render modules directly along the wavy path */}
-                            <div className="relative w-full mx-auto pb-32 pt-20 mt-24" style={{ minHeight: Math.max(modulesList.length * rowSpacing, 400) }}>
+                            <div className="relative w-full mx-auto pb-32 pt-20 mt-24 overflow-x-clip overflow-y-visible" style={{ minHeight: Math.max(modulesList.length * rowSpacing, 400) }}>
                               <OrganicPathSvg
                                 nodesCount={modulesList.length}
                                 color={lighten("#2C6DEF", 0.3)}
@@ -2334,12 +2334,12 @@ const LearnDashboard = ({ onboardingData }) => {
 
                                 const isAdmin = user?.role === 'admin';
                                 let status = "locked";
-                                if (isCompleted || isAdmin) {
+                                if (isCompleted) {
                                   status = "completed";
                                 } else if (index === firstIncompleteGlobal) {
                                   status = "active";
                                 }
-                                const canClick = (status === 'active' || status === 'completed');
+                                const canClick = (status === 'active' || status === 'completed' || isAdmin);
                                 const offset = getWaveOffset(index, isMobileLayout);
 
                                 return (
@@ -2373,7 +2373,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                           navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
                                         }}
                                       >
-                                        {status === "active" && <StartBadge color="#2C6DEF" />}
+                                        {status === "active" && <StartBadge color="#2C6DEF" isFirstTimeUser={completedIdSet.size === 0} />}
                                       </PathNode>
                                       {/* Always-Visible Label (3D Box Styling) */}
                                       <div 
@@ -2583,7 +2583,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                       )
                                     );
                                   })()}
-                                  <div className={`relative w-full mx-auto pb-40 pt-20 mt-28 rounded-3xl ${isMobileLayout ? 'overflow-hidden' : 'overflow-x-visible overflow-y-hidden'}`} style={{
+                                  <div className={`relative w-full mx-auto pb-40 pt-20 mt-28 rounded-3xl overflow-x-clip overflow-y-visible`} style={{
                                     minHeight: Math.max((localLevels.length + 1) * rowSpacing, 400)
                                   }}>
                                     <OrganicPathSvg
@@ -2613,12 +2613,12 @@ const LearnDashboard = ({ onboardingData }) => {
 
                                       const isAdmin = user?.role === 'admin';
                                       let status = "locked";
-                                      if (isCompleted || isAdmin) {
+                                      if (isCompleted) {
                                         status = "completed";
                                       } else if (index === firstIncompleteForUnit) {
                                         status = "active";
                                       }
-                                      const canClick = (status === 'active' || status === 'completed');
+                                      const canClick = (status === 'active' || status === 'completed' || isAdmin);
                                       const offset = getWaveOffset(index, isMobileLayout);
 
                                       return (
@@ -2660,7 +2660,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                                 navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
                                               }}
                                             >
-                                              {status === "active" && <StartBadge color={unitPalette[unitIdx % unitPalette.length]} />}
+                                              {status === "active" && <StartBadge color={unitPalette[unitIdx % unitPalette.length]} isFirstTimeUser={completedIdSet.size === 0} />}
                                              </PathNode>
                                                                          {/* Always-Visible Label (3D Box Styling - Alternating) */}
                                              <div 
