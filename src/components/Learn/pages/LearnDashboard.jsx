@@ -142,7 +142,7 @@ const NavMoreIcon = React.memo(({ active }) => (
 ));
 
 // Cute bouncing "START" badge used above the active node
-export const StartBadge = React.memo(({ color = "#2C6DEF", isFirstTimeUser = false }) => (
+export const StartBadge = React.memo(({ color = "#2C6DEF" }) => (
   <div className="absolute -top-16 left-1/2 -translate-x-1/2 z-[100] select-none pointer-events-none">
     <div className="relative animate-bounce -mt-2">
       {/* DuoLingo Style Speech Bubble - White Background */}
@@ -150,7 +150,7 @@ export const StartBadge = React.memo(({ color = "#2C6DEF", isFirstTimeUser = fal
         className="px-4 py-1.5 rounded-xl font-black tracking-widest bg-white shadow-[0_4px_0_0_rgba(0,0,0,0.1)] flex items-center justify-center border-2 border-gray-100 min-w-[90px] whitespace-nowrap text-sm"
         style={{ color: color }}
       >
-        {isFirstTimeUser ? "CLICK HERE TO START" : "START"}
+        CLICK HERE TO START
       </div>
       {/* Triangle pointer */}
       <div
@@ -2373,7 +2373,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                           navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
                                         }}
                                       >
-                                        {status === "active" && <StartBadge color="#2C6DEF" isFirstTimeUser={completedIdSet.size === 0} />}
+                                        {status === "active" && <StartBadge color="#2C6DEF" />}
                                       </PathNode>
                                       {/* Always-Visible Label (3D Box Styling) */}
                                       <div 
@@ -2660,7 +2660,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                                 navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
                                               }}
                                             >
-                                              {status === "active" && <StartBadge color={unitPalette[unitIdx % unitPalette.length]} isFirstTimeUser={completedIdSet.size === 0} />}
+                                              {status === "active" && <StartBadge color={unitPalette[unitIdx % unitPalette.length]} />}
                                              </PathNode>
                                                                          {/* Always-Visible Label (3D Box Styling - Alternating) */}
                                              <div 
