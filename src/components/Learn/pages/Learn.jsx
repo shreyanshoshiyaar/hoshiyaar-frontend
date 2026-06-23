@@ -121,11 +121,13 @@ const Learn = () => {
 
 
         const keys = getScopedKeys(user._id);
+        const hasSession = sessionStorage.getItem(keys.session) === 'true';
+        
         // Always start from Welcome for first-time users (no skipping, no auto-resume)
         // Also handle legacy users incorrectly marked completed but missing selections
         const missingSelections = !(user.board && user.subject && user.chapter);
         const isAdmin = user.phone === '9867735936';
-        if (!user.onboardingCompleted || missingSelections || isAdmin) {
+        if (!hasSession && (!user.onboardingCompleted || missingSelections || isAdmin)) {
           setOnboardingData({ board: null, subject: null, chapter: null });
           setStep(2); // Start from BoardSelect directly, skip Welcome
           return;
