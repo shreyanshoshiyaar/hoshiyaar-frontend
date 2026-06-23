@@ -15,6 +15,7 @@ const Signup = lazy(() => import('./components/forms/Signup.jsx'));
 const ForgotPassword = lazy(() => import('./components/forms/ForgotPassword.jsx'));
 const HomePage = lazy(() => import('./components/layout/HomePage.jsx'));
 const OnboardingFlow = lazy(() => import('./components/Learn/selectors/OnboardingFlow.jsx'));
+const WelcomeScreen = lazy(() => import('./components/Learn/selectors/WelcomeScreen.jsx'));
 const Learn = lazy(() => import('./components/Learn/pages/Learn.jsx'));
 const ProfilePage = lazy(() => import('./components/features/ProfilePage.jsx'));
 const AdminPanel = lazy(() => import('./components/admin/AdminPanel.jsx'));
@@ -198,6 +199,16 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <OnboardingFlow />
+                    </ProtectedRoute>
+                  } 
+                />
+
+                {/* Welcome Screen route */}
+                <Route 
+                  path="/welcome" 
+                  element={
+                    <ProtectedRoute>
+                      <WelcomeScreen />
                     </ProtectedRoute>
                   } 
                 />

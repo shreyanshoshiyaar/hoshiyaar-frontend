@@ -93,8 +93,8 @@ const DesktopHome = () => {
           <div className="max-w-[1400px] mx-auto px-6 lg:px-12 relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
             {/* Left Content */}
             <div className="flex-1 text-left max-w-2xl mt-4 lg:mt-0">
-              <div className="inline-block bg-[#EBF4FF] text-[#1D4ED8] font-bold px-4 py-1.5 rounded-full text-[13px] tracking-wide mb-6 border border-[#BFDBFE]">
-                FOR CLASS 6–8
+              <div className="inline-block bg-[#EBF4FF] text-[#1D4ED8] font-bold px-5 py-2 rounded-full text-[16px] tracking-wide mb-6 border border-[#BFDBFE]">
+                FOR CBSE CLASS 6–8
               </div>
               
               <h1 className="text-5xl lg:text-[72px] font-extrabold text-[#1E3A8A] leading-[1.05] mb-6 font-['Fraunces'] tracking-tight">
@@ -120,17 +120,7 @@ const DesktopHome = () => {
                 </a>
               </div>
               
-              <div className="flex items-center gap-4">
-                <div className="flex -space-x-3">
-                  <img className="w-[42px] h-[42px] rounded-full border-2 border-white object-cover shadow-sm bg-blue-100" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix&backgroundColor=b6e3f4" alt="Student" />
-                  <img className="w-[42px] h-[42px] rounded-full border-2 border-white object-cover shadow-sm bg-purple-100" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka&backgroundColor=c0aede" alt="Student" />
-                  <img className="w-[42px] h-[42px] rounded-full border-2 border-white object-cover shadow-sm bg-orange-100" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Jocelyn&backgroundColor=ffdfbf" alt="Student" />
-                  <img className="w-[42px] h-[42px] rounded-full border-2 border-white object-cover shadow-sm bg-green-100" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Liam&backgroundColor=d1d4f9" alt="Student" />
-                </div>
-                <p className="text-[13px] text-slate-500 font-medium max-w-[200px] leading-snug">
-                  <span className="text-[#1E3A8A] font-bold">50,000+</span> students learning<br/>and growing every day!
-                </p>
-              </div>
+
             </div>
             
             {/* Right Visual */}
@@ -337,152 +327,199 @@ const DesktopHome = () => {
           </div>
         </section>
 
-        <section id="hoshi-cases" className="hoshi-section">
-          <div className="hoshi-container" style={{maxWidth:'1200px'}}>
-            <div className="reveal" style={{textAlign:'center',marginBottom:'52px'}}>
-              <div className="section-label">Open a Case</div>
-              <h2 className="fraunces" style={{fontSize:'clamp(2rem,4vw,3rem)',fontWeight:900,letterSpacing:'-.03em',color:'var(--ink)',marginBottom:'14px'}}>First <span style={{color:'var(--rose)'}}>mysteries</span></h2>
-              <p style={{color:'var(--ink3)',fontSize:'1.05rem',maxWidth:'460px',margin:'0 auto'}}>Real CBSE concepts hiding inside genuine science puzzles. Our first mystery cases are on their way.</p>
-            </div>
+        <section id="explore-universe-class" className="bg-white">
+          <div className="explore-section">
             
-            <div className="cases-grid">
-              <div className="case-video-card reveal-scale d1" style={{'--c-color':'var(--blue)'}}>
-                <div className="case-video-thumb">
-                  <iframe 
-                    width="100%" 
-                    height="100%" 
-                    src="https://www.youtube.com/embed/c84VSEESrxs?rel=0" 
-                    title="YouTube video player" 
-                    frameBorder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                    allowFullScreen
-                    style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%'}}
-                  ></iframe>
-                </div>
-                <div className="case-video-body">
-                  <div className="case-video-tag">Heat &amp; Latent Heat <span>· Class 7</span></div>
-                  <h3 className="case-video-title">The Ice That Refused to Warm</h3>
-                  <p className="case-video-desc">Why does ice water stay cold for so long, even in a 35°C room? Babloo is confused. Hoshi has the answer.</p>
-                </div>
+            {/* Left Panel: Explore the Universe */}
+            <div className="explore-universe">
+              <div className="explore-header">
+                <span>✨</span> EXPLORE THE HOSHIYAAR UNIVERSE <span>✨</span>
               </div>
               
-              <div className="case-video-card reveal-scale d2" style={{'--c-color':'var(--indigo)'}}>
-                <div className="case-video-thumb">
-                  <iframe 
-                    width="100%" 
-                    height="100%" 
-                    src="https://www.youtube.com/embed/k1gqmgQTo4o?rel=0" 
-                    title="YouTube video player" 
-                    frameBorder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                    allowFullScreen
-                    style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%'}}
-                  ></iframe>
+              <div className="universe-cards no-scrollbar">
+                {/* Card 1 */}
+                <div className="universe-card cursor-pointer" onClick={() => window.open('https://www.youtube.com/watch?v=c84VSEESrxs', '_blank')}>
+                  <div className="universe-card-thumb">
+                    <div className="universe-badge badge-new">NEW</div>
+                    <iframe 
+                      src="https://www.youtube.com/embed/c84VSEESrxs?rel=0&controls=0&showinfo=0" 
+                      title="The Ice That Refused to Warm" 
+                    ></iframe>
+                  </div>
+                  <h3 className="universe-card-title">The Ice That Refused to Warm</h3>
+                  <div className="universe-card-meta">
+                    <span>Class 7 • Physics</span>
+                    <span>5 min</span>
+                  </div>
                 </div>
-                <div className="case-video-body">
-                  <div className="case-video-tag">Measurement &amp; Error <span>· Class 6</span></div>
-                  <h3 className="case-video-title">The Lying Thermometer</h3>
-                  <p className="case-video-desc">Two thermometers. Same room. Different readings. Myra opens an investigation to find the truth.</p>
-                </div>
-              </div>
-              
-              <div className="case-video-card reveal-scale d3" style={{'--c-color':'var(--amber)'}}>
-                <div className="case-video-thumb">
-                  <iframe 
-                    width="100%" 
-                    height="100%" 
-                    src="https://www.youtube.com/embed/ifzB21ipoPw?rel=0" 
-                    title="YouTube video player" 
-                    frameBorder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                    allowFullScreen
-                    style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%'}}
-                  ></iframe>
-                </div>
-                <div className="case-video-body">
-                  <div className="case-video-tag">Conduction &amp; Materials <span>· Class 5</span></div>
-                  <h3 className="case-video-title">The Spoon That Burned Babloo</h3>
-                  <p className="case-video-desc">Same boiling water. Metal spoon vs wooden stick. Babloo grabbed the wrong one. Ouch!</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
 
-
-
-        <section id="hoshi-audience" className="hoshi-section">
-          <div className="hoshi-container" style={{maxWidth:'960px'}}>
-            <div className="reveal" style={{textAlign:'center',marginBottom:'52px'}}>
-              <div className="section-label">Audience</div>
-              <h2 className="fraunces" style={{fontSize:'clamp(2rem,4vw,3rem)',fontWeight:900,letterSpacing:'-.03em',color:'var(--ink)'}}>Who it's <span style={{color:'var(--blue)'}}>built for</span></h2>
-            </div>
-            <div className="audience-grid">
-              <div className="hoshi-card audience-card reveal-scale d1"><div className="audience-emoji">🎒</div><div className="audience-title" style={{fontSize: '1.4rem'}}>Students in Classes 6–8</div><p className="audience-desc">CBSE science explained in ways that make sense — and stay with you through exams and beyond.</p></div>
-              <div className="hoshi-card audience-card reveal-scale d2"><div className="audience-emoji">👨👩👧</div><div className="audience-title">Parents who want more than marks</div><p className="audience-desc">Hoshiyaar builds curiosity alongside scores. Students who understand don't just pass — they remember.</p></div>
-              <div className="hoshi-card audience-card reveal-scale d3"><div className="audience-emoji">👩🏫</div><div className="audience-title">Teachers who love science</div><p className="audience-desc">A supplementary resource that adds the 'why' behind every chapter — through story, song, and mystery.</p></div>
-            </div>
-          </div>
-        </section>
-
-        <section id="hoshi-app">
-          <div className="app-glow-1"></div>
-          <div className="app-glow-2"></div>
-          <div className="app-content">
-            <div className="app-layout">
-              <div className="reveal-left">
-                <div className="app-badge-wrapper"><div className="app-badge"><div className="app-badge-dot"></div><span className="app-badge-text">COMING SOON</span></div></div>
-                <h2 className="app-title">Practice. Anywhere.<br/><span>The Hoshiyaar App.</span></h2>
-                <p className="app-desc">Adaptive practice linked to every mystery. Track recall. Revisit cases that tripped you up. Strengthen your memory before exam season — not during it.</p>
-                <div className="app-features">
-                  <div className="app-feature"><div className="app-check">✓</div> Practice questions per concept</div>
-                  <div className="app-feature"><div className="app-check">✓</div> Track your recall over time</div>
-                  <div className="app-feature"><div className="app-check">✓</div> Revisit mysteries you found hard</div>
-                  <div className="app-feature"><div className="app-check">✓</div> Exam-mode timed sessions</div>
+                {/* Card 2 */}
+                <div className="universe-card cursor-pointer" onClick={() => window.open('https://www.youtube.com/watch?v=k1gqmgQTo4o', '_blank')}>
+                  <div className="universe-card-thumb">
+                    <div className="universe-badge badge-popular">POPULAR</div>
+                    <iframe 
+                      src="https://www.youtube.com/embed/k1gqmgQTo4o?rel=0&controls=0&showinfo=0" 
+                      title="The Lying Thermometer" 
+                    ></iframe>
+                  </div>
+                  <h3 className="universe-card-title">The Lying Thermometer</h3>
+                  <div className="universe-card-meta">
+                    <span>Class 6 • Physics</span>
+                    <span>4 min</span>
+                  </div>
                 </div>
-                <form className="app-notify-form" id="notifyForm" onSubmit={handleNotify}>
-                  <input type="email" className="app-notify-input" placeholder="Enter your email for early access..." required />
-                  <button type="submit" className="btn-notify">🔔 Notify Me</button>
-                </form>
-                <p className="app-note">🔒 No spam. Just one email when we launch.</p>
-                <div className="app-platforms">
-                  <div className="platform-badge"><span className="platform-badge-icon">📱</span> iOS — Coming Soon</div>
-                  <div className="platform-badge"><span className="platform-badge-icon">🤖</span> Android — Coming Soon</div>
-                </div>
-              </div>
-              <div className="phone-wrap reveal-right">
-                <div className="phone">
-                  <div className="phone-notch"></div>
-                  <div className="phone-inner">
-                    <div className="phone-app-icon">⭐</div>
-                    <div className="phone-app-name">Hoshiyaar</div>
-                    <div className="phone-divider"></div>
-                    <div className="phone-row phone-row-active">Today's Case <span>🔍</span></div>
-                    <div className="phone-row phone-row-dim">My Progress <span>📈</span></div>
-                    <div className="phone-row phone-row-dim">Saved Cases <span>📁</span></div>
-                    <div className="phone-row phone-row-dim">Start Practice <span>⚡</span></div>
-                    <div className="phone-cta">🚀 Coming Soon ✦</div>
+
+                {/* Card 3 */}
+                <div className="universe-card cursor-pointer" onClick={() => window.open('https://www.youtube.com/watch?v=ifzB21ipoPw', '_blank')}>
+                  <div className="universe-card-thumb">
+                    <div className="universe-badge badge-booster">EXAM BOOSTER</div>
+                    <iframe 
+                      src="https://www.youtube.com/embed/ifzB21ipoPw?rel=0&controls=0&showinfo=0" 
+                      title="The Spoon That Burned Babloo" 
+                    ></iframe>
+                  </div>
+                  <h3 className="universe-card-title">The Spoon That Burned Babloo</h3>
+                  <div className="universe-card-meta">
+                    <span>Class 5 • Science</span>
+                    <span>6 min</span>
                   </div>
                 </div>
               </div>
             </div>
+
+            {/* Right Panel: Explore by Class */}
+            <div className="explore-class">
+              <div className="explore-header" style={{color: '#334155'}}>
+                <span style={{color: '#94a3b8'}}>✨</span> EXPLORE BY CLASS <span style={{color: '#94a3b8'}}>✨</span>
+              </div>
+              
+              <div className="class-cards">
+                {/* Class 6 */}
+                <div className="class-card class-card-6" onClick={() => window.location.href = '/signup'}>
+                  <div className="class-card-title">Class 6</div>
+                  <div className="class-card-icon">🪐</div>
+                  <p className="class-card-desc">Build strong foundations</p>
+                  <div className="class-card-link">Explore <span>→</span></div>
+                </div>
+
+                {/* Class 7 */}
+                <div className="class-card class-card-7" onClick={() => window.location.href = '/signup'}>
+                  <div className="class-card-title">Class 7</div>
+                  <div className="class-card-icon">🪐</div>
+                  <p className="class-card-desc">Understand deeper concepts</p>
+                  <div className="class-card-link">Explore <span>→</span></div>
+                </div>
+
+                {/* Class 8 */}
+                <div className="class-card class-card-8" onClick={() => window.location.href = '/signup'}>
+                  <div className="class-card-title">Class 8</div>
+                  <div className="class-card-icon">🪐</div>
+                  <p className="class-card-desc">Master topics with confidence</p>
+                  <div className="class-card-link">Explore <span>→</span></div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </section>
 
-        <section id="hoshi-cta">
-          <div className="cta-grid-overlay"></div>
-          <div className="cta-glow"></div>
-          <div className="cta-inner reveal">
-            <span className="cta-emoji">🔭</span>
-            <h2 className="cta-h2">Start with one mystery.<br/><span className="shimmer">Change how you learn science.</span></h2>
-            <p className="cta-desc">The first case is waiting. Ice that refuses to warm. A thermometer that lies. A spoon that burned Babloo. Pick your mystery — and let the science reveal itself.</p>
-            <div className="cta-actions">
-              <a className="btn-white" href="#hoshi-app" onClick={(e) => handleSmoothScroll(e, '#hoshi-app')}>Get Notified ✦</a>
-              <a className="btn-white-ghost" href="#hoshi-cases" onClick={(e) => handleSmoothScroll(e, '#hoshi-cases')}>View Cases</a>
+        {/* MISSION & TESTIMONIALS SECTION */}
+        <section id="mission-testimonials" className="bg-white">
+          <div className="explore-section" style={{ paddingTop: '0' }}>
+            {/* Left Panel: Mission */}
+            <div className="mission-panel" style={{ flex: 1.2, border: '1px solid var(--border)', borderRadius: '24px', padding: '32px', background: '#f8fafc', display: 'flex', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ zIndex: 2, position: 'relative' }}>
+                <h3 style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '13px', fontWeight: 800, color: '#1E3A8A', marginBottom: '12px', letterSpacing: '0.5px' }}>FIND YOUR FIRST MISSION</h3>
+                <p style={{ fontSize: '15px', color: '#334155', marginBottom: '24px', maxWidth: '280px', fontWeight: 600, lineHeight: 1.4 }}>Take a quick test and we'll suggest the perfect starting mission for you.</p>
+                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px 0', fontSize: '14px', color: '#475569', fontWeight: 600 }}>
+                  <li style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}><span style={{color: '#1d4ed8', fontWeight: 800}}>✓</span> Personalized for your level</li>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><span style={{color: '#1d4ed8', fontWeight: 800}}>✓</span> Takes less than 3 minutes</li>
+                </ul>
+                <button className="bg-[#facc15] hover:bg-[#eab308] text-black font-extrabold px-6 py-3 rounded-lg shadow-sm transition-transform hover:-translate-y-1">Start My Mission ➔</button>
+              </div>
+              {/* Robot illustration */}
+              <div style={{ position: 'absolute', bottom: '-20px', right: '-20px', width: '220px', height: '220px', zIndex: 1 }}>
+                <img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779100397/img-to-link/rtyoddo8fjqspbtngsri.webp" alt="Hoshi Robot" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              </div>
             </div>
-            <p className="cta-note" style={{fontSize: '1.1rem'}}>Free to explore · CBSE Classes 6–8 · Coming soon</p>
+
+            {/* Right Panel: Testimonials */}
+            <div className="testimonials-panel" style={{ flex: 1.8, border: '1px solid var(--border)', borderRadius: '24px', padding: '24px', background: 'white' }}>
+              <div className="explore-header" style={{ color: '#1e293b', marginBottom: '20px' }}>
+                <span style={{color: '#ef4444'}}>✨</span> WHAT OUR LEARNERS SAY <span style={{color: '#ef4444'}}>✨</span>
+              </div>
+              <div style={{ display: 'flex', gap: '16px' }}>
+                {/* Testimonial 1 */}
+                <div style={{ flex: 1, padding: '20px', borderRadius: '16px', border: '1px solid #f1f5f9', background: '#f8fafc', fontSize: '13px', color: '#475569' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Aarav&backgroundColor=ffdfbf" style={{ width: '40px', height: '40px', borderRadius: '50%' }} alt="Aarav" />
+                    <div>
+                      <div style={{ fontWeight: 800, color: '#1e293b', fontSize: '14px' }}>Student</div>
+                      <div style={{ fontSize: '12px' }}>Aarav, Class 7</div>
+                    </div>
+                  </div>
+                  <p style={{ fontWeight: 500, lineHeight: 1.5, marginBottom: '16px' }}>"The comics and videos make science so interesting! Practice missions are super fun and challenging."</p>
+                  <div style={{ color: '#facc15', fontSize: '16px' }}>★★★★★</div>
+                </div>
+                {/* Testimonial 2 */}
+                <div style={{ flex: 1, padding: '20px', borderRadius: '16px', border: '1px solid #f1f5f9', background: '#f8fafc', fontSize: '13px', color: '#475569' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Diya&backgroundColor=c0aede" style={{ width: '40px', height: '40px', borderRadius: '50%' }} alt="Diya" />
+                    <div>
+                      <div style={{ fontWeight: 800, color: '#1e293b', fontSize: '14px' }}>Student</div>
+                      <div style={{ fontSize: '12px' }}>Diya, Class 8</div>
+                    </div>
+                  </div>
+                  <p style={{ fontWeight: 500, lineHeight: 1.5, marginBottom: '16px' }}>"I love how I can learn, practice and check answers all in one place. It really helps before exams!"</p>
+                  <div style={{ color: '#facc15', fontSize: '16px' }}>★★★★★</div>
+                </div>
+                {/* Testimonial 3 */}
+                <div style={{ flex: 1, padding: '20px', borderRadius: '16px', border: '1px solid #f1f5f9', background: '#f8fafc', fontSize: '13px', color: '#475569' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Rohit&backgroundColor=b6e3f4" style={{ width: '40px', height: '40px', borderRadius: '50%' }} alt="Rohit" />
+                    <div>
+                      <div style={{ fontWeight: 800, color: '#1e293b', fontSize: '14px' }}>Parent</div>
+                      <div style={{ fontSize: '12px' }}>Rohit Verma</div>
+                    </div>
+                  </div>
+                  <p style={{ fontWeight: 500, lineHeight: 1.5, marginBottom: '16px' }}>"HoshiYaar has improved my daughter's confidence and focus. The progress tracking keeps us updated every day!"</p>
+                  <div style={{ color: '#facc15', fontSize: '16px' }}>★★★★★</div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
+
+        {/* CTA BANNER SECTION */}
+        <section id="cta-banner" className="bg-white" style={{ paddingBottom: '80px' }}>
+          <div style={{ maxWidth: '1350px', margin: '0 auto', padding: '0 clamp(16px, 5vw, 64px)' }}>
+            <div style={{ background: '#f8f5ff', borderRadius: '24px', padding: '32px 48px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '1px solid #e9d5ff', position: 'relative', overflow: 'hidden' }}>
+              
+              {/* Decorative bg items */}
+              <div style={{ position: 'absolute', top: '15%', left: '5%', fontSize: '32px', opacity: 0.4, filter: 'grayscale(1)' }}>🧪</div>
+              <div style={{ position: 'absolute', bottom: '15%', right: '8%', fontSize: '36px', opacity: 0.3, color: '#a855f7' }}>✨</div>
+              <div style={{ position: 'absolute', top: '25%', right: '18%', fontSize: '28px', opacity: 0.6, color: '#eab308' }}>⭐</div>
+              <div style={{ position: 'absolute', bottom: '25%', left: '18%', fontSize: '40px', opacity: 0.1 }}>⚛️</div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '32px', zIndex: 2 }}>
+                <img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779100399/img-to-link/cgel5nvus6jbhxlbghhu.webp" alt="Ruhaan" style={{ width: '110px', height: '110px', objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.15))' }} />
+                <div>
+                  <h2 style={{ fontSize: '28px', fontWeight: 900, color: '#1e3a8a', marginBottom: '8px', fontFamily: 'Instrument Sans' }}>Ready to level up your science game?</h2>
+                  <p style={{ fontSize: '18px', color: '#475569', fontWeight: 600 }}>One topic. One mission. One exam-ready answer.</p>
+                </div>
+              </div>
+
+              <div style={{ zIndex: 2, marginLeft: 'auto' }}>
+                <button onClick={() => window.location.href = '/signup'} className="bg-[#facc15] hover:bg-[#eab308] text-[#4527A0] font-extrabold px-8 py-4 rounded-xl shadow-md transition-transform hover:scale-105 text-[18px] flex items-center gap-2">
+                  Start Learning Now 🚀
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+
       </main>
 
       <a href="#top" className="back-to-top" id="backToTop" onClick={(e) => handleSmoothScroll(e, '#hoshi-hero')}>↑</a>

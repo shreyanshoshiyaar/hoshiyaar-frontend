@@ -149,7 +149,7 @@ export const StartBadge = React.memo(({ color = "#2C6DEF" }) => (
       className="px-3 md:px-4 py-1.5 rounded-xl font-black tracking-widest bg-white shadow-[0_4px_0_0_rgba(0,0,0,0.1)] flex items-center justify-center border-2 border-gray-100 whitespace-nowrap text-xs md:text-sm"
       style={{ color: color }}
     >
-      CLICK HERE TO START
+      TAP TO PLAY
     </div>
     {/* Triangle pointer */}
     <div

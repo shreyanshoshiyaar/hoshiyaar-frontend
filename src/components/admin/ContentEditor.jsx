@@ -385,11 +385,23 @@ const ContentEditor = ({
           images: [...existingImages, ...newImages].filter(Boolean),
         };
       } else {
-        const imageUrl = response.data.url || response.data.secure_url;
-        updated[itemIndex] = {
-          ...updated[itemIndex],
-          imageUrl: imageUrl,
-        };
+        const fileUrl = response.data.url || response.data.secure_url;
+        const isVideo = fileUrl.match(/\.(mp4|mov|webm)$/i) || updated[itemIndex].type === 'video';
+        
+        if (isVideo) {
+          updated[itemIndex] = {
+            ...updated[itemIndex],
+            videoUrl: fileUrl,
+          };
+          if (updated[itemIndex].type === 'video') {
+            updated[itemIndex].question = fileUrl;
+          }
+        } else {
+          updated[itemIndex] = {
+            ...updated[itemIndex],
+            imageUrl: fileUrl,
+          };
+        }
       }
 
       setItems(updated);
@@ -419,7 +431,15 @@ const ContentEditor = ({
       }
       updated[itemIndex] = { ...updated[itemIndex], images: images.filter(Boolean) };
     } else {
-      updated[itemIndex] = { ...updated[itemIndex], imageUrl: url };
+      const isVideo = url.match(/\.(mp4|mov|webm)$/i) || updated[itemIndex].type === 'video';
+      if (isVideo) {
+        updated[itemIndex] = { ...updated[itemIndex], videoUrl: url };
+        if (updated[itemIndex].type === 'video') {
+          updated[itemIndex].question = url;
+        }
+      } else {
+        updated[itemIndex] = { ...updated[itemIndex], imageUrl: url };
+      }
     }
 
     setItems(updated);
@@ -434,7 +454,10 @@ const ContentEditor = ({
       images.splice(imageIndex, 1);
       updated[itemIndex] = { ...updated[itemIndex], images: images };
     } else {
-      updated[itemIndex] = { ...updated[itemIndex], imageUrl: '' };
+      updated[itemIndex] = { ...updated[itemIndex], imageUrl: '', videoUrl: '' };
+      if (updated[itemIndex].type === 'video') {
+        updated[itemIndex].question = '';
+      }
     }
 
     setItems(updated);
@@ -1114,12 +1137,12 @@ const ImageEditor = ({ item, index, handleImageUpload, handleImageUrlInput, remo
   return (
     <div className="mt-4 pt-4 border-t border-gray-200">
       <label className="block text-sm font-medium text-gray-700 mb-3">
-        Images
+        Media (Images / Videos)
       </label>
 
       {/* Single Image (imageUrl) */}
       <div className="mb-4">
-        <div className="text-xs text-gray-600 mb-2">Single Image (Primary)</div>
+        <div className="text-xs text-gray-600 mb-2">Single Media (Primary)</div>
         {item.imageUrl && (
           <div className="mb-2 relative inline-block">
             <img
@@ -1135,17 +1158,32 @@ const ImageEditor = ({ item, index, handleImageUpload, handleImageUrlInput, remo
             </button>
           </div>
         )}
+        {item.videoUrl && (
+          <div className="mb-2 relative inline-block">
+            <video
+              src={item.videoUrl}
+              controls
+              className="h-32 w-auto rounded border border-gray-300"
+            />
+            <button
+              onClick={() => removeImage(index, null, false)}
+              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+            >
+              ×
+            </button>
+          </div>
+        )}
         <div className="flex gap-2">
           <input
             type="text"
-            value={item.imageUrl || ''}
+            value={item.imageUrl || item.videoUrl || ''}
             onChange={(e) => handleImageUrlInput(index, e.target.value, false)}
-            placeholder="Paste image URL here..."
+            placeholder="Paste media URL here..."
             className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
           <input
             type="file"
-            accept="image/*"
+            accept="image/*,video/*"
             ref={fileInputRef}
             onChange={(e) => {
               if (e.target.files[0]) {
@@ -1206,7 +1244,7 @@ const ImageEditor = ({ item, index, handleImageUpload, handleImageUrlInput, remo
           />
           <input
             type="file"
-            accept="image/*"
+            accept="image/*,video/*"
             multiple
             ref={multipleFileInputRef}
             onChange={(e) => {
