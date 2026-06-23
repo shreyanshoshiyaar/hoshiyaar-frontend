@@ -38,7 +38,7 @@ const BoardSelect = ({ onContinue, onBack, updateData, autoAdvance = false }) =>
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        if (user?._id && user?.onboardingCompleted) {
+        if (user?._id && user?.onboardingCompleted && user?.phone !== '9867735936') {
             navigate('/learn', { replace: true });
             return;
         }
