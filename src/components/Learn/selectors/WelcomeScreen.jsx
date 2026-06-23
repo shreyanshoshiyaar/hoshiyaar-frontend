@@ -21,7 +21,7 @@ export default function WelcomeScreen({ onContinue }) {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen bg-white items-center justify-between p-6 pb-10 font-sans">
+    <div className="flex flex-col h-[100dvh] bg-black items-center justify-between p-6 pb-10 font-sans overflow-hidden relative">
       
       {/* Spacer to push content down to middle */}
       <div className="flex-1 w-full flex flex-col items-center justify-center">
@@ -29,7 +29,7 @@ export default function WelcomeScreen({ onContinue }) {
 
 
         {/* Character Video */}
-        <div className="w-[180px] h-[180px] flex items-center justify-center mb-8">
+        <div className="w-full max-w-[800px] aspect-square max-h-[60vh] flex items-center justify-center mb-8">
           {videoError ? (
             <div className="text-red-500 text-center font-bold">
               Video Format Unsupported.<br/>
@@ -46,9 +46,9 @@ export default function WelcomeScreen({ onContinue }) {
                 console.error("Video error:", e);
                 setVideoError(true);
               }}
-              className="w-full h-full object-contain bg-white pointer-events-none"
+              className="w-full h-full object-contain bg-transparent pointer-events-none scale-[1.8] md:scale-[1.2] origin-center translate-y-[10%] md:translate-y-0"
             >
-              <source src="/Video/Hoshi_waves_and_smiles_202606221854.mov" type="video/quicktime" />
+              <source src="/Video/Hoshi_waves_and_smiles_202606221854.mp4" type="video/mp4" />
               <source src="/Video/Hoshi-Video.mp4" type="video/mp4" />
             </video>
           )}
@@ -57,7 +57,7 @@ export default function WelcomeScreen({ onContinue }) {
       </div>
 
       {/* Continue Button */}
-      <div className="w-full max-w-sm mt-auto">
+      <div className="w-full max-w-sm mt-auto relative z-10">
         <button 
           onClick={() => {
             if (onContinue) {
