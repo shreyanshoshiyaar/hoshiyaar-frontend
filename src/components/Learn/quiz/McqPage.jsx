@@ -139,6 +139,30 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // GA4 Tracking: First Question Start
+  useEffect(() => {
+    if (!item) return;
+    const firedKey = `first_question_started_${moduleNumber}`;
+    if (!sessionStorage.getItem(firedKey)) {
+      sessionStorage.setItem(firedKey, 'true');
+      const searchParams = new URLSearchParams(window.location.search);
+      const title = searchParams.get('title') || `Module ${moduleNumber}`;
+      if (typeof window.hyTrack === 'function') {
+        window.hyTrack("first_question_start", {
+          level_name: title.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase() || `level_${moduleNumber}`,
+          class: user?.classLevel || "class_6",
+          subject: user?.subject || "science",
+          chapter: chapterIdParam || "unknown_chapter",
+          unit: unitIdParam || "unknown_unit",
+          module_name: title,
+          question_number: index + 1,
+          question_type: "mcq",
+          source: searchParams.get('source') || "website"
+        });
+      }
+    }
+  }, [moduleNumber, index, item, user, chapterIdParam, unitIdParam]);
+
   const [feedback, setFeedback] = useState({ open: false, correct: false, expected: '' });
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [showResult, setShowResult] = useState(false);
@@ -538,6 +562,29 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         if (p && typeof p.catch === 'function') p.catch(() => {});
       }
     } catch (_) {}
+
+    // GA4 Tracking: First Question Answered
+    const answeredKey = `first_question_answered_${moduleNumber}`;
+    if (!sessionStorage.getItem(answeredKey)) {
+      sessionStorage.setItem(answeredKey, 'true');
+      const searchParams = new URLSearchParams(window.location.search);
+      const title = searchParams.get('title') || `Module ${moduleNumber}`;
+      if (typeof window.hyTrack === 'function') {
+        window.hyTrack("first_question_answered", {
+          level_name: title.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase() || `level_${moduleNumber}`,
+          class: user?.classLevel || "class_6",
+          subject: user?.subject || "science",
+          chapter: chapterIdParam || "unknown_chapter",
+          unit: unitIdParam || "unknown_unit",
+          module_name: title,
+          question_number: index + 1,
+          question_type: "mcq",
+          answer_status: correct ? "correct" : "incorrect",
+          time_spent_seconds: 0,
+          source: searchParams.get('source') || "website"
+        });
+      }
+    }
 
     if (correct) {
       setHasAnsweredCorrectly(true);

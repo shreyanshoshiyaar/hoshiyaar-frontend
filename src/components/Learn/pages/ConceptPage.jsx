@@ -412,19 +412,51 @@ export default function ConceptPage() {
         completionParams.set('chapter', String(moduleNumber));
         if (chapterIdParam) completionParams.set('chapterId', chapterIdParam);
         if (unitIdParam) completionParams.set('unitId', unitIdParam);
+        
+        const params = new URLSearchParams(window.location.search);
+        const title = params.get('title') || `Module ${moduleNumber}`;
+        if (typeof window.hyTrack === 'function') {
+          window.hyTrack("level_end", {
+            level_name: title.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase() || `level_${moduleNumber}`,
+            class: user?.classLevel || "class_6",
+            subject: user?.subject || "science",
+            chapter: chapterIdParam || "unknown_chapter",
+            unit: unitIdParam || "unknown_unit",
+            module_name: title,
+            success: true,
+            score: 0,
+            total_questions: items.length,
+            time_spent_seconds: 0,
+            source: params.get('source') || "website"
+          });
+        }
+        
         navigate(`/lesson-complete?${completionParams.toString()}`);
       }, 100);
       return () => clearTimeout(timer);
     }
   }, [showEndVideo, videoAcknowledged, user, moduleNumber, navigate, chapterIdParam, unitIdParam]);
 
-  // Reset server-side lesson score at entry
+  // Reset server-side lesson score at entry and track level_start
   useEffect(() => {
     (async () => {
       try {
+        const params = new URLSearchParams(window.location.search);
+        const title = params.get('title') || item?.title || `Module ${moduleNumber}`;
+        
+        if (typeof window.hyTrack === 'function') {
+          window.hyTrack("level_start", {
+            level_name: title.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase() || `level_${moduleNumber}`,
+            class: user?.classLevel || "class_6",
+            subject: user?.subject || "science",
+            chapter: chapterIdParam || "unknown_chapter",
+            unit: unitIdParam || "unknown_unit",
+            module_name: title,
+            source: params.get('source') || "website"
+          });
+        }
+
         if (user?._id) {
-          const params = new URLSearchParams(window.location.search);
-          const title = params.get('title') || item?.title || `Module ${moduleNumber}`;
           await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: title, isCorrect: true, deltaScore: 0, resetLesson: index === 0 });
         }
       } catch (_) {}
@@ -570,6 +602,25 @@ export default function ConceptPage() {
       completionParams.set('chapter', String(moduleNumber));
       if (chapterIdParam) completionParams.set('chapterId', chapterIdParam);
       if (unitIdParam) completionParams.set('unitId', unitIdParam);
+      
+      const searchParams = new URLSearchParams(window.location.search);
+      const title = searchParams.get('title') || `Module ${moduleNumber}`;
+      if (typeof window.hyTrack === 'function') {
+        window.hyTrack("level_end", {
+          level_name: title.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase() || `level_${moduleNumber}`,
+          class: user?.classLevel || "class_6",
+          subject: user?.subject || "science",
+          chapter: chapterIdParam || "unknown_chapter",
+          unit: unitIdParam || "unknown_unit",
+          module_name: title,
+          success: true,
+          score: 0,
+          total_questions: items.length,
+          time_spent_seconds: 0,
+          source: searchParams.get('source') || "website"
+        });
+      }
+      
       return navigate(`/lesson-complete?${completionParams.toString()}`);
     }
     const nextItem = items[nextIndex];

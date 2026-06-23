@@ -34,6 +34,14 @@ const Login = () => {
         });
         
         if (response.data && response.data.token) {
+          if (typeof window.hyTrack === 'function') {
+            window.hyTrack("login", {
+              method: "phone_otp",
+              user_type: "student",
+              is_new_user: false,
+              source: "website"
+            });
+          }
           login(response.data);
           try { sessionStorage.setItem('entryType', 'login'); } catch (_) {}
           navigate('/home');

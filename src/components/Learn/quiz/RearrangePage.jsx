@@ -135,6 +135,30 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
     return stored !== null ? parseInt(stored, 10) : 5;
   });
 
+  // GA4 Tracking: First Question Start
+  useEffect(() => {
+    if (!item) return;
+    const firedKey = `first_question_started_${moduleNumber}`;
+    if (!sessionStorage.getItem(firedKey)) {
+      sessionStorage.setItem(firedKey, 'true');
+      const searchParams = new URLSearchParams(window.location.search);
+      const title = searchParams.get('title') || `Module ${moduleNumber}`;
+      if (typeof window.hyTrack === 'function') {
+        window.hyTrack("first_question_start", {
+          level_name: title.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase() || `level_${moduleNumber}`,
+          class: user?.classLevel || "class_6",
+          subject: user?.subject || "science",
+          chapter: chapterIdParam || "unknown_chapter",
+          unit: unitIdParam || "unknown_unit",
+          module_name: title,
+          question_number: index + 1,
+          question_type: "rearrange",
+          source: searchParams.get('source') || "website"
+        });
+      }
+    }
+  }, [moduleNumber, index, item, user, chapterIdParam, unitIdParam]);
+
   // Start-of-lesson videos (index 0)
   const forcedIntroByModule = useMemo(() => ({
     '68e276236d69ef07c1a2e133': 'https://youtu.be/33bEGe44vyE',
@@ -539,6 +563,29 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
     setShowResult(true);
     const isFirstAttempt = !hasAttempted;
     if (!hasAttempted) setHasAttempted(true);
+
+    // GA4 Tracking: First Question Answered
+    const answeredKey = `first_question_answered_${moduleNumber}`;
+    if (!sessionStorage.getItem(answeredKey)) {
+      sessionStorage.setItem(answeredKey, 'true');
+      const searchParams = new URLSearchParams(window.location.search);
+      const title = searchParams.get('title') || `Module ${moduleNumber}`;
+      if (typeof window.hyTrack === 'function') {
+        window.hyTrack("first_question_answered", {
+          level_name: title.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase() || `level_${moduleNumber}`,
+          class: user?.classLevel || "class_6",
+          subject: user?.subject || "science",
+          chapter: chapterIdParam || "unknown_chapter",
+          unit: unitIdParam || "unknown_unit",
+          module_name: title,
+          question_number: index + 1,
+          question_type: "rearrange",
+          answer_status: correct ? "correct" : "incorrect",
+          time_spent_seconds: 0,
+          source: searchParams.get('source') || "website"
+        });
+      }
+    }
 
     // Play appropriate audio feedback
     if (correct) {

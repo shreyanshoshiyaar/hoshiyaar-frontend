@@ -27,7 +27,18 @@
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
 
-      gtag('config', 'G-R7TSD43RKD');
+      gtag('config', 'G-R7TSD43RKD', { debug_mode: true });
+    </script>
+    
+    <!-- HoshiYaar GA4 Helper -->
+    <script>
+      window.hyTrack = function(eventName, params = {}) {
+        if (typeof gtag !== "function") {
+          console.warn("GA4 gtag not loaded:", eventName, params);
+          return;
+        }
+        gtag("event", eventName, { ...params });
+      };
     </script>
     <!-- Meta Pixel Code -->
     <script>
