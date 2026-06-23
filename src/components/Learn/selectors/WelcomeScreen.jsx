@@ -5,17 +5,23 @@ export default function WelcomeScreen({ onContinue }) {
   const navigate = useNavigate();
   const videoRef = useRef(null);
 
+  const [videoError, setVideoError] = React.useState(null);
+
   useEffect(() => {
     if (videoRef.current) {
       // Attempt to autoplay
-      videoRef.current.play().catch(error => {
-        console.log("Autoplay failed or needs interaction first:", error);
-      });
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.log("Autoplay failed or needs interaction first:", error);
+          // Don't set error state for autoplay prevention, just let controls be used
+        });
+      }
     }
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#131f24] items-center justify-between p-6 pb-10 font-sans">
+    <div className="flex flex-col min-h-screen bg-white items-center justify-between p-6 pb-10 font-sans">
       
       {/* Spacer to push content down to middle */}
       <div className="flex-1 w-full flex flex-col items-center justify-center">
@@ -24,15 +30,28 @@ export default function WelcomeScreen({ onContinue }) {
 
         {/* Character Video */}
         <div className="w-[180px] h-[180px] flex items-center justify-center mb-8">
-          <video 
-            ref={videoRef}
-            src="/Video/Hoshi_waves_and_smiles_202606221854.mov" 
-            autoPlay 
-            playsInline
-            muted={false}
-            loop
-            className="w-full h-full object-contain"
-          />
+          {videoError ? (
+            <div className="text-red-500 text-center font-bold">
+              Video Format Unsupported.<br/>
+              <span className="text-sm font-normal">Please convert the .mov to .mp4 format.</span>
+            </div>
+          ) : (
+            <video 
+              ref={videoRef}
+              autoPlay 
+              playsInline
+              muted={false}
+              loop
+              onError={(e) => {
+                console.error("Video error:", e);
+                setVideoError(true);
+              }}
+              className="w-full h-full object-contain bg-white pointer-events-none"
+            >
+              <source src="/Video/Hoshi_waves_and_smiles_202606221854.mov" type="video/quicktime" />
+              <source src="/Video/Hoshi-Video.mp4" type="video/mp4" />
+            </video>
+          )}
         </div>
 
       </div>

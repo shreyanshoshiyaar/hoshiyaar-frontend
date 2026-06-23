@@ -83,6 +83,30 @@ export default function DescriptivePage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [moduleNumber]);
 
+  // GA4 Tracking: First Question Start
+  useEffect(() => {
+    if (!item) return;
+    const firedKey = `first_question_started_${moduleNumber}`;
+    if (!sessionStorage.getItem(firedKey)) {
+      sessionStorage.setItem(firedKey, 'true');
+      const searchParams = new URLSearchParams(window.location.search);
+      const title = searchParams.get('title') || `Module ${moduleNumber}`;
+      if (typeof window.hyTrack === 'function') {
+        window.hyTrack("first_question_start", {
+          level_name: title.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase() || `level_${moduleNumber}`,
+          class: user?.classLevel || "class_6",
+          subject: user?.subject || "science",
+          chapter: chapterIdParam || "unknown_chapter",
+          unit: unitIdParam || "unknown_unit",
+          module_name: title,
+          question_number: index + 1,
+          question_type: "descriptive",
+          source: searchParams.get('source') || "website"
+        });
+      }
+    }
+  }, [moduleNumber, index, item, user, chapterIdParam, unitIdParam]);
+
   const normalize = (text) => {
     return String(text || '').toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
   };
@@ -202,6 +226,29 @@ export default function DescriptivePage() {
         Haptics.vibrate();
       }
     } catch (_) {}
+
+    // GA4 Tracking: First Question Answered
+    const answeredKey = `first_question_answered_${moduleNumber}`;
+    if (!sessionStorage.getItem(answeredKey)) {
+      sessionStorage.setItem(answeredKey, 'true');
+      const searchParams = new URLSearchParams(window.location.search);
+      const title = searchParams.get('title') || `Module ${moduleNumber}`;
+      if (typeof window.hyTrack === 'function') {
+        window.hyTrack("first_question_answered", {
+          level_name: title.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase() || `level_${moduleNumber}`,
+          class: user?.classLevel || "class_6",
+          subject: user?.subject || "science",
+          chapter: chapterIdParam || "unknown_chapter",
+          unit: unitIdParam || "unknown_unit",
+          module_name: title,
+          question_number: index + 1,
+          question_type: "descriptive",
+          answer_status: isCorrectStatus ? "correct" : "incorrect",
+          time_spent_seconds: 0,
+          source: searchParams.get('source') || "website"
+        });
+      }
+    }
 
     const qid = `${moduleNumber}_${index}_descriptive`;
     const type = isRevisionModeFromUrl ? 'revision' : 'curriculum';

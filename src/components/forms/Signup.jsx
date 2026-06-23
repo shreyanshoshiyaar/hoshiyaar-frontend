@@ -129,6 +129,15 @@ const Signup = () => {
         password: formData.password
       });
       if (response.data && response.data.token) {
+        if (typeof window.hyTrack === 'function') {
+          window.hyTrack("sign_up", {
+            method: "phone_otp",
+            class: formData.classLevel || "unknown",
+            user_type: "student",
+            is_new_user: true,
+            source: "website"
+          });
+        }
         login(response.data);
         try { sessionStorage.setItem('entryType', 'signup'); } catch (_) {}
         navigate('/learn');
