@@ -26,7 +26,7 @@ export default function OnboardingFlow() {
       }
     } catch (_) {}
     try { login?.({ ...(user || {}), ...data, onboardingCompleted: true }); } catch (_) {}
-    navigate('/learn', { replace: true });
+    navigate('/welcome', { replace: true });
   };
 
   if (!data.board) {

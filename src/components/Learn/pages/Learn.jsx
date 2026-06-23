@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import authService from '../../../services/authService.js';
-import Welcome from './Welcome.jsx';
+import WelcomeScreen from '../selectors/WelcomeScreen.jsx';
 import BoardSelect from '../selectors/BoardSelect.jsx';
 import SubjectSelect from '../selectors/SubjectSelect.jsx';
 import ChapterSelect from '../selectors/ChapterSelect.jsx';
@@ -103,7 +103,7 @@ const Learn = () => {
       const keys = getScopedKeys(user._id);
       try { sessionStorage.setItem(keys.session, 'true'); } catch (_) {}
       try { localStorage.setItem(keys.local, 'true'); } catch (_) {}
-      // Ensure onboarding data is saved when reaching dashboard
+      // Ensure onboarding data is saved when reaching dashboard (or welcome screen)
       if (onboardingData.board && onboardingData.subject && onboardingData.chapter && !user.onboardingCompleted) {
         saveOnboardingData();
       }
@@ -124,7 +124,8 @@ const Learn = () => {
         // Always start from Welcome for first-time users (no skipping, no auto-resume)
         // Also handle legacy users incorrectly marked completed but missing selections
         const missingSelections = !(user.board && user.subject && user.chapter);
-        if (!user.onboardingCompleted || missingSelections) {
+        const isAdmin = user.phone === '9867735936';
+        if (!user.onboardingCompleted || missingSelections || isAdmin) {
           setOnboardingData({ board: null, subject: null, chapter: null });
           setStep(2); // Start from BoardSelect directly, skip Welcome
           return;
@@ -137,7 +138,7 @@ const Learn = () => {
           subject: null,
           chapter: null,
         });
-        setStep(4);
+        setStep(5); // Go directly to LearnDashboard if already onboarded
       } catch (_) {
         // ignore storage errors
       }
@@ -150,7 +151,7 @@ const Learn = () => {
   const renderStep = () => {
     switch (step) {
       case 1:
-        return <Welcome onContinue={nextStep} />;
+        return null; // Skipped
       case 2:
         return (
           <BoardSelect 
@@ -175,6 +176,8 @@ const Learn = () => {
           />
         );
       case 4:
+        return <WelcomeScreen onContinue={nextStep} />;
+      case 5:
         return (
           <ErrorBoundary>
             <LearnDashboard onboardingData={onboardingData} />
@@ -211,10 +214,19 @@ const Learn = () => {
           <p className="mt-4 font-bold text-duo-blue">Saving your preferences...</p>
         </div>
       )}
+      {/* Skip button for admin */}
+      {user?.phone === '9867735936' && step >= 2 && step <= 4 && (
+        <button 
+          onClick={() => setStep(5)} 
+          className="absolute top-4 right-4 z-50 bg-white/80 backdrop-blur border border-slate-200 text-slate-700 px-4 py-2 rounded-full font-bold shadow-sm hover:bg-slate-100 transition-colors"
+        >
+          Skip Onboarding
+        </button>
+      )}
+
       {loading ? <SimpleLoading /> : renderStep()}
     </div>
   );
 };
 
 export default Learn;
-
