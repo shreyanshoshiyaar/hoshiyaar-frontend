@@ -63,6 +63,12 @@ export default function WelcomeScreen({ onContinue }) {
             if (onContinue) {
               onContinue();
             } else {
+              try {
+                const userObj = JSON.parse(localStorage.getItem('user'));
+                if (userObj?._id) {
+                  sessionStorage.setItem(`learnWasOnDashboard_${userObj._id}`, 'true');
+                }
+              } catch (_) {}
               navigate('/learn');
             }
           }}
