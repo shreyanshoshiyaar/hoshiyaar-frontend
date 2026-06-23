@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import authService from '../../../services/authService.js';
 import WelcomeScreen from '../selectors/WelcomeScreen.jsx';
@@ -10,6 +11,8 @@ import SimpleLoading from '../../ui/SimpleLoading.jsx';
 import ErrorBoundary from '../../ui/ErrorBoundary.jsx';
 
 const Learn = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [step, setStep] = useState(1);
   // Add state here to store all the user's choices
   const [onboardingData, setOnboardingData] = useState({
@@ -74,6 +77,11 @@ const Learn = () => {
         const keys = getScopedKeys(user._id);
         try { localStorage.setItem(keys.local, 'true'); } catch (_) {}
         try { sessionStorage.setItem(keys.session, 'true'); } catch (_) {}
+        
+        // Force navigation to /learn so they end up on the "learn" tab, not "home" or "more"
+        if (location.pathname !== '/learn') {
+           navigate('/learn');
+        }
       }
       return next;
     });
