@@ -34,7 +34,7 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
     const [error, setError] = useState(false);
 
     useEffect(() => {
-        if (user?._id && (user?.onboardingCompleted || (user?.board && user?.subject))) {
+        if (user?._id && (user?.onboardingCompleted || (user?.board && user?.subject)) && user?.phone !== '9867735936') {
             navigate('/learn', { replace: true });
             return;
         }
