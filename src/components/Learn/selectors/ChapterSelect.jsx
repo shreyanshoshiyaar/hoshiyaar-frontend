@@ -103,22 +103,27 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
                         </div>
                     )}
                     {!loading && !error && chapters.length === 0 && (<div className="text-center text-gray-400 text-sm py-6">No chapters found.</div>)}
-                    {!loading && !error && chapters.map((chapter) => (
+                    {!loading && !error && chapters.map((chapter) => {
+                        const isComingSoon = chapter.name.includes('(Coming Soon)');
+                        return (
                         <button
                             key={chapter.id}
                             onClick={() => { 
+                                if (isComingSoon) return;
                                 setSelectedChapter(chapter.name); 
                                 updateData?.({ chapter: chapter.name }); 
                             }}
-                            className={`w-full py-2.5 px-5 rounded-2xl border transition-all active:scale-[0.98] flex items-center gap-4 ${
+                            disabled={isComingSoon}
+                            className={`w-full py-2.5 px-5 rounded-2xl border transition-all flex items-center gap-4 ${
+                                isComingSoon ? 'opacity-60 cursor-not-allowed bg-white/20 border-white/20 grayscale-[0.5]' :
                                 selectedChapter === chapter.name
-                                ? 'bg-white border-blue-400 shadow-sm'
-                                : 'bg-white/40 backdrop-blur-md border-white/40 hover:bg-white/60'
+                                ? 'bg-white border-blue-400 shadow-sm active:scale-[0.98]'
+                                : 'bg-white/40 backdrop-blur-md border-white/40 hover:bg-white/60 active:scale-[0.98]'
                             }`}
                         >
                             <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${
                                 selectedChapter === chapter.name ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
-                            }`}>
+                            } ${isComingSoon ? 'opacity-50' : ''}`}>
                                 {selectedChapter === chapter.name && (
                                     <div className="w-1.5 h-1.5 bg-white rounded-full" />
                                 )}
@@ -129,7 +134,7 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
                                 {chapter.name}
                             </span>
                         </button>
-                    ))}
+                    )})}
                 </div>
             </div>
 
