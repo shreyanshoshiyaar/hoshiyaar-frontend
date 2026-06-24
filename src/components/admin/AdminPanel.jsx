@@ -342,6 +342,15 @@ const AdminPanel = () => {
               <span className="text-base">📊</span>
               <span>User Analytics &amp; Tracking</span>
             </button>
+            <a
+              href="https://hoshiyaar-image.netlify.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300"
+            >
+              <span className="text-base">🖼️</span>
+              <span>Image Upload Link</span>
+            </a>
           </div>
         </div>
       </div>

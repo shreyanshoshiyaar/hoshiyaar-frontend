@@ -48,8 +48,8 @@ export default function WelcomeScreen({ onContinue }) {
               }}
               className="w-full h-full object-contain bg-transparent pointer-events-none scale-[1.8] md:scale-[1.2] origin-center translate-y-[10%] md:translate-y-0"
             >
+              <source src="/Video/Hoshi_waves_and_smiles 01.2.mp4" type="video/mp4" />
               <source src="/Video/Hoshi_waves_and_smiles_202606221854.mp4" type="video/mp4" />
-              <source src="/Video/Hoshi-Video.mp4" type="video/mp4" />
             </video>
           )}
         </div>
@@ -74,7 +74,7 @@ export default function WelcomeScreen({ onContinue }) {
           }}
           className="w-full bg-[#3b82f6] hover:bg-[#2563eb] text-white font-extrabold py-4 rounded-2xl shadow-[0_4px_0_#1d4ed8] active:shadow-[0_0px_0_#1d4ed8] active:translate-y-1 transition-all text-lg tracking-wider"
         >
-          CONTINUE
+          PLAY NOW
         </button>
       </div>
 

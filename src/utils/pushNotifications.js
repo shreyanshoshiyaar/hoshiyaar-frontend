@@ -23,6 +23,23 @@ export const setupPushNotifications = async (userId) => {
     return;
   }
 
+  // Create the notification channel (required for Android 8+)
+  if (Capacitor.getPlatform() === 'android') {
+    await PushNotifications.createChannel({
+      id: 'study_reminders',
+      name: 'Study Reminders',
+      description: 'Notifications for study reminders',
+      importance: 5, // High importance for sound/banner
+      visibility: 1, // Public
+      vibration: true,
+    });
+  }
+
+  // Configure how notifications are presented when the app is in the foreground
+  await PushNotifications.setPresentationOptions({
+    presentationOptions: ['badge', 'sound', 'alert'],
+  });
+
   // Register with Apple / Google to receive push via APNS/FCM
   await PushNotifications.register();
 
