@@ -59,9 +59,22 @@ const NavigationController = () => {
   // Handle Startup (Restore Path)
   useEffect(() => {
     try {
+      const isNative = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
       const savedPath = localStorage.getItem('hoshiyaar_last_path');
-      if (savedPath && savedPath !== '/' && savedPath !== window.location.pathname) {
-        setTimeout(() => navigate(savedPath, { replace: true }), 100);
+      
+      if (savedPath && savedPath !== '/') {
+        if (isNative) {
+          // On mobile app, always resume where they left off if it's different
+          if (savedPath !== window.location.pathname) {
+            setTimeout(() => navigate(savedPath, { replace: true }), 100);
+          }
+        } else {
+          // On web, ONLY resume if they explicitly landed on the root page.
+          // This prevents overriding direct links to /learn or /blogs.
+          if (window.location.pathname === '/') {
+            setTimeout(() => navigate(savedPath, { replace: true }), 100);
+          }
+        }
       }
     } catch (e) {
       console.warn('Could not read from localStorage', e);
