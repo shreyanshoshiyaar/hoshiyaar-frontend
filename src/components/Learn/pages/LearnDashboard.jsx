@@ -2081,7 +2081,10 @@ const LearnDashboard = ({ onboardingData }) => {
                             ];
                             const cardGradient = gradients[index % gradients.length];
 
+                            const isComingSoon = ch.title && ch.title.includes('(Coming Soon)');
+
                             const handleChapterClick = async () => {
+                              if (isComingSoon) return;
                               setShowChapters(false);
                               if (ch?._id) {
                                 // Update URL with chapterId to persist selection
@@ -2115,7 +2118,7 @@ const LearnDashboard = ({ onboardingData }) => {
                               <div
                                 key={ch._id}
                                 onClick={handleChapterClick}
-                                className="group relative w-full cursor-pointer transition-all duration-300 active:scale-[0.98]"
+                                className={`group relative w-full ${isComingSoon ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'} transition-all duration-300 active:scale-[0.98]`}
                                 style={{ animationDelay: `${index * 50}ms` }}
                               >
                                 {/* 3D Shadow/Depth Layer */}
@@ -2156,11 +2159,13 @@ const LearnDashboard = ({ onboardingData }) => {
                                     </div>
 
                                     {/* Continue Button */}
-                                    <div className={`w-full py-3.5 rounded-2xl bg-gradient-to-r ${cardGradient} text-white text-center font-black text-sm md:text-base shadow-lg hover:shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2`}>
-                                      <span>{st.completed > 0 ? 'CONTINUE LEARNING' : 'START LEARNING'}</span>
-                                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                      </svg>
+                                    <div className={`w-full py-3.5 rounded-2xl ${isComingSoon ? 'bg-gray-400 cursor-not-allowed' : `bg-gradient-to-r ${cardGradient} hover:shadow-xl active:scale-95`} text-white text-center font-black text-sm md:text-base shadow-lg transition-all flex items-center justify-center gap-2`}>
+                                      <span>
+                                        {isComingSoon ? 'COMING SOON' : (st.completed > 0 ? 'CONTINUE LEARNING' : 'START LEARNING')}
+                                      </span>
+                                      {!isComingSoon && (
+                                        <svg className="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                                      )}
                                     </div>
                                   </div>
 
