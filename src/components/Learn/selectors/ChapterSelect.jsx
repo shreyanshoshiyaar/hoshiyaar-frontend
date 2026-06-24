@@ -45,10 +45,8 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
     }, [loading]);
 
     useEffect(() => {
-        if (user?._id && (user?.onboardingCompleted || (user?.board && user?.subject)) && user?.phone !== '9867735936') {
-            navigate('/learn', { replace: true });
-            return;
-        }
+    // Removed automatic redirect to /learn. This component can be used in Learn.jsx
+    // and /onboard, and parent components are responsible for navigation logic.
         const cacheKey = (b,s) => `chapters_cache_v1__${b}__${s}`;
         const loadCache = (b,s) => { try { return JSON.parse(sessionStorage.getItem(cacheKey(b,s)) || '[]') || []; } catch(_) { return []; } };
         const saveCache = (b,s,arr) => { try { sessionStorage.setItem(cacheKey(b,s), JSON.stringify(arr || [])); } catch(_) {} };
