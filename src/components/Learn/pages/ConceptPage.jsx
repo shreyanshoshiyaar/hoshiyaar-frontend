@@ -12,6 +12,7 @@ import ConceptExitConfirm from '../../modals/ConceptExitConfirm.jsx';
 import NoSkipsModal from '../../modals/NoSkipsModal.jsx';
 import Lottie from 'lottie-react';
 import NetworkError from '../../ui/NetworkError.jsx';
+import { trackLevelStart } from '../../../utils/analytics.js';
 // Large Lottie files are now fetched from the public folder to avoid build issues
 
 const ComicLightbox = ({ src, alt, onClose }) => {
@@ -415,21 +416,6 @@ export default function ConceptPage() {
         
         const params = new URLSearchParams(window.location.search);
         const title = params.get('title') || `Module ${moduleNumber}`;
-        if (typeof window.hyTrack === 'function') {
-          window.hyTrack("level_end", {
-            level_name: title.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase() || `level_${moduleNumber}`,
-            class: user?.classLevel || "class_6",
-            subject: user?.subject || "science",
-            chapter: chapterIdParam || "unknown_chapter",
-            unit: unitIdParam || "unknown_unit",
-            module_name: title,
-            success: true,
-            score: 0,
-            total_questions: items.length,
-            time_spent_seconds: 0,
-            source: params.get('source') || "website"
-          });
-        }
         
         navigate(`/lesson-complete?${completionParams.toString()}`);
       }, 100);
@@ -444,17 +430,7 @@ export default function ConceptPage() {
         const params = new URLSearchParams(window.location.search);
         const title = params.get('title') || item?.title || `Module ${moduleNumber}`;
         
-        if (typeof window.hyTrack === 'function') {
-          window.hyTrack("level_start", {
-            level_name: title.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase() || `level_${moduleNumber}`,
-            class: user?.classLevel || "class_6",
-            subject: user?.subject || "science",
-            chapter: chapterIdParam || "unknown_chapter",
-            unit: unitIdParam || "unknown_unit",
-            module_name: title,
-            source: params.get('source') || "website"
-          });
-        }
+        trackLevelStart(moduleNumber, title.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase() || `level_${moduleNumber}`);
 
         if (user?._id) {
           await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: title, isCorrect: true, deltaScore: 0, resetLesson: index === 0 });
@@ -605,21 +581,6 @@ export default function ConceptPage() {
       
       const searchParams = new URLSearchParams(window.location.search);
       const title = searchParams.get('title') || `Module ${moduleNumber}`;
-      if (typeof window.hyTrack === 'function') {
-        window.hyTrack("level_end", {
-          level_name: title.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase() || `level_${moduleNumber}`,
-          class: user?.classLevel || "class_6",
-          subject: user?.subject || "science",
-          chapter: chapterIdParam || "unknown_chapter",
-          unit: unitIdParam || "unknown_unit",
-          module_name: title,
-          success: true,
-          score: 0,
-          total_questions: items.length,
-          time_spent_seconds: 0,
-          source: searchParams.get('source') || "website"
-        });
-      }
       
       return navigate(`/lesson-complete?${completionParams.toString()}`);
     }
