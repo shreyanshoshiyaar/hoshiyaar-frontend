@@ -32,6 +32,17 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
     const [chapters, setChapters] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
+    const [showRetry, setShowRetry] = useState(false);
+
+    useEffect(() => {
+        let timeout;
+        if (loading) {
+            timeout = setTimeout(() => setShowRetry(true), 12000);
+        } else {
+            setShowRetry(false);
+        }
+        return () => clearTimeout(timeout);
+    }, [loading]);
 
     useEffect(() => {
         if (user?._id && (user?.onboardingCompleted || (user?.board && user?.subject)) && user?.phone !== '9867735936') {
@@ -93,8 +104,16 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
                 {/* Compact Main Content: List of chapters */}
                 <div className="w-full space-y-2 max-h-[50vh] overflow-y-auto no-scrollbar">
                     {loading && (
-                        <div className="text-center text-gray-400 text-sm animate-pulse py-6">
-                            Loading...
+                        <div className="flex flex-col items-center py-6">
+                            <div className="text-center text-gray-400 text-sm animate-pulse">Loading...</div>
+                            {showRetry && (
+                                <button 
+                                    onClick={() => window.location.reload()} 
+                                    className="mt-4 px-4 py-2 bg-blue-100 text-blue-700 font-bold rounded-xl active:scale-95 transition-transform text-sm"
+                                >
+                                    Taking too long? Try Again
+                                </button>
+                            )}
                         </div>
                     )}
                     {!loading && error && (

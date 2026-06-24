@@ -17,8 +17,7 @@ import ConceptExitConfirm from '../../modals/ConceptExitConfirm.jsx';
 import NoSkipsModal from '../../modals/NoSkipsModal.jsx';
 import correctSfx from '../../../assets/sounds/correct-choice-43861.mp3';
 import errorSfx from '../../../assets/sounds/error-010-206498.mp3';
-
-
+import { trackLevelStart } from '../../../utils/analytics.js';
 
 export default function FillupsPage({ onQuestionComplete, isReviewMode = false }) {
   const navigate = useNavigate();
@@ -33,6 +32,12 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
   const unitIdParam = urlParams.get('unitId');
   const actualReviewMode = isReviewMode || isReviewModeFromUrl || isRevisionModeFromUrl;
   const { user } = useAuth();
+  
+  useEffect(() => {
+    const title = urlParams.get('title') || `Module ${moduleNumber}`;
+    trackLevelStart(moduleNumber, title.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase() || `level_${moduleNumber}`);
+  }, [moduleNumber]);
+
   const { add: addToReview, removeActive, requeueActive, undoActive, stageIncorrect, clearStagedForModule, active: activeReviewItem, queue, initialQueueCount } = useReview();
   // Use revision data if in revision mode and available, otherwise use curriculum item
   // IMPORTANT: Only use activeReviewItem if it matches the current URL params

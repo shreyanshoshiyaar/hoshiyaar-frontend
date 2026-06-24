@@ -15,6 +15,7 @@ import { progressKey } from '../../../utils/progressKey.js';
 import correctSfx from '../../../assets/sounds/correct-choice-43861.mp3';
 import errorSfx from '../../../assets/sounds/error-010-206498.mp3';
 import { Haptics } from '@capacitor/haptics';
+import { trackLevelStart } from '../../../utils/analytics.js';
 
 export default function DescriptivePage() {
   const navigate = useNavigate();
@@ -28,6 +29,12 @@ export default function DescriptivePage() {
   const unitIdParam = searchParams.get('unitId');
   const actualReviewMode = isReviewModeFromUrl || isRevisionModeFromUrl;
   const { user } = useAuth();
+  
+  useEffect(() => {
+    const title = searchParams.get('title') || `Module ${moduleNumber}`;
+    trackLevelStart(moduleNumber, title.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase() || `level_${moduleNumber}`);
+  }, [moduleNumber]);
+
   const { awardCorrect, awardWrong, addToSession, clearSession } = useStars();
   const { add: addToReview, removeActive, requeueActive, undoActive, stageIncorrect, clearStagedForModule, active: activeReviewItem, queue, initialQueueCount } = useReview();
 

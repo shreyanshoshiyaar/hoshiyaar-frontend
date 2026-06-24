@@ -8,7 +8,8 @@ import reattemptImg from '../../../assets/images/reattempt.png';
 import finishImg from '../../../assets/images/finish.png';
 import victorySound from '../../../assets/sounds/victory.mp3';
 import SimpleLoading from '../../ui/SimpleLoading.jsx';
- 
+import { trackLevelEnd } from '../../../utils/analytics.js';
+
 const LessonComplete = () => {
   const navigate = useNavigate();
   const { moduleNumber } = useParams();
@@ -58,9 +59,16 @@ const LessonComplete = () => {
               if (Number.isFinite(l)) last += l;
             }
             setScores({ best, last });
+            trackLevelEnd(moduleNumber, last);
+          } else {
+            trackLevelEnd(moduleNumber, 0);
           }
+        } else {
+          trackLevelEnd(moduleNumber, 0);
         }
-      } catch (_) {}
+      } catch (_) {
+        trackLevelEnd(moduleNumber, 0);
+      }
       setIsChecking(false);
     })();
   }, [user, moduleNumber]);

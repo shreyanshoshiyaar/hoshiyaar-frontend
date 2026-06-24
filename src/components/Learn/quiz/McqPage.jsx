@@ -4,8 +4,10 @@ import SimpleLoading from '../../ui/SimpleLoading.jsx';
 import TryAgainModal from '../../modals/TryAgainModal.jsx';
 import IncorrectAnswerModal from '../../modals/IncorrectAnswerModal.jsx';
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
-import ConceptExitConfirm from '../../modals/ConceptExitConfirm.jsx';
+import networkHelper from '../../../utils/apiBase.js';
 import NetworkError from '../../ui/NetworkError.jsx';
+import { trackLevelStart } from '../../../utils/analytics.js';
+import ConceptExitConfirm from '../../modals/ConceptExitConfirm.jsx';
 import NoSkipsModal from '../../modals/NoSkipsModal.jsx';
 import correctSfx from '../../../assets/sounds/correct-choice-43861.mp3';
 import errorSfx from '../../../assets/sounds/error-010-206498.mp3';
@@ -37,6 +39,11 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
   // Local storage helpers for dashboard progress sync - NOW USING COMPOSITE KEYS
   // Moved after useAuth() to ensure user is available
   const LS_KEY_BASE = 'lesson_progress_v2'; // v2 for composite key support
+
+  useEffect(() => {
+    const title = urlParams.get('title') || `Module ${moduleNumber}`;
+    trackLevelStart(moduleNumber, title.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase() || `level_${moduleNumber}`);
+  }, [moduleNumber]);
   
   // Helper function to get user-scoped key (recalculate each time to ensure user is available)
   const getUserScopedKey = (base) => `${base}__${user?._id || 'anon'}__${user?.subject || 'Science'}`;
