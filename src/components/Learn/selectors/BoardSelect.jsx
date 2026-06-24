@@ -48,17 +48,15 @@ const BoardSelect = ({ onContinue, onBack, updateData, autoAdvance = false }) =>
         return () => clearTimeout(timeout);
     }, [loading]);
 
+    // Removed automatic redirect to /learn. This component can be used in Learn.jsx
+    // and /onboard, and parent components are responsible for navigation logic.
     useEffect(() => {
-        if (user?._id && user?.onboardingCompleted && user?.phone !== '9867735936') {
-            navigate('/learn', { replace: true });
-            return;
-        }
-        
         const loadBoards = async () => {
             try {
                 setError(null);
                 const opts = user?.classLevel ? { params: { classLevel: user.classLevel } } : {};
                 const res = await curriculumService.listBoards(opts);
+
                 console.log('Boards API response:', res); // Debug log
                 
                 let boardNames = [];
