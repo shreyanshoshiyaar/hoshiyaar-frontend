@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { App } from '@capacitor/app';
 import axios from 'axios';
 
-const CURRENT_VERSION_CODE = 28; // Updated to match your latest build
+const CURRENT_VERSION_CODE = 34; // Updated to match your latest build
 const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.hoshiyaarlearning.app';
 
 const UpdatePrompt = () => {

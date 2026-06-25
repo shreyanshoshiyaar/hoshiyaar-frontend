@@ -36,7 +36,15 @@ const curriculumService = {
     return cachedGet(`/api/curriculum/subjects`, { ...passedOpts, params });
   },
   listChapters(board = 'CBSE', subject = 'Science', extraParams = {}, opts) {
-    return cachedGet(`/api/curriculum/chapters`, { params: { board, subject, ...(extraParams || {}) }, ...passOpts(opts) });
+    const passedOpts = passOpts(opts);
+    return cachedGet(`/api/curriculum/chapters`, {
+      params: { board, subject, ...extraParams },
+      ...passedOpts,
+    });
+  },
+  toggleChapterPublishStatus(id, isPublished) {
+    // This mutates data on the server, no cache
+    return api.patch(`/api/curriculum/chapters/${id}/publish`, { isPublished });
   },
   listUnits(chapterId, opts) {
     return cachedGet(`/api/curriculum/units`, { params: { chapterId }, ...passOpts(opts) });

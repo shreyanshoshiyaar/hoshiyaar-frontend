@@ -20,3 +20,5 @@ export function getApiBase() {
 
   return '';
 }
+
+export default { getApiBase };

@@ -2,6 +2,8 @@ import ProgressBar from '../../ui/ProgressBar.jsx';
 import SimpleLoading from '../../ui/SimpleLoading.jsx';
 import IncorrectAnswerModal from '../../modals/IncorrectAnswerModal.jsx';
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
+import { trackLevelStart } from '../../../utils/analytics.js';
+import { getLearningParams } from '../../../utils/analyticsHelpers.js';
 import ConceptExitConfirm from '../../modals/ConceptExitConfirm.jsx';
 import NoSkipsModal from '../../modals/NoSkipsModal.jsx';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -92,25 +94,25 @@ export default function DescriptivePage() {
 
   // GA4 Tracking: First Question Start
   useEffect(() => {
-    if (!item) return;
+    if (!item || index !== 0) return;
     const firedKey = `first_question_started_${moduleNumber}`;
     if (!sessionStorage.getItem(firedKey)) {
       sessionStorage.setItem(firedKey, 'true');
+      sessionStorage.setItem(`first_question_start_time_${moduleNumber}`, Date.now().toString());
       const searchParams = new URLSearchParams(window.location.search);
       const title = searchParams.get('title') || `Module ${moduleNumber}`;
-      if (typeof window.hyTrack === 'function') {
-        window.hyTrack("first_question_start", {
-          level_name: title.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase() || `level_${moduleNumber}`,
-          class: user?.classLevel || "class_6",
-          subject: user?.subject || "science",
-          chapter: chapterIdParam || "unknown_chapter",
-          unit: unitIdParam || "unknown_unit",
-          module_name: title,
-          question_number: index + 1,
-          question_type: "descriptive",
-          source: searchParams.get('source') || "website"
-        });
-      }
+      
+      const learningParams = getLearningParams({
+        user,
+        module: { id: moduleNumber, levelName: title, moduleName: title, chapter: chapterIdParam, unit: unitIdParam },
+        source: searchParams.get('source') || "question_page"
+      });
+
+      window.hyTrack?.("first_question_start", {
+        ...learningParams,
+        question_number: 1,
+        question_type: item.type || "descriptive"
+      });
     }
   }, [moduleNumber, index, item, user, chapterIdParam, unitIdParam]);
 
@@ -240,21 +242,24 @@ export default function DescriptivePage() {
       sessionStorage.setItem(answeredKey, 'true');
       const searchParams = new URLSearchParams(window.location.search);
       const title = searchParams.get('title') || `Module ${moduleNumber}`;
-      if (typeof window.hyTrack === 'function') {
-        window.hyTrack("first_question_answered", {
-          level_name: title.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase() || `level_${moduleNumber}`,
-          class: user?.classLevel || "class_6",
-          subject: user?.subject || "science",
-          chapter: chapterIdParam || "unknown_chapter",
-          unit: unitIdParam || "unknown_unit",
-          module_name: title,
-          question_number: index + 1,
-          question_type: "descriptive",
-          answer_status: isCorrectStatus ? "correct" : "incorrect",
-          time_spent_seconds: 0,
-          source: searchParams.get('source') || "website"
-        });
-      }
+      
+      const startTime = Number(sessionStorage.getItem(`first_question_start_time_${moduleNumber}`));
+      const timeSpentSeconds = startTime ? Math.round((Date.now() - startTime) / 1000) : 0;
+      
+      const learningParams = getLearningParams({
+        user,
+        module: { id: moduleNumber, levelName: title, moduleName: title, chapter: chapterIdParam, unit: unitIdParam },
+        source: searchParams.get('source') || "question_submit"
+      });
+
+      window.hyTrack?.("first_question_answered", {
+        ...learningParams,
+        question_number: 1,
+        question_type: item.type || "descriptive",
+        answer_status: isCorrectStatus ? "correct" : "incorrect",
+        score: scorePercent,
+        time_spent_seconds: timeSpentSeconds
+      });
     }
 
     const qid = `${moduleNumber}_${index}_descriptive`;
@@ -673,11 +678,19 @@ export default function DescriptivePage() {
       {/* Bottom Action Bar */}
       <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white/40 backdrop-blur-sm border-t-2 border-white/20 sm:border-t-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] sm:shadow-none px-4 sm:px-3 md:px-6 py-3 sm:py-3 z-50 sm:z-auto">
         {!showResult ? (
-          <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative z-10">
+          <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative z-10 flex gap-2">
+            {user?.role === 'admin' && (
+              <button
+                onClick={() => handleNext(true)}
+                className="w-1/3 py-3.5 rounded-xl text-indigo-600 border border-indigo-200 bg-indigo-50 font-extrabold text-xl shadow-lg transition-all uppercase tracking-wide hover:bg-indigo-100"
+              >
+                Skip
+              </button>
+            )}
             <button
               onClick={handleSubmit}
               disabled={!userInput.trim()}
-              className={`w-full py-3.5 rounded-xl text-white font-extrabold text-xl shadow-lg transition-all uppercase tracking-wide ${
+              className={`flex-1 py-3.5 rounded-xl text-white font-extrabold text-xl shadow-lg transition-all uppercase tracking-wide ${
                 userInput.trim() ? 'bg-blue-600 hover:bg-blue-700 active:scale-[0.98] cursor-pointer' : 'bg-gray-400 cursor-not-allowed opacity-80'
               }`}
             >

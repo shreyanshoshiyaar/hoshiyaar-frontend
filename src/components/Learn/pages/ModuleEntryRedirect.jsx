@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useModuleItems } from '../../../hooks/useModuleItems';
 import { useReview } from '../../../context/ReviewContext.jsx';
+import { useAuth } from '../../../context/AuthContext.jsx';
 import SimpleLoading from '../../ui/SimpleLoading.jsx';
+import { getLearningParams } from '../../../utils/analyticsHelpers.js';
 
 export default function ModuleEntryRedirect() {
   const navigate = useNavigate();
@@ -10,10 +12,35 @@ export default function ModuleEntryRedirect() {
   const location = useLocation();
   const { items, loading, error, retry } = useModuleItems(moduleNumber);
   const { reset } = useReview();
+  const { user } = useAuth();
   const searchSuffix = location.search || '';
 
   const [showPrompt, setShowPrompt] = useState(false);
   const [resumePathState, setResumePathState] = useState(null);
+
+  useEffect(() => {
+    // GA4 Tracking: Level Start
+    if (moduleNumber) {
+      const key = `level_start_${moduleNumber}`;
+      if (!sessionStorage.getItem(key)) {
+        sessionStorage.setItem(key, "true");
+        sessionStorage.setItem(`module_start_time_${moduleNumber}`, Date.now().toString());
+
+        const searchParams = new URLSearchParams(window.location.search);
+        const title = searchParams.get('title') || `Module ${moduleNumber}`;
+        const chapterIdParam = searchParams.get('chapterId');
+        const unitIdParam = searchParams.get('unitId');
+
+        window.hyTrack?.("level_start", {
+          ...getLearningParams({
+            user,
+            module: { id: moduleNumber, levelName: title, moduleName: title, chapter: chapterIdParam, unit: unitIdParam },
+            source: searchParams.get('source') || "module_start"
+          })
+        });
+      }
+    }
+  }, [moduleNumber, user]);
 
   useEffect(() => {
     // Fresh review queue per lesson
