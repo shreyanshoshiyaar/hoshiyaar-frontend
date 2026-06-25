@@ -19,7 +19,6 @@ import ConceptExitConfirm from '../../modals/ConceptExitConfirm.jsx';
 import NoSkipsModal from '../../modals/NoSkipsModal.jsx';
 import correctSfx from '../../../assets/sounds/correct-choice-43861.mp3';
 import errorSfx from '../../../assets/sounds/error-010-206498.mp3';
-import { trackLevelStart } from '../../../utils/analytics.js';
 
 export default function FillupsPage({ onQuestionComplete, isReviewMode = false }) {
   const navigate = useNavigate();
@@ -1035,14 +1034,6 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
               className="hidden md:block absolute bottom-0 right-4 lg:right-8 w-[100px] lg:w-[130px] object-contain -z-10 pointer-events-none" 
             />
             <div className="flex gap-2">
-              {user?.role === 'admin' && (
-                <button
-                  onClick={() => handleNext(true)}
-                  className="w-1/3 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-indigo-600 border border-indigo-200 bg-indigo-50 font-extrabold text-lg sm:text-base transition-colors hover:bg-indigo-100"
-                >
-                  Skip
-                </button>
-              )}
               <button
                 onClick={() => {
                   inputRef.current?.blur();

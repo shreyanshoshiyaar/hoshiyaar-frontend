@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useCallback } from 'react';
+import React, { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import ProgressBar from '../../ui/ProgressBar.jsx';
 import { StarCounter } from '../../../context/StarsContext.jsx';
 import SimpleLoading from '../../ui/SimpleLoading.jsx';
@@ -70,6 +70,45 @@ const ComicLightbox = ({ src, alt, onClose }) => {
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 text-white/50 text-xs sm:text-sm font-bold tracking-wider pointer-events-none z-50 bg-black/50 px-4 py-2 rounded-full backdrop-blur-sm">
         {scale === 1 ? 'Click to Magnify' : 'Scroll to Pan • Click to Reset'}
       </div>
+    </div>
+  );
+};
+
+const LazyIframe = ({ src, title, className, allow, allowFullScreen }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '100px 0px' } // Preload slightly before it comes into view
+    );
+
+    if (containerRef.current) observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={containerRef} className="absolute inset-0 w-full h-full">
+      {isVisible ? (
+        <iframe
+          src={src}
+          title={title}
+          className={className}
+          allow={allow}
+          allowFullScreen={allowFullScreen}
+          loading="lazy"
+        />
+      ) : (
+        <div className="absolute inset-0 bg-black/10 animate-pulse flex items-center justify-center">
+           <svg className="w-12 h-12 text-gray-400 opacity-50" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+      )}
     </div>
   );
 };
@@ -777,7 +816,7 @@ export default function ConceptPage() {
                   className={`relative overflow-hidden border-2 border-blue-50 shadow-md bg-black rounded-xl sm:rounded-2xl ${isShortVideo ? 'aspect-[9/16] h-[65vh]' : 'w-full aspect-video'}`}
                   style={!isShortVideo ? { maxWidth: 'max(320px, calc((100vh - 250px) * 16 / 9))', width: '100%' } : {}}
                 >
-                  <iframe
+                  <LazyIframe
                     src={introVideoUrl}
                     title="Lesson intro video"
                     className="absolute inset-0 w-full h-full"
@@ -918,7 +957,7 @@ export default function ConceptPage() {
                 const isYt = finalSrc.includes('youtube.com') || finalSrc.includes('youtu.be');
                 if (isYt || !finalSrc) {
                   return (
-                    <iframe
+                    <LazyIframe
                       src={finalSrc}
                       title="Concept video"
                       className="absolute inset-0 w-full h-full"

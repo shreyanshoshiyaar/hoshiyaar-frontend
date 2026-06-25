@@ -1200,14 +1200,6 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
               className="hidden md:block absolute bottom-0 right-4 lg:-right-4 w-[110px] lg:w-[140px] object-contain -z-10 pointer-events-none" 
             />
             <div className="flex gap-2">
-              {user?.role === 'admin' && (
-                <button
-                  onClick={() => handleNext(true)}
-                  className="w-1/3 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-indigo-600 border border-indigo-200 bg-indigo-50 font-extrabold text-lg sm:text-base transition-colors hover:bg-indigo-100"
-                >
-                  Skip
-                </button>
-              )}
               <button
                 onClick={handleSubmit}
                 disabled={selectedIndex === null}

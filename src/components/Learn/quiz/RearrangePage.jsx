@@ -20,7 +20,6 @@ import NoSkipsModal from '../../modals/NoSkipsModal.jsx';
 // Audio imports
 import correctSound from '../../../assets/sounds/correct-choice-43861.mp3';
 import wrongSound from '../../../assets/sounds/error-010-206498.mp3';
-import { trackLevelStart } from '../../../utils/analytics.js';
 
 export default function RearrangePage({ onQuestionComplete, isReviewMode = false }) {
   const navigate = useNavigate();
@@ -1126,14 +1125,6 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
               className="hidden md:block absolute bottom-0 right-4 lg:right-8 w-[110px] lg:w-[145px] object-contain -z-10 pointer-events-none" 
             />
             <div className="flex gap-2">
-              {user?.role === 'admin' && (
-                <button
-                  onClick={() => handleNext(true)}
-                  className="w-1/3 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-indigo-600 border border-indigo-200 bg-indigo-50 font-extrabold text-lg sm:text-base transition-colors hover:bg-indigo-100"
-                >
-                  Skip
-                </button>
-              )}
               <button
                 onClick={handleSubmit}
                 disabled={arrangedWords.length === 0}

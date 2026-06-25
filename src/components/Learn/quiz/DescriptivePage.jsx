@@ -17,7 +17,6 @@ import { progressKey } from '../../../utils/progressKey.js';
 import correctSfx from '../../../assets/sounds/correct-choice-43861.mp3';
 import errorSfx from '../../../assets/sounds/error-010-206498.mp3';
 import { Haptics } from '@capacitor/haptics';
-import { trackLevelStart } from '../../../utils/analytics.js';
 
 export default function DescriptivePage() {
   const navigate = useNavigate();
@@ -679,14 +678,6 @@ export default function DescriptivePage() {
       <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white/40 backdrop-blur-sm border-t-2 border-white/20 sm:border-t-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] sm:shadow-none px-4 sm:px-3 md:px-6 py-3 sm:py-3 z-50 sm:z-auto">
         {!showResult ? (
           <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative z-10 flex gap-2">
-            {user?.role === 'admin' && (
-              <button
-                onClick={() => handleNext(true)}
-                className="w-1/3 py-3.5 rounded-xl text-indigo-600 border border-indigo-200 bg-indigo-50 font-extrabold text-xl shadow-lg transition-all uppercase tracking-wide hover:bg-indigo-100"
-              >
-                Skip
-              </button>
-            )}
             <button
               onClick={handleSubmit}
               disabled={!userInput.trim()}
