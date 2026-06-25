@@ -9,10 +9,13 @@ import finishImg from '../../../assets/images/finish.png';
 import victorySound from '../../../assets/sounds/victory.mp3';
 import SimpleLoading from '../../ui/SimpleLoading.jsx';
 import { trackLevelEnd } from '../../../utils/analytics.js';
+import { getLearningParams } from '../../../utils/analyticsHelpers.js';
+import { useModuleItems } from '../../../hooks/useModuleItems';
 
 const LessonComplete = () => {
   const navigate = useNavigate();
   const { moduleNumber } = useParams();
+  const { items } = useModuleItems(moduleNumber);
   const [isChecking, setIsChecking] = useState(true);
   const { hasItems, getStagedForModule, clearStagedForModule } = useReview();
   const { user } = useAuth();
@@ -20,6 +23,36 @@ const LessonComplete = () => {
   const [scores, setScores] = useState({ best: 0, last: 0 });
   const isNewBest = Math.max(0, Number(scores.last || 0)) >= Math.max(0, Number(scores.best || 0)) && (scores.last || 0) > 0;
   const [showConfetti, setShowConfetti] = useState(false);
+
+  const fireLevelEnd = (score) => {
+    if (typeof window.hyTrack !== 'function' || !moduleNumber) return;
+
+    const endKey = `level_end_${moduleNumber}`;
+    if (sessionStorage.getItem(endKey)) return;
+
+    const searchParams = new URLSearchParams(window.location.search);
+    const title = searchParams.get('title') || `Module ${moduleNumber}`;
+    const chapterIdParam = searchParams.get('chapterId');
+    const unitIdParam = searchParams.get('unitId');
+
+    const startTime = Number(sessionStorage.getItem(`module_start_time_${moduleNumber}`));
+    const timeSpentSeconds = startTime ? Math.round((Date.now() - startTime) / 1000) : 0;
+
+    const totalQuestions = Array.isArray(items) ? items.filter(item => ['mcq', 'fillups', 'rearrange', 'descriptive'].includes(item.type)).length : 0;
+
+    window.hyTrack("level_end", {
+      ...getLearningParams({
+        user,
+        module: { id: moduleNumber, levelName: title, moduleName: title, chapter: chapterIdParam, unit: unitIdParam },
+        source: searchParams.get('source') || "lesson_complete"
+      }),
+      score: score || 0,
+      time_spent_seconds: timeSpentSeconds,
+      total_questions: totalQuestions
+    });
+
+    sessionStorage.setItem(endKey, "true");
+  };
 
   useEffect(() => {
     (async () => {
@@ -59,19 +92,19 @@ const LessonComplete = () => {
               if (Number.isFinite(l)) last += l;
             }
             setScores({ best, last });
-            trackLevelEnd(moduleNumber, last);
+            fireLevelEnd(last);
           } else {
-            trackLevelEnd(moduleNumber, 0);
+            fireLevelEnd(0);
           }
         } else {
-          trackLevelEnd(moduleNumber, 0);
+          fireLevelEnd(0);
         }
       } catch (_) {
-        trackLevelEnd(moduleNumber, 0);
+        fireLevelEnd(0);
       }
       setIsChecking(false);
     })();
-  }, [user, moduleNumber]);
+  }, [user, moduleNumber, items]);
 
   useEffect(() => {
     if (moduleNumber) {

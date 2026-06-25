@@ -12,6 +12,8 @@ import curriculumService from '../../../services/curriculumService.js';
 // Inline feedback bar instead of modal
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { trackLevelStart } from '../../../utils/analytics.js';
+import { getLearningParams } from '../../../utils/analyticsHelpers.js';
 import { useModuleItems } from '../../../hooks/useModuleItems';
 import ConceptExitConfirm from '../../modals/ConceptExitConfirm.jsx';
 import NoSkipsModal from '../../modals/NoSkipsModal.jsx';
@@ -158,25 +160,25 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
 
   // GA4 Tracking: First Question Start
   useEffect(() => {
-    if (!item) return;
+    if (!item || index !== 0) return;
     const firedKey = `first_question_started_${moduleNumber}`;
     if (!sessionStorage.getItem(firedKey)) {
       sessionStorage.setItem(firedKey, 'true');
+      sessionStorage.setItem(`first_question_start_time_${moduleNumber}`, Date.now().toString());
       const searchParams = new URLSearchParams(window.location.search);
       const title = searchParams.get('title') || `Module ${moduleNumber}`;
-      if (typeof window.hyTrack === 'function') {
-        window.hyTrack("first_question_start", {
-          level_name: title.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase() || `level_${moduleNumber}`,
-          class: user?.classLevel || "class_6",
-          subject: user?.subject || "science",
-          chapter: chapterIdParam || "unknown_chapter",
-          unit: unitIdParam || "unknown_unit",
-          module_name: title,
-          question_number: index + 1,
-          question_type: "fillups",
-          source: searchParams.get('source') || "website"
-        });
-      }
+      
+      const learningParams = getLearningParams({
+        user,
+        module: { id: moduleNumber, levelName: title, moduleName: title, chapter: chapterIdParam, unit: unitIdParam },
+        source: searchParams.get('source') || "question_page"
+      });
+
+      window.hyTrack?.("first_question_start", {
+        ...learningParams,
+        question_number: 1,
+        question_type: item.type || "fillups"
+      });
     }
   }, [moduleNumber, index, item, user, chapterIdParam, unitIdParam]);
 
@@ -497,21 +499,24 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
       sessionStorage.setItem(answeredKey, 'true');
       const searchParams = new URLSearchParams(window.location.search);
       const title = searchParams.get('title') || `Module ${moduleNumber}`;
-      if (typeof window.hyTrack === 'function') {
-        window.hyTrack("first_question_answered", {
-          level_name: title.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase() || `level_${moduleNumber}`,
-          class: user?.classLevel || "class_6",
-          subject: user?.subject || "science",
-          chapter: chapterIdParam || "unknown_chapter",
-          unit: unitIdParam || "unknown_unit",
-          module_name: title,
-          question_number: index + 1,
-          question_type: "fillups",
-          answer_status: correct ? "correct" : "incorrect",
-          time_spent_seconds: 0,
-          source: searchParams.get('source') || "website"
-        });
-      }
+      
+      const startTime = Number(sessionStorage.getItem(`first_question_start_time_${moduleNumber}`));
+      const timeSpentSeconds = startTime ? Math.round((Date.now() - startTime) / 1000) : 0;
+      
+      const learningParams = getLearningParams({
+        user,
+        module: { id: moduleNumber, levelName: title, moduleName: title, chapter: chapterIdParam, unit: unitIdParam },
+        source: searchParams.get('source') || "question_submit"
+      });
+
+      window.hyTrack?.("first_question_answered", {
+        ...learningParams,
+        question_number: 1,
+        question_type: item.type || "fillups",
+        answer_status: correct ? "correct" : "incorrect",
+        score: correct ? 1 : 0,
+        time_spent_seconds: timeSpentSeconds
+      });
     }
 
     if (correct) {
@@ -1029,15 +1034,25 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
               alt="Myra" 
               className="hidden md:block absolute bottom-0 right-4 lg:right-8 w-[100px] lg:w-[130px] object-contain -z-10 pointer-events-none" 
             />
-            <button
-              onClick={() => {
-                inputRef.current?.blur();
-                handleSubmit();
-              }}
-              className="w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-blue-600 text-white font-extrabold text-lg sm:text-lg transition-colors shadow-lg sm:shadow-none"
-            >
-              Check
-            </button>
+            <div className="flex gap-2">
+              {user?.role === 'admin' && (
+                <button
+                  onClick={() => handleNext(true)}
+                  className="w-1/3 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-indigo-600 border border-indigo-200 bg-indigo-50 font-extrabold text-lg sm:text-base transition-colors hover:bg-indigo-100"
+                >
+                  Skip
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  inputRef.current?.blur();
+                  handleSubmit();
+                }}
+                className="flex-1 py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-blue-600 text-white font-extrabold text-lg sm:text-lg transition-colors shadow-lg sm:shadow-none"
+              >
+                Check
+              </button>
+            </div>
           </div>
         ) : (
           <div className="h-[60px] sm:h-0"></div> // Spacer to keep layout stable on desktop when feedback appears

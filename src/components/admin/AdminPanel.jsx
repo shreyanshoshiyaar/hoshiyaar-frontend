@@ -197,6 +197,24 @@ const AdminPanel = () => {
   };
 
   const [units, setUnits] = useState([]);
+  
+  const handleTogglePublishChapter = async () => {
+    if (!selectedChapter) return;
+    const chap = chapters.find(c => c._id === selectedChapter);
+    if (!chap) return;
+
+    try {
+      setLoading(true);
+      const res = await curriculumService.toggleChapterPublishStatus(selectedChapter, !chap.isPublished);
+      // Update local state without fetching again to avoid cache issues
+      setChapters(prev => prev.map(c => c._id === selectedChapter ? { ...c, isPublished: res.data.isPublished } : c));
+    } catch (err) {
+      setError('Failed to toggle chapter publish status');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Fetch modules and units when chapter is selected
   useEffect(() => {
@@ -420,7 +438,22 @@ const AdminPanel = () => {
 
               {/* Chapter Dropdown */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Chapter</label>
+                <div className="flex justify-between items-end mb-2">
+                  <label className="block text-sm font-medium text-gray-700">Chapter</label>
+                  {selectedChapter && chapters.find(c => c._id === selectedChapter) && (
+                    <div className="flex items-center gap-2">
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${chapters.find(c => c._id === selectedChapter).isPublished ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                        {chapters.find(c => c._id === selectedChapter).isPublished ? 'Published' : 'Draft'}
+                      </span>
+                      <button 
+                        onClick={handleTogglePublishChapter}
+                        className="text-xs text-indigo-600 hover:text-indigo-800 underline"
+                      >
+                        {chapters.find(c => c._id === selectedChapter).isPublished ? 'Unpublish' : 'Publish'}
+                      </button>
+                    </div>
+                  )}
+                </div>
                 <select
                   value={selectedChapter}
                   onChange={handleChapterChange}
