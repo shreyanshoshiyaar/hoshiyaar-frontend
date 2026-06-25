@@ -24,7 +24,7 @@ const registerGuest = (opts) => {
 
 // Login user with username
 const login = (userData, opts) => {
-  return api.post('/api/auth/login', userData, opts);
+  return api.post('/api/auth/login', { ...userData, platform: getPlatform() }, opts);
 };
 
 // Admin Login
@@ -34,11 +34,11 @@ const adminLogin = (userData, opts) => {
 
 // WhatsApp OTP
 const sendOtp = (phone, type, opts) => {
-  return api.post('/api/auth/send-otp', { phone, type }, opts);
+  return api.post('/api/auth/send-otp', { phone, type, platform: getPlatform() }, opts);
 };
 
 const verifyOtp = (phone, otp, opts) => {
-  return api.post('/api/auth/verify-otp', { phone, otp }, opts);
+  return api.post('/api/auth/verify-otp', { phone, otp, platform: getPlatform() }, opts);
 };
 
 const resetPassword = (phone, otp, newPassword, opts) => {
@@ -47,15 +47,15 @@ const resetPassword = (phone, otp, newPassword, opts) => {
 
 // Update onboarding selections
 const updateOnboarding = (data, opts) => {
-  return api.put('/api/auth/onboarding', data, opts);
+  return api.put('/api/auth/onboarding', { ...data, platform: getPlatform() }, opts);
 };
 
 // Update profile (alias to onboarding update for now)
-const updateProfile = (data, opts) => api.put('/api/auth/onboarding', data, opts);
+const updateProfile = (data, opts) => api.put('/api/auth/onboarding', { ...data, platform: getPlatform() }, opts);
 
 // Update user activity and FCM token
 const updateActivity = (userId, fcmToken, opts) => {
-  return api.post('/api/auth/update-activity', { userId, fcmToken }, opts);
+  return api.post('/api/auth/update-activity', { userId, fcmToken, platform: getPlatform() }, opts);
 };
 
 // Simple in-memory cache for GET requests to reduce redundant network calls
