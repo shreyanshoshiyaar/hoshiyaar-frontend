@@ -4,9 +4,9 @@ import { Link } from 'react-router-dom';
 const HoshiyaarLogo = "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778743597/img-to-link/bihseec7aigbmau4amnd.png";
 
 const AuthLayout = ({ children, title, linkTo, linkText }) => (
-  <div className="h-[100dvh] text-slate-900 font-sans flex flex-col relative overflow-hidden bg-slate-50">
+  <div className="min-h-[100dvh] text-slate-900 font-sans flex flex-col relative bg-slate-50 overflow-hidden">
     {/* Dynamic Background Effects */}
-    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 fixed">
       <div className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] rounded-full bg-blue-400/20 blur-[120px]" />
       <div className="absolute top-[40%] -right-[10%] w-[50%] h-[50%] rounded-full bg-purple-400/20 blur-[120px]" />
       <div className="absolute -bottom-[20%] left-[20%] w-[40%] h-[40%] rounded-full bg-cyan-400/20 blur-[100px]" />
@@ -31,15 +31,11 @@ const AuthLayout = ({ children, title, linkTo, linkText }) => (
       </div>
     </header>
     
-    <main className="flex-1 flex items-center justify-center px-4 relative z-10 overflow-hidden pb-4">
-      <div className="w-full max-w-md sm:max-w-lg px-2 sm:px-4">
+    <main className="flex-1 flex flex-col px-4 relative z-10 overflow-y-auto pb-8">
+      <div className="w-full max-w-md sm:max-w-lg px-2 sm:px-4 mx-auto my-auto pt-2">
         <div 
-          className="bg-white/70 backdrop-blur-xl border border-white rounded-3xl p-5 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-y-auto max-h-[85vh]"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          className="bg-white/70 backdrop-blur-xl border border-white rounded-3xl p-5 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
         >
-          <style>{`
-            .bg-white\\/70::-webkit-scrollbar { display: none; }
-          `}</style>
           {children}
         </div>
       </div>

@@ -47,7 +47,7 @@ const Login = () => {
           });
           login(response.data);
           try { sessionStorage.setItem('entryType', 'login'); } catch (_) {}
-          navigate('/home');
+          navigate('/welcome');
         }
       
     } catch (err) {
@@ -82,7 +82,7 @@ const Login = () => {
           <div className="text-left relative">
             <div className="flex justify-between items-center mb-1.5 ml-1 mr-1">
               <label className="text-xs sm:text-sm font-medium text-slate-600 block">Password</label>
-              <Link to="/forgot-password" className="text-xs sm:text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+              <Link to="/forgot-password" className="text-xs sm:text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors whitespace-nowrap">
                 Forgot Password?
               </Link>
             </div>
