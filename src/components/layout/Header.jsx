@@ -45,7 +45,7 @@ const Header = ({ isHomePage }) => {
             </div>
           ) : (
             <Link to="/signup">
-              <button className="w-full sm:w-auto bg-duo-blue text-white font-bold uppercase tracking-wider py-2 px-4 md:py-2.5 md:px-7 rounded-xl sm:rounded-2xl border-b-4 border-duo-blue-dark hover:bg-blue-500 transition-all !text-[11px] sm:!text-xs lg:!text-sm btn-responsive">
+              <button className="w-full sm:w-auto bg-duo-blue text-white font-bold uppercase tracking-wider py-2 px-4 md:py-2.5 md:px-7 rounded-xl sm:rounded-2xl border-b-4 border-duo-blue-dark hover:bg-blue-500 transition-all !text-[11px] sm:!text-xs lg:!text-sm btn-responsive whitespace-nowrap">
                 Login / Sign Up
               </button>
             </Link>
