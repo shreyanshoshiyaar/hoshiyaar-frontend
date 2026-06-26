@@ -32,11 +32,21 @@
     <!-- HoshiYaar GA4 Helper -->
     <script>
       window.hyTrack = function(eventName, params = {}) {
-        if (typeof gtag !== "function") {
-          console.warn("GA4 gtag not loaded:", eventName, params);
-          return;
+        if (typeof gtag === "function") {
+          gtag("event", eventName, { ...params });
         }
-        gtag("event", eventName, { ...params });
+
+        // Facebook Event Tracking
+        if (eventName === "sign_up") {
+          // 1. Web Pixel
+          if (typeof fbq === "function") {
+            fbq('track', 'CompleteRegistration');
+          }
+          // 2. Native Android Bridge
+          if (window.NativeFB && typeof window.NativeFB.logSignup === "function") {
+            window.NativeFB.logSignup();
+          }
+        }
       };
     </script>
     <!-- Meta Pixel Code -->

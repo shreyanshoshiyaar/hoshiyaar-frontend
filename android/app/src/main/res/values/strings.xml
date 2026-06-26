@@ -4,4 +4,7 @@
     <string name="title_activity_main">HoshiYaar</string>
     <string name="package_name">com.hoshiyaarlearning.app</string>
     <string name="custom_url_scheme">com.hoshiyaarlearning.app</string>
+    <string name="facebook_app_id">1562708835195671</string>
+    <string name="fb_login_protocol_scheme">fb1562708835195671</string>
+    <string name="facebook_client_token">14a08cb5a531c43de2791494ade85a6e</string>
 </resources>
