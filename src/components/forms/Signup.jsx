@@ -136,6 +136,16 @@ const Signup = () => {
           source: "signup_page",
           "class": formData.classLevel || "unknown_class"
         });
+        
+        // Log Facebook App Event via Native Bridge
+        try {
+          if (window.NativeFB && window.NativeFB.logSignup) {
+            window.NativeFB.logSignup();
+          }
+        } catch (e) {
+          console.error("Facebook logging failed", e);
+        }
+
         login(response.data);
         try { sessionStorage.setItem('entryType', 'signup'); } catch (_) {}
         navigate('/learn');
