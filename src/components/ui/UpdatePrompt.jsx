@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { App } from '@capacitor/app';
 import axios from 'axios';
 
 const CURRENT_VERSION_CODE = 34; // Updated to match your latest build
