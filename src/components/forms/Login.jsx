@@ -63,7 +63,6 @@ const Login = () => {
         <h1 className="text-2xl sm:text-3xl font-extrabold mb-2 text-slate-900">Welcome back</h1>
         <p className="text-slate-500 text-sm sm:text-base mb-8">Enter your details to continue</p>
         
-        {error && <p className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-xl mb-6 text-sm text-left">{error}</p>}
 
         <form onSubmit={onSubmit} className="space-y-4 sm:space-y-5">
           <div className="text-left">
@@ -112,6 +111,15 @@ const Login = () => {
               </button>
             </div>
           </div>
+          
+          {error && (
+            <div className="bg-red-50/80 border border-red-200/60 rounded-xl p-3 flex items-start gap-2.5 mt-2 animate-in fade-in slide-in-from-top-1 duration-200">
+              <svg className="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <p className="text-red-600 text-sm font-medium text-left leading-tight pt-0.5">{error}</p>
+            </div>
+          )}
           
           <div className="pt-2">
             <button 
