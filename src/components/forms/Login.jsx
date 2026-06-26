@@ -137,11 +137,17 @@ const Login = () => {
           </div>
         </form>
         
-        <div className="mt-6 text-center">
+        <div className="mt-6 text-center space-y-2">
           <p className="text-sm text-slate-500">
             New here?{' '}
             <Link to="/signup" className="text-blue-600 hover:text-blue-700 font-semibold transition-colors">
               Create an account
+            </Link>
+          </p>
+          <p className="text-sm text-slate-500">
+            Having trouble?{' '}
+            <Link to="/contact" className="text-blue-600 hover:text-blue-700 font-semibold transition-colors">
+              Contact us
             </Link>
           </p>
         </div>
