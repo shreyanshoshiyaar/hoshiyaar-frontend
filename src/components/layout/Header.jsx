@@ -53,7 +53,7 @@ const Header = ({ isHomePage }) => {
 
           {/* WhatsApp Support Link */}
           <a 
-            href="https://wa.me/917021970672" 
+            href="https://wa.me/917021970672?text=Hey%20I%20need%20help" 
             target="_blank" 
             rel="noopener noreferrer"
             className="flex items-center justify-center text-white bg-[#25D366] hover:bg-[#128C7E] h-[44px] w-[44px] sm:h-[48px] sm:w-[48px] lg:h-[56px] lg:w-[56px] rounded-xl sm:rounded-2xl border-b-4 border-[#1B9B4B] shadow-sm transition-all hover:scale-105 active:scale-95"
