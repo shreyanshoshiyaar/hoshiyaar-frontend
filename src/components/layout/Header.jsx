@@ -34,6 +34,21 @@ const Header = ({ isHomePage }) => {
 
         {/* BUTTONS SECTION */}
         <div className="flex items-center gap-2 sm:gap-4">
+          
+          {/* Play Store Link - Desktop only */}
+          <a 
+            href="https://play.google.com/store/apps/details?id=com.hoshiyaarlearning.app" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="hidden md:flex items-center hover:scale-105 active:scale-95 transition-transform"
+            title="Get it on Google Play"
+          >
+            <img 
+              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1782664047/img-to-link/mgc5mwvdgxzf0o4w2ikl.webp" 
+              alt="Get it on Google Play" 
+              className="h-10 lg:h-12 w-auto object-contain"
+            />
+          </a>
           {user ? (
             <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
               <button 
