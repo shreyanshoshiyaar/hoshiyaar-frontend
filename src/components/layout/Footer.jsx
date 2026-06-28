@@ -41,6 +41,7 @@ const Footer = () => {
                                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.947 3.336L2.345 10.51c-1.317.528-1.31 1.261-.242 1.588l4.78 1.492 11.082-6.985c.523-.316 1.002-.146.598.213L9.589 14.92l-.337 4.793c.493 0 .71-.225.986-.492l2.368-2.302 4.931 3.641c.908.5 1.564.242 1.792-.843l3.242-15.244c.334-1.328-.49-1.93-1.624-1.137z"/></svg>
                             </a>
                         </div>
+
                     </div>
 
                     <div className="flex flex-wrap gap-16 lg:gap-24 mt-8 lg:mt-0">
@@ -48,9 +49,9 @@ const Footer = () => {
                         <div className="flex flex-col space-y-4">
                             <h3 className="font-extrabold text-[13px] tracking-wider text-[#1e3a8a]">CLASSES</h3>
                             <ul className="space-y-3 text-[14px] text-[#475569] font-medium">
-                                <li><Link to="/class-6" className="hover:text-[#1e3a8a] transition-colors">Class 6</Link></li>
-                                <li><Link to="/class-7" className="hover:text-[#1e3a8a] transition-colors">Class 7</Link></li>
-                                <li><Link to="/class-8" className="hover:text-[#1e3a8a] transition-colors">Class 8</Link></li>
+                                <li><Link to="/signup" className="hover:text-[#1e3a8a] transition-colors">Class 6</Link></li>
+                                <li><Link to="/signup" className="hover:text-[#1e3a8a] transition-colors">Class 7</Link></li>
+                                <li><Link to="/signup" className="hover:text-[#1e3a8a] transition-colors">Class 8</Link></li>
                             </ul>
                         </div>
 
@@ -67,8 +68,26 @@ const Footer = () => {
                         </div>
                     </div>
 
-                    {/* COLUMN 4: NEWSLETTER */}
+                    {/* COLUMN 4: NEWSLETTER & APP LINK */}
                     <div className="flex flex-col space-y-4 lg:max-w-xs mt-8 lg:mt-0">
+                        
+                        {/* Play Store Link */}
+                        <div className="pb-1">
+                            <a 
+                                href="https://play.google.com/store/apps/details?id=com.hoshiyaarlearning.app" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="inline-block hover:scale-105 active:scale-95 transition-transform"
+                                title="Get it on Google Play"
+                            >
+                                <img 
+                                    src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1782664047/img-to-link/mgc5mwvdgxzf0o4w2ikl.webp" 
+                                    alt="Get it on Google Play" 
+                                    className="h-10 sm:h-11 w-auto object-contain"
+                                />
+                            </a>
+                        </div>
+
                         <h3 className="font-extrabold text-[13px] tracking-wider text-[#1e3a8a]">NEWSLETTER</h3>
                         <p className="text-[#475569] text-[14px] font-medium">
                             Get tips, updates and new episodes straight to your inbox.
