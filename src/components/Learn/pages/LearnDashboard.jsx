@@ -462,19 +462,13 @@ const LearnDashboard = ({ onboardingData }) => {
 
   // Stars sync is handled by StarsContext and AuthContext.
 
-  // Fetch weekly stars
+  // Fetch weekly stars periodically (initial fetch is handled in main loadDashboardData Promise.all)
   useEffect(() => {
     if (!user?._id) return;
     const fetchWeekly = async () => {
       try {
         const response = await authService.getSummary({ userId: user._id, days: 7 });
         if (response?.data?.totalPoints !== undefined) {
-          // getSummary with days=7 returns the total for those days in totalPoints? 
-          // Let's check getSummary implementation. 
-          // Actually, getSummary returns { totalPoints (lifetime), ... }
-          // We need to sum up the timeSeries for the last 7 days or use a different endpoint.
-          // Wait, getSummary calculates totalPoints as the lifetime total.
-          // Let's look at getSummary in pointsController.js again.
           const timeSeries = response.data.timeSeries || [];
           const weeklySum = timeSeries.reduce((acc, curr) => acc + (curr.points || 0), 0);
           setWeeklyStars(weeklySum);
@@ -483,7 +477,6 @@ const LearnDashboard = ({ onboardingData }) => {
         console.warn('Failed to fetch weekly stars:', error);
       }
     };
-    fetchWeekly();
     const interval = setInterval(fetchWeekly, 60000);
     return () => clearInterval(interval);
   }, [user?._id, stars]);
@@ -862,12 +855,9 @@ const LearnDashboard = ({ onboardingData }) => {
           authLoading,
           onboardingData
         });
-        // Import services concurrently and fetch progress + chapters in parallel
-        const [authMod, curMod] = await Promise.all([
-          import("../../../services/authService.js"),
-          import("../../../services/curriculumService.js"),
-        ]);
-        const svc = authMod.default;
+        // Import curriculumService concurrently (authService is statically imported at top)
+        const curMod = await import("../../../services/curriculumService.js");
+        const svc = authService;
         const cur = curMod.default;
 
         // For new users without preferences, fetch available boards and subjects first
@@ -917,11 +907,27 @@ const LearnDashboard = ({ onboardingData }) => {
         const extraChapterParams = user?._id
           ? { userId: user._id, classTitle: user?.classLevel || user?.classTitle || undefined }
           : {};
-        const [progressResp, chaptersResp] = await Promise.all([
+        const [progressResp, chaptersResp, summaryResp, completedModsResp] = await Promise.all([
           validUserId ? svc.getProgress(validUserId, { signal: ac2.signal }) : Promise.resolve({ data: [] }),
           cur.listChapters(finalBoard, finalSubject, extraChapterParams, { signal: ac2.signal }),
+          validUserId ? svc.getSummary({ userId: validUserId, days: 7 }) : Promise.resolve({ data: {} }),
+          validUserId ? svc.getCompletedModuleIds(validUserId, { subject: finalSubject }) : Promise.resolve({ data: { completedModuleIds: [] } }),
         ]);
         console.log('Dashboard: API responses', { progressResp: progressResp?.data, chaptersResp: chaptersResp?.data });
+        
+        // Hydrate weekly stars instantly from parallel fetch
+        if (summaryResp?.data?.timeSeries) {
+          const weeklySum = summaryResp.data.timeSeries.reduce((acc, curr) => acc + (curr.points || 0), 0);
+          setWeeklyStars(weeklySum);
+        }
+
+        // Hydrate completed modules instantly from parallel fetch
+        if (completedModsResp?.data?.completedModuleIds) {
+          const ids = Array.isArray(completedModsResp.data.completedModuleIds) ? completedModsResp.data.completedModuleIds : [];
+          const current = loadCompletedIds();
+          ids.forEach((id) => current.add(String(id)));
+          localStorage.setItem(LS_IDS_KEY, JSON.stringify(Array.from(current)));
+        }
         const progressData = progressResp?.data || [];
         setProgress(progressData);
         if (USE_LOCAL_PROGRESS) {
@@ -1733,8 +1739,13 @@ const LearnDashboard = ({ onboardingData }) => {
   }, [user?._id]);
 
   // Fetch completed module IDs; apply monotonic union (never remove) and debounce to avoid flicker
+  const skipInitialCompletedFetch = useRef(true);
   useEffect(() => {
     if (!user?._id) return;
+    if (skipInitialCompletedFetch.current) {
+      skipInitialCompletedFetch.current = false;
+      return;
+    }
     const debounce = setTimeout(async () => {
       try {
         const resp = await authService.getCompletedModuleIds(user._id, { subject: subjectName });
@@ -1752,8 +1763,13 @@ const LearnDashboard = ({ onboardingData }) => {
   }, [user?._id, subjectName, modulesList.length]);
 
   // Refresh progress; do not clear local completions to avoid flicker
+  const skipInitialProgressFetch = useRef(true);
   useEffect(() => {
     if (!user?._id) return;
+    if (skipInitialProgressFetch.current) {
+      skipInitialProgressFetch.current = false;
+      return;
+    }
     const timeoutId = setTimeout(async () => {
       try {
         console.log('[Dashboard] Refreshing progress from database for user:', user._id);

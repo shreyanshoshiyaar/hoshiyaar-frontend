@@ -17,6 +17,7 @@ export default function ModuleEntryRedirect() {
 
   const [showPrompt, setShowPrompt] = useState(false);
   const [resumePathState, setResumePathState] = useState(null);
+  const [unsupportedType, setUnsupportedType] = useState(false);
 
   useEffect(() => {
     // GA4 Tracking: Level Start
@@ -102,8 +103,8 @@ export default function ModuleEntryRedirect() {
           navigate(`/learn/module/${moduleNumber}/descriptive/${idx}${searchSuffix}`, { replace: true });
           break;
         default:
-          console.warn('[ModuleEntryRedirect] Unknown item type, redirecting back:', first.type);
-          navigate('/learn', { replace: true });
+          console.warn('[ModuleEntryRedirect] Unknown item type, showing error state:', first.type);
+          setUnsupportedType(true);
       }
     }
   }, [items, loading, error, moduleNumber, navigate, searchSuffix, showPrompt, resumePathState]);
@@ -173,6 +174,21 @@ export default function ModuleEntryRedirect() {
             </button>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  if (unsupportedType) {
+    return (
+      <div className="p-10 text-center">
+        <h2 className="text-2xl font-bold text-blue-900 mb-4">This lesson isn't ready yet.</h2>
+        <p className="text-blue-700/60 mb-6">Our team is still working on this content type. Please check back later!</p>
+        <button 
+          onClick={() => navigate('/learn')}
+          className="px-6 py-2 bg-blue-600 text-white rounded-full font-bold"
+        >
+          Go Back to Dashboard
+        </button>
       </div>
     );
   }
