@@ -820,6 +820,9 @@ className="text-[10px] font-bold text-slate-600 bg-slate-50 border border-slate-
                 <th className="py-4 px-5 select-none text-center cursor-pointer hover:bg-slate-100/50" onClick={() => handleSort('platform')}>
                   Platform {sortField === 'platform' ? (sortDirection === 'asc' ? '▴' : '▾') : ''}
                 </th>
+                <th className="py-4 px-5 select-none cursor-pointer hover:bg-slate-100/50" onClick={() => handleSort('createdAt')}>
+                  Date Joined {sortField === 'createdAt' ? (sortDirection === 'asc' ? '▴' : '▾') : ''}
+                </th>
                 <th className="py-4 px-6 select-none cursor-pointer hover:bg-slate-100/50" onClick={() => handleSort('school')}>
                   School / Institution {sortField === 'school' ? (sortDirection === 'asc' ? '▴' : '▾') : ''}
                 </th>
@@ -834,6 +837,9 @@ className="text-[10px] font-bold text-slate-600 bg-slate-50 border border-slate-
                 </th>
                 <th className="py-4 px-4 text-center select-none cursor-pointer hover:bg-slate-100/50" onClick={() => handleSort('accuracy')}>
                   Accuracy {sortField === 'accuracy' ? (sortDirection === 'asc' ? '▴' : '▾') : ''}
+                </th>
+                <th className="py-4 px-4 text-center select-none cursor-pointer hover:bg-slate-100/50" onClick={() => handleSort('activeDaysCount')}>
+                  Days Visited {sortField === 'activeDaysCount' ? (sortDirection === 'asc' ? '▴' : '▾') : ''}
                 </th>
                 <th className="py-4 px-6 select-none cursor-pointer hover:bg-slate-100/50" onClick={() => handleSort('lastActive')}>
                   Last Active {sortField === 'lastActive' ? (sortDirection === 'asc' ? '▴' : '▾') : ''}
@@ -911,6 +917,11 @@ className="text-[10px] font-bold text-slate-600 bg-slate-50 border border-slate-
                           )}
                         </td>
 
+                        {/* Date Joined */}
+                        <td className="py-4 px-5 whitespace-nowrap text-slate-500 font-medium">
+                          {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+                        </td>
+
                         {/* School */}
                         <td className="py-4 px-6 font-semibold text-slate-600">
                           {user.school}
@@ -948,6 +959,11 @@ className="text-[10px] font-bold text-slate-600 bg-slate-50 border border-slate-
                           >
                             {user.useTime === 0 ? 'N/A' : `${user.accuracy}%`}
                           </span>
+                        </td>
+
+                        {/* Days Visited */}
+                        <td className="py-4 px-4 text-center font-bold text-slate-700">
+                          {user.activeDaysCount || 1}
                         </td>
 
                         {/* Last Active */}
