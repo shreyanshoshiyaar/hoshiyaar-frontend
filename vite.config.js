@@ -40,7 +40,8 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: {
             'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-            'vendor-ui': ['lottie-react', 'recharts'],
+            'vendor-lottie': ['lottie-react'],
+            'vendor-recharts': ['recharts'],
             'vendor-utils': ['axios'],
           },
         },
