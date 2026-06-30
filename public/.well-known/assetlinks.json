@@ -1,11 +1,15 @@
 [
   {
-    "relation": ["delegate_permission/common.handle_all_urls"],
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
     "target": {
       "namespace": "android_app",
       "package_name": "com.hoshiyaarlearning.app",
       "sha256_cert_fingerprints": [
-        "36:12:0A:AE:AD:65:81:59:28:F3:FC:10:68:9E:6A:00:AE:26:F2:B9:21:44:F4:CD:04:C1:A1:0B:19:92:16:D0"
+        "36:12:0A:AE:AD:65:81:59:28:F3:FC:10:68:9E:6A:00:AE:26:F2:B9:21:44:F4:CD:04:C1:A1:0B:19:92:16:D0",
+        "AE:E7:5A:15:27:6E:6E:C0:73:AB:9E:6E:97:88:91:58:A2:FC:50:CC:36:59:83:A5:7A:E7:4E:58:2C:47:74:FF"
       ]
     }
   }
