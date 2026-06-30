@@ -1,0 +1,17 @@
+{
+  "name": "Hoshiyaar",
+  "short_name": "Hoshiyaar",
+  "description": "Story-Based CBSE Science App for Class 6, 7 & 8",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4A90E2",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
