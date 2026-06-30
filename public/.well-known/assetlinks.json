@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.hoshiyaarlearning.app",
+      "sha256_cert_fingerprints": [
+        "36:12:0A:AE:AD:65:81:59:28:F3:FC:10:68:9E:6A:00:AE:26:F2:B9:21:44:F4:CD:04:C1:A1:0B:19:92:16:D0"
+      ]
+    }
+  }
+]
