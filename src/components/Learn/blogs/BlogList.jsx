@@ -7,9 +7,21 @@ import NetworkError from '../../ui/NetworkError.jsx';
 const BlogList = () => {
   const [blogs, setBlogs] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedClass, setSelectedClass] = useState('All Classes');
+  const [selectedSubject, setSelectedSubject] = useState('All Subjects');
+  const [selectedChapter, setSelectedChapter] = useState('All Chapters');
+  const [selectedFormat, setSelectedFormat] = useState('All Formats');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const navigate = useNavigate();
+
+  const handleBack = () => {
+    if (window.history.state && window.history.state.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate('/', { replace: true });
+    }
+  };
 
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -32,7 +44,7 @@ const BlogList = () => {
       {/* Header */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 px-6 py-4 flex items-center">
         <button 
-          onClick={() => navigate(-1)}
+          onClick={handleBack}
           className="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600 active:scale-95 transition-all"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -52,7 +64,7 @@ const BlogList = () => {
       {/* Header */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 px-6 py-4 flex items-center">
         <button 
-          onClick={() => navigate(-1)}
+          onClick={handleBack}
           className="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600 active:scale-95 transition-all"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -77,6 +89,48 @@ const BlogList = () => {
             className="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-2xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all font-medium text-gray-700 shadow-sm"
           />
         </div>
+        {/* Dropdown Filters */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 max-w-4xl mx-auto">
+          <select 
+            value={selectedClass} 
+            onChange={e => setSelectedClass(e.target.value)}
+            className="bg-white border border-gray-200 text-gray-700 text-xs md:text-sm rounded-xl focus:ring-2 focus:ring-blue-200 focus:border-blue-500 block w-full p-2 md:p-3 outline-none shadow-sm font-medium cursor-pointer transition-all"
+          >
+            <option value="All Classes">All Classes</option>
+            <option value="Class 6">Class 6</option>
+            <option value="Class 7">Class 7</option>
+            <option value="Class 8">Class 8</option>
+          </select>
+
+          <select 
+            value={selectedSubject} 
+            onChange={e => setSelectedSubject(e.target.value)}
+            className="bg-white border border-gray-200 text-gray-700 text-xs md:text-sm rounded-xl focus:ring-2 focus:ring-blue-200 focus:border-blue-500 block w-full p-2 md:p-3 outline-none shadow-sm font-medium cursor-pointer transition-all"
+          >
+            <option value="All Subjects">All Subjects</option>
+            <option value="Science">Science</option>
+          </select>
+
+          <select 
+            value={selectedChapter} 
+            onChange={e => setSelectedChapter(e.target.value)}
+            className="bg-white border border-gray-200 text-gray-700 text-xs md:text-sm rounded-xl focus:ring-2 focus:ring-blue-200 focus:border-blue-500 block w-full p-2 md:p-3 outline-none shadow-sm font-medium cursor-pointer transition-all"
+          >
+            <option value="All Chapters">All Chapters</option>
+            <option value="Temperature">Temperature and Its Measurement</option>
+            <option value="Acids Bases and Salts">Acids, Bases and Salts</option>
+          </select>
+
+          <select 
+            value={selectedFormat} 
+            onChange={e => setSelectedFormat(e.target.value)}
+            className="bg-white border border-gray-200 text-gray-700 text-xs md:text-sm rounded-xl focus:ring-2 focus:ring-blue-200 focus:border-blue-500 block w-full p-2 md:p-3 outline-none shadow-sm font-medium cursor-pointer transition-all"
+          >
+            <option value="All Formats">All Formats</option>
+            <option value="Notes">Notes</option>
+            <option value="Important Questions">Important Questions</option>
+          </select>
+        </div>
       </div>
 
       <div className="px-4 max-w-7xl mx-auto">
@@ -87,11 +141,19 @@ const BlogList = () => {
           </div>
         ) : (
           (() => {
-            const filteredBlogs = blogs.filter(blog => 
-              blog.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-              blog.excerpt?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              blog.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-            );
+            const filteredBlogs = blogs.filter(blog => {
+              const matchesSearch = 
+                blog.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                blog.excerpt?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                blog.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+              
+              const matchesClass = selectedClass === 'All Classes' || blog.tags?.some(tag => tag.includes(selectedClass));
+              const matchesSubject = selectedSubject === 'All Subjects' || blog.tags?.some(tag => tag.includes(selectedSubject));
+              const matchesChapter = selectedChapter === 'All Chapters' || blog.tags?.some(tag => tag.includes(selectedChapter));
+              const matchesFormat = selectedFormat === 'All Formats' || blog.tags?.includes(selectedFormat);
+              
+              return matchesSearch && matchesClass && matchesSubject && matchesChapter && matchesFormat;
+            });
 
             if (filteredBlogs.length === 0) {
               return (

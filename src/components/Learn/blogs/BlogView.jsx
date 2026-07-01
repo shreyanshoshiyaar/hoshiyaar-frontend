@@ -12,6 +12,14 @@ const BlogView = () => {
   const [error, setError] = useState(false);
   const navigate = useNavigate();
 
+  const handleBack = () => {
+    if (window.history.state && window.history.state.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate('/blogs', { replace: true });
+    }
+  };
+
   useEffect(() => {
     if (!blog) return;
 
@@ -115,7 +123,7 @@ const BlogView = () => {
     <div className="min-h-screen bg-white pb-24">
       <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md px-6 py-4 flex items-center">
         <button 
-          onClick={() => navigate(-1)}
+          onClick={handleBack}
           className="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600 active:scale-95 transition-all"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -139,7 +147,7 @@ const BlogView = () => {
       {/* Header */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md px-6 py-4 flex items-center">
         <button 
-          onClick={() => navigate(-1)}
+          onClick={handleBack}
           className="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600 active:scale-95 transition-all"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
