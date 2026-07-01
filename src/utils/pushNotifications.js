@@ -40,10 +40,7 @@ export const setupPushNotifications = async (userId) => {
     presentationOptions: ['badge', 'sound', 'alert'],
   });
 
-  // Register with Apple / Google to receive push via APNS/FCM
-  await PushNotifications.register();
-
-  // On success, we should be able to receive notifications
+  // Add listeners BEFORE registering to avoid missing the registration event
   PushNotifications.addListener('registration', (token) => {
     console.log('Push registration success, token: ' + token.value);
     // Send the token to your server to keep it updated
@@ -66,4 +63,7 @@ export const setupPushNotifications = async (userId) => {
   PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
     console.log('Push action performed: ' + JSON.stringify(notification));
   });
+
+  // Register with Apple / Google to receive push via APNS/FCM
+  await PushNotifications.register();
 };
