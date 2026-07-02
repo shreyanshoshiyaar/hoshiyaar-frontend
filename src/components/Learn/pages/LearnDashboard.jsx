@@ -424,7 +424,35 @@ const LearnDashboard = ({ onboardingData }) => {
   }, []);
   const [showChapters, setShowChapters] = useState(false);
   const [chapterStats, setChapterStats] = useState({}); // { [chapterId]: { total, completed } }
+  const [showSchoolPrompt, setShowSchoolPrompt] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // 3-Day School Prompt Logic
+  useEffect(() => {
+    if (!user || user.school) return;
+
+    try {
+      const today = new Date().toDateString();
+      const lastDate = localStorage.getItem('hoshi_school_prompt_last_date');
+      let visits = parseInt(localStorage.getItem('hoshi_school_prompt_visits') || '0', 10);
+
+      if (lastDate !== today) {
+        visits += 1;
+        localStorage.setItem('hoshi_school_prompt_visits', visits.toString());
+        localStorage.setItem('hoshi_school_prompt_last_date', today);
+      }
+
+      if (visits > 0 && visits % 3 === 0) {
+        const promptedToday = localStorage.getItem('hoshi_school_prompt_shown_today') === today;
+        if (!promptedToday) {
+          setShowSchoolPrompt(true);
+          localStorage.setItem('hoshi_school_prompt_shown_today', today);
+        }
+      }
+    } catch (e) {
+      console.warn('Could not read school prompt state', e);
+    }
+  }, [user]);
 
   // Simple scroll position preservation using sessionStorage
   const saveScrollPosition = () => {
@@ -3213,6 +3241,44 @@ const LearnDashboard = ({ onboardingData }) => {
 
         {isMobileLayout && (
           <BottomNavigation />
+        )}
+        
+        {/* School Prompt Modal */}
+        {showSchoolPrompt && (
+          <div className="fixed inset-0 z-[1000] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl relative">
+              <button 
+                onClick={() => setShowSchoolPrompt(false)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border-4 border-white ring-4 ring-yellow-50">
+                <span className="text-4xl">🏆</span>
+              </div>
+              
+              <h2 className="text-2xl font-black text-gray-900 mb-2">
+                Where do you rank in your school?
+              </h2>
+              
+              <p className="text-gray-600 font-medium mb-6">
+                Add your school to see how you rank against students in your school
+              </p>
+
+              <button
+                onClick={() => {
+                  setShowSchoolPrompt(false);
+                  navigate('/ranks');
+                }}
+                className="w-full bg-[#2563EB] hover:bg-blue-700 text-white font-bold text-lg py-3 rounded-xl transition-colors shadow-md"
+              >
+                Add My School
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </ReviewProvider>

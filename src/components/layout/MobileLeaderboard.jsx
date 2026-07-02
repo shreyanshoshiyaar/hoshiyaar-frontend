@@ -133,7 +133,11 @@ const MobileLeaderboard = ({
                 onClick={() => setIsChangingSchool(!isChangingSchool)}
                 className="flex items-center shrink-0 gap-1 px-2 py-1 bg-white border border-blue-100 rounded-lg text-[#2563EB] text-[10px] font-black shadow-sm active:scale-95 transition-all"
               >
-                <span className="text-xs">🔄</span> Change
+                {user?.school ? (
+                  <><span className="text-xs">🔄</span> Change</>
+                ) : (
+                  <><span className="text-xs">➕</span> Add</>
+                )}
               </button>
             </div>
 

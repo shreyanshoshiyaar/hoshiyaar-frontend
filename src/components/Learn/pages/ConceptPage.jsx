@@ -16,7 +16,9 @@ import { trackLevelStart } from '../../../utils/analytics.js';
 // Large Lottie files are now fetched from the public folder to avoid build issues
 
 const ComicLightbox = ({ src, alt, onClose }) => {
-  const [scale, setScale] = useState(window.innerWidth < 768 ? 1 : 2.5);
+  const [scale, setScale] = useState(1);
+  const isDesktop = window.innerWidth >= 768;
+  const zoomFactor = isDesktop ? 1 : 2.5;
 
   return (
     <div 
@@ -26,7 +28,7 @@ const ComicLightbox = ({ src, alt, onClose }) => {
         alignItems: scale > 1 ? 'flex-start' : 'center',
         justifyContent: scale > 1 ? 'flex-start' : 'center',
       }}
-      onClick={() => setScale(s => s === 1 ? 2.5 : 1)}
+      onClick={() => setScale(s => s === 1 ? zoomFactor : 1)}
     >
       <button
         onClick={(e) => {
@@ -46,7 +48,7 @@ const ComicLightbox = ({ src, alt, onClose }) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          width: scale > 1 ? '250%' : '100%',
+          width: scale > 1 ? `${zoomFactor * 100}%` : '100%',
           minHeight: '100%',
           flexShrink: 0,
           transition: 'width 0.2s ease-out'
@@ -57,7 +59,7 @@ const ComicLightbox = ({ src, alt, onClose }) => {
           alt={alt}
           className="object-contain shadow-2xl transition-all duration-200 ease-out"
           style={{
-            cursor: scale === 1 ? 'zoom-in' : 'zoom-out',
+            cursor: isDesktop ? 'default' : (scale === 1 ? 'zoom-in' : 'zoom-out'),
             width: '100%',
             height: scale > 1 ? 'auto' : '100%',
             maxHeight: scale > 1 ? 'none' : '95vh',
@@ -67,9 +69,11 @@ const ComicLightbox = ({ src, alt, onClose }) => {
         />
       </div>
       
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 text-white/50 text-xs sm:text-sm font-bold tracking-wider pointer-events-none z-50 bg-black/50 px-4 py-2 rounded-full backdrop-blur-sm">
-        {scale === 1 ? 'Click to Magnify' : 'Scroll to Pan • Click to Reset'}
-      </div>
+      {!isDesktop && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 text-white/50 text-xs sm:text-sm font-bold tracking-wider pointer-events-none z-50 bg-black/50 px-4 py-2 rounded-full backdrop-blur-sm">
+          {scale === 1 ? 'Click to Magnify' : 'Scroll to Pan • Click to Reset'}
+        </div>
+      )}
     </div>
   );
 };
@@ -886,6 +890,13 @@ export default function ConceptPage() {
           </div>
         )}
         <NoSkipsModal isOpen={showNoSkipsModal} onClose={() => setShowNoSkipsModal(false)} />
+        {isZoomed && shouldShowComic && (
+          <ComicLightbox 
+            src={introComicUrls[comicSlideIndex]} 
+            alt={`Zoomed Comic ${comicSlideIndex + 1}`} 
+            onClose={() => setIsZoomed(false)} 
+          />
+        )}
       </div>
     );
   }
