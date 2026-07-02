@@ -450,27 +450,13 @@ const DesktopHome = () => {
         {/* MISSION & TESTIMONIALS SECTION */}
         <section id="mission-testimonials" className="bg-white">
           <div className="explore-section" style={{ paddingTop: '0' }}>
-            {/* Left Panel: Mission */}
-            <div className="mission-panel" style={{ flex: 1.2, border: '1px solid var(--border)', borderRadius: '24px', padding: '32px', background: '#f8fafc', display: 'flex', position: 'relative', overflow: 'hidden' }}>
-              <div style={{ zIndex: 2, position: 'relative' }}>
-                <h3 style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '13px', fontWeight: 800, color: '#1E3A8A', marginBottom: '12px', letterSpacing: '0.5px' }}>FIND YOUR FIRST MISSION</h3>
-                <p style={{ fontSize: '15px', color: '#334155', marginBottom: '24px', maxWidth: '280px', fontWeight: 600, lineHeight: 1.4 }}>Take a quick test and we'll suggest the perfect starting mission for you.</p>
-                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px 0', fontSize: '14px', color: '#475569', fontWeight: 600 }}>
-                  <li style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}><span style={{color: '#1d4ed8', fontWeight: 800}}>✓</span> Personalized for your level</li>
-                  <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><span style={{color: '#1d4ed8', fontWeight: 800}}>✓</span> Takes less than 3 minutes</li>
-                </ul>
-                <button className="bg-[#facc15] hover:bg-[#eab308] text-black font-extrabold px-6 py-3 rounded-lg shadow-sm transition-transform hover:-translate-y-1">Start My Mission ➔</button>
-              </div>
-              {/* Robot illustration */}
-              <div style={{ position: 'absolute', bottom: '-20px', right: '-20px', width: '220px', height: '220px', zIndex: 1 }}>
-                <img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779100397/img-to-link/rtyoddo8fjqspbtngsri.webp" alt="Hoshi Robot" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-              </div>
-            </div>
-
-            {/* Right Panel: Testimonials */}
-            <div className="testimonials-panel" style={{ flex: 1.8, minWidth: 0, border: '1px solid var(--border)', borderRadius: '24px', padding: '24px', background: 'white' }}>
-              <div className="explore-header" style={{ color: '#1e293b', marginBottom: '20px' }}>
-                <span style={{color: '#ef4444'}}>✨</span> WHAT OUR LEARNERS SAY <span style={{color: '#ef4444'}}>✨</span>
+            {/* Full Width Panel: Testimonials */}
+            <div className="testimonials-panel" style={{ width: '100%', border: '1px solid var(--border)', borderRadius: '24px', padding: '24px', background: 'white' }}>
+              <div className="explore-header" style={{ color: '#1e293b', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+                <div><span style={{color: '#ef4444'}}>✨</span> WHAT OUR LEARNERS SAY <span style={{color: '#ef4444'}}>✨</span></div>
+                <a href="https://play.google.com/store/apps/details?id=com.hoshiyaarlearning.app" target="_blank" rel="noreferrer" className="bg-[#1d4ed8] hover:bg-[#1e40af] text-white font-bold px-6 py-2 rounded-lg shadow-sm transition-transform hover:-translate-y-1" style={{ fontSize: '14px', textDecoration: 'none' }}>
+                  Download Our App ➔
+                </a>
               </div>
               <div 
                 className="no-scrollbar" 
@@ -478,7 +464,7 @@ const DesktopHome = () => {
                 onScroll={(e) => {
                   const container = e.target;
                   const scrollPos = container.scrollLeft;
-                  const cardWidth = container.offsetWidth / 2; // Since 2 cards are visible
+                  const cardWidth = container.offsetWidth / 4; // Since 4 cards are visible
                   const newIndex = Math.round(scrollPos / cardWidth);
                   setActiveReviewIdx(newIndex);
                 }}
@@ -491,7 +477,7 @@ const DesktopHome = () => {
                   const isExpanded = expandedReviews[idx];
                   
                   return (
-                    <div key={idx} style={{ flex: '0 0 auto', minWidth: 'calc(50% - 8px)', maxWidth: 'calc(50% - 8px)', padding: '20px', borderRadius: '16px', border: '1px solid #f1f5f9', background: '#f8fafc', fontSize: '13px', color: '#475569', scrollSnapAlign: 'start' }}>
+                    <div key={idx} style={{ flex: '0 0 auto', minWidth: 'calc(25% - 12px)', maxWidth: 'calc(25% - 12px)', padding: '20px', borderRadius: '16px', border: '1px solid #f1f5f9', background: '#f8fafc', fontSize: '13px', color: '#475569', scrollSnapAlign: 'start' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                         <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${t.name}&backgroundColor=${bgColor}`} style={{ width: '40px', height: '40px', borderRadius: '50%' }} alt={t.name} />
                         <div>
