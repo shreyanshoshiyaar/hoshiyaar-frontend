@@ -125,7 +125,7 @@ const DesktopLeaderboard = ({
                   onClick={() => setIsChangingSchool(true)}
                   className="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold rounded-lg text-xs transition-colors"
                 >
-                  Change School
+                  {user?.school ? "Change School" : "Add School"}
                 </button>
               )}
             </div>
