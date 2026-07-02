@@ -1,10 +1,17 @@
 // src/components/layout/DesktopHome.jsx
 import React, { useEffect, useState } from 'react';
+import { testimonials } from '../../constants/reviews.js';
 import './DesktopHome.css';
 
 const DesktopHome = () => {
   const [toastMsg, setToastMsg] = useState("");
   const [showToast, setShowToast] = useState(false);
+  const [activeReviewIdx, setActiveReviewIdx] = useState(0);
+  const [expandedReviews, setExpandedReviews] = useState({});
+
+  const toggleReview = (idx) => {
+    setExpandedReviews(prev => ({ ...prev, [idx]: !prev[idx] }));
+  };
 
   useEffect(() => {
     // Add Google Fonts for Fraunces and Instrument Sans if not already in document
@@ -113,10 +120,10 @@ const DesktopHome = () => {
               
               <div className="flex flex-wrap items-center gap-4 mb-10">
                 <a href="/signup" className="bg-[#FFC107] hover:bg-[#FFB300] text-[#4527A0] font-extrabold text-[16px] px-8 py-4 rounded-xl transition-transform hover:scale-105 shadow-md flex items-center gap-2">
-                  Start Learning 🚀
+                  Let's Play
                 </a>
-                <a href="#hoshi-cases" onClick={(e) => handleSmoothScroll(e, '#hoshi-cases')} className="bg-white hover:bg-slate-50 text-[#1E3A8A] font-bold text-[16px] px-8 py-4 rounded-xl transition-all border border-[#CBD5E1] shadow-sm hover:border-[#94A3B8]">
-                  Explore the Universe
+                <a href="https://play.google.com/store/apps/details?id=com.hoshiyaarlearning.app" target="_blank" rel="noopener noreferrer" className="bg-white hover:bg-slate-50 text-[#1E3A8A] font-bold text-[16px] px-8 py-4 rounded-xl transition-all border border-[#CBD5E1] shadow-sm hover:border-[#94A3B8]">
+                  Download our App
                 </a>
               </div>
               
@@ -203,6 +210,23 @@ const DesktopHome = () => {
 
         <section id="hoshi-overview">
           <div className="hoshi-container" style={{maxWidth: '1350px'}}>
+            
+            {/* Download App Promo Image */}
+            <div className="flex justify-center w-full mb-12 -mt-4 sm:-mt-8">
+              <a 
+                href="https://play.google.com/store/apps/details?id=com.hoshiyaarlearning.app" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="block max-w-6xl w-full mx-auto px-4 hover:scale-[1.02] transition-transform duration-300"
+              >
+                <img 
+                  src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1782994536/img-to-link/xdp3hhmspqxhkx6584oo.webp" 
+                  alt="Download HoshiYaar App" 
+                  className="w-full h-auto rounded-3xl shadow-2xl"
+                />
+              </a>
+            </div>
+
             <div className="section-label-center">
               <span style={{color: '#ea580c', fontSize: '16px'}}>🎉</span> HOW HOSHIYAAR WORKS <span style={{color: '#ea580c', fontSize: '16px'}}>🎉</span>
             </div>
@@ -444,47 +468,75 @@ const DesktopHome = () => {
             </div>
 
             {/* Right Panel: Testimonials */}
-            <div className="testimonials-panel" style={{ flex: 1.8, border: '1px solid var(--border)', borderRadius: '24px', padding: '24px', background: 'white' }}>
+            <div className="testimonials-panel" style={{ flex: 1.8, minWidth: 0, border: '1px solid var(--border)', borderRadius: '24px', padding: '24px', background: 'white' }}>
               <div className="explore-header" style={{ color: '#1e293b', marginBottom: '20px' }}>
                 <span style={{color: '#ef4444'}}>✨</span> WHAT OUR LEARNERS SAY <span style={{color: '#ef4444'}}>✨</span>
               </div>
-              <div style={{ display: 'flex', gap: '16px' }}>
-                {/* Testimonial 1 */}
-                <div style={{ flex: 1, padding: '20px', borderRadius: '16px', border: '1px solid #f1f5f9', background: '#f8fafc', fontSize: '13px', color: '#475569' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Aarav&backgroundColor=ffdfbf" style={{ width: '40px', height: '40px', borderRadius: '50%' }} alt="Aarav" />
-                    <div>
-                      <div style={{ fontWeight: 800, color: '#1e293b', fontSize: '14px' }}>Student</div>
-                      <div style={{ fontSize: '12px' }}>Aarav, Class 7</div>
+              <div 
+                className="no-scrollbar" 
+                style={{ display: 'flex', gap: '16px', overflowX: 'auto', scrollSnapType: 'x mandatory', paddingBottom: '8px' }}
+                onScroll={(e) => {
+                  const container = e.target;
+                  const scrollPos = container.scrollLeft;
+                  const cardWidth = container.offsetWidth / 2; // Since 2 cards are visible
+                  const newIndex = Math.round(scrollPos / cardWidth);
+                  setActiveReviewIdx(newIndex);
+                }}
+              >
+                {testimonials.map((t, idx) => {
+                  // Assign a consistent pastel background based on index
+                  const bgColors = ['ffdfbf', 'c0aede', 'b6e3f4', 'ffd1d1', 'c1f0c1', 'f3d0f5'];
+                  const bgColor = bgColors[idx % bgColors.length];
+                  
+                  const isExpanded = expandedReviews[idx];
+                  
+                  return (
+                    <div key={idx} style={{ flex: '0 0 auto', minWidth: 'calc(50% - 8px)', maxWidth: 'calc(50% - 8px)', padding: '20px', borderRadius: '16px', border: '1px solid #f1f5f9', background: '#f8fafc', fontSize: '13px', color: '#475569', scrollSnapAlign: 'start' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                        <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${t.name}&backgroundColor=${bgColor}`} style={{ width: '40px', height: '40px', borderRadius: '50%' }} alt={t.name} />
+                        <div>
+                          <div style={{ fontWeight: 800, color: '#1e293b', fontSize: '14px' }}>{t.role}</div>
+                          <div style={{ fontSize: '12px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '180px' }}>{t.name}, {t.subtext}</div>
+                        </div>
+                      </div>
+                      <p style={{ fontWeight: 500, lineHeight: 1.5, marginBottom: '16px' }}>
+                        {t.review.length > 200 && !isExpanded ? (
+                          <>
+                            {t.review.substring(0, 200)}...{' '}
+                            <span onClick={() => toggleReview(idx)} style={{ color: '#2563eb', cursor: 'pointer', fontWeight: 800 }}>more</span>
+                          </>
+                        ) : (
+                          <>
+                            "{t.review}"
+                            {t.review.length > 200 && isExpanded && (
+                              <span onClick={() => toggleReview(idx)} style={{ color: '#2563eb', cursor: 'pointer', fontWeight: 800 }}>{' '}less</span>
+                            )}
+                          </>
+                        )}
+                      </p>
+                      <div style={{ color: '#facc15', fontSize: '16px' }}>★★★★★</div>
                     </div>
-                  </div>
-                  <p style={{ fontWeight: 500, lineHeight: 1.5, marginBottom: '16px' }}>"The comics and videos make science so interesting! Practice missions are super fun and challenging."</p>
-                  <div style={{ color: '#facc15', fontSize: '16px' }}>★★★★★</div>
-                </div>
-                {/* Testimonial 2 */}
-                <div style={{ flex: 1, padding: '20px', borderRadius: '16px', border: '1px solid #f1f5f9', background: '#f8fafc', fontSize: '13px', color: '#475569' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Diya&backgroundColor=c0aede" style={{ width: '40px', height: '40px', borderRadius: '50%' }} alt="Diya" />
-                    <div>
-                      <div style={{ fontWeight: 800, color: '#1e293b', fontSize: '14px' }}>Student</div>
-                      <div style={{ fontSize: '12px' }}>Diya, Class 8</div>
-                    </div>
-                  </div>
-                  <p style={{ fontWeight: 500, lineHeight: 1.5, marginBottom: '16px' }}>"I love how I can learn, practice and check answers all in one place. It really helps before exams!"</p>
-                  <div style={{ color: '#facc15', fontSize: '16px' }}>★★★★★</div>
-                </div>
-                {/* Testimonial 3 */}
-                <div style={{ flex: 1, padding: '20px', borderRadius: '16px', border: '1px solid #f1f5f9', background: '#f8fafc', fontSize: '13px', color: '#475569' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Rohit&backgroundColor=b6e3f4" style={{ width: '40px', height: '40px', borderRadius: '50%' }} alt="Rohit" />
-                    <div>
-                      <div style={{ fontWeight: 800, color: '#1e293b', fontSize: '14px' }}>Parent</div>
-                      <div style={{ fontSize: '12px' }}>Rohit Verma</div>
-                    </div>
-                  </div>
-                  <p style={{ fontWeight: 500, lineHeight: 1.5, marginBottom: '16px' }}>"HoshiYaar has improved my daughter's confidence and focus. The progress tracking keeps us updated every day!"</p>
-                  <div style={{ color: '#facc15', fontSize: '16px' }}>★★★★★</div>
-                </div>
+                  );
+                })}
+              </div>
+
+              {/* Navigation Dots */}
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '6px', marginTop: '16px', flexWrap: 'wrap', padding: '0 16px' }}>
+                {testimonials.map((_, idx) => (
+                  // Only show dots up to the point where the last card is fully visible
+                  idx < testimonials.length - 1 && (
+                    <div 
+                      key={idx} 
+                      style={{ 
+                        width: '8px', 
+                        height: '8px', 
+                        borderRadius: '50%', 
+                        backgroundColor: idx === activeReviewIdx ? '#2563eb' : '#e2e8f0',
+                        transition: 'background-color 0.3s ease'
+                      }} 
+                    />
+                  )
+                ))}
               </div>
             </div>
           </div>
