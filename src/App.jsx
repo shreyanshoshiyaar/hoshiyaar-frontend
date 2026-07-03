@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { ReviewProvider } from './context/ReviewContext.jsx';
 
@@ -39,6 +39,7 @@ const About = lazy(() => import('./components/layout/About.jsx'));
 const Contact = lazy(() => import('./components/layout/Contact.jsx'));
 const Disclaimer = lazy(() => import('./components/Legal/Disclaimer.jsx'));
 const DeleteAccountPage = lazy(() => import('./components/features/DeleteAccountPage.jsx'));
+const AndroidForcedInstall = lazy(() => import('./components/layout/AndroidForcedInstall.jsx'));
 
 /**
  * Handles App-wide navigation logic:
@@ -187,6 +188,23 @@ const MainLayout = ({ children }) => {
 };
 
 function App() {
+  const isAndroidWebAndNotBot = () => {
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    const isAndroid = /android/i.test(userAgent);
+    const isBot = /bot|googlebot|crawler|spider|robot|crawling/i.test(userAgent);
+    const isNative = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+    
+    return isAndroid && !isBot && !isNative;
+  };
+
+  if (isAndroidWebAndNotBot()) {
+    return (
+      <Suspense fallback={<LoadingPage />}>
+        <AndroidForcedInstall />
+      </Suspense>
+    );
+  }
+
   return (
     <AuthProvider>
       <ReviewProvider>
@@ -376,6 +394,9 @@ function App() {
                 <Route path="/disclaimer" element={<Disclaimer />} />
                 {/* Hidden account management route — not linked anywhere in UI */}
                 <Route path="/account/remove" element={<DeleteAccountPage />} />
+                
+                {/* Catch-all redirect for broken links like /refund-policy */}
+                <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </Suspense>
           </Router>
