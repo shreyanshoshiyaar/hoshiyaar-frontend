@@ -45,24 +45,24 @@ const AndroidForcedInstall = () => {
       <div style={{ display: 'flex', position: 'relative', width: '100%', maxWidth: '450px', margin: '0 auto', flex: 1 }}>
         
         {/* Left Content Area */}
-        <div style={{ width: '100%', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', paddingTop: '20px' }}>
+        <div style={{ width: '100%', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', paddingTop: '10px' }}>
           
           {/* Logo */}
           <img 
             src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778743597/img-to-link/bihseec7aigbmau4amnd.png" 
             alt="HoshiYaar Logo" 
-            style={{ width: '150px', marginBottom: '12px' }}
+            style={{ width: '120px', marginBottom: '8px' }}
           />
 
           {/* Badge */}
           <div style={{
             backgroundColor: '#e0e7ff',
             color: '#4338ca',
-            padding: '6px 12px',
+            padding: '4px 10px',
             borderRadius: '20px',
-            fontSize: '13px',
+            fontSize: '11px',
             fontWeight: 800,
-            marginBottom: '12px',
+            marginBottom: '8px',
             letterSpacing: '0.5px'
           }}>
             CBSE • Grades 6 to 8
@@ -70,7 +70,7 @@ const AndroidForcedInstall = () => {
 
           {/* Headline */}
           <h1 style={{ 
-            fontSize: '32px', 
+            fontSize: '24px', 
             fontWeight: 900, 
             color: '#0f172a', 
             lineHeight: 1.15,
@@ -83,12 +83,12 @@ const AndroidForcedInstall = () => {
 
           {/* Paragraph */}
           <p style={{ 
-            fontSize: '15px', 
+            fontSize: '13px', 
             color: '#475569', 
-            lineHeight: 1.5,
+            lineHeight: 1.3,
             fontWeight: 500,
-            marginBottom: '16px',
-            paddingRight: '40%' /* Keep text from overlapping the baked-in right mascot */
+            marginBottom: '12px',
+            paddingRight: '45%' /* Keep text from overlapping the baked-in right mascot */
           }}>
             HoshiYaar turns CBSE Science into interactive stories, comics, videos, practice sessions, and visual learning experiences that kids love.
           </p>
@@ -99,9 +99,9 @@ const AndroidForcedInstall = () => {
             className="jiggle-btn"
             style={{
               display: 'block',
-              width: '220px',
+              width: '160px',
               transition: 'transform 0.2s',
-              marginBottom: '8px'
+              marginBottom: '6px'
             }}
           >
             <img 
@@ -112,8 +112,8 @@ const AndroidForcedInstall = () => {
           </a>
 
           {/* Trust Indicator */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '13px', fontWeight: 600 }}>
-            <span style={{ color: '#fbbf24', fontSize: '16px' }}>★★★★★</span> 
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#64748b', fontSize: '11px', fontWeight: 600 }}>
+            <span style={{ color: '#fbbf24', fontSize: '13px' }}>★★★★★</span> 
             Loved by 500+ students
           </div>
         </div>
