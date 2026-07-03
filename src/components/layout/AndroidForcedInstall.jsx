@@ -21,8 +21,8 @@ const AndroidForcedInstall = () => {
         top: '68%', /* Adjusted slightly up to perfectly center vertically in the white gap */
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: '85%',
-        maxWidth: '320px',
+        width: '70%',
+        maxWidth: '260px',
         zIndex: 10
       }}>
         <a 
