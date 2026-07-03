@@ -7,7 +7,10 @@ const AndroidForcedInstall = () => {
     <div style={{
       minHeight: '100vh',
       width: '100vw',
-      backgroundColor: '#ffffff',
+      backgroundImage: 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1783061841/img-to-link/cdo5e0x8qeqv3zabpxyt.webp")',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
       fontFamily: '"Inter", sans-serif',
       overflow: 'hidden',
       display: 'flex',
