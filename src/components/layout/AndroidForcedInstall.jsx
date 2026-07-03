@@ -5,16 +5,16 @@ const AndroidForcedInstall = () => {
 
   return (
     <div style={{
-      height: '100dvh', /* Fixed dynamic viewport height to strictly prevent scrolling */
+      minHeight: '100vh',
       width: '100vw',
       backgroundColor: '#ffffff',
       fontFamily: '"Inter", sans-serif',
-      overflow: 'hidden', /* Forbid any scrolling */
+      overflow: 'hidden',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '2vh 24px',
+      padding: '32px 24px',
       position: 'relative',
       boxSizing: 'border-box'
     }}>
