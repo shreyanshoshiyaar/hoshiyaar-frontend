@@ -5,51 +5,90 @@ const AndroidForcedInstall = () => {
 
   return (
     <div style={{
-      position: 'relative',
       minHeight: '100vh',
       width: '100vw',
-      backgroundImage: 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1783054926/img-to-link/dmkl9pa9fghmsfchtwsf.webp")',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      backgroundRepeat: 'no-repeat',
+      backgroundColor: '#ffffff', /* Plain white background */
       fontFamily: '"Inter", sans-serif',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '32px 24px',
+      position: 'relative'
     }}>
-      {/* Position the button over the empty white space in the image */}
       <div style={{
-        position: 'absolute',
-        top: '68%', /* Adjusted slightly up to perfectly center vertically in the white gap */
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: '70%',
-        maxWidth: '260px',
-        zIndex: 10
+        zIndex: 10,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        width: '100%',
+        maxWidth: '380px'
       }}>
+        {/* Mascot Area */}
+        <div style={{ position: 'relative', marginBottom: '40px' }}>
+          <img 
+            src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779100397/img-to-link/rtyoddo8fjqspbtngsri.webp" 
+            alt="Hoshi Mascot" 
+            style={{ 
+              width: '180px', 
+              height: '180px', 
+              objectFit: 'contain',
+              filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.1))'
+            }} 
+          />
+        </div>
+
+        {/* Clean, Modern Text Content */}
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <h1 style={{ 
+            fontSize: '32px', 
+            fontWeight: 900, 
+            color: '#0f172a', 
+            lineHeight: 1.2,
+            marginBottom: '16px',
+            letterSpacing: '-0.5px'
+          }}>
+            Unlock the Full<br/>
+            <span style={{ color: '#2563eb' }}>Experience</span> 🚀
+          </h1>
+          <p style={{ 
+            fontSize: '16px', 
+            color: '#475569', 
+            lineHeight: 1.6,
+            fontWeight: 500,
+            padding: '0 10px'
+          }}>
+            HoshiYaar's interactive missions and stories are best experienced on our dedicated Android app.
+          </p>
+        </div>
+
+        {/* Official Google Play Badge */}
         <a 
           href={playStoreLink}
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '12px',
-            backgroundColor: '#1d4ed8',
-            color: 'white',
-            textDecoration: 'none',
-            padding: '16px 24px',
-            borderRadius: '12px',
-            fontWeight: 800,
-            fontSize: '17px',
-            width: '100%',
-            boxShadow: '0 8px 15px rgba(29, 78, 216, 0.4)',
-            transition: 'all 0.2s',
-            border: '2px solid rgba(255, 255, 255, 0.2)'
+            display: 'block',
+            width: '200px', // Standard width for the badge
+            transition: 'transform 0.2s',
           }}
+          onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+          onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
         >
-          <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
-            <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.53,12.9 20.18,13.18L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z" />
-          </svg>
-          Download App
+          <img 
+            src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" 
+            alt="Get it on Google Play"
+            style={{
+              width: '100%',
+              height: 'auto',
+              display: 'block'
+            }}
+          />
         </a>
+
+        {/* Trust Indicator */}
+        <div style={{ marginTop: '24px', display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '14px', fontWeight: 600 }}>
+          <span style={{ color: '#fbbf24', fontSize: '18px' }}>★★★★★</span> Loved by 100+ students
+        </div>
       </div>
     </div>
   );
