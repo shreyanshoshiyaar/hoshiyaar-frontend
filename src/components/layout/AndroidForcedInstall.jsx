@@ -27,7 +27,7 @@ const AndroidForcedInstall = () => {
     <div style={{
       minHeight: '100dvh',
       width: '100vw',
-      backgroundImage: 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1783072515/img-to-link/bs5ziuk6ryafzjksrxph.webp")',
+      backgroundImage: 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1783073741/img-to-link/xykx3k5eax8vjpw0axcx.webp")',
       backgroundSize: 'cover',
       backgroundPosition: 'top center',
       backgroundRepeat: 'no-repeat',
