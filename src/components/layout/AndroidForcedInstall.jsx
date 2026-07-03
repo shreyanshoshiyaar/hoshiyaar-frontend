@@ -16,8 +16,8 @@ const AndroidForcedInstall = () => {
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      justifyContent: 'center',
-      padding: '32px 24px',
+      justifyContent: 'flex-start', /* Changed from center to move content up */
+      padding: '12vh 24px 2vh', /* Added top padding to position it correctly */
       position: 'relative',
       boxSizing: 'border-box'
     }}>
@@ -55,8 +55,7 @@ const AndroidForcedInstall = () => {
             marginBottom: '1.5vh',
             letterSpacing: '-0.5px'
           }}>
-            Unlock the Full<br/>
-            <span style={{ color: '#2563eb' }}>Experience</span> 🚀
+            App is <span style={{ color: '#2563eb' }}>Live</span> 🚀
           </h1>
           <p style={{ 
             fontSize: 'clamp(14px, 4vw, 16px)', 
@@ -93,8 +92,9 @@ const AndroidForcedInstall = () => {
         </a>
 
         {/* Trust Indicator */}
-        <div style={{ marginTop: '2vh', display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '14px', fontWeight: 600 }}>
-          <span style={{ color: '#fbbf24', fontSize: '18px' }}>★★★★★</span> Loved by 100+ students
+        <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', color: '#64748b', fontSize: '14px', fontWeight: 600 }}>
+          <span style={{ color: '#fbbf24', fontSize: '20px', letterSpacing: '2px' }}>★★★★★</span>
+          <span>Loved by 100+ students</span>
         </div>
       </div>
     </div>
