@@ -5,34 +5,37 @@ const AndroidForcedInstall = () => {
 
   return (
     <div style={{
-      minHeight: '100vh',
+      height: '100dvh', /* Fixed dynamic viewport height to strictly prevent scrolling */
       width: '100vw',
-      backgroundColor: '#ffffff', /* Plain white background */
+      backgroundColor: '#ffffff',
       fontFamily: '"Inter", sans-serif',
-      overflow: 'hidden',
+      overflow: 'hidden', /* Forbid any scrolling */
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '32px 24px',
-      position: 'relative'
+      padding: '2vh 24px',
+      position: 'relative',
+      boxSizing: 'border-box'
     }}>
       <div style={{
         zIndex: 10,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
+        justifyContent: 'center',
         width: '100%',
-        maxWidth: '380px'
+        maxWidth: '380px',
+        maxHeight: '100%'
       }}>
         {/* Mascot Area */}
-        <div style={{ position: 'relative', marginBottom: '40px' }}>
+        <div style={{ position: 'relative', marginBottom: '3vh' }}>
           <img 
             src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779100397/img-to-link/rtyoddo8fjqspbtngsri.webp" 
             alt="Hoshi Mascot" 
             style={{ 
-              width: '180px', 
-              height: '180px', 
+              width: '150px', // slightly smaller to guarantee fit on tiny screens
+              height: '150px', 
               objectFit: 'contain',
               filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.1))'
             }} 
@@ -40,24 +43,25 @@ const AndroidForcedInstall = () => {
         </div>
 
         {/* Clean, Modern Text Content */}
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '3vh' }}>
           <h1 style={{ 
-            fontSize: '32px', 
+            fontSize: 'clamp(24px, 7vw, 32px)', // scales down if needed
             fontWeight: 900, 
             color: '#0f172a', 
             lineHeight: 1.2,
-            marginBottom: '16px',
+            marginBottom: '1.5vh',
             letterSpacing: '-0.5px'
           }}>
             Unlock the Full<br/>
             <span style={{ color: '#2563eb' }}>Experience</span> 🚀
           </h1>
           <p style={{ 
-            fontSize: '16px', 
+            fontSize: 'clamp(14px, 4vw, 16px)', 
             color: '#475569', 
-            lineHeight: 1.6,
+            lineHeight: 1.5,
             fontWeight: 500,
-            padding: '0 10px'
+            padding: '0 10px',
+            margin: 0
           }}>
             HoshiYaar's interactive missions and stories are best experienced on our dedicated Android app.
           </p>
@@ -68,7 +72,7 @@ const AndroidForcedInstall = () => {
           href={playStoreLink}
           style={{
             display: 'block',
-            width: '200px', // Standard width for the badge
+            width: '180px', // slightly smaller
             transition: 'transform 0.2s',
           }}
           onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
@@ -86,7 +90,7 @@ const AndroidForcedInstall = () => {
         </a>
 
         {/* Trust Indicator */}
-        <div style={{ marginTop: '24px', display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '14px', fontWeight: 600 }}>
+        <div style={{ marginTop: '2vh', display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '14px', fontWeight: 600 }}>
           <span style={{ color: '#fbbf24', fontSize: '18px' }}>★★★★★</span> Loved by 100+ students
         </div>
       </div>
