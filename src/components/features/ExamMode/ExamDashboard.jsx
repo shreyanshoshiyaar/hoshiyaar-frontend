@@ -113,7 +113,10 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
 
         {loading ? (
           <div className="flex justify-center my-8 bg-black/20 p-6 rounded-[1.5rem] backdrop-blur-md border border-white/10">
-            <SimpleLoading />
+            <div className="flex flex-col items-center p-8">
+              <div className="w-12 h-12 border-4 border-cyan-400/30 border-t-cyan-400 rounded-full animate-spin mb-4"></div>
+              <p className="text-cyan-200/80 tracking-wide font-medium animate-pulse">Loading exam configuration...</p>
+            </div>
           </div>
         ) : examConfig && examConfig.questions && examConfig.questions.length > 0 ? (
           <div className="bg-black/30 backdrop-blur-xl rounded-[1.5rem] p-8 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] border border-white/10 w-full max-w-3xl mx-auto text-center flex flex-col items-center transform transition-all hover:-translate-y-1 duration-300">
