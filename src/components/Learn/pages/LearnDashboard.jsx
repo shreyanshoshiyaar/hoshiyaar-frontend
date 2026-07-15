@@ -11,6 +11,8 @@ import { progressKey } from "../../../utils/progressKey.js";
 import Lottie from "lottie-react";
 import NetworkError from "../../ui/NetworkError.jsx";
 // pathAnimationData will be fetched dynamically to avoid build/performance issues
+import SimpleLoading from '../../ui/SimpleLoading.jsx';
+import ExamDashboard from '../../features/ExamMode/ExamDashboard.jsx';
 import MobileHome from "../../layout/MobileHome.jsx";
 import BottomNavigation from "../../layout/BottomNavigation.jsx";
 import MobileLeaderboard from "../../layout/MobileLeaderboard.jsx";
@@ -111,6 +113,14 @@ const NavHomeIcon = React.memo(({ active }) => (
   <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
     <polyline points="9 22 9 12 15 12 15 22" />
+  </svg>
+));
+
+const NavExamIcon = React.memo(({ active }) => (
+  <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <polyline points="14 2 14 8 20 8" />
+    <path d="M9 15l2 2 4-4" />
   </svg>
 ));
 
@@ -360,6 +370,7 @@ const LearnDashboard = ({ onboardingData }) => {
     if (p === '/learn') return 'learn';
     if (p === '/ranks') return 'ranks';
     if (p === '/more') return 'more';
+    if (p === '/exam') return 'exam';
     return 'home'; // /home or anything else
   })();
   const [chapterTitle, setChapterTitle] = useState("");
@@ -1948,6 +1959,14 @@ const LearnDashboard = ({ onboardingData }) => {
           </a>
           <a
             href="#"
+            onClick={(e) => { e.preventDefault(); navigate('/exam'); }}
+            className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors ${activeTab === 'exam' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
+          >
+            <NavExamIcon active={activeTab === 'exam'} />
+            <span>Exam</span>
+          </a>
+          <a
+            href="#"
             onClick={(e) => { e.preventDefault(); navigate('/ranks'); }}
             className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors ${activeTab === 'ranks' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
           >
@@ -2060,6 +2079,17 @@ const LearnDashboard = ({ onboardingData }) => {
           ) : (
             <DesktopMore stars={stars} weeklyStars={weeklyStars} />
           )
+        ) : activeTab === 'exam' ? (
+          <ExamDashboard 
+            chapterId={chapterId} 
+            chapterTitle={chapterTitle} 
+            subjectName={subjectName}
+            chaptersList={chaptersList}
+            onChangeChapter={(id, title) => {
+              setChapterId(id);
+              setChapterTitle(title);
+            }} 
+          />
         ) : (
           <>
             <main className={`flex-grow ${isMobileLayout ? 'p-0' : 'px-3 pb-3'} overflow-y-auto no-scrollbar bg-transparent ${isMobileLayout ? 'mt-0 overflow-x-hidden pb-10' : 'mt-16 md:mt-0 overflow-x-visible'}`}>
@@ -2252,7 +2282,30 @@ const LearnDashboard = ({ onboardingData }) => {
                     {/* Center line (dynamic height) */}
                     {/* Render each unit block one after another */}
                     {(() => {
-                      if (unitsList.length === 0 && modulesList.length > 0) {
+                      if (unitsList.length === 0 && modulesList.length === 0) {
+                        return (
+                          <div className="flex flex-col items-center justify-center h-[60vh] px-6 text-center animate-in fade-in zoom-in duration-300">
+                            <div className="w-24 h-24 mb-6 text-slate-300">
+                              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                              </svg>
+                            </div>
+                            <h3 className="text-2xl font-black text-slate-700 mb-2">No Lessons Found</h3>
+                            <p className="text-slate-500 mb-8 max-w-md">
+                              We couldn't find any lessons here right now. Please check back later or explore another chapter!
+                            </p>
+                            <button
+                              onClick={() => setShowChapters(true)}
+                              className="bg-[#2563EB] hover:bg-blue-600 text-white px-8 py-3.5 rounded-2xl font-bold shadow-[0_4px_0_0_#1D4ED8] hover:shadow-[0_2px_0_0_#1D4ED8] hover:translate-y-[2px] transition-all flex items-center gap-2"
+                            >
+                              <span className="inline-flex items-center justify-center w-6 h-6">
+                                <ChapterNavIcon />
+                              </span>
+                              View Chapters
+                            </button>
+                          </div>
+                        );
+                      } else if (unitsList.length === 0 && modulesList.length > 0) {
                         return (
                           <div
                             className={`relative ${isMobileLayout ? 'pt-0' : 'pt-12'} pb-10`}

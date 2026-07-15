@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { getApiBase } from '../../utils/apiBase';
 
-const CURRENT_VERSION_CODE = 40; // Updated to match your latest build
+const CURRENT_VERSION_CODE = 39; // Temporarily set to 39 for local testing
 const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.hoshiyaarlearning.app';
 
 const UpdatePrompt = () => {
@@ -11,8 +12,15 @@ const UpdatePrompt = () => {
     useEffect(() => {
         const checkVersion = async () => {
             try {
+                // Only check for updates on Native Android
+                const isNative = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+                if (!isNative) {
+                    setLoading(false);
+                    return;
+                }
+
                 // Fetch the minimum required version from your settings API
-                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/settings/min_android_version`);
+                const response = await axios.get(`${getApiBase()}/api/settings/min_android_version`);
 
                 if (response.data && response.data.value) {
                     const minVersion = parseInt(response.data.value, 10);

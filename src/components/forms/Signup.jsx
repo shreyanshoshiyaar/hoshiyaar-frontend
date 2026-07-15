@@ -20,6 +20,7 @@ const Signup = () => {
     classLevel: '',
     email: '',
     password: '',
+    whatsappOptIn: true,
   });
 
   const [usernameStatus, setUsernameStatus] = useState({ checking: false, available: null, message: '' });
@@ -27,7 +28,8 @@ const Signup = () => {
   const { login } = useAuth();
 
   const onChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    setFormData((prev) => ({ ...prev, [e.target.name]: value }));
   };
 
   // Debounced username availability check (only active on step 3)
@@ -90,7 +92,8 @@ const Signup = () => {
       setResendTimer(60);
       setResendCount(0);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to send OTP via WhatsApp. Please try again.');
+      console.error("OTP Send Error:", err);
+      setError(err.response?.data?.message || err.message || 'Failed to send OTP via WhatsApp. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -126,7 +129,8 @@ const Signup = () => {
         classLevel: formData.classLevel || null,
         phone: formData.phone || null,
         email: formData.email.trim() || null,
-        password: formData.password
+        password: formData.password,
+        whatsappOptIn: formData.whatsappOptIn
       });
       if (response.data && response.data.token) {
         window.hyTrack?.("sign_up", {
@@ -392,7 +396,21 @@ const Signup = () => {
                 </button>
               </div>
 
-              <div className="pt-4">
+              <div className="flex items-start mt-4 mb-2">
+                <input
+                  type="checkbox"
+                  id="whatsappOptIn"
+                  name="whatsappOptIn"
+                  checked={formData.whatsappOptIn}
+                  onChange={onChange}
+                  className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded cursor-pointer shrink-0"
+                />
+                <label htmlFor="whatsappOptIn" className="ml-2 block text-xs sm:text-sm text-slate-600 cursor-pointer">
+                  I agree to receive HoshiYaar learning updates, reminders and progress messages on WhatsApp.
+                </label>
+              </div>
+
+              <div className="pt-2">
                 <button 
                   type="submit" 
                   disabled={isLoading || usernameStatus.available === false || usernameStatus.checking}

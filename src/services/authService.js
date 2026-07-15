@@ -150,6 +150,7 @@ const deleteBlog = (id, opts) => api.delete(`/api/blogs/${id}`, opts);
 
 // Admin User Analytics
 const getUsersAnalytics = (opts) => api.get('/api/admin/users-analytics', opts);
+const updateUserSchool = (id, school, opts) => api.put(`/api/admin/users/${id}/school`, { school }, opts);
 
 // Export the functions
 const authService = {
@@ -176,6 +177,7 @@ const authService = {
   updateBlog,
   deleteBlog,
   getUsersAnalytics,
+  updateUserSchool,
   sendOtp,
   verifyOtp,
   resetPassword,

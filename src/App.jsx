@@ -40,12 +40,17 @@ const Contact = lazy(() => import('./components/layout/Contact.jsx'));
 const Disclaimer = lazy(() => import('./components/Legal/Disclaimer.jsx'));
 const DeleteAccountPage = lazy(() => import('./components/features/DeleteAccountPage.jsx'));
 const AndroidForcedInstall = lazy(() => import('./components/layout/AndroidForcedInstall.jsx'));
+const InteractiveStory = lazy(() => import('./components/features/InteractiveStory.jsx'));
+const ExamPlay = lazy(() => import('./components/features/ExamMode/ExamPlay.jsx'));
+
+import { CapacitorUpdater } from '@capgo/capacitor-updater';
 
 /**
  * Handles App-wide navigation logic:
  * 1. Restores last visited path on startup.
  * 2. Saves current path to localStorage.
  * 3. Manages Hardware Back Button.
+ * 4. Notifies Capgo that the app started successfully.
  */
 const NavigationController = () => {
   const navigate = useNavigate();
@@ -57,10 +62,15 @@ const NavigationController = () => {
     locationRef.current = location;
   }, [location]);
 
-  // Handle Startup (Restore Path)
+  // Handle Startup (Restore Path & Capgo)
   useEffect(() => {
     try {
       const isNative = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+      
+      // Notify Capgo OTA Updater that the app booted successfully
+      if (isNative) {
+        CapacitorUpdater.notifyAppReady().catch(console.error);
+      }
       const savedPath = localStorage.getItem('hoshiyaar_last_path');
       
       if (savedPath && savedPath !== '/') {
@@ -218,7 +228,12 @@ function App() {
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/loading" element={<LoadingPage />} />
-
+                <Route path="/story-demo" element={<InteractiveStory />} />
+                <Route path="/exam/play" element={
+                  <ProtectedRoute>
+                    <ExamPlay />
+                  </ProtectedRoute>
+                } />
                 {/* Home Page Route */}
                 <Route path="/" element={
                   <MainLayout>
@@ -273,6 +288,14 @@ function App() {
                 />
                 <Route 
                   path="/more" 
+                  element={
+                    <ProtectedRoute>
+                      <Learn />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/exam" 
                   element={
                     <ProtectedRoute>
                       <Learn />

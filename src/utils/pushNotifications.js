@@ -12,15 +12,14 @@ export const setupPushNotifications = async (userId) => {
   // Android 13+ will also prompt the user for permission.
   let permStatus = await PushNotifications.checkPermissions();
 
-  if (permStatus.receive === 'prompt') {
+  if (permStatus.receive === 'prompt' || permStatus.receive === 'prompt-with-rationale') {
     permStatus = await PushNotifications.requestPermissions();
   }
 
   if (permStatus.receive !== 'granted') {
-    console.warn('Push notification permission denied');
-    // We still update activity even if notifications are denied
+    console.warn('Push notification permission denied, but continuing to fetch token for silent payloads.');
+    // We update activity without token first, in case the fallback fails
     authService.updateActivity(userId).catch(console.error);
-    return;
   }
 
   // Create the notification channel (required for Android 8+)
@@ -65,5 +64,23 @@ export const setupPushNotifications = async (userId) => {
   });
 
   // Register with Apple / Google to receive push via APNS/FCM
-  await PushNotifications.register();
+  try {
+    await PushNotifications.register();
+  } catch (error) {
+    console.warn('Capacitor PushNotifications.register() failed or was blocked:', error);
+  }
+
+  // Fallback: force fetch token directly using our native bridge
+  if (Capacitor.getPlatform() === 'android' && window.NativeFCM) {
+    const handleNativeToken = (e) => {
+      const token = e.detail;
+      if (token) {
+        console.log('Force fetched FCM token: ' + token);
+        authService.updateActivity(userId, token).catch(console.error);
+      }
+      window.removeEventListener('onNativeFCMToken', handleNativeToken);
+    };
+    window.addEventListener('onNativeFCMToken', handleNativeToken);
+    window.NativeFCM.fetchToken();
+  }
 };

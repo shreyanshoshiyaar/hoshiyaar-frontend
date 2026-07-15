@@ -16,6 +16,14 @@ const LearnIcon = ({ active }) => (
   </svg>
 );
 
+const ExamIcon = ({ active }) => (
+  <svg className={`w-6 h-6 ${active ? 'text-[#2563EB]' : 'text-gray-400'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <polyline points="14 2 14 8 20 8" />
+    <path d="M9 15l2 2 4-4" />
+  </svg>
+);
+
 const RanksIcon = ({ active }) => (
   <svg className={`w-6 h-6 ${active ? 'text-[#2563EB]' : 'text-gray-400'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
@@ -42,6 +50,7 @@ const BottomNavigation = () => {
 
   const isHome = path === '/home';
   const isLearn = path === '/learn';
+  const isExam = path === '/exam';
   const isRanks = path === '/ranks';
   const isMore = path === '/more';
 
@@ -49,7 +58,7 @@ const BottomNavigation = () => {
     <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 flex justify-around items-center pb-safe pt-2 z-[2000] shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
       <button 
         onClick={() => navigate('/home', { replace: true })}
-        className={`flex flex-col items-center justify-center w-1/4 pb-2 relative transition-all ${isHome ? 'text-[#2563EB]' : 'text-gray-400'}`}
+        className={`flex flex-col items-center justify-center w-1/5 pb-2 relative transition-all ${isHome ? 'text-[#2563EB]' : 'text-gray-400'}`}
       >
         <HomeIcon active={isHome} />
         <span className="text-[10px] font-black mt-1">Home</span>
@@ -58,7 +67,7 @@ const BottomNavigation = () => {
 
       <button 
         onClick={() => navigate('/learn', { replace: true })}
-        className={`flex flex-col items-center justify-center w-1/4 pb-2 relative transition-all ${isLearn ? 'text-[#2563EB]' : 'text-gray-400'}`}
+        className={`flex flex-col items-center justify-center w-1/5 pb-2 relative transition-all ${isLearn ? 'text-[#2563EB]' : 'text-gray-400'}`}
       >
         <LearnIcon active={isLearn} />
         <span className="text-[10px] font-black mt-1">Learn</span>
@@ -66,8 +75,17 @@ const BottomNavigation = () => {
       </button>
 
       <button 
+        onClick={() => navigate('/exam', { replace: true })}
+        className={`flex flex-col items-center justify-center w-1/5 pb-2 relative transition-all ${isExam ? 'text-[#2563EB]' : 'text-gray-400'}`}
+      >
+        <ExamIcon active={isExam} />
+        <span className="text-[10px] font-black mt-1">Exam</span>
+        {isExam && <div className="absolute top-[-8px] left-1/2 -translate-x-1/2 w-8 h-1 bg-[#2563EB] rounded-full" />}
+      </button>
+
+      <button 
         onClick={() => navigate('/ranks', { replace: true })}
-        className={`flex flex-col items-center justify-center w-1/4 pb-2 relative transition-all ${isRanks ? 'text-[#2563EB]' : 'text-gray-400'}`}
+        className={`flex flex-col items-center justify-center w-1/5 pb-2 relative transition-all ${isRanks ? 'text-[#2563EB]' : 'text-gray-400'}`}
       >
         <RanksIcon active={isRanks} />
         <span className="text-[10px] font-black mt-1">Ranks</span>
@@ -76,7 +94,7 @@ const BottomNavigation = () => {
 
       <button 
         onClick={() => navigate('/more', { replace: true })}
-        className={`flex flex-col items-center justify-center w-1/4 pb-2 relative transition-all ${isMore ? 'text-[#2563EB]' : 'text-gray-400'}`}
+        className={`flex flex-col items-center justify-center w-1/5 pb-2 relative transition-all ${isMore ? 'text-[#2563EB]' : 'text-gray-400'}`}
       >
         <MoreIcon active={isMore} />
         <span className="text-[10px] font-black mt-1">More</span>
