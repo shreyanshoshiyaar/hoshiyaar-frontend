@@ -65,7 +65,8 @@ const ForgotPassword = () => {
       setResendTimer(60);
       setResendCount(0);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to send OTP via WhatsApp. Please try again.');
+      console.error("OTP Send Error:", err);
+      setError(err.response?.data?.message || err.message || 'Failed to send OTP via WhatsApp. Please try again.');
     } finally {
       setIsLoading(false);
     }

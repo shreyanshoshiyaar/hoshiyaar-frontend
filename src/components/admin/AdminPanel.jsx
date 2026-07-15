@@ -5,6 +5,8 @@ import ContentEditor from './ContentEditor';
 import BlogManager from './BlogManager';
 import SystemSettingsManager from './SystemSettingsManager';
 import UserAnalytics from './UserAnalytics';
+import InteractiveStoryManager from './InteractiveStoryManager';
+import ExamManager from './ExamManager';
 
 const UnitEditRow = ({ unit, onUpdateUnit }) => {
   const [title, setTitle] = useState(unit.title || '');
@@ -321,11 +323,21 @@ const AdminPanel = () => {
               className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
                 activeTab === 'curriculum'
                   ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
-                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
+                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50 hover:border-slate-300'
               }`}
             >
-              <span className="text-base">📚</span>
-              <span>Content Management</span>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+              <span>Content</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('exams')}
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
+                activeTab === 'exams'
+                  ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
+                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50 hover:border-slate-300'
+              }`}
+            >
+              <span>Exams</span>
             </button>
             <button
               onClick={() => setActiveTab('blogs')}
@@ -348,6 +360,16 @@ const AdminPanel = () => {
             >
               <span className="text-base">⚙️</span>
               <span>System Settings</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('stories')}
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
+                activeTab === 'stories'
+                  ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
+                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50 hover:border-slate-300'
+              }`}
+            >
+              Interactive Stories
             </button>
             <button
               onClick={() => setActiveTab('analytics')}
@@ -373,8 +395,8 @@ const AdminPanel = () => {
         </div>
       </div>
 
-      {/* ── Tab Panel: Content Management ── */}
-      {activeTab === 'curriculum' && (
+      {/* ── Tab Panel: Content Management & Exams ── */}
+      {(activeTab === 'curriculum' || activeTab === 'exams') && (
         <div className="max-w-7xl mx-auto py-8 px-4">
 
           {error && (
@@ -387,7 +409,7 @@ const AdminPanel = () => {
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-6">
             <h2 className="text-xl font-bold text-gray-800 mb-4">Select Content Path</h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className={`grid grid-cols-1 ${activeTab === 'curriculum' ? 'md:grid-cols-5' : 'md:grid-cols-4'} gap-4`}>
               {/* Board Dropdown */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Board</label>
@@ -468,25 +490,27 @@ const AdminPanel = () => {
               </div>
 
               {/* Module Dropdown */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Module</label>
-                <select
-                  value={selectedModule}
-                  onChange={handleModuleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                  disabled={!selectedChapter || loading}
-                >
-                  <option value="">Select Module</option>
-                  {modules.map((module) => (
-                    <option key={module._id} value={module._id}>{module.title}</option>
-                  ))}
-                </select>
-              </div>
+              {activeTab === 'curriculum' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Module</label>
+                  <select
+                    value={selectedModule}
+                    onChange={handleModuleChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    disabled={!selectedChapter || loading}
+                  >
+                    <option value="">Select Module</option>
+                    {modules.map((module) => (
+                      <option key={module._id} value={module._id}>{module.title}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Unit Management section when chapter is selected */}
-          {selectedChapter && units.length > 0 && (
+          {selectedChapter && units.length > 0 && activeTab === 'curriculum' && (
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-6">
               <h2 className="text-xl font-semibold text-gray-800 mb-4">Unit Image &amp; Background Settings</h2>
               <div className="grid grid-cols-1 gap-4">
@@ -498,7 +522,7 @@ const AdminPanel = () => {
           )}
 
           {/* Content Editor */}
-          {selectedModule && (
+          {selectedModule && activeTab === 'curriculum' && (
             <ContentEditor
               moduleId={selectedModule}
               moduleTitle={modules.find(m => m._id === selectedModule)?.title || ''}
@@ -508,6 +532,17 @@ const AdminPanel = () => {
               chapterId={selectedChapter}
               chapterTitle={chapters.find(c => c._id === selectedChapter)?.title || ''}
             />
+          )}
+
+          {/* Exam Manager */}
+          {selectedChapter && activeTab === 'exams' && (
+            <div className="mt-8 border-t border-slate-200 pt-8">
+              <h2 className="text-2xl font-black text-slate-800 mb-4 px-2">Exam Configuration</h2>
+              <ExamManager 
+                chapterId={selectedChapter}
+                chapterTitle={chapters.find(c => c._id === selectedChapter)?.title || ''}
+              />
+            </div>
           )}
         </div>
       )}
@@ -548,6 +583,19 @@ const AdminPanel = () => {
             </p>
           </div>
           <UserAnalytics />
+        </div>
+      )}
+
+      {/* ── Tab Panel: Interactive Stories ── */}
+      {activeTab === 'stories' && (
+        <div className="max-w-7xl mx-auto py-8 px-4">
+          <div className="mb-6">
+            <h2 className="text-2xl font-black text-slate-800">Interactive Stories</h2>
+            <p className="text-sm text-slate-500 font-medium mt-1">
+              Manage and create interactive storytelling content.
+            </p>
+          </div>
+          <InteractiveStoryManager />
         </div>
       )}
     </div>

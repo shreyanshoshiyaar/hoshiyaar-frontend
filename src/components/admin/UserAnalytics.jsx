@@ -178,6 +178,12 @@ const UserAnalytics = () => {
   });
   const [users, setUsers] = useState([]);
 
+  // Edit School Modal state
+  const [editingSchoolUser, setEditingSchoolUser] = useState(null);
+  const [newSchoolName, setNewSchoolName] = useState('');
+  const [schoolSuggestions, setSchoolSuggestions] = useState([]);
+  const [updatingSchool, setUpdatingSchool] = useState(false);
+  const [schoolUpdateError, setSchoolUpdateError] = useState('');
   // Search & Filter state
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState('all'); // all, registered, guest
@@ -239,6 +245,70 @@ const UserAnalytics = () => {
       setError(err.response?.data?.message || 'Server connection error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const openSchoolEditModal = (user) => {
+    setEditingSchoolUser(user);
+    setNewSchoolName(user.school && user.school !== 'Self Study / Individual' ? user.school : '');
+    setSchoolSuggestions([]);
+    setSchoolUpdateError('');
+  };
+
+  // Fetch school suggestions for autocomplete
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (!editingSchoolUser || newSchoolName.trim().length < 2) {
+        setSchoolSuggestions([]);
+        return;
+      }
+
+      try {
+        const response = await authService.getOlaSchoolSuggestions(newSchoolName);
+        const predictions = response?.data?.predictions || [];
+        const suggestions = predictions.map(p => p.description);
+        setSchoolSuggestions(suggestions);
+      } catch (error) {
+        console.error('Failed to fetch school suggestions:', error);
+      }
+    };
+
+    const timer = setTimeout(fetchSuggestions, 300);
+    return () => clearTimeout(timer);
+  }, [newSchoolName, editingSchoolUser]);
+
+  const closeSchoolEditModal = () => {
+    setEditingSchoolUser(null);
+    setNewSchoolName('');
+    setSchoolSuggestions([]);
+    setSchoolUpdateError('');
+  };
+
+  const handleSchoolUpdate = async () => {
+    if (!editingSchoolUser) return;
+    
+    try {
+      setUpdatingSchool(true);
+      setSchoolUpdateError('');
+      const response = await authService.updateUserSchool(editingSchoolUser._id, newSchoolName);
+      
+      if (response.data && response.data.success) {
+        // Update local users state
+        setUsers(prevUsers => prevUsers.map(u => {
+          if (u._id === editingSchoolUser._id) {
+            return { ...u, school: response.data.user.school };
+          }
+          return u;
+        }));
+        closeSchoolEditModal();
+      } else {
+        setSchoolUpdateError('Failed to update school');
+      }
+    } catch (err) {
+      console.error('Error updating school:', err);
+      setSchoolUpdateError(err.response?.data?.message || 'Server connection error');
+    } finally {
+      setUpdatingSchool(false);
     }
   };
 
@@ -923,8 +993,20 @@ className="text-[10px] font-bold text-slate-600 bg-slate-50 border border-slate-
                         </td>
 
                         {/* School */}
-                        <td className="py-4 px-6 font-semibold text-slate-600">
-                          {user.school}
+                        <td className="py-4 px-6 font-semibold text-slate-600 flex items-center justify-between group h-[72px]">
+                          <span className="truncate max-w-[120px]" title={user.school}>{user.school}</span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openSchoolEditModal(user);
+                            }}
+                            className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100 shrink-0"
+                            title="Edit School"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                          </button>
                         </td>
 
                         {/* Grade */}
@@ -1041,6 +1123,94 @@ className="text-[10px] font-bold text-slate-600 bg-slate-50 border border-slate-
           </div>
         )}
       </div>
+      
+      {/* Edit School Modal */}
+      {editingSchoolUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl animate-fade-in-up">
+            <div className="p-6 relative">
+              <button 
+                onClick={closeSchoolEditModal}
+                className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+                title="Close"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+              <h3 className="text-xl font-bold text-slate-800 mb-2 pr-8">Edit School</h3>
+              <p className="text-sm text-slate-500 mb-6">
+                Updating school for user <strong className="text-slate-700">{editingSchoolUser.username}</strong>
+              </p>
+              
+              <div className="space-y-4">
+                <div className="relative">
+                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                    School Name
+                  </label>
+                  <input
+                    type="text"
+                    value={newSchoolName}
+                    onChange={(e) => setNewSchoolName(e.target.value)}
+                    placeholder="e.g. DPS RK Puram or leave blank for Self Study"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-700 font-medium"
+                    autoFocus
+                  />
+                  {schoolSuggestions.length > 0 && (
+                    <ul className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                      {schoolSuggestions.map((suggestion, idx) => (
+                        <li
+                          key={idx}
+                          className="px-4 py-2 hover:bg-indigo-50 cursor-pointer text-sm text-slate-700 font-medium transition-colors border-b border-slate-50 last:border-0"
+                          onClick={() => {
+                            setNewSchoolName(suggestion);
+                            setSchoolSuggestions([]);
+                          }}
+                        >
+                          {suggestion}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {schoolUpdateError && (
+                    <p className="text-red-500 text-xs font-medium mt-2 flex items-center gap-1">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      {schoolUpdateError}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3 rounded-b-2xl">
+              <button
+                onClick={closeSchoolEditModal}
+                disabled={updatingSchool}
+                className="px-5 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 rounded-xl transition-all disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSchoolUpdate}
+                disabled={updatingSchool}
+                className="px-5 py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md shadow-indigo-600/20 transition-all flex items-center gap-2 disabled:opacity-70"
+              >
+                {updatingSchool ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Saving...
+                  </>
+                ) : (
+                  'Save Changes'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

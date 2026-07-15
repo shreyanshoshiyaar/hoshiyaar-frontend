@@ -13,10 +13,21 @@
     "SplashScreen": {
       "launchShowDuration": 2000,
       "backgroundColor": "#0f0f1a",
-      "showSpinner": false
+      "showSpinner": false,
+      "launchAutoHide": false
     },
     "PushNotifications": {
-      "presentationOptions": ["badge", "sound", "alert"]
+      "presentationOptions": [
+        "badge",
+        "sound",
+        "alert"
+      ]
+    },
+    "CapacitorUpdater": {
+      "appId": "com.hoshiyaarlearning.app",
+      "version": "0.0.0",
+      "autoUpdate": "always",
+      "autoSplashscreen": true
     }
   }
 }
