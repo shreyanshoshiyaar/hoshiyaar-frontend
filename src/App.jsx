@@ -199,6 +199,8 @@ const MainLayout = ({ children }) => {
 
 function App() {
   const isAndroidWebAndNotBot = () => {
+    if (import.meta.env.DEV) return false; // Bypass forced install during local development testing
+    
     const userAgent = navigator.userAgent || navigator.vendor || window.opera;
     const isAndroid = /android/i.test(userAgent);
     const isBot = /bot|googlebot|crawler|spider|robot|crawling/i.test(userAgent);

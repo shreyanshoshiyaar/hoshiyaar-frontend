@@ -388,7 +388,7 @@ const ExamPlay = () => {
   const currentAnswer = answers[currentIdx];
 
   useEffect(() => {
-    audioRef.current = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');
+    audioRef.current = new Audio('https://res.cloudinary.com/dcxlzfyfp/video/upload/v1784124225/SoundHelix-Song-1_disokr.mp3');
     audioRef.current.loop = true;
     audioRef.current.volume = 0.3;
     return () => {
