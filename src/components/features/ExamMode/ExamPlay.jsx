@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import api from '../../../services/apiClient';
 import { useLocation, useNavigate, Navigate } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
 
 const MAX_ATTEMPTS = 3;
-const TIME_LIMIT = 60;
+const TIME_LIMIT = 300;
 
 const ElectricCanvas = () => {
   const canvasRef = useRef(null);
@@ -354,6 +355,8 @@ const FireworksCanvas = () => {
 };
 
 const ExamPlay = () => {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -381,6 +384,20 @@ const ExamPlay = () => {
   const [feedbacks, setFeedbacks] = useState(Array(examQuestions.length).fill(null));
   
   const [timeTaken, setTimeTaken] = useState(Array(examQuestions.length).fill(0));
+  
+  const handleRestartExam = () => {
+    setCurrentIdx(0);
+    setAnswers(Array(examQuestions.length).fill(''));
+    setAttempts(Array(examQuestions.length).fill(1));
+    setFeedbacks(Array(examQuestions.length).fill(null));
+    setTimeTaken(Array(examQuestions.length).fill(0));
+    setTimeLeft(TIME_LIMIT);
+    setShowTimesUp(false);
+    setShowAnalysis(false);
+    setScreen('CHALLENGE');
+    setMode('QUIZ');
+  };
+
   const audioRef = useRef(null);
 
   const question = examQuestions[currentIdx];
@@ -477,10 +494,29 @@ const ExamPlay = () => {
   };
 
   const handleRetrySubmit = async () => {
-    if (!currentAnswer.trim()) return;
+    const trimmedAnswer = currentAnswer.trim();
+    if (!trimmedAnswer) return;
+
+    // --- CLIENT SIDE COST-SAVING CHECKS ---
+    // 1. Prevent evaluating if they didn't actually change the answer from the previous attempt
+    if (trimmedAnswer === answers[currentIdx].trim()) {
+       alert("Your answer is identical to your previous attempt. Please modify it to try again!");
+       return;
+    }
+    // 2. Prevent evaluating very short answers (less than 3 words or 15 characters)
+    if (trimmedAnswer.length < 15 || trimmedAnswer.split(/\s+/).length < 3) {
+       alert("Your answer is too short to evaluate. Please provide more detail.");
+       return;
+    }
+
     const newTimeTaken = [...timeTaken];
     newTimeTaken[currentIdx] += (TIME_LIMIT - timeLeft);
     setTimeTaken(newTimeTaken);
+
+    // Also update the tracked answer so future retries have the latest text to compare against
+    const newAnswers = [...answers];
+    newAnswers[currentIdx] = currentAnswer;
+    setAnswers(newAnswers);
 
     setScreen('LOADING');
     try {
@@ -599,7 +635,7 @@ const ExamPlay = () => {
   };
 
   useEffect(() => {
-    if (mode === 'QUIZ') {
+    if (mode === 'QUIZ' && !isAdmin) {
       const handleKeyDown = (e) => {
         if (e.key === 'PrintScreen') {
           e.preventDefault();
@@ -641,9 +677,9 @@ const ExamPlay = () => {
     <div 
       className="w-full h-[100dvh] font-sans overflow-hidden flex flex-col relative z-0 bg-gradient-to-b from-[#0F204C] to-[#1A3673] select-none" 
       onPointerDown={interactAudio}
-      onCopy={(e) => e.preventDefault()}
-      onCut={(e) => e.preventDefault()}
-      onPaste={(e) => e.preventDefault()}
+      onCopy={(e) => { if (!isAdmin) e.preventDefault(); }}
+      onCut={(e) => { if (!isAdmin) e.preventDefault(); }}
+      onPaste={(e) => { if (!isAdmin) e.preventDefault(); }}
     >
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30 pointer-events-none z-0"></div>
       {screen === 'REPORT' && <FireworksCanvas />}
@@ -680,6 +716,13 @@ const ExamPlay = () => {
           {(mode === 'QUIZ' || mode === 'REVIEW') && <ProgressBar />}
           
           <div className="flex-1 p-2 sm:px-4 sm:py-3 flex flex-col gap-3 overflow-y-auto min-h-0 max-w-5xl mx-auto w-full">
+            {mode !== 'REVIEW' && (
+              <div className="flex items-center justify-center shrink-0">
+                <div className="flex items-center gap-2 text-yellow-400 font-bold bg-white/10 px-4 py-1.5 rounded-full backdrop-blur-sm text-sm border border-white/10 shadow-lg">
+                  <span>⚡</span> {attempts[currentIdx]}/{MAX_ATTEMPTS} attempts
+                </div>
+              </div>
+            )}
             <div className="bg-white rounded-2xl p-3 sm:p-4 shadow-xl relative shrink-0 flex items-center justify-center">
               <h2 className="text-sm sm:text-base font-medium text-slate-800 leading-snug text-center">
                 {question.text}
@@ -690,23 +733,14 @@ const ExamPlay = () => {
               <textarea 
                 value={currentAnswer}
                 onChange={(e) => updateCurrentAnswer(e.target.value)}
-                onCopy={(e) => { if (mode === 'QUIZ') e.preventDefault(); }}
-                onPaste={(e) => { if (mode === 'QUIZ') e.preventDefault(); }}
-                onCut={(e) => { if (mode === 'QUIZ') e.preventDefault(); }}
+                onCopy={(e) => { if (mode === 'QUIZ' && !isAdmin) e.preventDefault(); }}
+                onPaste={(e) => { if (mode === 'QUIZ' && !isAdmin) e.preventDefault(); }}
+                onCut={(e) => { if (mode === 'QUIZ' && !isAdmin) e.preventDefault(); }}
                 disabled={mode === 'REVIEW'}
                 placeholder="Type your answer here..."
                 className="w-full h-full bg-transparent resize-none focus:outline-none text-[#5A7A9C] font-medium text-sm sm:text-base placeholder-blue-300"
               />
             </div>
-
-            {mode !== 'REVIEW' && (
-              <div className="flex items-center justify-between px-2 pt-1 shrink-0">
-                <div className="flex items-center gap-2 text-yellow-400 font-bold bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm text-sm sm:text-base border border-white/10">
-                  <span>⚡</span> {attempts[currentIdx]}/{MAX_ATTEMPTS} attempts
-                </div>
-              </div>
-            )}
-
             {mode === 'REVIEW' && currentFeedback && (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 w-full shrink-0">
@@ -741,18 +775,42 @@ const ExamPlay = () => {
                 
                 <div className="flex-1 min-h-[16px]"></div>
 
-                <button 
-                  onClick={() => {
-                    if (currentIdx < examQuestions.length - 1) {
-                      setCurrentIdx(currentIdx + 1);
-                    } else {
-                      setScreen('REPORT');
-                    }
-                  }}
-                  className="w-full py-4 shrink-0 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-base uppercase tracking-wider shadow-lg transition-colors flex items-center justify-center gap-2 mt-auto"
-                >
-                  {currentIdx < examQuestions.length - 1 ? "NEXT QUESTION ➔" : "FINISH REVIEW ➔"}
-                </button>
+                <div className="flex flex-col sm:flex-row gap-3 mt-auto shrink-0 w-full">
+                  <button 
+                    onClick={async () => {
+                      if (currentIdx < examQuestions.length - 1) {
+                        setCurrentIdx(currentIdx + 1);
+                      } else {
+                        const finalStats = calculateStats();
+                        try {
+                           // Save locally for instant UI update
+                           if (chapterId) {
+                              localStorage.setItem(`hoshiyaar_exam_score_${chapterId}`, finalStats.avgScore);
+                           }
+                           // Save to backend
+                           const userObj = JSON.parse(localStorage.getItem('hoshiyaar_user'));
+                           if (userObj && userObj._id && chapterId) {
+                              await api.put('/api/auth/progress', {
+                                 userId: userObj._id,
+                                 chapter: chapterId,
+                                 subject: subjectKnowledge || 'Unknown',
+                                 lessonTitle: `ExamMode_${chapterId}`,
+                                 isCorrect: true, 
+                                 deltaScore: finalStats.avgScore,
+                                 resetLesson: true 
+                              });
+                           }
+                        } catch (e) {
+                           console.error("Failed to save exam score", e);
+                        }
+                        setScreen('REPORT');
+                      }
+                    }}
+                    className="w-full py-4 shrink-0 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-base uppercase tracking-wider shadow-lg transition-colors flex items-center justify-center gap-2"
+                  >
+                    {currentIdx < examQuestions.length - 1 ? "NEXT QUESTION ➔" : "FINISH REVIEW ➔"}
+                  </button>
+                </div>
               </>
             )}
 
@@ -839,6 +897,12 @@ const ExamPlay = () => {
                   className="w-full mt-4 py-3 md:py-3.5 bg-[#A855F7] hover:bg-[#9333EA] text-white rounded-xl font-black text-xs md:text-sm uppercase tracking-wider shadow-lg transition-colors flex items-center justify-center shrink-0"
                 >
                   Exam Analysis
+                </button>
+                <button
+                  onClick={handleRestartExam}
+                  className="w-full mt-3 py-3 md:py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-xs md:text-sm uppercase tracking-wider shadow-lg transition-colors flex items-center justify-center shrink-0"
+                >
+                  <span className="text-xl mr-2">↺</span> Try Again Entire Set
                 </button>
               </div>
             </div>

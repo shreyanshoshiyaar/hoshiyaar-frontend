@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { getApiBase } from '../../utils/apiBase';
 
-const CURRENT_VERSION_CODE = 39; // Temporarily set to 39 for local testing
+const CURRENT_VERSION_CODE = 41;
 const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.hoshiyaarlearning.app';
 
 const UpdatePrompt = () => {

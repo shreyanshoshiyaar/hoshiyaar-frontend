@@ -1071,6 +1071,13 @@ const LearnDashboard = ({ onboardingData }) => {
           return id ? { _id: String(id), title, order: raw.order ?? index + 1 } : null;
         };
         const normalizedChapters = (listCh || []).map((c, i) => toChapter(c, i)).filter(Boolean);
+        normalizedChapters.sort((a, b) => {
+          const aSoon = a.title && a.title.includes('(Coming Soon)');
+          const bSoon = b.title && b.title.includes('(Coming Soon)');
+          if (aSoon && !bSoon) return 1;
+          if (!aSoon && bSoon) return -1;
+          return 0;
+        });
         listCh = normalizedChapters;
         setChaptersList(listCh);
         let ch;

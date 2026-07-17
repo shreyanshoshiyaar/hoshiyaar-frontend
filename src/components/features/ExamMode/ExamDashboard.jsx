@@ -4,13 +4,20 @@ import curriculumService from '../../../services/curriculumService';
 import SimpleLoading from '../../ui/SimpleLoading';
 import ParticleBackground from './ParticleBackground';
 
+import { useAuth } from '../../../context/AuthContext';
+import api from '../../../services/apiClient';
+
 const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = [], onChangeChapter }) => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [examConfig, setExamConfig] = useState(null);
+  const [latestScore, setLatestScore] = useState(null);
+  const [examModeLive, setExamModeLive] = useState(false);
+  const isAdmin = user?.role === 'admin';
 
   useEffect(() => {
-    const fetchExamConfig = async () => {
+    const fetchExamConfigAndScore = async () => {
       if (!chapterId) return;
       setLoading(true);
       try {
@@ -20,6 +27,41 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
         } else {
           setExamConfig(null);
         }
+        
+        try {
+          const liveRes = await curriculumService.getSetting('exam_mode_live');
+          if (liveRes.data && liveRes.data.value === true) {
+            setExamModeLive(true);
+          }
+        } catch(e) {
+          console.error("Failed to fetch exam_mode_live", e);
+        }
+
+        // Fetch latest score if user is logged in
+        if (user && user._id) {
+           const progRes = await api.get(`/api/auth/progress/${user._id}`);
+           const progressData = progRes.data || [];
+           // Match chapter progress (subject match is ideal but chapterId or order is safer if we know chapterTitle)
+           // For robust matching, we look for 'ExamMode' in stats for any progress matching this subject/chapter
+           const chapterProgress = progressData.find(p => p.subject === subjectName && (String(p.chapter) === String(chapterId) || p.lessonTitle === `ExamMode_${chapterId}` || p.stats?.['ExamMode'] || p.stats?.[`ExamMode_${chapterId}`]));
+           
+           let foundScore = null;
+           if (chapterProgress && chapterProgress.stats) {
+              const examStats = chapterProgress.stats[`ExamMode_${chapterId}`] || chapterProgress.stats['ExamMode'];
+              if (examStats && examStats.lastScore !== undefined) {
+                 foundScore = examStats.lastScore;
+              }
+           }
+           // Fallback to local storage if API didn't have it yet
+           const localScore = localStorage.getItem(`hoshiyaar_exam_score_${chapterId}`);
+           if (foundScore !== null) {
+              setLatestScore(foundScore);
+           } else if (localScore !== null) {
+              setLatestScore(Number(localScore));
+           } else {
+              setLatestScore(null);
+           }
+        }
       } catch (err) {
         console.error('Failed to fetch exam config', err);
         setExamConfig(null);
@@ -27,8 +69,29 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
       setLoading(false);
     };
 
-    fetchExamConfig();
-  }, [chapterId]);
+    fetchExamConfigAndScore();
+  }, [chapterId, user, subjectName]);
+
+  if (!loading && !isAdmin && !examModeLive) {
+    return (
+      <div className="relative min-h-screen w-full flex flex-col items-center justify-center py-12 px-4 md:px-8 overflow-hidden bg-gradient-to-b from-[#0F204C] to-[#1A3673]">
+        <ParticleBackground />
+        <div className="bg-gradient-to-b from-[#1A2C5B] to-[#0F204C] rounded-2xl p-8 max-w-md w-full border border-white/10 shadow-2xl text-center relative overflow-hidden z-10 animate-fade-in">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 to-purple-500"></div>
+          <h3 className="text-2xl font-black text-white mb-2 tracking-wide mt-4">Coming Soon!</h3>
+          <p className="text-gray-300 mb-8 leading-relaxed">
+            Hoshi is currently curating the best exam questions for you! Exam Mode is in beta testing and will be rolling out very soon. Stay tuned!
+          </p>
+          <button
+            onClick={() => navigate('/')}
+            className="w-full bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 rounded-xl font-bold tracking-wider transition-all"
+          >
+            BACK TO HOME
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (!chapterId) {
     return (
@@ -119,23 +182,35 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
             </div>
           </div>
         ) : examConfig && examConfig.questions && examConfig.questions.length > 0 ? (
-          <div className="bg-black/30 backdrop-blur-xl rounded-[1.5rem] p-8 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] border border-white/10 w-full max-w-3xl mx-auto text-center flex flex-col items-center transform transition-all hover:-translate-y-1 duration-300">
-            <div className="text-5xl mb-4 filter drop-shadow-lg animate-pulse">📝</div>
-            <h3 className="text-2xl font-black text-white mb-3 tracking-wide">Ready to test your knowledge?</h3>
-            <p className="text-gray-300 mb-6 max-w-lg text-base leading-relaxed">
-              This exam contains <span className="text-cyan-300 font-bold">{examConfig.questions.length} descriptive questions</span>. 
-              The AI will evaluate your answers based on the specific subject context.
+          <div className="bg-black/30 backdrop-blur-xl rounded-[1.5rem] p-6 sm:p-8 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] border border-white/10 w-full max-w-3xl mx-auto text-center flex flex-col items-center transform transition-all hover:-translate-y-1 duration-300 relative">
+            <div className="flex items-center justify-center gap-6 mb-4 mt-2 bg-gradient-to-r from-white/5 to-white/10 border border-white/10 rounded-2xl px-6 py-4 shadow-[inset_0_0_20px_rgba(255,255,255,0.02)] backdrop-blur-md">
+              <div className="text-4xl sm:text-5xl filter drop-shadow-lg animate-pulse">📝</div>
+              <div className="flex flex-col items-start border-l-2 border-white/10 pl-5">
+                 <span className="text-[10px] sm:text-xs text-cyan-300/80 uppercase tracking-[0.2em] font-bold mb-1 leading-none">Last Attempt</span>
+                 <div className="flex items-baseline gap-1">
+                   <span className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-yellow-300 to-orange-500 drop-shadow-sm leading-none">
+                      {latestScore !== null ? latestScore : '--'}
+                   </span>
+                   {latestScore !== null && <span className="text-sm font-bold text-white/30 tracking-widest">/100</span>}
+                 </div>
+              </div>
+            </div>
+            <h3 className="text-xl sm:text-2xl font-black text-white mb-2 sm:mb-3 tracking-wide">Ready to test your knowledge?</h3>
+            <p className="text-gray-300 mb-6 max-w-lg text-sm sm:text-base leading-relaxed px-2">
+              This exam contains descriptive questions. The AI will evaluate your answers based on the specific subject context.
             </p>
             
             <button
-              onClick={() => navigate('/exam/play', { 
-                state: { 
-                  questions: examConfig.questions,
-                  subjectKnowledge: examConfig.subjectKnowledge,
-                  chapterTitle,
-                  chapterId 
-                } 
-              })}
+              onClick={() => {
+                navigate('/exam/play', { 
+                  state: { 
+                    questions: examConfig.questions,
+                    subjectKnowledge: examConfig.subjectKnowledge,
+                    chapterTitle,
+                    chapterId 
+                  } 
+                });
+              }}
               className="group relative w-full sm:w-auto overflow-hidden bg-gradient-to-r from-cyan-500 to-purple-600 text-white text-sm font-bold uppercase tracking-widest py-3 px-10 rounded-xl shadow-[0_0_20px_rgba(0,255,204,0.3)] hover:shadow-[0_0_30px_rgba(112,0,255,0.5)] transition-all duration-300 transform active:scale-95"
             >
               <span className="relative z-10">Start Exam</span>

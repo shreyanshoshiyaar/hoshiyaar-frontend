@@ -7,6 +7,8 @@ import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import LoadingPage from './components/ui/LoadingPage.jsx';
 import UpdatePrompt from './components/ui/UpdatePrompt.jsx';
+import NotificationPrompt from './components/ui/NotificationPrompt.jsx';
+import ExamModePromo from './components/ui/ExamModePromo.jsx';
 import ProtectedRoute from './components/layout/ProtectedRoute.jsx';
 import AdminProtectedRoute from './components/layout/AdminProtectedRoute.jsx';
 
@@ -222,6 +224,8 @@ function App() {
       <ReviewProvider>
           <Router>
             <UpdatePrompt />
+            <NotificationPrompt />
+            <ExamModePromo />
             <NavigationController />
             <Suspense fallback={<LoadingPage />}>
               <Routes>

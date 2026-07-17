@@ -54,12 +54,8 @@ export default function InteractiveStory() {
   const navigateToFirstLesson = async (boardId, classLevel) => {
     try {
       if (story?.targetChapterId) {
-        const modulesRes = await curriculumService.listModules(story.targetChapterId);
-        if (modulesRes.data && modulesRes.data.length > 0) {
-          const firstModule = modulesRes.data[0];
-          navigate(`/learn/module/${firstModule._id}/concept/0`, { replace: true });
-          return;
-        }
+        navigate(`/learn?chapterId=${story.targetChapterId}`, { replace: true });
+        return;
       }
 
       // Hardcode science subject for fallback if needed
@@ -74,12 +70,8 @@ export default function InteractiveStory() {
       const chaptersRes = await curriculumService.listChapters(boardId, subjectId || 'Science', opts.params);
       if (chaptersRes.data && chaptersRes.data.length > 0) {
         const firstChapter = chaptersRes.data[0];
-        const modulesRes = await curriculumService.listModules(firstChapter._id);
-        if (modulesRes.data && modulesRes.data.length > 0) {
-          const firstModule = modulesRes.data[0];
-          navigate(`/learn/module/${firstModule._id}/concept/0`, { replace: true });
-          return;
-        }
+        navigate(`/learn?chapterId=${firstChapter._id}`, { replace: true });
+        return;
       }
       navigate('/learn', { replace: true });
     } catch(e) {
@@ -230,15 +222,6 @@ export default function InteractiveStory() {
         </div>
       )}
 
-      <button 
-        onClick={(e) => {
-          e.stopPropagation();
-          handleOptionClick(null, -1);
-        }}
-        className="absolute top-6 right-6 px-4 py-2 bg-black/40 hover:bg-black/60 text-white border border-white/20 text-sm font-bold rounded-full shadow-lg backdrop-blur transition z-50 uppercase tracking-wider"
-      >
-        Skip Intro
-      </button>
     </div>
   );
 }

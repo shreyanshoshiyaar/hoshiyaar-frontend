@@ -66,6 +66,13 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
                   : {};
                 const res = await curriculumService.listChapters(board, subject, extraChapterParams);
                 const list = (res?.data || []).map((c, idx) => ({ id: c._id, name: c.title, order: c.order ?? idx + 1 }));
+                list.sort((a, b) => {
+                  const aSoon = a.name && a.name.includes('(Coming Soon)');
+                  const bSoon = b.name && b.name.includes('(Coming Soon)');
+                  if (aSoon && !bSoon) return 1;
+                  if (!aSoon && bSoon) return -1;
+                  return 0;
+                });
                 setChapters(list);
                 if (list && list.length > 0) saveCache(board, subject, list);
                 // Manual selection only - no auto-selection
