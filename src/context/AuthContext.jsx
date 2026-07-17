@@ -25,9 +25,9 @@ export const AuthProvider = ({ children }) => {
                     const parsed = JSON.parse(storedUser);
                     setUser(parsed);
 
-                    // Initialize Push Notifications and update activity
+                    // Initialize Push Notifications and update activity (prompts immediately for max collection)
                     if (parsed?._id) {
-                        setupPushNotifications(parsed._id).catch(console.error);
+                        setupPushNotifications(parsed._id, true).catch(console.error);
                     }
 
                     // Always hydrate stars from server to ensure cross-device sync
@@ -132,9 +132,9 @@ export const AuthProvider = ({ children }) => {
         } catch (_) {}
         localStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
-        // Initialize Push Notifications for the newly logged in user
+        // Initialize Push Notifications for the newly logged in user (prompts immediately)
         if (userData?._id) {
-            setupPushNotifications(userData._id).catch(console.error);
+            setupPushNotifications(userData._id, true).catch(console.error);
         }
         // Hydrate stars for this user from server best scores
         try { hydrateStarsFromServer(userData?._id); } catch (_) {}

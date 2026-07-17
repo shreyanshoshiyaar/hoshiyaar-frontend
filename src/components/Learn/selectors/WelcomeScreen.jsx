@@ -69,7 +69,12 @@ export default function WelcomeScreen({ onContinue }) {
                   sessionStorage.setItem(`learnWasOnDashboard_${userObj._id}`, 'true');
                 }
               } catch (_) {}
-              navigate('/story-demo');
+              
+              if (sessionStorage.getItem('entryType') === 'signup') {
+                navigate('/story-demo');
+              } else {
+                navigate('/learn', { replace: true });
+              }
             }
           }}
           className="w-full bg-[#3b82f6] hover:bg-[#2563eb] text-white font-extrabold py-4 rounded-2xl shadow-[0_4px_0_#1d4ed8] active:shadow-[0_0px_0_#1d4ed8] active:translate-y-1 transition-all text-lg tracking-wider"

@@ -2,7 +2,7 @@ import { PushNotifications } from '@capacitor/push-notifications';
 import { Capacitor } from '@capacitor/core';
 import authService from '../services/authService';
 
-export const setupPushNotifications = async (userId) => {
+export const setupPushNotifications = async (userId, requestPermission = true) => {
   if (!Capacitor.isNativePlatform() || !userId) {
     return;
   }
@@ -13,7 +13,12 @@ export const setupPushNotifications = async (userId) => {
   let permStatus = await PushNotifications.checkPermissions();
 
   if (permStatus.receive === 'prompt' || permStatus.receive === 'prompt-with-rationale') {
-    permStatus = await PushNotifications.requestPermissions();
+    if (requestPermission) {
+      permStatus = await PushNotifications.requestPermissions();
+    } else {
+      // Don't register if we haven't asked for permission via our custom UI yet
+      return;
+    }
   }
 
   if (permStatus.receive !== 'granted') {
@@ -38,6 +43,9 @@ export const setupPushNotifications = async (userId) => {
   await PushNotifications.setPresentationOptions({
     presentationOptions: ['badge', 'sound', 'alert'],
   });
+
+  // Clean up any existing listeners first to prevent duplicates or missed events
+  await PushNotifications.removeAllListeners();
 
   // Add listeners BEFORE registering to avoid missing the registration event
   PushNotifications.addListener('registration', (token) => {
