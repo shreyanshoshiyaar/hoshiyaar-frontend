@@ -26,14 +26,18 @@ export default function NotificationPrompt() {
       try {
         const permStatus = await PushNotifications.checkPermissions();
         
-        // If not granted, we show our custom reminder UI
+        // If not granted, we set a long timer to let them answer the system popup first
         if (permStatus.receive !== 'granted') {
-          setTimeout(() => {
-            setShowPrompt(true);
-            // Increment the counter when it is actually shown
-            trackingData.count += 1;
-            localStorage.setItem('pushPromptTracking', JSON.stringify(trackingData));
-          }, 2000);
+          setTimeout(async () => {
+            // Re-check permissions just in case they accepted the system popup during these 10s
+            const freshStatus = await PushNotifications.checkPermissions();
+            if (freshStatus.receive !== 'granted') {
+              setShowPrompt(true);
+              // Increment the counter when it is actually shown
+              trackingData.count += 1;
+              localStorage.setItem('pushPromptTracking', JSON.stringify(trackingData));
+            }
+          }, 60000); // Wait 1 minute so it doesn't overlap with system popup
         }
       } catch (err) {
         console.error('Failed to check push permissions', err);
