@@ -5,6 +5,18 @@
       "destination": "https://api.hoshiyaar.info/sitemap.xml"
     },
     {
+      "source": "/sitemap-index.xml",
+      "destination": "https://api.hoshiyaar.info/sitemap.xml"
+    },
+    {
+      "source": "/blogs/:path*",
+      "destination": "/api/render"
+    },
+    {
+      "source": "/blogs",
+      "destination": "/api/render"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
