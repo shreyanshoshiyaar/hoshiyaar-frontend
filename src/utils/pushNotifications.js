@@ -40,9 +40,11 @@ export const setupPushNotifications = async (userId, requestPermission = true) =
   }
 
   // Configure how notifications are presented when the app is in the foreground
-  await PushNotifications.setPresentationOptions({
-    presentationOptions: ['badge', 'sound', 'alert'],
-  });
+  if (Capacitor.getPlatform() === 'ios') {
+    await PushNotifications.setPresentationOptions({
+      presentationOptions: ['badge', 'sound', 'alert'],
+    });
+  }
 
   // Clean up any existing listeners first to prevent duplicates or missed events
   await PushNotifications.removeAllListeners();
@@ -60,6 +62,13 @@ export const setupPushNotifications = async (userId, requestPermission = true) =
     // Update activity anyway so lastActiveAt is refreshed
     authService.updateActivity(userId).catch(console.error);
   });
+
+  // Register with Apple / Google to receive push via APNS/FCM
+  try {
+    await PushNotifications.register();
+  } catch (error) {
+    console.warn('Capacitor PushNotifications.register() failed or was blocked:', error);
+  }
 
   // Show us the notification payload if the app is open on our device
   PushNotifications.addListener('pushNotificationReceived', (notification) => {

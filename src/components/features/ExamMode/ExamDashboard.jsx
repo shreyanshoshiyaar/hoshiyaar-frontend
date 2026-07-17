@@ -72,7 +72,9 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
     fetchExamConfigAndScore();
   }, [chapterId, user, subjectName]);
 
-  if (!loading && !isAdmin && !examModeLive) {
+  // Show Coming Soon immediately for non-admins to avoid long loading screen, 
+  // it will automatically update if examModeLive is fetched as true
+  if (!isAdmin && !examModeLive) {
     return (
       <div className="relative min-h-screen w-full flex flex-col items-center justify-center py-12 px-4 md:px-8 overflow-hidden bg-gradient-to-b from-[#0F204C] to-[#1A3673]">
         <ParticleBackground />
