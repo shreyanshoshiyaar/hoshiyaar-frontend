@@ -56,7 +56,8 @@ const injectMetaTags = (html, meta) => {
 };
 
 // Proxy sitemap.xml from the backend so it's served on the correct domain for Google Search Console
-app.get('/sitemap.xml', (req, res) => {
+// We use an array of paths so you can try /sitemap-index.xml to bypass GSC caching!
+app.get(['/sitemap.xml', '/sitemap-index.xml'], (req, res) => {
   https.get('https://api.hoshiyaar.info/sitemap.xml', (apiRes) => {
     res.setHeader('Content-Type', 'application/xml');
     res.setHeader('Cache-Control', 'public, max-age=3600');
@@ -87,11 +88,9 @@ app.get('*', async (req, res) => {
       if (slugOrId) {
         const blogData = await fetchBlogBySlug(slugOrId);
         if (blogData && !blogData.error && blogData.title) {
-          // Dynamic SEO tags based on Nidhi's pattern recommendation
-          meta.title = `${blogData.title} – CBSE Notes & Examples`;
-          meta.description = blogData.excerpt 
-            ? `${blogData.excerpt} Free CBSE practice questions on Hoshiyaar.` 
-            : `Learn about ${blogData.title} with simple CBSE notes. Practice free MCQs on the Hoshiyaar app.`;
+          // Prioritize exact SEO fields from the database, fallback to generic pattern if missing
+          meta.title = blogData.metaTitle || blogData.seoTitle || blogData.title;
+          meta.description = blogData.metaDescription || blogData.seoDescription || blogData.excerpt || `Learn about ${blogData.title} with simple CBSE notes. Practice free MCQs on the Hoshiyaar app.`;
         }
       }
     }
