@@ -72,8 +72,9 @@ export default async function handler(req, res) {
     if (req.url === '/blogs' || req.url === '/blogs/') {
       meta.title = 'CBSE Science Notes & Practice – Class 6, 7, 8 | Hoshiyaar';
       meta.description = 'Free CBSE Class 6–8 Science notes and MCQ practice — Temperature, Acids & Bases, Cell Structure, Nutrition in Plants and more.';
-    } else if (req.url.includes('/blogs/')) {
-      // Handle both /blogs/slug and /api/render?path=blogs/slug formats
+    } else {
+      // Handle both /blogs/slug and /api/render?path=slug formats unconditionally
+      // because vercel.json only routes /blogs/* traffic to this function.
       const urlToParse = req.url.includes('path=') ? decodeURIComponent(req.url.split('path=')[1].split('&')[0]) : req.url.split('?')[0];
       const parts = urlToParse.split('/').filter(Boolean);
       const slugOrId = parts[parts.length - 1];
