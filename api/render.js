@@ -50,16 +50,19 @@ export default async function handler(req, res) {
     let meta = {
       title: 'Hoshiyaar - Story-Based CBSE Science App for Class 6, 7 & 8',
       description: 'Turn CBSE Science chapters into detective mysteries. Every session ends with your child feeling smarter. Try free.',
-      canonicalUrl: `https://hoshiyaar.info${req.url}`
+      canonicalUrl: `https://hoshiyaar.info${req.url.split('?')[0]}`
     };
 
     if (req.url === '/blogs' || req.url === '/blogs/') {
       meta.title = 'CBSE Science Notes & Practice – Class 6, 7, 8 | Hoshiyaar';
       meta.description = 'Free CBSE Class 6–8 Science notes and MCQ practice — Temperature, Acids & Bases, Cell Structure, Nutrition in Plants and more.';
-    } else if (req.url.startsWith('/blogs/')) {
-      const parts = req.url.split('?')[0].split('/');
+    } else if (req.url.includes('/blogs/')) {
+      // Handle both /blogs/slug and /api/render?path=blogs/slug formats
+      const urlToParse = req.url.includes('path=') ? decodeURIComponent(req.url.split('path=')[1].split('&')[0]) : req.url.split('?')[0];
+      const parts = urlToParse.split('/').filter(Boolean);
       const slugOrId = parts[parts.length - 1];
-      if (slugOrId) {
+      
+      if (slugOrId && slugOrId !== 'blogs') {
         const responseData = await fetchBlogBySlug(slugOrId);
         // The backend wraps the response in a "data" object
         const blogData = responseData && responseData.data ? responseData.data : responseData;
