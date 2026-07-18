@@ -1,9 +1,12 @@
 {
-  "rewrites": [
+  "redirects": [
     {
       "source": "/sitemap.xml",
-      "destination": "https://api.hoshiyaar.info/sitemap.xml"
-    },
+      "destination": "/sitemap-index.xml",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
     {
       "source": "/sitemap-index.xml",
       "destination": "https://api.hoshiyaar.info/sitemap.xml"
