@@ -1,4 +1,8 @@
 User-agent: *
 Allow: /
+Allow: /blogs/
+Allow: /assets/
+Allow: /*.css
+Allow: /*.js
 
-Sitemap: https://hoshiyaar.info/sitemap.xml
+Sitemap: https://hoshiyaar.info/sitemap-index.xml
