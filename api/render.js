@@ -60,7 +60,10 @@ export default async function handler(req, res) {
       const parts = req.url.split('?')[0].split('/');
       const slugOrId = parts[parts.length - 1];
       if (slugOrId) {
-        const blogData = await fetchBlogBySlug(slugOrId);
+        const responseData = await fetchBlogBySlug(slugOrId);
+        // The backend wraps the response in a "data" object
+        const blogData = responseData && responseData.data ? responseData.data : responseData;
+        
         if (blogData && !blogData.error && blogData.title) {
           meta.title = blogData.metaTitle || blogData.seoTitle || blogData.title;
           meta.description = blogData.metaDescription || blogData.seoDescription || blogData.excerpt || `Learn about ${blogData.title} with simple CBSE notes. Practice free MCQs on the Hoshiyaar app.`;
