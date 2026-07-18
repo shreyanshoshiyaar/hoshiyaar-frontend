@@ -32,6 +32,22 @@ const injectMetaTags = (html, meta) => {
     modified = modified.replace(/<link rel="canonical" href="[^"]*"\s*\/?>/i, `<link rel="canonical" href="${meta.canonicalUrl}" />`);
     modified = modified.replace(/<meta property="og:url" content="[^"]*"\s*\/?>/i, `<meta property="og:url" content="${meta.canonicalUrl}" />`);
   }
+  if (meta.keywords) {
+    // Insert keywords right after description
+    modified = modified.replace(/(<meta name="description"[^>]+>)/i, `$1\n    <meta name="keywords" content="${meta.keywords}" />`);
+  }
+  
+  // Inject the actual H1 and blog content into the HTML body for SEO scanners that don't execute JS
+  if (meta.h1Title || meta.rawContent) {
+    const seoHtml = `
+      <div style="display: none;">
+        ${meta.h1Title ? `<h1>${meta.h1Title}</h1>` : ''}
+        ${meta.rawContent ? `<div>${meta.rawContent}</div>` : ''}
+      </div>
+    `;
+    modified = modified.replace(/<div id="root"><\/div>/i, `<div id="root">${seoHtml}</div>`);
+  }
+  
   return modified;
 };
 
@@ -70,6 +86,11 @@ export default async function handler(req, res) {
         if (blogData && !blogData.error && blogData.title) {
           meta.title = blogData.metaTitle || blogData.seoTitle || blogData.title;
           meta.description = blogData.metaDescription || blogData.seoDescription || blogData.excerpt || `Learn about ${blogData.title} with simple CBSE notes. Practice free MCQs on the Hoshiyaar app.`;
+          meta.h1Title = blogData.title;
+          meta.rawContent = blogData.content || '';
+          if (blogData.tags && Array.isArray(blogData.tags)) {
+            meta.keywords = blogData.tags.join(', ');
+          }
         }
       }
     }
