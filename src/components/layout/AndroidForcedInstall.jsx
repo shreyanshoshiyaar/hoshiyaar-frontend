@@ -27,8 +27,9 @@ const AndroidForcedInstall = () => {
     <div style={{
       minHeight: '100dvh',
       width: '100vw',
+      backgroundColor: '#ffffff', // Added white background so bottom blends seamlessly
       backgroundImage: 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1783074750/img-to-link/frihzx02hlozdlpwi2dq.webp")',
-      backgroundSize: 'cover',
+      backgroundSize: '100% auto', // Scaled down the image to fit the width perfectly
       backgroundPosition: 'top center',
       backgroundRepeat: 'no-repeat',
       fontFamily: '"Inter", sans-serif',
@@ -37,7 +38,7 @@ const AndroidForcedInstall = () => {
       display: 'flex',
       flexDirection: 'column',
       position: 'relative',
-      padding: '24px 16px 100px 16px', // Added extra bottom padding (100px) so content clears the sticky button
+      padding: '20px 16px 100px 16px', // Reduced top padding slightly
       boxSizing: 'border-box'
     }}>
       
@@ -51,16 +52,16 @@ const AndroidForcedInstall = () => {
           <img 
             src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778743597/img-to-link/bihseec7aigbmau4amnd.png" 
             alt="HoshiYaar Logo" 
-            style={{ width: '120px', marginBottom: '8px' }}
+            style={{ width: '105px', marginBottom: '8px' }} // Scaled down
           />
 
           {/* Badge */}
           <div style={{
             backgroundColor: '#e0e7ff',
             color: '#4338ca',
-            padding: '4px 10px',
+            padding: '4px 8px',
             borderRadius: '20px',
-            fontSize: '11px',
+            fontSize: '10px', // Scaled down
             fontWeight: 800,
             marginBottom: '8px',
             letterSpacing: '0.5px'
@@ -70,7 +71,7 @@ const AndroidForcedInstall = () => {
 
           {/* Headline */}
           <h1 style={{ 
-            fontSize: '24px', 
+            fontSize: '21px', // Scaled down
             fontWeight: 900, 
             color: '#0f172a', 
             lineHeight: 1.15,
@@ -83,12 +84,12 @@ const AndroidForcedInstall = () => {
 
           {/* Paragraph */}
           <p style={{ 
-            fontSize: '13px', 
+            fontSize: '12px', // Scaled down
             color: '#475569', 
             lineHeight: 1.3,
             fontWeight: 500,
-            marginBottom: '12px',
-            paddingRight: '45%' /* Keep text from overlapping the baked-in right mascot */
+            marginBottom: '10px',
+            paddingRight: '50%' /* Adjusted padding to ensure it doesn't overlap the smaller mascot */
           }}>
             HoshiYaar turns CBSE Science into interactive stories, comics, videos, practice sessions, and visual learning experiences that kids love.
           </p>
@@ -99,7 +100,7 @@ const AndroidForcedInstall = () => {
             className="jiggle-btn"
             style={{
               display: 'block',
-              width: '160px',
+              width: '140px', // Scaled down
               transition: 'transform 0.2s',
               marginBottom: '6px'
             }}
@@ -112,8 +113,8 @@ const AndroidForcedInstall = () => {
           </a>
 
           {/* Trust Indicator */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#64748b', fontSize: '11px', fontWeight: 600 }}>
-            <span style={{ color: '#fbbf24', fontSize: '13px' }}>★★★★★</span> 
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#64748b', fontSize: '10px', fontWeight: 600 }}>
+            <span style={{ color: '#fbbf24', fontSize: '12px' }}>★★★★★</span> 
             Loved by 500+ students
           </div>
         </div>
