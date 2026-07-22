@@ -166,8 +166,9 @@ const Learn = () => {
         return (
           <BoardSelect 
             onContinue={() => {
-              updateOnboardingData({ subject: 'Science' });
-              nextStep();
+              // Default to chapter 1 since we are skipping ChapterSelect
+              updateOnboardingData({ subject: 'Science', chapter: '1' });
+              setStep(4); // Skip step 3 (ChapterSelect) and go directly to WelcomeScreen
             }} 
             onBack={prevStep} 
             updateData={updateOnboardingData} 
@@ -186,7 +187,7 @@ const Learn = () => {
           />
         );
       case 4:
-        return <WelcomeScreen onContinue={nextStep} />;
+        return <WelcomeScreen onContinue={() => setStep(5)} />;
       case 5:
         return (
           <ErrorBoundary>
