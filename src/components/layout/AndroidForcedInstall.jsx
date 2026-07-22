@@ -29,7 +29,7 @@ const AndroidForcedInstall = () => {
       width: '100vw',
       backgroundImage: 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1783074750/img-to-link/frihzx02hlozdlpwi2dq.webp")',
       backgroundSize: 'cover',
-      backgroundPosition: 'top center',
+      backgroundPosition: 'center -60px',
       backgroundRepeat: 'no-repeat',
       fontFamily: '"Inter", sans-serif',
       overflowX: 'hidden',
@@ -141,7 +141,7 @@ const AndroidForcedInstall = () => {
             display: 'block',
             width: '100%',
             maxWidth: '400px',
-            backgroundColor: '#4338ca',
+            backgroundColor: '#2563eb', // Matches bg-blue-600 from login
             color: 'white',
             textAlign: 'center',
             padding: '14px 20px',
@@ -149,7 +149,7 @@ const AndroidForcedInstall = () => {
             fontSize: '16px',
             fontWeight: 800,
             textDecoration: 'none',
-            boxShadow: '0 4px 12px rgba(67, 56, 202, 0.3)',
+            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)',
             transition: 'transform 0.2s',
           }}
           className="active:scale-95"
