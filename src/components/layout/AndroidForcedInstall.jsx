@@ -29,7 +29,7 @@ const AndroidForcedInstall = () => {
       width: '100vw',
       backgroundImage: 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1783074750/img-to-link/frihzx02hlozdlpwi2dq.webp")',
       backgroundSize: 'cover',
-      backgroundPosition: 'center -30px',
+      backgroundPosition: 'top center',
       backgroundRepeat: 'no-repeat',
       fontFamily: '"Inter", sans-serif',
       overflowX: 'hidden',
@@ -45,7 +45,7 @@ const AndroidForcedInstall = () => {
       <div style={{ display: 'flex', position: 'relative', width: '100%', maxWidth: '450px', margin: '0 auto', flex: 1 }}>
         
         {/* Left Content Area */}
-        <div style={{ width: '100%', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', paddingTop: '40px' }}>
+        <div style={{ width: '100%', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', paddingTop: '10px' }}>
           
           {/* Logo */}
           <img 
@@ -88,7 +88,7 @@ const AndroidForcedInstall = () => {
             lineHeight: 1.3,
             fontWeight: 500,
             marginBottom: '12px',
-            paddingRight: '45%'
+            paddingRight: '45%' /* Keep text from overlapping the baked-in right mascot */
           }}>
             HoshiYaar turns CBSE Science into interactive stories, comics, videos, practice sessions, and visual learning experiences that kids love.
           </p>
@@ -141,18 +141,20 @@ const AndroidForcedInstall = () => {
             display: 'block',
             width: '100%',
             maxWidth: '400px',
-            backgroundColor: '#2563eb',
+            backgroundColor: '#1E65FA',
             color: 'white',
             textAlign: 'center',
             padding: '14px 20px',
-            borderRadius: '12px',
+            borderRadius: '16px',
             fontSize: '16px',
             fontWeight: 800,
             textDecoration: 'none',
-            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)',
+            borderBottom: '4px solid #0A3DAA',
             transition: 'transform 0.2s',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em'
           }}
-          className="active:scale-95"
+          className="active:scale-95 hover:bg-blue-500"
         >
           DOWNLOAD APP
         </a>
