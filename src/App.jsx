@@ -201,6 +201,7 @@ const MainLayout = ({ children }) => {
 };
 
 function App() {
+  // Triggering a fresh build for production redeployment
   const isAndroidWebAndNotBot = () => {
     if (import.meta.env.DEV) return false; // Bypass forced install during local development testing
     
