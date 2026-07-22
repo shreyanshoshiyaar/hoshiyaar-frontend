@@ -29,7 +29,7 @@ const AndroidForcedInstall = () => {
       width: '100vw',
       backgroundImage: 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1783074750/img-to-link/frihzx02hlozdlpwi2dq.webp")',
       backgroundSize: 'cover',
-      backgroundPosition: 'center -60px',
+      backgroundPosition: 'center -30px',
       backgroundRepeat: 'no-repeat',
       fontFamily: '"Inter", sans-serif',
       overflowX: 'hidden',
@@ -45,7 +45,7 @@ const AndroidForcedInstall = () => {
       <div style={{ display: 'flex', position: 'relative', width: '100%', maxWidth: '450px', margin: '0 auto', flex: 1 }}>
         
         {/* Left Content Area */}
-        <div style={{ width: '100%', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', paddingTop: '10px' }}>
+        <div style={{ width: '100%', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', paddingTop: '40px' }}>
           
           {/* Logo */}
           <img 
