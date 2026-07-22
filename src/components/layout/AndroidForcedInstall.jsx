@@ -88,7 +88,7 @@ const AndroidForcedInstall = () => {
             lineHeight: 1.3,
             fontWeight: 500,
             marginBottom: '12px',
-            paddingRight: '45%' /* Keep text from overlapping the baked-in right mascot */
+            paddingRight: '45%'
           }}>
             HoshiYaar turns CBSE Science into interactive stories, comics, videos, practice sessions, and visual learning experiences that kids love.
           </p>
@@ -141,7 +141,7 @@ const AndroidForcedInstall = () => {
             display: 'block',
             width: '100%',
             maxWidth: '400px',
-            backgroundColor: '#2563eb', // Matches bg-blue-600 from login
+            backgroundColor: '#2563eb',
             color: 'white',
             textAlign: 'center',
             padding: '14px 20px',
