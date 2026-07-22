@@ -187,7 +187,19 @@ const Learn = () => {
           />
         );
       case 4:
-        return <WelcomeScreen onContinue={() => setStep(5)} />;
+        return (
+          <WelcomeScreen 
+            onContinue={async () => {
+              if (user?._id) {
+                const keys = getScopedKeys(user._id);
+                try { sessionStorage.setItem(keys.session, 'true'); } catch (_) {}
+                try { localStorage.setItem(keys.local, 'true'); } catch (_) {}
+              }
+              await saveOnboardingData();
+              navigate('/story-demo');
+            }} 
+          />
+        );
       case 5:
         return (
           <ErrorBoundary>
