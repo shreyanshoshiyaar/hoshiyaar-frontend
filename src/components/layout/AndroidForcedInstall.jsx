@@ -37,7 +37,7 @@ const AndroidForcedInstall = () => {
       display: 'flex',
       flexDirection: 'column',
       position: 'relative',
-      padding: '24px 16px',
+      padding: '24px 16px 100px 16px', // Added extra bottom padding (100px) so content clears the sticky button
       boxSizing: 'border-box'
     }}>
       
