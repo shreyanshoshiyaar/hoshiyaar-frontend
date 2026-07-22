@@ -11,6 +11,7 @@ import SimpleLoading from '../../ui/SimpleLoading.jsx';
 import { trackLevelEnd } from '../../../utils/analytics.js';
 import { getLearningParams } from '../../../utils/analyticsHelpers.js';
 import { useModuleItems } from '../../../hooks/useModuleItems';
+import ConfettiAnimation from '../../ui/ConfettiAnimation.jsx';
 
 const LessonComplete = () => {
   const navigate = useNavigate();
@@ -124,11 +125,8 @@ const LessonComplete = () => {
   }, [moduleNumber]);
 
   useEffect(() => {
-    if (isNewBest) {
-      setShowConfetti(true);
-      try { setTimeout(() => setShowConfetti(false), 1600); } catch (_) {}
-    }
-  }, [isNewBest]);
+    setShowConfetti(true);
+  }, []);
 
   // Play victory sound only when there are no review items (final page)
   useEffect(() => {
@@ -214,12 +212,7 @@ const LessonComplete = () => {
         <div className="w-full max-w-xl flex flex-col items-center gap-6 mt-auto mb-10">
           <div className="flex flex-col items-center">
             {showConfetti && (
-              <div className="pointer-events-none absolute -top-40 right-0 w-36 h-36">
-                <div className="absolute text-3xl animate-bounce" style={{ top: 0, right: 8 }}>🎉</div>
-                <div className="absolute text-3xl animate-bounce" style={{ top: 26, right: 56, animationDelay: '0.15s' }}>✨</div>
-                <div className="absolute text-3xl animate-bounce" style={{ top: 10, right: 86, animationDelay: '0.3s' }}>🎊</div>
-                <div className="absolute text-3xl animate-bounce" style={{ top: 46, right: 24, animationDelay: '0.45s' }}>⭐</div>
-              </div>
+              <ConfettiAnimation />
             )}
             
             <h1 className="text-3xl md:text-5xl text-gray-900 font-black drop-shadow-sm leading-tight">

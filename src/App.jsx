@@ -44,6 +44,7 @@ const DeleteAccountPage = lazy(() => import('./components/features/DeleteAccount
 const AndroidForcedInstall = lazy(() => import('./components/layout/AndroidForcedInstall.jsx'));
 const InteractiveStory = lazy(() => import('./components/features/InteractiveStory.jsx'));
 const ExamPlay = lazy(() => import('./components/features/ExamMode/ExamPlay.jsx'));
+const ExamRevision = lazy(() => import('./components/features/ExamMode/ExamRevision.jsx'));
 
 import { CapacitorUpdater } from '@capgo/capacitor-updater';
 
@@ -238,6 +239,11 @@ function App() {
                 <Route path="/exam/play" element={
                   <ProtectedRoute>
                     <ExamPlay />
+                  </ProtectedRoute>
+                } />
+                <Route path="/exam/revision" element={
+                  <ProtectedRoute>
+                    <ExamRevision />
                   </ProtectedRoute>
                 } />
                 {/* Home Page Route */}
