@@ -27,23 +27,34 @@ const AndroidForcedInstall = () => {
     <div style={{
       minHeight: '100dvh',
       width: '100vw',
-      backgroundColor: '#ffffff', // Added white background so bottom blends seamlessly
-      backgroundImage: 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1783074750/img-to-link/frihzx02hlozdlpwi2dq.webp")',
-      backgroundSize: '100% auto', // Scaled down the image to fit the width perfectly
-      backgroundPosition: 'top center',
-      backgroundRepeat: 'no-repeat',
+      backgroundColor: '#ffffff',
       fontFamily: '"Inter", sans-serif',
       overflowX: 'hidden',
       overflowY: 'auto',
-      display: 'flex',
-      flexDirection: 'column',
       position: 'relative',
-      padding: '20px 16px 100px 16px', // Reduced top padding slightly
       boxSizing: 'border-box'
     }}>
       
-      {/* Top Section: Logo, Text, Mascot */}
-      <div style={{ display: 'flex', position: 'relative', width: '100%', maxWidth: '450px', margin: '0 auto', flex: 1 }}>
+      {/* Render the background as a real image so the container's scroll height perfectly matches it */}
+      <img 
+        src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1783074750/img-to-link/frihzx02hlozdlpwi2dq.webp"
+        style={{ width: '100%', height: 'auto', display: 'block' }}
+        alt=""
+      />
+
+      {/* Extra spacer to ensure the sticky footer doesn't cover the bottom of the image */}
+      <div style={{ height: '90px', width: '100%' }}></div>
+
+      {/* Top Section: Logo, Text, Mascot - Positioned Absolutely over the image */}
+      <div style={{ 
+        position: 'absolute', 
+        top: 0, 
+        left: 0, 
+        width: '100%', 
+        padding: '20px 16px', 
+        boxSizing: 'border-box' 
+      }}>
+        <div style={{ display: 'flex', position: 'relative', width: '100%', maxWidth: '450px', margin: '0 auto' }}>
         
         {/* Left Content Area */}
         <div style={{ width: '100%', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', paddingTop: '10px' }}>
@@ -119,6 +130,7 @@ const AndroidForcedInstall = () => {
           </div>
         </div>
       </div>
+      </div> {/* Closes the absolute positioned container overlay */}
 
       {/* Sticky Bottom Download Bar */}
       <div style={{
