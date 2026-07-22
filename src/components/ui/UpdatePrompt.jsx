@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { getApiBase } from '../../utils/apiBase';
 
-const CURRENT_VERSION_CODE = 41;
+import { App } from '@capacitor/app';
+
 const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.hoshiyaarlearning.app';
 
 const UpdatePrompt = () => {
@@ -19,12 +20,16 @@ const UpdatePrompt = () => {
                     return;
                 }
 
+                // Get actual native app version using Capacitor plugin
+                const info = await App.getInfo();
+                const currentVersionCode = parseInt(info.build, 10);
+
                 // Fetch the minimum required version from your settings API
                 const response = await axios.get(`${getApiBase()}/api/settings/min_android_version`);
 
                 if (response.data && response.data.value) {
                     const minVersion = parseInt(response.data.value, 10);
-                    if (CURRENT_VERSION_CODE < minVersion) {
+                    if (currentVersionCode < minVersion) {
                         setNeedsUpdate(true);
                     }
                 }

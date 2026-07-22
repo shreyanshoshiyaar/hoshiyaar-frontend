@@ -118,6 +118,45 @@ const AndroidForcedInstall = () => {
           </div>
         </div>
       </div>
+
+      {/* Sticky Bottom Download Bar */}
+      <div style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(10px)',
+        borderTop: '1px solid #e2e8f0',
+        padding: '12px 16px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 50,
+        boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.05)'
+      }}>
+        <a 
+          href={playStoreLink}
+          style={{
+            display: 'block',
+            width: '100%',
+            maxWidth: '400px',
+            backgroundColor: '#4338ca',
+            color: 'white',
+            textAlign: 'center',
+            padding: '14px 20px',
+            borderRadius: '12px',
+            fontSize: '16px',
+            fontWeight: 800,
+            textDecoration: 'none',
+            boxShadow: '0 4px 12px rgba(67, 56, 202, 0.3)',
+            transition: 'transform 0.2s',
+          }}
+          className="active:scale-95"
+        >
+          DOWNLOAD APP
+        </a>
+      </div>
     </div>
     </>
   );
