@@ -29,8 +29,8 @@ const AndroidForcedInstall = () => {
       width: '100vw',
       backgroundColor: '#ffffff',
       backgroundImage: 'url("https://res.cloudinary.com/fhscvc7p/image/upload/v1784714199/img-to-link/mrpgok1n4zukman7plwy.webp")',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center bottom', // Align to bottom so mascots are visible
+      backgroundSize: '100% auto', // Fit to screen width
+      backgroundPosition: 'center calc(100% - 75px)', // Shift up by the height of the sticky button so it doesn't get covered
       backgroundRepeat: 'no-repeat',
       fontFamily: '"Inter", sans-serif',
       overflow: 'hidden', // Remove scroll completely
