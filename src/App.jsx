@@ -47,6 +47,7 @@ const ExamPlay = lazy(() => import('./components/features/ExamMode/ExamPlay.jsx'
 const ExamRevision = lazy(() => import('./components/features/ExamMode/ExamRevision.jsx'));
 
 import { CapacitorUpdater } from '@capgo/capacitor-updater';
+import { Capacitor } from '@capacitor/core';
 
 /**
  * Handles App-wide navigation logic:
@@ -68,7 +69,7 @@ const NavigationController = () => {
   // Handle Startup (Restore Path & Capgo)
   useEffect(() => {
     try {
-      const isNative = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+      const isNative = Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android';
       
       // Notify Capgo OTA Updater that the app booted successfully
       if (isNative) {
@@ -99,7 +100,7 @@ const NavigationController = () => {
   useEffect(() => {
     let backListener = null;
 
-    if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+    if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
       import('@capacitor/app').then(({ App: CapApp }) => {
         CapApp.addListener('backButton', ({ canGoBack }) => {
           const currentPath = locationRef.current.pathname;
@@ -207,7 +208,7 @@ function App() {
     const userAgent = navigator.userAgent || navigator.vendor || window.opera;
     const isAndroid = /android/i.test(userAgent);
     const isBot = /bot|googlebot|crawler|spider|robot|crawling/i.test(userAgent);
-    const isNative = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+    const isNative = Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android';
     
     return isAndroid && !isBot && !isNative;
   };
