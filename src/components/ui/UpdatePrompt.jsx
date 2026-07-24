@@ -3,18 +3,20 @@ import axios from 'axios';
 import { getApiBase } from '../../utils/apiBase';
 
 import { App } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
 
 const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.hoshiyaarlearning.app';
 
 const UpdatePrompt = () => {
     const [needsUpdate, setNeedsUpdate] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [appVersion, setAppVersion] = useState('');
 
     useEffect(() => {
         const checkVersion = async () => {
             try {
                 // Only check for updates on Native Android
-                const isNative = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+                const isNative = Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android';
                 if (!isNative) {
                     setLoading(false);
                     return;
@@ -23,6 +25,7 @@ const UpdatePrompt = () => {
                 // Get actual native app version using Capacitor plugin
                 const info = await App.getInfo();
                 const currentVersionCode = parseInt(info.build, 10);
+                setAppVersion(info.build);
 
                 // Fetch the minimum required version from your settings API
                 const response = await axios.get(`${getApiBase()}/api/settings/min_android_version`);
@@ -69,7 +72,7 @@ const UpdatePrompt = () => {
                 </a>
 
                 <p className="mt-4 text-xs text-gray-500 uppercase tracking-widest">
-                    v3.4 (Build {CURRENT_VERSION_CODE})
+                    v3.6 (Build {appVersion})
                 </p>
             </div>
         </div>
