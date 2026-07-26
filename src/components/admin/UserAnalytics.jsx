@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -247,6 +247,7 @@ const UserAnalytics = () => {
       setLoading(false);
     }
   };
+  const skipSchoolFetchRef = useRef(false);
 
   const openSchoolEditModal = (user) => {
     setEditingSchoolUser(user);
@@ -260,6 +261,10 @@ const UserAnalytics = () => {
     const fetchSuggestions = async () => {
       if (!editingSchoolUser || newSchoolName.trim().length < 2) {
         setSchoolSuggestions([]);
+        return;
+      }
+      if (skipSchoolFetchRef.current) {
+        skipSchoolFetchRef.current = false;
         return;
       }
 
@@ -1163,6 +1168,7 @@ className="text-[10px] font-bold text-slate-600 bg-slate-50 border border-slate-
                           key={idx}
                           className="px-4 py-2 hover:bg-indigo-50 cursor-pointer text-sm text-slate-700 font-medium transition-colors border-b border-slate-50 last:border-0"
                           onClick={() => {
+                            skipSchoolFetchRef.current = true;
                             setNewSchoolName(suggestion);
                             setSchoolSuggestions([]);
                           }}
