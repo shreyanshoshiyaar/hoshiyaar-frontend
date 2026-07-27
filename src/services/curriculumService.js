@@ -7,7 +7,15 @@ const cache = new Map();
 const CACHE_TTL = 300000; // 5 minutes for curriculum data
 
 const cachedGet = async (url, config = {}) => {
-  const cacheKey = JSON.stringify({ url, params: config.params });
+  const { bypassCache, ...axiosConfig } = config;
+  
+  if (bypassCache) {
+    // Append timestamp to bypass HTTP/CDN cache
+    const finalParams = { ...(axiosConfig.params || {}), _t: Date.now() };
+    return api.get(url, { ...axiosConfig, params: finalParams });
+  }
+
+  const cacheKey = JSON.stringify({ url, params: axiosConfig.params });
   const now = Date.now();
   
   if (cache.has(cacheKey)) {
@@ -17,7 +25,7 @@ const cachedGet = async (url, config = {}) => {
     }
   }
   
-  const response = await api.get(url, config);
+  const response = await api.get(url, axiosConfig);
   cache.set(cacheKey, { data: response, timestamp: now });
   return response;
 };
@@ -38,8 +46,8 @@ const curriculumService = {
   listChapters(board = 'CBSE', subject = 'Science', extraParams = {}, opts) {
     const passedOpts = passOpts(opts);
     return cachedGet(`/api/curriculum/chapters`, {
-      params: { board, subject, ...extraParams },
       ...passedOpts,
+      params: { board, subject, ...extraParams, ...(passedOpts.params || {}) }
     });
   },
   toggleChapterPublishStatus(id, isPublished) {
@@ -47,10 +55,18 @@ const curriculumService = {
     return api.patch(`/api/curriculum/chapters/${id}/publish`, { isPublished });
   },
   listUnits(chapterId, opts) {
-    return cachedGet(`/api/curriculum/units`, { params: { chapterId }, ...passOpts(opts) });
+    const passedOpts = passOpts(opts);
+    return cachedGet(`/api/curriculum/units`, { 
+      ...passedOpts, 
+      params: { chapterId, ...(passedOpts.params || {}) } 
+    });
   },
   listModules(chapterId, opts) {
-    return cachedGet(`/api/curriculum/modules`, { params: { chapterId }, ...passOpts(opts) });
+    const passedOpts = passOpts(opts);
+    return cachedGet(`/api/curriculum/modules`, { 
+      ...passedOpts, 
+      params: { chapterId, ...(passedOpts.params || {}) } 
+    });
   },
   listModulesByUnit(unitId, opts) {
     return cachedGet(`/api/curriculum/modules`, { params: { unitId }, ...passOpts(opts) });

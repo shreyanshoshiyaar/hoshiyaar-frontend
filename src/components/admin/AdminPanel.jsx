@@ -232,7 +232,7 @@ const AdminPanel = () => {
   const fetchUnits = async () => {
     if (!selectedChapter) return;
     try {
-      const response = await curriculumService.listUnits(selectedChapter);
+      const response = await curriculumService.listUnits(selectedChapter, { bypassCache: true });
       setUnits(response.data || []);
     } catch (err) {
       console.error('Failed to fetch units', err);
@@ -256,7 +256,7 @@ const AdminPanel = () => {
     if (!selectedChapter) return;
     try {
       setLoading(true);
-      const response = await curriculumService.listModules(selectedChapter);
+      const response = await curriculumService.listModules(selectedChapter, { bypassCache: true });
       setModules(response.data || []);
     } catch (err) {
       setError('Failed to fetch modules');
