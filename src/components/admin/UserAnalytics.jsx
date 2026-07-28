@@ -177,6 +177,7 @@ const UserAnalytics = () => {
     activeTimeline: []
   });
   const [users, setUsers] = useState([]);
+  const [expandedDay, setExpandedDay] = useState(null);
 
   // Edit School Modal state
   const [editingSchoolUser, setEditingSchoolUser] = useState(null);
@@ -643,9 +644,9 @@ const UserAnalytics = () => {
           {/* Day by Day Data Table */}
           <div className="mt-6 border-t border-slate-100 pt-4">
             <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Day by Day Data</h4>
-            <div className="max-h-[160px] overflow-y-auto border border-slate-100 rounded-lg text-xs">
+            <div className="max-h-[350px] overflow-y-auto border border-slate-100 rounded-lg text-xs">
               <table className="w-full text-left">
-                <thead className="bg-slate-50 text-slate-500 sticky top-0">
+                <thead className="bg-slate-50 text-slate-500 sticky top-0 z-10">
                   <tr>
                     <th className="py-2 px-4 font-semibold border-b border-slate-100">Date</th>
                     <th className="py-2 px-4 font-semibold border-b border-slate-100 text-center">New Signups</th>
@@ -654,11 +655,40 @@ const UserAnalytics = () => {
                 </thead>
                 <tbody className="divide-y divide-slate-50 text-slate-600">
                   {chartsData.activeTimeline && [...chartsData.activeTimeline].sort((a,b) => new Date(b.date) - new Date(a.date)).map((d, idx) => (
-                    <tr key={idx} className="hover:bg-slate-50/50">
-                      <td className="py-2 px-4 font-medium">{d.date}</td>
-                      <td className="py-2 px-4 text-center">{d.signups || 0}</td>
-                      <td className="py-2 px-4 text-center font-bold text-indigo-600">{d.activeUsers || 0}</td>
-                    </tr>
+                    <React.Fragment key={idx}>
+                      <tr 
+                        className="hover:bg-slate-50/50 cursor-pointer"
+                        onClick={() => setExpandedDay(expandedDay === d.date ? null : d.date)}
+                      >
+                        <td className="py-2 px-4 font-medium flex items-center gap-2">
+                          <span className={`transform transition-transform text-[8px] text-slate-400 ${expandedDay === d.date ? 'rotate-90' : ''}`}>▶</span>
+                          {d.date}
+                        </td>
+                        <td className="py-2 px-4 text-center">{d.signups || 0}</td>
+                        <td className="py-2 px-4 text-center font-bold text-indigo-600">{d.activeUsers || 0}</td>
+                      </tr>
+                      {expandedDay === d.date && d.hourly && (
+                        <tr>
+                          <td colSpan="3" className="p-0">
+                            <div className="bg-slate-50/80 p-4 border-b border-slate-100 shadow-inner">
+                              <h5 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">Hourly Breakdown (IST)</h5>
+                              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
+                                {d.hourly.filter(h => h.signups > 0 || h.activeUsers > 0).map((h, i) => (
+                                  <div key={i} className="bg-white border border-slate-200 rounded p-2 text-center shadow-sm hover:shadow-md transition-shadow">
+                                    <div className="text-[11px] font-black text-slate-700 mb-1">{h.hour}</div>
+                                    <div className="text-[10px] text-slate-500 flex justify-between px-1"><span>Signups:</span> <span className="font-bold text-slate-700">{h.signups}</span></div>
+                                    <div className="text-[10px] text-slate-500 flex justify-between px-1"><span>Active:</span> <span className="font-bold text-indigo-600">{h.activeUsers}</span></div>
+                                  </div>
+                                ))}
+                                {d.hourly.filter(h => h.signups > 0 || h.activeUsers > 0).length === 0 && (
+                                  <div className="col-span-full text-[11px] text-slate-400 italic py-2">No active users or signups recorded on this date.</div>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
                   ))}
                 </tbody>
               </table>
