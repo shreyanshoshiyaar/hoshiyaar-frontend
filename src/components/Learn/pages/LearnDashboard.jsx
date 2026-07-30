@@ -1862,7 +1862,7 @@ const LearnDashboard = ({ onboardingData }) => {
           <div className="p-6 space-y-4">
             <div className="flex items-center justify-between mb-6">
               <img 
-                src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778743597/img-to-link/bihseec7aigbmau4amnd.png" 
+                src="https://res.cloudinary.com/w7rytq0k/image/upload/v1785322514/img-to-link/bihseec7aigbmau4amnd.png" 
                 alt="HoshiYaar Logo" 
                 className="h-8 w-auto" 
               />
@@ -1943,7 +1943,7 @@ const LearnDashboard = ({ onboardingData }) => {
         <nav className="hidden md:flex md:w-64 p-6 space-y-4 border-r border-blue-200 flex-col justify-start shrink-0 bg-white shadow-lg z-10">
           <div className="mb-6">
             <img 
-              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778743597/img-to-link/bihseec7aigbmau4amnd.png" 
+              src="https://res.cloudinary.com/w7rytq0k/image/upload/v1785322514/img-to-link/bihseec7aigbmau4amnd.png" 
               alt="HoshiYaar Logo" 
               className="h-12 w-auto" 
             />
@@ -2253,7 +2253,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                   {/* Illustration Container */}
                                   <div className="hidden sm:flex flex-shrink-0 items-center justify-center w-24 h-24 md:w-32 md:h-32 rounded-3xl bg-gray-50 group-hover:bg-blue-50 transition-colors relative">
                                     <img
-                                      src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779775055/img-to-link/oqeihtqpvlhxq5cg8t6o.webp"
+                                      src="https://res.cloudinary.com/w7rytq0k/image/upload/v1785322539/img-to-link/oqeihtqpvlhxq5cg8t6o.webp"
                                       alt=""
                                       className="w-16 h-16 md:w-20 md:h-20 object-contain drop-shadow-lg group-hover:scale-110 transition-transform duration-300"
                                     />

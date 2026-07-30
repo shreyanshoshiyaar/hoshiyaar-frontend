@@ -7,14 +7,14 @@ import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import LoadingPage from './components/ui/LoadingPage.jsx';
 import UpdatePrompt from './components/ui/UpdatePrompt.jsx';
+import MaintenancePrompt from './components/ui/MaintenancePrompt.jsx';
 import NotificationPrompt from './components/ui/NotificationPrompt.jsx';
 import ExamModePromo from './components/ui/ExamModePromo.jsx';
 import ProtectedRoute from './components/layout/ProtectedRoute.jsx';
 import AdminProtectedRoute from './components/layout/AdminProtectedRoute.jsx';
 
 // Lazy load components
-const Login = lazy(() => import('./components/forms/Login.jsx'));
-const Signup = lazy(() => import('./components/forms/Signup.jsx'));
+const UnifiedAuth = lazy(() => import('./components/forms/UnifiedAuth.jsx'));
 const ForgotPassword = lazy(() => import('./components/forms/ForgotPassword.jsx'));
 const HomePage = lazy(() => import('./components/layout/HomePage.jsx'));
 const OnboardingFlow = lazy(() => import('./components/Learn/selectors/OnboardingFlow.jsx'));
@@ -225,6 +225,7 @@ function App() {
     <AuthProvider>
       <ReviewProvider>
           <Router>
+            <MaintenancePrompt />
             <UpdatePrompt />
             <NotificationPrompt />
             <ExamModePromo />
@@ -232,8 +233,8 @@ function App() {
             <Suspense fallback={<LoadingPage />}>
               <Routes>
                 {/* Public Routes */}
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
+                <Route path="/login" element={<UnifiedAuth />} />
+                <Route path="/signup" element={<UnifiedAuth />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/loading" element={<LoadingPage />} />
                 <Route path="/story-demo" element={<InteractiveStory />} />

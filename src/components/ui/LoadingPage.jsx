@@ -8,7 +8,7 @@ const LoadingPage = () => {
       {/* Mobile Loading Screen (Branded) */}
       <div className="md:hidden min-h-screen bg-white flex flex-col items-center justify-center relative overflow-hidden">
         <img 
-          src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778249705/img-to-link/jcwmajaolrm6corrduii.webp" 
+          src="https://res.cloudinary.com/w7rytq0k/image/upload/v1785322553/img-to-link/jcwmajaolrm6corrduii.webp" 
           alt="Loading Background" 
           className="absolute inset-0 w-full h-full object-cover"
         />

@@ -133,7 +133,7 @@ const DesktopHome = () => {
             {/* Right Visual */}
             <div className="flex-1 relative w-full lg:min-w-[650px] max-w-[850px] mt-8 lg:mt-0 lg:ml-[-40px]">
               <img 
-                src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1781793363/img-to-link/pgmviebjucysv1rcmtda.webp" 
+                src="https://res.cloudinary.com/w7rytq0k/image/upload/v1785322516/img-to-link/pgmviebjucysv1rcmtda.webp" 
                 alt="Hoshiyaar Universe" 
                 className="w-full h-auto object-contain"
               />
@@ -220,7 +220,7 @@ const DesktopHome = () => {
                 className="block max-w-6xl w-full mx-auto px-4 hover:scale-[1.02] transition-transform duration-300"
               >
                 <img 
-                  src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1782994536/img-to-link/xdp3hhmspqxhkx6584oo.webp" 
+                  src="https://res.cloudinary.com/w7rytq0k/image/upload/v1785322517/img-to-link/xdp3hhmspqxhkx6584oo.webp" 
                   alt="Download HoshiYaar App" 
                   className="w-full h-auto rounded-3xl shadow-2xl"
                 />
@@ -295,25 +295,25 @@ const DesktopHome = () => {
                 </div>
                 <div className="squad-grid">
                   <div className="squad-card" style={{backgroundColor: '#fffbeb'}}>
-                    <div className="squad-avatar"><img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779100397/img-to-link/rtyoddo8fjqspbtngsri.webp" alt="Hoshi" /></div>
+                    <div className="squad-avatar"><img src="https://res.cloudinary.com/w7rytq0k/image/upload/v1785322519/img-to-link/rtyoddo8fjqspbtngsri.webp" alt="Hoshi" /></div>
                     <div className="squad-name">Hoshi</div>
                     <div className="squad-role" style={{color: '#2563eb', backgroundColor: '#dbeafe'}}>The Calm Thinker</div>
                     <p className="squad-desc">Notices strange clues and reveals the real science. Never rushes. Always right.</p>
                   </div>
                   <div className="squad-card" style={{backgroundColor: '#faf5ff'}}>
-                    <div className="squad-avatar"><img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779100398/img-to-link/ayqvapvovlppgkniud7k.webp" alt="Myra" /></div>
+                    <div className="squad-avatar"><img src="https://res.cloudinary.com/w7rytq0k/image/upload/v1785322520/img-to-link/ayqvapvovlppgkniud7k.webp" alt="Myra" /></div>
                     <div className="squad-name">Myra</div>
                     <div className="squad-role" style={{color: '#7c3aed', backgroundColor: '#ede9fe'}}>The Sharp Verifier</div>
                     <p className="squad-desc">Checks every piece of evidence. Keeps the logic clean. Doesn't accept guesses.</p>
                   </div>
                   <div className="squad-card" style={{backgroundColor: '#eff6ff'}}>
-                    <div className="squad-avatar"><img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779100399/img-to-link/cgel5nvus6jbhxlbghhu.webp" alt="Ruhaan" /></div>
+                    <div className="squad-avatar"><img src="https://res.cloudinary.com/w7rytq0k/image/upload/v1785322521/img-to-link/cgel5nvus6jbhxlbghhu.webp" alt="Ruhaan" /></div>
                     <div className="squad-name">Ruhaan</div>
                     <div className="squad-role" style={{color: '#4f46e5', backgroundColor: '#e0e7ff'}}>The Live Reaction</div>
                     <p className="squad-desc">Says exactly what students are thinking when something surprising happens.</p>
                   </div>
                   <div className="squad-card" style={{backgroundColor: '#f0fdf4'}}>
-                    <div className="squad-avatar"><img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779100396/img-to-link/rqwxrpdymyzbhqd74eiy.webp" alt="Babloo" /></div>
+                    <div className="squad-avatar"><img src="https://res.cloudinary.com/w7rytq0k/image/upload/v1785322522/img-to-link/rqwxrpdymyzbhqd74eiy.webp" alt="Babloo" /></div>
                     <div className="squad-name">Babloo</div>
                     <div className="squad-role" style={{color: '#ea580c', backgroundColor: '#ffedd5'}}>The Funny Wrong Guess</div>
                     <p className="squad-desc">Voices the common misconception — so students recognize it and never forget it.</p>
@@ -540,7 +540,7 @@ const DesktopHome = () => {
               <div style={{ position: 'absolute', bottom: '25%', left: '18%', fontSize: '40px', opacity: 0.1 }}>⚛️</div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '32px', zIndex: 2 }}>
-                <img src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779100399/img-to-link/cgel5nvus6jbhxlbghhu.webp" alt="Ruhaan" style={{ width: '110px', height: '110px', objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.15))' }} />
+                <img src="https://res.cloudinary.com/w7rytq0k/image/upload/v1785322521/img-to-link/cgel5nvus6jbhxlbghhu.webp" alt="Ruhaan" style={{ width: '110px', height: '110px', objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.15))' }} />
                 <div>
                   <h2 style={{ fontSize: '28px', fontWeight: 900, color: '#1e3a8a', marginBottom: '8px', fontFamily: 'Instrument Sans' }}>Ready to level up your science game?</h2>
                   <p style={{ fontSize: '18px', color: '#475569', fontWeight: 600 }}>One topic. One mission. One exam-ready answer.</p>

@@ -7,22 +7,22 @@ import curriculumService from '../../services/curriculumService';
 import './MobileHome.css';
 
 const MOBILE_IMAGES = [
-  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1781872055/img-to-link/tm90kowxqrsdtxxzlmki.webp",
-  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779864570/img-to-link/dv3bklhkmryuc4flx9dw.webp",
-  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779454631/img-to-link/v7ay4l74oxcqheyhi7p6.webp",
-  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778579285/img-to-link/eqdx0kyjrhkruh0ownxd.webp",
-  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779454630/img-to-link/wnc0unb3lt3m0pcvnwcr.webp",
-  "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1781872054/img-to-link/lvndgld8zxovtdffnxan.webp"
+  "https://res.cloudinary.com/w7rytq0k/image/upload/v1785322527/img-to-link/tm90kowxqrsdtxxzlmki.webp",
+  "https://res.cloudinary.com/w7rytq0k/image/upload/v1785322528/img-to-link/dv3bklhkmryuc4flx9dw.webp",
+  "https://res.cloudinary.com/w7rytq0k/image/upload/v1785322529/img-to-link/v7ay4l74oxcqheyhi7p6.webp",
+  "https://res.cloudinary.com/w7rytq0k/image/upload/v1785322530/img-to-link/eqdx0kyjrhkruh0ownxd.webp",
+  "https://res.cloudinary.com/w7rytq0k/image/upload/v1785322531/img-to-link/wnc0unb3lt3m0pcvnwcr.webp",
+  "https://res.cloudinary.com/w7rytq0k/image/upload/v1785322532/img-to-link/lvndgld8zxovtdffnxan.webp"
 ];
 
 const MobileHomeCarousel = () => {
   const [mobileImages, setMobileImages] = useState([
-    "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1781872055/img-to-link/tm90kowxqrsdtxxzlmki.webp",
-    "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779864570/img-to-link/dv3bklhkmryuc4flx9dw.webp",
-    "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779454631/img-to-link/v7ay4l74oxcqheyhi7p6.webp",
-    "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778579285/img-to-link/eqdx0kyjrhkruh0ownxd.webp",
-    "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779454630/img-to-link/wnc0unb3lt3m0pcvnwcr.webp",
-    "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1781872054/img-to-link/lvndgld8zxovtdffnxan.webp"
+    "https://res.cloudinary.com/w7rytq0k/image/upload/v1785322527/img-to-link/tm90kowxqrsdtxxzlmki.webp",
+    "https://res.cloudinary.com/w7rytq0k/image/upload/v1785322528/img-to-link/dv3bklhkmryuc4flx9dw.webp",
+    "https://res.cloudinary.com/w7rytq0k/image/upload/v1785322529/img-to-link/v7ay4l74oxcqheyhi7p6.webp",
+    "https://res.cloudinary.com/w7rytq0k/image/upload/v1785322530/img-to-link/eqdx0kyjrhkruh0ownxd.webp",
+    "https://res.cloudinary.com/w7rytq0k/image/upload/v1785322531/img-to-link/wnc0unb3lt3m0pcvnwcr.webp",
+    "https://res.cloudinary.com/w7rytq0k/image/upload/v1785322532/img-to-link/lvndgld8zxovtdffnxan.webp"
   ]);
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollRef = useRef(null);
@@ -270,7 +270,7 @@ const MobileHomeCarousel = () => {
                   {/* Hoshi Character */}
                   <div className="w-[200px] -mt-8 mb-[-15px] mx-auto drop-shadow-2xl z-30 relative">
                     <img 
-                      src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1781765430/img-to-link/bl4qst643oasldck6fqw.webp" 
+                      src="https://res.cloudinary.com/w7rytq0k/image/upload/v1785322533/img-to-link/bl4qst643oasldck6fqw.webp" 
                       alt="Hoshi" 
                       className="w-full h-auto object-contain"
                     />

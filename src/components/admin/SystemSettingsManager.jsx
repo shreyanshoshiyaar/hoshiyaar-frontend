@@ -5,6 +5,7 @@ const SystemSettingsManager = () => {
   const [missionVideoUrl, setMissionVideoUrl] = useState('');
   const [missionVideoDesktopUrl, setMissionVideoDesktopUrl] = useState('');
   const [homepageSlides, setHomepageSlides] = useState(['', '', '', '', '', '']);
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
@@ -29,6 +30,10 @@ const SystemSettingsManager = () => {
         let slides = [...resSlides.data.value];
         while (slides.length < 6) slides.push('');
         setHomepageSlides(slides);
+      }
+      const resMaintenance = await curriculumService.getSetting('maintenance_mode');
+      if (resMaintenance.data) {
+        setMaintenanceMode(resMaintenance.data.value === true || resMaintenance.data.value === 'true');
       }
     } catch (err) {
       console.error('Failed to fetch setting', err);
@@ -131,8 +136,63 @@ const SystemSettingsManager = () => {
     setHomepageSlides(newSlides);
   };
 
+  const handleToggleMaintenance = async (newValue) => {
+    try {
+      setSaving(true);
+      setMessage({ text: '', type: '' });
+      await curriculumService.updateSetting({
+        key: 'maintenance_mode',
+        value: newValue,
+        description: "If true, blocks the app and displays a maintenance screen"
+      });
+      setMaintenanceMode(newValue);
+      setMessage({ text: newValue ? 'Maintenance Mode ENABLED! ⚠️' : 'Maintenance Mode DISABLED! ✅', type: 'success' });
+      setTimeout(() => setMessage({ text: '', type: '' }), 3000);
+    } catch (err) {
+      setMessage({ text: 'Failed to update maintenance mode.', type: 'error' });
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {/* MAINTENANCE MODE SECTION */}
+      <div className={`rounded-3xl p-6 shadow-sm border transition-all ${maintenanceMode ? 'bg-red-50 border-red-200' : 'bg-white border-gray-100'}`}>
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${maintenanceMode ? 'bg-red-100 text-red-600' : 'bg-green-50 text-green-600'}`}>
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight">Maintenance Mode</h2>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Toggle app access for all users</p>
+            </div>
+          </div>
+          <button
+            onClick={() => handleToggleMaintenance(!maintenanceMode)}
+            disabled={saving || loading}
+            className={`px-6 py-3 rounded-2xl text-sm font-black uppercase tracking-widest transition-all active:scale-[0.98] ${
+              saving || loading
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : maintenanceMode
+                ? 'bg-red-600 text-white shadow-lg shadow-red-200 hover:bg-red-700'
+                : 'bg-green-500 text-white shadow-lg shadow-green-100 hover:bg-green-600'
+            }`}
+          >
+            {saving ? 'Saving...' : maintenanceMode ? 'Turn OFF Maintenance' : 'Turn ON Maintenance'}
+          </button>
+        </div>
+        {maintenanceMode && (
+          <div className="mt-4 p-4 bg-red-100/50 rounded-xl border border-red-200 text-red-700 text-sm font-semibold">
+            ⚠️ WARNING: The app is currently inaccessible to users. They will see the maintenance screen until you turn this off.
+          </div>
+        )}
+      </div>
+
       {/* MISSION VIDEO SECTION */}
       <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
         <div className="flex items-center gap-3 mb-6">

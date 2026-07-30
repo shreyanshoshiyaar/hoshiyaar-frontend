@@ -904,7 +904,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
     return (
         <div 
           style={{ 
-            backgroundImage: 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778244665/img-to-link/lapihposkebjatdeljev.webp")',
+            backgroundImage: 'url("https://res.cloudinary.com/w7rytq0k/image/upload/v1785322550/img-to-link/lapihposkebjatdeljev.webp")',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat'
@@ -983,7 +983,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
   return (
     <div 
       style={{ 
-        backgroundImage: 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778244665/img-to-link/lapihposkebjatdeljev.webp")',
+        backgroundImage: 'url("https://res.cloudinary.com/w7rytq0k/image/upload/v1785322550/img-to-link/lapihposkebjatdeljev.webp")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
@@ -1120,7 +1120,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
         {!showResult ? (
           <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative z-10">
             <img 
-              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103894/img-to-link/ro7myyeaahos06av0oel.png" 
+              src="https://res.cloudinary.com/w7rytq0k/image/upload/v1785322551/img-to-link/ro7myyeaahos06av0oel.png" 
               alt="Babaloo" 
               className="hidden md:block absolute bottom-0 right-4 lg:right-8 w-[110px] lg:w-[145px] object-contain -z-10 pointer-events-none" 
             />
@@ -1146,7 +1146,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
         }`}>
           <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto px-6 py-4 flex flex-col gap-3 relative z-10">
             <img 
-              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103894/img-to-link/ro7myyeaahos06av0oel.png" 
+              src="https://res.cloudinary.com/w7rytq0k/image/upload/v1785322551/img-to-link/ro7myyeaahos06av0oel.png" 
               alt="Babaloo" 
               className="hidden md:block absolute bottom-0 right-4 lg:right-8 w-[110px] lg:w-[145px] object-contain -z-10 pointer-events-none" 
             />
