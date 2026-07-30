@@ -48,6 +48,11 @@ const injectMetaTags = (html, meta) => {
     modified = modified.replace(/<div id="root"><\/div>/i, `<div id="root">${seoHtml}</div>`);
   }
   
+  if (meta.structuredData) {
+    const jsonLd = `<script type="application/ld+json">\n${JSON.stringify(meta.structuredData)}\n</script>`;
+    modified = modified.replace(/(<\/head>)/i, `${jsonLd}\n$1`);
+  }
+  
   return modified;
 };
 
@@ -91,6 +96,29 @@ export default async function handler(req, res) {
           meta.rawContent = blogData.content || '';
           if (blogData.tags && Array.isArray(blogData.tags)) {
             meta.keywords = blogData.tags.join(', ');
+          }
+          meta.structuredData = {
+            "@context": "https://schema.org",
+            "@type": "Article",
+            "headline": meta.title,
+            "description": meta.description,
+            "author": {
+              "@type": "Person",
+              "name": blogData.author || "Admin"
+            },
+            "publisher": {
+              "@type": "Organization",
+              "name": "Hoshiyaar",
+              "logo": {
+                "@type": "ImageObject",
+                "url": "https://hoshiyaar.info/logo.png"
+              }
+            },
+            "datePublished": blogData.createdAt,
+            "dateModified": blogData.updatedAt || blogData.createdAt
+          };
+          if (blogData.image) {
+            meta.structuredData.image = [blogData.image];
           }
         }
       }
