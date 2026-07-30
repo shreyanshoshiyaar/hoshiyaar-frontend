@@ -412,8 +412,8 @@ export default function ConceptPage() {
   })();
 
   const bgImage = actualType === 'comic' 
-    ? 'https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778244662/img-to-link/eqapfsffgxkdty1pkq5f.webp'
-    : 'https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778244663/img-to-link/m6w3rzzraf0o5di82eui.webp';
+    ? 'https://res.cloudinary.com/w7rytq0k/image/upload/v1785322535/img-to-link/eqapfsffgxkdty1pkq5f.webp'
+    : 'https://res.cloudinary.com/w7rytq0k/image/upload/v1785322536/img-to-link/m6w3rzzraf0o5di82eui.webp';
   const midLessonKey = `${moduleNumber}:${index}`;
   const hasMidLessonVideo = midLessonVideos[midLessonKey];
   const shouldShowVideo = introVideoUrl && !videoAcknowledged && (index === 0 || hasMidLessonVideo || showEndVideo);
@@ -834,7 +834,7 @@ export default function ConceptPage() {
             <div className="mt-4 sm:mt-5 md:mt-6 w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative z-10">
               {shouldShowComic && (
                 <img 
-                  src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103895/img-to-link/prjwol57ayvxogrzua2z.png" 
+                  src="https://res.cloudinary.com/w7rytq0k/image/upload/v1785322537/img-to-link/prjwol57ayvxogrzua2z.png" 
                   alt="Hoshi" 
                   className="hidden md:block absolute bottom-0 right-4 lg:-right-4 w-[135px] lg:w-[180px] object-contain -z-10 pointer-events-none" 
                 />
@@ -1053,7 +1053,7 @@ export default function ConceptPage() {
         <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative z-10">
           {!shouldShowComic && !isVideoShowing && (
             <img 
-              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103895/img-to-link/prjwol57ayvxogrzua2z.png" 
+              src="https://res.cloudinary.com/w7rytq0k/image/upload/v1785322537/img-to-link/prjwol57ayvxogrzua2z.png" 
               alt="Hoshi" 
               className="hidden md:block absolute bottom-0 right-4 lg:-right-4 w-[135px] lg:w-[180px] object-contain -z-10 pointer-events-none" 
             />

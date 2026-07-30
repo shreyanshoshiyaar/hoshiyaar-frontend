@@ -39,7 +39,7 @@ const DesktopLeaderboard = ({
         <div
           className="relative w-full rounded-3xl overflow-hidden shadow-md border border-white/60 shrink-0 lg:h-[24vh] max-h-[240px] min-h-[160px]"
           style={{
-            backgroundImage: 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779449764/img-to-link/sefmi9byh6dln0bcmonm.jpg")',
+            backgroundImage: 'url("https://res.cloudinary.com/w7rytq0k/image/upload/v1785322525/img-to-link/sefmi9byh6dln0bcmonm.jpg")',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
@@ -229,7 +229,7 @@ const DesktopLeaderboard = ({
                       
                       <div className="flex-1 flex items-center gap-3">
                         <span className={`text-sm font-black truncate ${isMe ? 'text-blue-700' : 'text-gray-800'}`}>
-                          {isMe ? 'You' : (entry.name || entry.username)}
+                          {isMe ? 'You' : (entry.username || entry.name)}
                         </span>
                       </div>
 

@@ -29,7 +29,7 @@ const About = () => {
             </div>
             <div className="relative">
               <img 
-                src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778245600/img-to-link/rqhpzqnjvb7lwofkj3v7.webp" 
+                src="https://res.cloudinary.com/w7rytq0k/image/upload/v1785322515/img-to-link/rqhpzqnjvb7lwofkj3v7.webp" 
                 alt="Children learning" 
                 className="rounded-[40px] shadow-2xl border-8 border-white"
               />

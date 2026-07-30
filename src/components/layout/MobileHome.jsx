@@ -123,7 +123,7 @@ const MobileHome = ({
         <div className="flex items-center justify-between w-full z-20 mb-1">
           <div className="flex items-center">
             <img 
-              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778743597/img-to-link/bihseec7aigbmau4amnd.png" 
+              src="https://res.cloudinary.com/w7rytq0k/image/upload/v1785322514/img-to-link/bihseec7aigbmau4amnd.png" 
               alt="HoshiYaar Logo" 
               className="h-12 w-auto drop-shadow-sm" 
             />
@@ -134,7 +134,7 @@ const MobileHome = ({
         {/* Hero Banner Section */}
         <div className="relative w-full mt-0 mb-4 overflow-hidden rounded-[24px] shadow-md border border-white/50">
           <img 
-            src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778245600/img-to-link/rqhpzqnjvb7lwofkj3v7.webp" 
+            src="https://res.cloudinary.com/w7rytq0k/image/upload/v1785322515/img-to-link/rqhpzqnjvb7lwofkj3v7.webp" 
             alt="Hero Banner" 
             className="w-full h-auto object-cover"
           />

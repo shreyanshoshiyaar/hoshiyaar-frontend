@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const FooterLogo = "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778743597/img-to-link/bihseec7aigbmau4amnd.png";
+const FooterLogo = "https://res.cloudinary.com/w7rytq0k/image/upload/v1785322514/img-to-link/bihseec7aigbmau4amnd.png";
 
 const Footer = () => {
     return (
@@ -81,7 +81,7 @@ const Footer = () => {
                                 title="Get it on Google Play"
                             >
                                 <img 
-                                    src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1782664047/img-to-link/mgc5mwvdgxzf0o4w2ikl.webp" 
+                                    src="https://res.cloudinary.com/w7rytq0k/image/upload/v1785322526/img-to-link/mgc5mwvdgxzf0o4w2ikl.webp" 
                                     alt="Get it on Google Play" 
                                     className="h-10 sm:h-11 w-auto object-contain"
                                 />

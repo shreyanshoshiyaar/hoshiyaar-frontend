@@ -36,7 +36,7 @@ const MobileLeaderboard = ({
       {/* Full Width Hero Banner with Logo Overlay */}
       <div className="relative w-full overflow-hidden">
         <img 
-          src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778246958/img-to-link/r2bkh4ou7qxpl8nsekj6.webp" 
+          src="https://res.cloudinary.com/w7rytq0k/image/upload/v1785322534/img-to-link/r2bkh4ou7qxpl8nsekj6.webp" 
           alt="Rank Banner" 
           className="w-full h-auto object-cover"
         />
@@ -45,7 +45,7 @@ const MobileLeaderboard = ({
         <div className="absolute top-0 left-0 right-0 z-20 px-6 pt-5 flex items-center justify-between w-full">
           <div className="flex items-center">
             <img 
-              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778743597/img-to-link/bihseec7aigbmau4amnd.png" 
+              src="https://res.cloudinary.com/w7rytq0k/image/upload/v1785322514/img-to-link/bihseec7aigbmau4amnd.png" 
               alt="HoshiYaar Logo" 
               className="h-9 w-auto drop-shadow-sm" 
             />
@@ -245,7 +245,7 @@ const MobileLeaderboard = ({
                     
                     <div className="flex flex-col min-w-0">
                       <span className={`text-[13px] font-black truncate ${isMe ? 'text-[#1E40AF]' : 'text-gray-800'}`}>
-                        {isMe ? 'You' : (entry.name || entry.username)}
+                        {isMe ? 'You' : (entry.username || entry.name)}
                       </span>
                       {leaderboardScope === 'global' && entry.school && (
                         <span className="text-[9px] text-gray-400 font-bold truncate">

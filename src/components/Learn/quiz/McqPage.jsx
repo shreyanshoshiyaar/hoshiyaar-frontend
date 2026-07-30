@@ -993,7 +993,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
   return (
     <div 
       style={{ 
-        backgroundImage: 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1778244664/img-to-link/rja5gjrge66m1grxi284.webp")',
+        backgroundImage: 'url("https://res.cloudinary.com/w7rytq0k/image/upload/v1785322546/img-to-link/rja5gjrge66m1grxi284.webp")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
@@ -1195,7 +1195,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         {!showResult ? (
           <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative z-10">
             <img 
-              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103896/img-to-link/uqj3uwzpd9sbb2z9mhxv.png" 
+              src="https://res.cloudinary.com/w7rytq0k/image/upload/v1785322550/img-to-link/uqj3uwzpd9sbb2z9mhxv.png" 
               alt="Ruhaan" 
               className="hidden md:block absolute bottom-0 right-4 lg:-right-4 w-[110px] lg:w-[140px] object-contain -z-10 pointer-events-none" 
             />
@@ -1223,7 +1223,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         }`}>
           <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto px-6 py-4 flex flex-col gap-3 relative z-10">
             <img 
-              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1779103896/img-to-link/uqj3uwzpd9sbb2z9mhxv.png" 
+              src="https://res.cloudinary.com/w7rytq0k/image/upload/v1785322550/img-to-link/uqj3uwzpd9sbb2z9mhxv.png" 
               alt="Ruhaan" 
               className="hidden md:block absolute bottom-0 right-4 lg:-right-4 w-[110px] lg:w-[140px] object-contain -z-10 pointer-events-none" 
             />

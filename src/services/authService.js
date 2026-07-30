@@ -22,6 +22,11 @@ const registerGuest = (opts) => {
   return api.post('/api/auth/register-guest', { platform: getPlatform() }, opts);
 };
 
+// Check if user exists by phone
+const checkUser = (phone, opts) => {
+  return api.post('/api/auth/check-user', { phone }, opts);
+};
+
 // Login user with username
 const login = (userData, opts) => {
   return api.post('/api/auth/login', { ...userData, platform: getPlatform() }, opts);
@@ -166,6 +171,7 @@ const authService = {
   updateProgress,
   getCompletedModuleIds,
   checkUsername,
+  checkUser,
   getLeaderboard,
   getSchoolNames,
   getSummary,
