@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import authService from '../../services/authService.js';
 import curriculumService from '../../services/curriculumService';
 import { CalendarIcon } from '../ui/Icons';
@@ -383,9 +383,9 @@ const MobileMore = ({ stars, weeklyStars }) => {
         <div className="mb-4">
           <h3 className="text-sm font-black text-blue-900/40 uppercase tracking-widest ml-1 mb-3">Legal & Support</h3>
           <div className="bg-white rounded-3xl p-2 shadow-sm border border-gray-100 divide-y divide-gray-50">
-            <button 
-              onClick={() => navigate('/blogs')}
-              className="w-full flex items-center justify-between p-4 hover:bg-blue-50/50 transition-all group"
+            <Link 
+              to="/blogs"
+              className="w-full flex items-center justify-between p-4 hover:bg-blue-50/50 transition-all group block"
             >
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600">
@@ -398,10 +398,10 @@ const MobileMore = ({ stars, weeklyStars }) => {
               <svg className="w-4 h-4 text-blue-200 group-hover:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-            </button>
-            <button 
-              onClick={() => navigate('/privacy-policy')}
-              className="w-full flex items-center justify-between p-4 hover:bg-blue-50/50 transition-all group"
+            </Link>
+            <Link 
+              to="/privacy-policy"
+              className="w-full flex items-center justify-between p-4 hover:bg-blue-50/50 transition-all group block"
             >
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
@@ -414,10 +414,10 @@ const MobileMore = ({ stars, weeklyStars }) => {
               <svg className="w-4 h-4 text-blue-200 group-hover:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-            </button>
-            <button 
-              onClick={() => navigate('/terms-conditions')}
-              className="w-full flex items-center justify-between p-4 hover:bg-blue-50/50 transition-all group"
+            </Link>
+            <Link 
+              to="/terms-conditions"
+              className="w-full flex items-center justify-between p-4 hover:bg-blue-50/50 transition-all group block"
             >
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
@@ -430,10 +430,10 @@ const MobileMore = ({ stars, weeklyStars }) => {
               <svg className="w-4 h-4 text-blue-200 group-hover:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-            </button>
-            <button 
-              onClick={() => navigate('/contact')}
-              className="w-full flex items-center justify-between p-4 hover:bg-blue-50/50 transition-all group"
+            </Link>
+            <Link 
+              to="/contact"
+              className="w-full flex items-center justify-between p-4 hover:bg-blue-50/50 transition-all group block"
             >
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
@@ -446,7 +446,7 @@ const MobileMore = ({ stars, weeklyStars }) => {
               <svg className="w-4 h-4 text-blue-200 group-hover:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-            </button>
+            </Link>
           </div>
         </div>
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import authService from '../../../services/authService';
 import SimpleLoading from '../../ui/SimpleLoading';
 import NetworkError from '../../ui/NetworkError.jsx';
@@ -167,14 +167,10 @@ const BlogList = () => {
             return (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredBlogs.map((blog) => (
-                  <div 
+                  <Link 
                     key={blog._id} 
-                    onClick={() => {
-                      const category = blog.category || 'general';
-                      const slugOrId = blog.slug || blog._id;
-                      navigate(`/blogs/${category}/${slugOrId}`);
-                    }}
-                    className="bg-white rounded-[32px] overflow-hidden shadow-sm border border-gray-100 active:scale-[0.98] transition-all cursor-pointer hover:shadow-md hover:border-blue-100 flex flex-col h-full"
+                    to={`/blogs/${blog.category || 'general'}/${blog.slug || blog._id}`}
+                    className="bg-white rounded-[32px] overflow-hidden shadow-sm border border-gray-100 active:scale-[0.98] transition-all cursor-pointer hover:shadow-md hover:border-blue-100 flex flex-col h-full block"
                   >
                     {blog.image && (
                       <img src={blog.image} alt={blog.title} className="w-full h-48 object-cover" />
@@ -198,7 +194,7 @@ const BlogList = () => {
                         </span>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             );

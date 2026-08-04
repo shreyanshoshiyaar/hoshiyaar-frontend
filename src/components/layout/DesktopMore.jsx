@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import authService from '../../services/authService.js';
 import curriculumService from '../../services/curriculumService';
 import { CalendarIcon } from '../ui/Icons';
@@ -407,10 +407,10 @@ const DesktopMore = ({ stars, weeklyStars }) => {
                  <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-wider">Legal</h3>
                </div>
                <div className="p-1 flex flex-col">
-                 <button onClick={() => navigate('/blogs')} className="px-4 py-2 text-left font-bold text-gray-600 hover:bg-gray-50 rounded-lg transition-colors text-xs">Blogs & Articles</button>
-                 <button onClick={() => navigate('/privacy-policy')} className="px-4 py-2 text-left font-bold text-gray-600 hover:bg-gray-50 rounded-lg transition-colors text-xs">Privacy Policy</button>
-                 <button onClick={() => navigate('/terms-conditions')} className="px-4 py-2 text-left font-bold text-gray-600 hover:bg-gray-50 rounded-lg transition-colors text-xs">Terms & Conditions</button>
-                 <button onClick={() => navigate('/contact')} className="px-4 py-2 text-left font-bold text-blue-600 hover:bg-blue-50 rounded-lg transition-colors text-xs mt-1 border border-blue-50">Contact Support</button>
+                 <Link to="/blogs" className="px-4 py-2 text-left font-bold text-gray-600 hover:bg-gray-50 rounded-lg transition-colors text-xs block">Blogs & Articles</Link>
+                 <Link to="/privacy-policy" className="px-4 py-2 text-left font-bold text-gray-600 hover:bg-gray-50 rounded-lg transition-colors text-xs block">Privacy Policy</Link>
+                 <Link to="/terms-conditions" className="px-4 py-2 text-left font-bold text-gray-600 hover:bg-gray-50 rounded-lg transition-colors text-xs block">Terms & Conditions</Link>
+                 <Link to="/contact" className="px-4 py-2 text-left font-bold text-blue-600 hover:bg-blue-50 rounded-lg transition-colors text-xs mt-1 border border-blue-50 block">Contact Support</Link>
                </div>
             </div>
             
