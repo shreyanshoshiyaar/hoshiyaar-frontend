@@ -949,6 +949,9 @@ className="text-[10px] font-bold text-slate-600 bg-slate-50 border border-slate-
                 <th className="py-4 px-6 select-none cursor-pointer hover:bg-slate-100/50" onClick={() => handleSort('lastActive')}>
                   Last Active {sortField === 'lastActive' ? (sortDirection === 'asc' ? '▴' : '▾') : ''}
                 </th>
+                <th className="py-4 px-4 text-center select-none cursor-pointer hover:bg-slate-100/50" onClick={() => handleSort('funnelStage')}>
+                  Funnel Stage {sortField === 'funnelStage' ? (sortDirection === 'asc' ? '▴' : '▾') : ''}
+                </th>
                 <th className="py-4 px-6 text-center">Logs</th>
               </tr>
             </thead>
@@ -1095,6 +1098,24 @@ className="text-[10px] font-bold text-slate-600 bg-slate-50 border border-slate-
                           </div>
                         </td>
 
+                        {/* Funnel Stage */}
+                        <td className="py-4 px-4 text-center">
+                          <span className="text-xs font-semibold text-slate-600 capitalize">
+                            {(() => {
+                              let stage = user.funnelStage ? user.funnelStage.replace(/_/g, ' ') : 'Signed Up';
+                              if (stage.toLowerCase() === 'signed up') {
+                                if (user.useTime > 0 || user.totalPoints > 0) {
+                                  return 'Active Learner';
+                                }
+                                if (user.onboardingCompleted) {
+                                  return 'Dashboard Reached';
+                                }
+                              }
+                              return stage;
+                            })()}
+                          </span>
+                        </td>
+
                         {/* Action Expand */}
                         <td className="py-4 px-6 text-center" style={{minWidth:'70px'}}>
                           <button
@@ -1114,7 +1135,7 @@ className="text-[10px] font-bold text-slate-600 bg-slate-50 border border-slate-
                       {/* Expandable Progress Logs Sub-Row */}
                       {isExpanded && (
                         <tr>
-                          <td colSpan={10} className="py-4 px-8 bg-slate-50/40 border-t border-b border-slate-100">
+                          <td colSpan={14} className="py-4 px-8 bg-slate-50/40 border-t border-b border-slate-100">
                             <UserProgressDetails chaptersProgress={user.chaptersProgress} />
                           </td>
                         </tr>
@@ -1124,7 +1145,7 @@ className="text-[10px] font-bold text-slate-600 bg-slate-50 border border-slate-
                 })
               ) : (
                 <tr>
-                  <td colSpan={9} className="py-12 text-center text-slate-400 italic font-medium">
+                  <td colSpan={14} className="py-12 text-center text-slate-400 italic font-medium">
                     No students matched the search and filters query.
                   </td>
                 </tr>

@@ -48,6 +48,11 @@
           if (window.NativeFB && typeof window.NativeFB.logSignup === "function") {
             window.NativeFB.logSignup();
           }
+        } else if (eventName === "app_open") {
+          // Track app_open for retargeting unconverted users
+          if (typeof fbq === "function") {
+            fbq('trackCustom', 'AppOpen');
+          }
         }
       };
     </script>

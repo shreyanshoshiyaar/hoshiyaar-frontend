@@ -8,6 +8,7 @@ export default function WelcomeScreen({ onContinue }) {
   const [videoError, setVideoError] = React.useState(null);
 
   useEffect(() => {
+    window.hyTrack?.('view_welcome_screen');
     if (videoRef.current) {
       // Attempt to autoplay
       const playPromise = videoRef.current.play();
@@ -71,8 +72,10 @@ export default function WelcomeScreen({ onContinue }) {
               } catch (_) {}
               
               if (sessionStorage.getItem('entryType') === 'signup') {
+                window.hyTrack?.('click_story_demo');
                 navigate('/story-demo');
               } else {
+                window.hyTrack?.('skip_story_demo');
                 navigate('/learn', { replace: true });
               }
             }
