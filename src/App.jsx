@@ -45,6 +45,7 @@ const AndroidForcedInstall = lazy(() => import('./components/layout/AndroidForce
 const InteractiveStory = lazy(() => import('./components/features/InteractiveStory.jsx'));
 const ExamPlay = lazy(() => import('./components/features/ExamMode/ExamPlay.jsx'));
 const ExamRevision = lazy(() => import('./components/features/ExamMode/ExamRevision.jsx'));
+const MidLessonStreakModal = lazy(() => import('./components/Learn/modals/MidLessonStreakModal.jsx'));
 
 import { CapacitorUpdater } from '@capgo/capacitor-updater';
 import { Capacitor } from '@capacitor/core';
@@ -75,6 +76,10 @@ const NavigationController = () => {
       if (isNative) {
         CapacitorUpdater.notifyAppReady().catch(console.error);
       }
+      
+      // Track that the app has opened (for Meta Pixel retargeting)
+      window.hyTrack?.('app_open');
+
       const savedPath = localStorage.getItem('hoshiyaar_last_path');
       
       if (savedPath && savedPath !== '/') {
@@ -201,6 +206,45 @@ const MainLayout = ({ children }) => {
   );
 };
 
+import { getApiBase } from './utils/apiBase.js';
+
+// Setup Hoshiyaar Analytics Interceptor
+const setupAnalytics = () => {
+  if (window._hyTrackSetupDone) return;
+  window._hyTrackSetupDone = true;
+  
+  const originalTrack = window.hyTrack;
+  window.hyTrack = function(eventName, params = {}) {
+    // 1. Fire original tracking (Meta Pixel / GA)
+    if (typeof originalTrack === 'function') {
+      originalTrack(eventName, params);
+    }
+    
+    // 2. Sync funnel stage to our backend database for the Admin Panel
+    const funnelEvents = [
+      'view_welcome_screen', 'click_story_demo', 'skip_story_demo',
+      'onboarding_step_completed', 'story_demo_completed', 
+      'view_dashboard', 'click_chapter', 'click_module'
+    ];
+    
+    if (funnelEvents.includes(eventName)) {
+      try {
+        const userObj = JSON.parse(localStorage.getItem('user'));
+        if (userObj?._id) {
+          fetch(`${getApiBase()}/api/auth/funnel-stage`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: userObj._id, stage: eventName })
+          }).catch(() => {}); // silent fail for analytics
+        }
+      } catch(e) {}
+    }
+  };
+};
+
+// Initialize the interceptor
+setupAnalytics();
+
 function App() {
   const isAndroidWebAndNotBot = () => {
     if (import.meta.env.DEV) return false; // Bypass forced install during local development testing
@@ -231,6 +275,7 @@ function App() {
             <ExamModePromo />
             <NavigationController />
             <Suspense fallback={<LoadingPage />}>
+              <MidLessonStreakModal />
               <Routes>
                 {/* Public Routes */}
                 <Route path="/login" element={<UnifiedAuth />} />

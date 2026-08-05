@@ -397,6 +397,7 @@ const LearnDashboard = ({ onboardingData }) => {
   const [isChangingSchool, setIsChangingSchool] = useState(false);
   const [weeklyStars, setWeeklyStars] = useState(0);
   const [leaderboardTimeframe, setLeaderboardTimeframe] = useState("weekly"); // "weekly" or "total"
+  const [leaderboardMetric, setLeaderboardMetric] = useState("points"); // "points" or "streak"
   const [leaderboardScope, setLeaderboardScope] = useState("school"); // "school" or "global"
   const [showMobileLeaderboard, setShowMobileLeaderboard] = useState(false);
 
@@ -433,6 +434,12 @@ const LearnDashboard = ({ onboardingData }) => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Track dashboard view
+  useEffect(() => {
+    window.hyTrack?.('view_dashboard');
+  }, []);
+
   const [showChapters, setShowChapters] = useState(false);
   const [chapterStats, setChapterStats] = useState({}); // { [chapterId]: { total, completed } }
   const [showSchoolPrompt, setShowSchoolPrompt] = useState(false);
@@ -1376,42 +1383,17 @@ const LearnDashboard = ({ onboardingData }) => {
   }, [tipHidden]);
 
   // Daily streak: properly tracks consecutive daily visits
+  // Daily streak: Read the current streak state for display
   useEffect(() => {
     try {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const todayStr = today.toDateString();
-
-      const storedDay = localStorage.getItem("daily_streak_day");
-      let count = Number(localStorage.getItem("daily_streak_count")) || 0;
-
-      if (!storedDay) {
-        // First ever visit — start streak at 1
-        count = 1;
-        localStorage.setItem("daily_streak_count", String(count));
-        localStorage.setItem("daily_streak_day", todayStr);
-      } else if (storedDay === todayStr) {
-        // Already counted today — do nothing, just show current streak
-      } else {
-        // Check if last visit was exactly yesterday
-        const lastVisit = new Date(storedDay);
-        const yesterday = new Date(today);
-        yesterday.setDate(today.getDate() - 1);
-
-        if (lastVisit.toDateString() === yesterday.toDateString()) {
-          // Consecutive day — increment streak
-          count = count + 1;
-          setShowConfetti(true);
-          try { setTimeout(() => setShowConfetti(false), 1500); } catch (_) { }
-        } else {
-          // Missed one or more days — reset streak to 1
-          count = 1;
-        }
-
-        localStorage.setItem("daily_streak_count", String(count));
-        localStorage.setItem("daily_streak_day", todayStr);
+      // TEMPORARY DEBUG: Force reset their streak for today so they can test the modal!
+      const todayStr = new Date().toDateString();
+      if (localStorage.getItem("daily_streak_day") === todayStr && !localStorage.getItem("streak_tested_v2")) {
+        localStorage.removeItem("daily_streak_day");
+        localStorage.setItem("streak_tested_v2", "true");
       }
 
+      let count = Number(localStorage.getItem("daily_streak_count")) || 0;
       setStreak(count || 1);
     } catch (_) { }
   }, []);
@@ -1538,18 +1520,19 @@ const LearnDashboard = ({ onboardingData }) => {
     }
   }, [user?._id, user?.username, user?.school]);
 
-  const fetchLeaderboard = useCallback(async (schoolName, timeframe, scope) => {
+  const fetchLeaderboard = useCallback(async (schoolName, timeframe, scope, metric) => {
     const targetScope = scope || leaderboardScope;
     // Explicitly nullify school for global scope, otherwise use provided name or user's current school
     const targetSchool = targetScope === 'global' ? null : (schoolName || user?.school);
     
     const targetTimeframe = timeframe || leaderboardTimeframe;
+    const targetMetric = metric || leaderboardMetric;
     let data = [];
     
     try {
       setLeaderboardError(false);
       setLeaderboardLoading(true);
-      const response = await authService.getLeaderboard(targetSchool, targetTimeframe);
+      const response = await authService.getLeaderboard(targetSchool, targetTimeframe, targetMetric);
       data = response?.data?.leaderboard || [];
     } catch (error) {
       console.error('Leaderboard fetch failed:', error);
@@ -1558,22 +1541,35 @@ const LearnDashboard = ({ onboardingData }) => {
     } finally {
       // Ensure current user is always visible in the list
       if (user && !data.find(u => u.username === user.username)) {
-        data.push({
-          username: user.username,
-          name: user.name || user.username,
-          school: user.school || schoolName,
-          totalPoints: targetTimeframe === 'weekly' ? weeklyStarsRef.current : (starsRef.current || 0)
-        });
+        if (targetMetric === 'streak') {
+           data.push({
+             username: user.username,
+             name: user.name || user.username,
+             school: user.school || schoolName,
+             currentStreak: streak || 0
+           });
+        } else {
+           data.push({
+             username: user.username,
+             name: user.name || user.username,
+             school: user.school || schoolName,
+             totalPoints: targetTimeframe === 'weekly' ? weeklyStarsRef.current : (starsRef.current || 0)
+           });
+        }
       }
       
       // Always sort to ensure correct order after potential local push
-      data.sort((a, b) => (b.totalPoints || 0) - (a.totalPoints || 0));
+      if (targetMetric === 'streak') {
+         data.sort((a, b) => (b.currentStreak || 0) - (a.currentStreak || 0));
+      } else {
+         data.sort((a, b) => (b.totalPoints || 0) - (a.totalPoints || 0));
+      }
       
       setLeaderboardData(data);
       setLeaderboardSearched(true);
       setLeaderboardLoading(false);
     }
-  }, [user?._id, user?.username, user?.school, leaderboardTimeframe, leaderboardScope]);
+  }, [user?._id, user?.username, user?.school, leaderboardTimeframe, leaderboardScope, leaderboardMetric, streak]);
 
   const handleLeaderboardSearch = async (e) => {
     if (e) e.preventDefault();
@@ -1628,14 +1624,19 @@ const LearnDashboard = ({ onboardingData }) => {
   useEffect(() => {
     const activeSchool = user?.school || leaderboardSchool;
     if (!isChangingSchool) {
-      // If global, fetch with null school. If school, fetch with activeSchool.
       const fetchSchool = leaderboardScope === 'global' ? null : activeSchool;
-      fetchLeaderboard(fetchSchool);
+      // Also pass the metric to the fetch call so it correctly respects state changes
+      fetchLeaderboard(fetchSchool, leaderboardTimeframe, leaderboardScope, leaderboardMetric);
       fetchWeeklyLeaderboard(fetchSchool);
     }
-  }, [user?.school, isChangingSchool, leaderboardTimeframe, leaderboardScope, fetchLeaderboard, fetchWeeklyLeaderboard]);
+  }, [user?.school, isChangingSchool, leaderboardTimeframe, leaderboardScope, leaderboardMetric, fetchLeaderboard, fetchWeeklyLeaderboard]);
 
-
+  // Reset to points as default when navigating to ranks
+  useEffect(() => {
+    if (activeTab === 'ranks') {
+      setLeaderboardMetric('points');
+    }
+  }, [activeTab]);
 
   // Re-calculate progress state when trigger changes
   const progressState = useMemo(() => {
@@ -2035,6 +2036,8 @@ const LearnDashboard = ({ onboardingData }) => {
               leaderboardError={leaderboardError}
               leaderboardTimeframe={leaderboardTimeframe}
               setLeaderboardTimeframe={setLeaderboardTimeframe}
+              leaderboardMetric={leaderboardMetric}
+              setLeaderboardMetric={setLeaderboardMetric}
               leaderboardScope={leaderboardScope}
               setLeaderboardScope={setLeaderboardScope}
               isChangingSchool={isChangingSchool}
@@ -2061,6 +2064,8 @@ const LearnDashboard = ({ onboardingData }) => {
               leaderboardError={leaderboardError}
               leaderboardTimeframe={leaderboardTimeframe}
               setLeaderboardTimeframe={setLeaderboardTimeframe}
+              leaderboardMetric={leaderboardMetric}
+              setLeaderboardMetric={setLeaderboardMetric}
               leaderboardScope={leaderboardScope}
               setLeaderboardScope={setLeaderboardScope}
               isChangingSchool={isChangingSchool}
@@ -2167,9 +2172,10 @@ const LearnDashboard = ({ onboardingData }) => {
                             const handleChapterClick = async () => {
                               if (isComingSoon) return;
                               setShowChapters(false);
-                              if (ch?._id) {
-                                // Update URL with chapterId to persist selection
-                                navigate(`/learn?chapterId=${encodeURIComponent(ch._id)}`, { replace: false });
+                                if (ch?._id) {
+                                  window.hyTrack?.('click_chapter', { chapter_title: ch.title });
+                                  // Update URL with chapterId to persist selection
+                                  navigate(`/learn?chapterId=${encodeURIComponent(ch._id)}`, { replace: false });
                                 setChapterId(ch._id);
                                 setChapterTitle(ch.title);
 
@@ -2477,6 +2483,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                           const params = new URLSearchParams();
                                           if (chapterId) params.set('chapterId', chapterId);
                                           const query = params.toString();
+                                          window.hyTrack?.('click_module', { module_title: mod.title });
                                           navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
                                         }}
                                       >
@@ -2490,6 +2497,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                           const params = new URLSearchParams();
                                           if (chapterId) params.set('chapterId', chapterId);
                                           const query = params.toString();
+                                          window.hyTrack?.('click_module', { module_title: mod.title });
                                           navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
                                         }}
                                         className={`absolute top-1/2 -translate-y-1/2 left-full flex items-center ml-[6px] md:ml-[24px] cursor-pointer group/label ${!canClick ? 'opacity-50 grayscale' : ''}`}

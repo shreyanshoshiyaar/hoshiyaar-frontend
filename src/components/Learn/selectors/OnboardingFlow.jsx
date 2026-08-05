@@ -23,6 +23,7 @@ export default function OnboardingFlow() {
         });
       }
     } catch (_) {}
+    window.hyTrack?.('onboarding_step_completed', { board: finalData.board, subject: finalData.subject });
     try { login?.({ ...(user || {}), ...finalData, onboardingCompleted: true }); } catch (_) {}
     navigate('/welcome', { replace: true });
   };

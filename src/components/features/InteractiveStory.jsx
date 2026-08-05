@@ -126,6 +126,7 @@ export default function InteractiveStory() {
     const nextIndex = opt ? opt.nextSlideIndex : -1;
 
     if (nextIndex === -1 || nextIndex >= story.slides.length) {
+      window.hyTrack?.('story_demo_completed');
       navigateToFirstLesson(story.board, story.classLevel);
     } else {
       setCurrentSlideIndex(nextIndex);
