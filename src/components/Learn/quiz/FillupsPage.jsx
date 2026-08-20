@@ -14,6 +14,7 @@ import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import { trackLevelStart } from '../../../utils/analytics.js';
 import { getLearningParams } from '../../../utils/analyticsHelpers.js';
+import { trackFirstQuestionAnswered } from '../../../utils/analytics.js';
 import { useModuleItems } from '../../../hooks/useModuleItems';
 import ConceptExitConfirm from '../../modals/ConceptExitConfirm.jsx';
 import NoSkipsModal from '../../modals/NoSkipsModal.jsx';
@@ -508,7 +509,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
         source: searchParams.get('source') || "question_submit"
       });
 
-      window.hyTrack?.("first_question_answered", {
+      trackFirstQuestionAnswered(user?.classLevel || "unknown_class", moduleNumber, chapterIdParam, {
         ...learningParams,
         question_number: 1,
         question_type: item.type || "fillups",

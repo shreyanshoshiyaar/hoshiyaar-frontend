@@ -5,6 +5,7 @@ import { useReview } from '../../../context/ReviewContext.jsx';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import SimpleLoading from '../../ui/SimpleLoading.jsx';
 import { getLearningParams } from '../../../utils/analyticsHelpers.js';
+import { trackAppError, trackFirstModuleStatus } from '../../../utils/analytics.js';
 
 export default function ModuleEntryRedirect() {
   const navigate = useNavigate();
@@ -37,8 +38,21 @@ export default function ModuleEntryRedirect() {
             user,
             module: { id: moduleNumber, levelName: title, moduleName: title, chapter: chapterIdParam, unit: unitIdParam },
             source: searchParams.get('source') || "module_start"
-          })
+          }),
+          class: user?.classLevel || "unknown_class",
+          module_id: moduleNumber,
+          module_status: 'started',
+          chapter_id: chapterIdParam
         });
+
+        window.hyTrack?.("module_opened", {
+          class: user?.classLevel || "unknown_class",
+          module_id: moduleNumber,
+          module_status: 'opened',
+          chapter_id: chapterIdParam
+        });
+        
+        trackFirstModuleStatus('started');
       }
     }
   }, [moduleNumber, user]);
@@ -49,6 +63,7 @@ export default function ModuleEntryRedirect() {
     if (loading) return;
     if (error) {
       console.error('[ModuleEntryRedirect] Error loading items:', error);
+      trackAppError('ERR_MODULE_LOAD_FAILED', { module_id: moduleNumber, error_message: error.message || 'Network error' });
       return;
     }
     

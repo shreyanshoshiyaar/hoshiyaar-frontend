@@ -8,7 +8,9 @@ const MobileLeaderboard = ({
   leaderboardLoading, 
   leaderboardError,
   leaderboardTimeframe, 
-  setLeaderboardTimeframe, 
+  setLeaderboardTimeframe,
+  leaderboardMetric,
+  setLeaderboardMetric,
   leaderboardScope,
   setLeaderboardScope,
   isChangingSchool, 
@@ -182,29 +184,55 @@ const MobileLeaderboard = ({
           </>
         )}
 
-        {/* Time Filters */}
-        <div className="flex gap-2 mb-4 px-1">
+        {/* Metric Filters */}
+        <div className="flex gap-2 mb-2 px-1">
           <button 
             onClick={() => {
-              setLeaderboardTimeframe('weekly');
+              setLeaderboardMetric('points');
               const school = leaderboardScope === 'global' ? null : (user?.school);
-              fetchLeaderboard(school, 'weekly', leaderboardScope);
+              fetchLeaderboard(school, leaderboardTimeframe, leaderboardScope, 'points');
             }}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black transition-all ${leaderboardTimeframe === 'weekly' ? 'bg-[#2563EB] text-white shadow-md' : 'bg-gray-100 text-gray-500'}`}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${leaderboardMetric === 'points' ? 'bg-orange-500 text-white shadow-md' : 'bg-gray-100 text-gray-500'}`}
           >
-            📅 Week
+            ⭐ Points
           </button>
           <button 
              onClick={() => {
-               setLeaderboardTimeframe('total');
+               setLeaderboardMetric('streak');
                const school = leaderboardScope === 'global' ? null : (user?.school);
-               fetchLeaderboard(school, 'total', leaderboardScope);
+               fetchLeaderboard(school, leaderboardTimeframe, leaderboardScope, 'streak');
              }}
-             className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black transition-all ${leaderboardTimeframe === 'total' ? 'bg-[#2563EB] text-white shadow-md' : 'bg-gray-100 text-gray-500'}`}
+             className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${leaderboardMetric === 'streak' ? 'bg-orange-500 text-white shadow-md' : 'bg-gray-100 text-gray-500'}`}
           >
-            📊 All Time
+            🔥 Streaks
           </button>
         </div>
+
+        {/* Time Filters */}
+        {leaderboardMetric === 'points' && (
+          <div className="flex gap-2 mb-4 px-1">
+            <button 
+              onClick={() => {
+                setLeaderboardTimeframe('weekly');
+                const school = leaderboardScope === 'global' ? null : (user?.school);
+                fetchLeaderboard(school, 'weekly', leaderboardScope, leaderboardMetric);
+              }}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black transition-all ${leaderboardTimeframe === 'weekly' ? 'bg-[#2563EB] text-white shadow-md' : 'bg-gray-100 text-gray-500'}`}
+            >
+              📅 Week
+            </button>
+            <button 
+               onClick={() => {
+                 setLeaderboardTimeframe('total');
+                 const school = leaderboardScope === 'global' ? null : (user?.school);
+                 fetchLeaderboard(school, 'total', leaderboardScope, leaderboardMetric);
+               }}
+               className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black transition-all ${leaderboardTimeframe === 'total' ? 'bg-[#2563EB] text-white shadow-md' : 'bg-gray-100 text-gray-500'}`}
+            >
+              📊 All Time
+            </button>
+          </div>
+        )}
 
         {/* Ranking List */}
         <div className="space-y-2 px-1">
@@ -255,10 +283,14 @@ const MobileLeaderboard = ({
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-1 shrink-0 px-2 py-0.5 bg-white rounded-lg shadow-sm border border-gray-100">
-                    <span className="text-[12px] font-black text-gray-700">{entry.totalPoints?.toLocaleString() || 0}</span>
-                    <span className="text-yellow-400 text-sm">★</span>
-                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                      <span className="text-[13px] font-black text-gray-800 tracking-tight">
+                        {leaderboardMetric === 'streak' ? (entry.currentStreak || 0) : (entry.totalPoints?.toLocaleString() || 0)}
+                      </span>
+                      <span className={`text-[12px] drop-shadow-sm ${leaderboardMetric === 'streak' ? 'text-orange-500' : 'text-yellow-400'}`}>
+                        {leaderboardMetric === 'streak' ? '🔥' : '⭐'}
+                      </span>
+                    </div>
                 </div>
               );
             })

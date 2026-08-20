@@ -8,10 +8,11 @@ import reattemptImg from '../../../assets/images/reattempt.png';
 import finishImg from '../../../assets/images/finish.png';
 import victorySound from '../../../assets/sounds/victory.mp3';
 import SimpleLoading from '../../ui/SimpleLoading.jsx';
-import { trackLevelEnd } from '../../../utils/analytics.js';
+import { trackLevelEnd, trackFirstModuleCompleted } from '../../../utils/analytics.js';
 import { getLearningParams } from '../../../utils/analyticsHelpers.js';
 import { useModuleItems } from '../../../hooks/useModuleItems';
 import ConfettiAnimation from '../../ui/ConfettiAnimation.jsx';
+import WeeklyStreak from '../../common/WeeklyStreak.jsx';
 
 const LessonComplete = () => {
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ const LessonComplete = () => {
   const [scores, setScores] = useState({ best: 0, last: 0 });
   const isNewBest = Math.max(0, Number(scores.last || 0)) >= Math.max(0, Number(scores.best || 0)) && (scores.last || 0) > 0;
   const [showConfetti, setShowConfetti] = useState(false);
+  const myStreak = localStorage.getItem('daily_streak_count') || user?.streak || 0;
 
   const fireLevelEnd = (score) => {
     if (typeof window.hyTrack !== 'function' || !moduleNumber) return;
@@ -47,6 +49,12 @@ const LessonComplete = () => {
         module: { id: moduleNumber, levelName: title, moduleName: title, chapter: chapterIdParam, unit: unitIdParam },
         source: searchParams.get('source') || "lesson_complete"
       }),
+      score: score || 0,
+      time_spent_seconds: timeSpentSeconds,
+      total_questions: totalQuestions
+    });
+
+    trackFirstModuleCompleted(user?.classLevel || "unknown_class", moduleNumber, chapterIdParam, {
       score: score || 0,
       time_spent_seconds: timeSpentSeconds,
       total_questions: totalQuestions
@@ -218,9 +226,6 @@ const LessonComplete = () => {
             <h1 className="text-3xl md:text-5xl text-gray-900 font-black drop-shadow-sm leading-tight">
               CONGRATULATIONS!
             </h1>
-            <p className="mt-2 text-lg md:text-xl text-gray-800 font-extrabold px-4">
-              You rocked this lesson. Ready for the next adventure?
-            </p>
           </div>
 
           {/* Total Stars card - Horizontal Sleek Glassmorphic Design */}
@@ -236,6 +241,13 @@ const LessonComplete = () => {
                 </div>
               </div>
             </div>
+          </div>
+
+          <div className="w-full max-w-xl animate-fade-in px-2 mt-2">
+            <WeeklyStreak 
+              streakCount={myStreak}
+              currentDayCompleted={true}
+            />
           </div>
 
           <button 

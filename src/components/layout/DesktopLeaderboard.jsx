@@ -8,7 +8,9 @@ const DesktopLeaderboard = ({
   leaderboardLoading, 
   leaderboardError,
   leaderboardTimeframe, 
-  setLeaderboardTimeframe, 
+  setLeaderboardTimeframe,
+  leaderboardMetric,
+  setLeaderboardMetric,
   leaderboardScope,
   setLeaderboardScope,
   isChangingSchool, 
@@ -158,29 +160,54 @@ const DesktopLeaderboard = ({
                   🌎 Global
                 </button>
               </div>
-              
+
               <div className="flex bg-white p-1 rounded-xl border border-gray-200 shrink-0">
                 <button 
                   onClick={() => {
-                    setLeaderboardTimeframe('weekly');
+                    setLeaderboardMetric('points');
                     const school = leaderboardScope === 'global' ? null : (user?.school);
-                    fetchLeaderboard(school, 'weekly', leaderboardScope);
+                    fetchLeaderboard(school, leaderboardTimeframe, leaderboardScope, 'points');
                   }}
-                  className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${leaderboardTimeframe === 'weekly' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${leaderboardMetric === 'points' ? 'bg-orange-500 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                 >
-                  This Week
+                  ⭐ Points
                 </button>
                 <button 
                   onClick={() => {
-                    setLeaderboardTimeframe('total');
+                    setLeaderboardMetric('streak');
                     const school = leaderboardScope === 'global' ? null : (user?.school);
-                    fetchLeaderboard(school, 'total', leaderboardScope);
+                    fetchLeaderboard(school, leaderboardTimeframe, leaderboardScope, 'streak');
                   }}
-                  className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${leaderboardTimeframe === 'total' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${leaderboardMetric === 'streak' ? 'bg-orange-500 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                 >
-                  All Time
+                  🔥 Streaks
                 </button>
               </div>
+              
+              {leaderboardMetric === 'points' && (
+                <div className="flex bg-white p-1 rounded-xl border border-gray-200 shrink-0">
+                  <button 
+                    onClick={() => {
+                      setLeaderboardTimeframe('weekly');
+                      const school = leaderboardScope === 'global' ? null : (user?.school);
+                      fetchLeaderboard(school, 'weekly', leaderboardScope, leaderboardMetric);
+                    }}
+                    className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${leaderboardTimeframe === 'weekly' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                  >
+                    This Week
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setLeaderboardTimeframe('total');
+                      const school = leaderboardScope === 'global' ? null : (user?.school);
+                      fetchLeaderboard(school, 'total', leaderboardScope, leaderboardMetric);
+                    }}
+                    className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${leaderboardTimeframe === 'total' ? 'bg-[#2563EB] text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                  >
+                    All Time
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -202,7 +229,7 @@ const DesktopLeaderboard = ({
                   <div className="w-12">Rank</div>
                   <div className="flex-1">Student</div>
                   {leaderboardScope === 'global' && <div className="flex-1 hidden md:block">School</div>}
-                  <div className="w-24 text-right">Stars</div>
+                  <div className="w-24 text-right">{leaderboardMetric === 'streak' ? 'Streak' : 'Stars'}</div>
                 </div>
 
                 {leaderboardData.map((entry, i) => {
@@ -240,8 +267,12 @@ const DesktopLeaderboard = ({
                       )}
                       
                       <div className="w-24 flex items-center justify-end gap-1.5">
-                        <span className="text-sm font-black text-gray-800">{entry.totalPoints?.toLocaleString() || 0}</span>
-                        <span className="text-yellow-400 text-sm drop-shadow-sm">⭐</span>
+                        <span className="text-sm font-black text-gray-800">
+                          {leaderboardMetric === 'streak' ? (entry.currentStreak || 0) : (entry.totalPoints?.toLocaleString() || 0)}
+                        </span>
+                        <span className={`text-sm drop-shadow-sm ${leaderboardMetric === 'streak' ? 'text-orange-500' : 'text-yellow-400'}`}>
+                          {leaderboardMetric === 'streak' ? '🔥' : '⭐'}
+                        </span>
                       </div>
                     </div>
                   );

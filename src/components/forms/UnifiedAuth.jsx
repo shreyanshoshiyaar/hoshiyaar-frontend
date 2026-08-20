@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import AuthLayout from './AuthLayout';
 import authService from '../../services/authService.js';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { getSignupSource, trackUserType, setUserProperties } from '../../utils/analytics.js';
 
 const UnifiedAuth = () => {
   // Steps: 1=Phone, 2=Password(Login), 3=OTP(Signup), 4=Details(Signup)
@@ -89,7 +90,11 @@ const UnifiedAuth = () => {
         setResendCount(0);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to verify number. Please try again.');
+      if (!err.response) {
+        setError('Network error: Unable to reach the server. Please check your internet connection.');
+      } else {
+        setError(err.response?.data?.message || 'Failed to verify number. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -103,7 +108,10 @@ const UnifiedAuth = () => {
     try {
         const response = await authService.login({
           phone: formData.phone,
-          password: formData.password
+          password: formData.password,
+          region: sessionStorage.getItem('user_region') || null,
+          city: sessionStorage.getItem('user_city') || null,
+          country: sessionStorage.getItem('user_country') || null
         });
         
         if (response.data && response.data.token) {
@@ -175,15 +183,28 @@ const UnifiedAuth = () => {
         phone: formData.phone || null,
         email: formData.email.trim() || null,
         password: formData.password,
-        whatsappOptIn: formData.whatsappOptIn
+        whatsappOptIn: formData.whatsappOptIn,
+        region: sessionStorage.getItem('user_region') || null,
+        city: sessionStorage.getItem('user_city') || null,
+        country: sessionStorage.getItem('user_country') || null
       });
       if (response.data && response.data.token) {
+        const source = getSignupSource();
+        const classLvl = formData.classLevel || "unknown_class";
+
         window.hyTrack?.("sign_up", {
           method: "phone_otp",
-          user_type: "student",
+          user_type: "new",
           is_new_user: true,
-          source: "unified_signup_page",
-          "class": formData.classLevel || "unknown_class"
+          signup_source: source,
+          "class": classLvl
+        });
+        
+        // Persist user properties
+        setUserProperties({
+            signup_source: source,
+            class: classLvl,
+            user_type: 'new'
         });
         
         try {

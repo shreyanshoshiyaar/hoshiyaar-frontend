@@ -185,8 +185,79 @@ export const StarsProvider = ({ children }) => {
     }
   };
 
-  const clearSession = () => setSessionQuestionIds([]);
-  const addToSession = (qid) => setSessionQuestionIds(prev => Array.from(new Set([...prev, qid])));
+  const [midLessonStreakEarned, setMidLessonStreakEarned] = useState(false);
+
+  const clearSession = () => {
+    setSessionQuestionIds([]);
+    setMidLessonStreakEarned(false);
+  };
+
+  const addToSession = (qid) => {
+    setSessionQuestionIds(prev => {
+      const next = Array.from(new Set([...prev, qid]));
+      
+      // If this question wasn't already in the session, count it towards daily progress
+      if (!prev.includes(qid)) {
+        try {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const todayStr = today.toDateString();
+          
+          const storedDay = localStorage.getItem("daily_streak_day");
+          const questionsDay = localStorage.getItem("daily_questions_day");
+          
+          let questionsPlayed = 0;
+          if (questionsDay === todayStr) {
+            questionsPlayed = Number(localStorage.getItem("daily_questions_count")) || 0;
+          }
+          
+          questionsPlayed += 1;
+          localStorage.setItem("daily_questions_day", todayStr);
+          localStorage.setItem("daily_questions_count", String(questionsPlayed));
+
+          // Check if we hit the 5 question milestone
+          if (questionsPlayed >= 5) {
+            if (storedDay !== todayStr) {
+              // Earn the streak!
+              let count = Number(localStorage.getItem("daily_streak_count")) || 0;
+              
+              if (!storedDay) {
+                count = 1;
+              } else {
+                const lastVisit = new Date(storedDay);
+                const yesterday = new Date(today);
+                yesterday.setDate(today.getDate() - 1);
+                
+                if (lastVisit.toDateString() === yesterday.toDateString()) {
+                  count = count + 1;
+                } else {
+                  count = 1;
+                }
+              }
+              
+              localStorage.setItem("daily_streak_count", String(count));
+              localStorage.setItem("daily_streak_day", todayStr);
+              setMidLessonStreakEarned(true);
+              
+              // Sync to backend
+              const uid = getUserId();
+              if (uid) {
+                import('../services/authService.js').then(({ default: authService }) => {
+                  authService.syncStreak(uid, count).catch(e => console.warn('Sync failed', e));
+                });
+              }
+            }
+          }
+        } catch (e) {
+          console.error("Streak calculation failed", e);
+        }
+      }
+      
+      return next;
+    });
+  };
+
+  const dismissMidLessonStreak = () => setMidLessonStreakEarned(false);
 
   const getModuleStars = (moduleId) => moduleStars[moduleId] || 0;
 
@@ -198,6 +269,7 @@ export const StarsProvider = ({ children }) => {
       Object.keys(next).forEach((qid) => { if (next[qid]?.moduleId === String(moduleId)) delete next[qid]; });
       return next;
     });
+
   };
 
   const resetAllStars = () => {
@@ -231,8 +303,10 @@ export const StarsProvider = ({ children }) => {
     revertSession,
     clearSession,
     addToSession,
+    midLessonStreakEarned,
+    dismissMidLessonStreak,
     refresh: reloadFromStorage
-  }), [stars, delta, moduleStars, questionLedger, sessionQuestionIds, reloadFromStorage]);
+  }), [stars, delta, moduleStars, questionLedger, sessionQuestionIds, midLessonStreakEarned, reloadFromStorage]);
 
   return <StarsContext.Provider value={value}>{children}</StarsContext.Provider>;
 };

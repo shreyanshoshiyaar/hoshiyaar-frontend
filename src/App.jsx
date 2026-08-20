@@ -1,6 +1,6 @@
 import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext.jsx';
+import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import { ReviewProvider } from './context/ReviewContext.jsx';
 
 import Header from './components/layout/Header';
@@ -49,6 +49,7 @@ const MidLessonStreakModal = lazy(() => import('./components/Learn/modals/MidLes
 
 import { CapacitorUpdater } from '@capgo/capacitor-updater';
 import { Capacitor } from '@capacitor/core';
+import { fetchAndStoreRegion, captureSignupSource } from './utils/analytics.js';
 
 /**
  * Handles App-wide navigation logic:
@@ -61,6 +62,7 @@ const NavigationController = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const locationRef = React.useRef(location);
+  const { user } = useAuth();
 
   // Update ref on every location change
   useEffect(() => {
@@ -76,7 +78,6 @@ const NavigationController = () => {
       if (isNative) {
         CapacitorUpdater.notifyAppReady().catch(console.error);
       }
-      
       // Track that the app has opened (for Meta Pixel retargeting)
       window.hyTrack?.('app_open');
 
@@ -100,6 +101,11 @@ const NavigationController = () => {
       console.warn('Could not read from localStorage', e);
     }
   }, []); // Only once on mount
+
+  // Sync Location when user loads
+  useEffect(() => {
+    fetchAndStoreRegion(user?._id);
+  }, [user?._id]);
 
   // Handle Back Button (Native only)
   useEffect(() => {
@@ -154,8 +160,34 @@ const NavigationController = () => {
     };
   }, []); // Listener is set once, uses ref for latest path
 
-  // 3. Save current path
+  // 3. Save current path and track screen view
   useEffect(() => {
+    // Analytics: Map route to clean screen name
+    let screenName = 'unknown';
+    const path = location.pathname;
+    if (path === '/') screenName = 'home';
+    else if (path.includes('/login') || path.includes('/signup')) screenName = 'signup';
+    else if (path.includes('/onboarding')) screenName = 'onboarding';
+    else if (path.includes('/learn/module')) screenName = 'module';
+    else if (path.includes('/learn') || path.includes('/home')) screenName = 'home';
+    else if (path.includes('/profile')) screenName = 'profile';
+    else if (path.includes('/result') || path.includes('/lesson-complete')) screenName = 'result';
+    
+    if (window.hyTrack) {
+        window.hyTrack('screen_view', { screen_name: screenName });
+    }
+
+    // Capture acquisition source from URL if present
+    captureSignupSource();
+
+    // Check for test variant in URL
+    const searchParams = new URLSearchParams(location.search);
+    if (searchParams.has('variant')) {
+        const variant = searchParams.get('variant');
+        if (window.clarity) window.clarity('set', 'test_variant', variant);
+        if (window.gtag) window.gtag('set', 'user_properties', { test_variant: variant });
+    }
+
     // Don't save transient pages like login or loading
     const skipSave = ['/login', '/signup', '/loading'].includes(location.pathname);
     if (!skipSave) {
@@ -182,8 +214,7 @@ const NavigationController = () => {
         console.warn('Could not save resume path', e);
       }
     } else if (location.pathname === '/lesson-complete') {
-      // Clear progress if lesson is complete. We need to parse module from URL search params if present?
-      // Actually lesson-complete might not have moduleNumber in URL, we'll handle clear there if needed.
+      // Clear progress if lesson is complete.
     }
   }, [location]);
 
@@ -238,6 +269,30 @@ const setupAnalytics = () => {
           }).catch(() => {}); // silent fail for analytics
         }
       } catch(e) {}
+    }
+
+    // 3. Sync to Microsoft Clarity (Strictly allowed tags only, no PII)
+    if (typeof window.clarity === 'function') {
+      const allowedClarityTags = [
+        'user_type', 'signup_source', 'class', 'onboarding_status',
+        'first_module_status', 'screen_name', 'module_id', 'module_status',
+        'error_code', 'notification_id', 'test_variant'
+      ];
+
+      // Infer statuses from specific GA4 event names
+      if (eventName === 'home_viewed') window.clarity('set', 'screen_name', 'dashboard');
+      if (eventName === 'view_welcome_screen') window.clarity('set', 'screen_name', 'welcome_screen');
+      if (eventName === 'onboarding_step_completed') window.clarity('set', 'onboarding_status', 'in_progress');
+      if (eventName === 'first_module_completed') window.clarity('set', 'first_module_status', 'completed');
+      if (eventName === 'level_start') window.clarity('set', 'module_status', 'active');
+      if (eventName === 'level_end') window.clarity('set', 'module_status', 'completed');
+
+      // Forward allowed parameters automatically from the event payload
+      for (const [key, value] of Object.entries(params)) {
+        if (allowedClarityTags.includes(key) && value !== undefined && value !== null) {
+           window.clarity("set", key, String(value));
+        }
+      }
     }
   };
 };
