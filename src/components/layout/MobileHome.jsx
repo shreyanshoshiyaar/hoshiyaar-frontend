@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import curriculumService from '../../services/curriculumService';
 import { useStars } from '../../context/StarsContext.jsx';
+import WeeklyStreak from '../common/WeeklyStreak.jsx';
+import StreakCelebration from '../common/StreakCelebration.jsx';
 import heroChar from '../../assets/images/heroChar.png'; // Fallback image
 
 const HexagonRankIcon = ({ rank }) => (
@@ -31,6 +33,7 @@ const MobileHome = ({
 }) => {
   const { stars, refresh } = useStars();
   const hasSchool = !!user?.school;
+  const [showCelebration, setShowCelebration] = useState(false);
 
   // Custom Video Controls
   const mobileVideoIframeRef = useRef(null);
@@ -181,6 +184,15 @@ const MobileHome = ({
             </div>
           </div>
         </div>
+
+        {/* Weekly Streak Section */}
+        <WeeklyStreak 
+          streakCount={myStreak}
+          currentDayCompleted={false} 
+          onCompleteDay={() => {
+            setTimeout(() => setShowCelebration(true), 600);
+          }}
+        />
 
         {/* Bento Grid (Compact) */}
         <div className="grid grid-cols-12 gap-2 mb-3">
@@ -344,6 +356,12 @@ const MobileHome = ({
           </button>
         </div>
       </div>
+
+      <StreakCelebration 
+        isOpen={showCelebration}
+        onClose={() => setShowCelebration(false)}
+        streakCount={myStreak + 1}
+      />
     </div>
   );
 };

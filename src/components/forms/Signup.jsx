@@ -137,7 +137,7 @@ const Signup = () => {
           method: "phone_otp",
           user_type: "student",
           is_new_user: true,
-          source: "signup_page",
+          signup_source: "signup_page",
           "class": formData.classLevel || "unknown_class"
         });
         

@@ -2,7 +2,7 @@ import ProgressBar from '../../ui/ProgressBar.jsx';
 import SimpleLoading from '../../ui/SimpleLoading.jsx';
 import IncorrectAnswerModal from '../../modals/IncorrectAnswerModal.jsx';
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
-import { trackLevelStart } from '../../../utils/analytics.js';
+import { trackLevelStart, trackFirstQuestionAnswered } from '../../../utils/analytics.js';
 import { getLearningParams } from '../../../utils/analyticsHelpers.js';
 import ConceptExitConfirm from '../../modals/ConceptExitConfirm.jsx';
 import NoSkipsModal from '../../modals/NoSkipsModal.jsx';
@@ -251,7 +251,7 @@ export default function DescriptivePage() {
         source: searchParams.get('source') || "question_submit"
       });
 
-      window.hyTrack?.("first_question_answered", {
+      trackFirstQuestionAnswered(user?.classLevel || "unknown_class", moduleNumber, chapterIdParam, {
         ...learningParams,
         question_number: 1,
         question_type: item.type || "descriptive",

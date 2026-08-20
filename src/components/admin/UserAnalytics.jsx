@@ -54,14 +54,36 @@ const formatRelativeDate = (dateVal) => {
 };
 
 // Detailed Row Component showing per-chapter performance
-const UserProgressDetails = ({ chaptersProgress }) => {
+const UserProgressDetails = ({ chaptersProgress, whatsappNudges = {} }) => {
   if (!chaptersProgress || chaptersProgress.length === 0) {
     return (
-      <div className="text-sm text-gray-500 italic p-4 bg-gray-50 rounded-lg">
-        No lesson progress or quiz activity has been logged yet for this student.
+      <div className="space-y-4">
+        <div className="text-sm text-gray-500 italic p-4 bg-gray-50 rounded-lg">
+          No lesson progress or quiz activity has been logged yet for this student.
+        </div>
+        <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-4 shadow-inner">
+          <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+            <span>💬 Automated WhatsApp Communication Logs</span>
+          </h4>
+          <div className="flex flex-wrap gap-3">
+            <div className={`text-xs px-3 py-1.5 rounded-lg border ${whatsappNudges.noModule30mSent ? 'bg-green-50 text-green-700 border-green-200 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
+              0-Min Nudge: {whatsappNudges.noModule30mSent ? '✅ Sent' : 'Pending'}
+            </div>
+            <div className={`text-xs px-3 py-1.5 rounded-lg border ${whatsappNudges.startedNotCompleted2hSent ? 'bg-green-50 text-green-700 border-green-200 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
+              Mission Incomplete (2h): {whatsappNudges.startedNotCompleted2hSent ? '✅ Sent' : 'Pending'}
+            </div>
+            <div className={`text-xs px-3 py-1.5 rounded-lg border ${whatsappNudges.inactive24hSent ? 'bg-green-50 text-green-700 border-green-200 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
+              Streak Break (24h): {whatsappNudges.inactive24hSent ? '✅ Sent' : 'Pending'}
+            </div>
+            <div className={`text-xs px-3 py-1.5 rounded-lg border ${whatsappNudges.inactive3DaysSent ? 'bg-green-50 text-green-700 border-green-200 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
+              3-Days Inactive: {whatsappNudges.inactive3DaysSent ? '✅ Sent' : 'Pending'}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
+
 
   return (
     <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-4 shadow-inner">
@@ -162,6 +184,27 @@ const UserProgressDetails = ({ chaptersProgress }) => {
             </div>
           );
         })}
+      </div>
+      
+      {/* WhatsApp Logs Section */}
+      <div className="mt-4 border-t border-slate-200 pt-4">
+        <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 mb-3">
+          <span>💬 Automated WhatsApp Communication Logs</span>
+        </h4>
+        <div className="flex flex-wrap gap-3">
+          <div className={`text-xs px-3 py-1.5 rounded-lg border ${whatsappNudges.noModule30mSent ? 'bg-green-50 text-green-700 border-green-200 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
+            0-Min Nudge: {whatsappNudges.noModule30mSent ? '✅ Sent' : 'Pending'}
+          </div>
+          <div className={`text-xs px-3 py-1.5 rounded-lg border ${whatsappNudges.startedNotCompleted2hSent ? 'bg-green-50 text-green-700 border-green-200 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
+            Mission Incomplete (2h): {whatsappNudges.startedNotCompleted2hSent ? '✅ Sent' : 'Pending'}
+          </div>
+          <div className={`text-xs px-3 py-1.5 rounded-lg border ${whatsappNudges.inactive24hSent ? 'bg-green-50 text-green-700 border-green-200 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
+            Streak Break (24h): {whatsappNudges.inactive24hSent ? '✅ Sent' : 'Pending'}
+          </div>
+          <div className={`text-xs px-3 py-1.5 rounded-lg border ${whatsappNudges.inactive3DaysSent ? 'bg-green-50 text-green-700 border-green-200 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
+            3-Days Inactive: {whatsappNudges.inactive3DaysSent ? '✅ Sent' : 'Pending'}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -443,7 +486,7 @@ const UserAnalytics = () => {
     if (!filteredUsers.length) return;
 
     const headers = [
-      'Username', 'Name', 'Email', 'Phone', 'School', 'Class', 'Type', 'Points', 'Use Time (mins)', 'Accuracy (%)', 'Last Active', 'Last Session Module', 'Registered At'
+      'Username', 'Name', 'Email', 'Phone', 'School', 'Region', 'Class', 'Type', 'Points', 'Use Time (mins)', 'Accuracy (%)', 'Last Active', 'Last Session Module', 'Registered At'
     ];
 
     const rows = filteredUsers.map(u => [
@@ -452,6 +495,7 @@ const UserAnalytics = () => {
       `"${(u.email || '').replace(/"/g, '""')}"`,
       `"${(u.phone || '').replace(/"/g, '""')}"`,
       `"${(u.school || '').replace(/"/g, '""')}"`,
+      `"${(u.region || '').replace(/"/g, '""')} - ${(u.city || '').replace(/"/g, '""')}"`,
       `"${(u.classLevel || '').replace(/"/g, '""')}"`,
       u.isGuest ? 'Guest' : 'Student',
       u.totalPoints || 0,
@@ -582,6 +626,46 @@ const UserAnalytics = () => {
           </div>
           <div className="text-[11px] text-slate-400 font-semibold mt-3 pt-2 border-t border-slate-50 flex justify-between">
             <span>🚀 Profile Complete</span>
+          </div>
+        </div>
+      </div>
+
+      {/* WhatsApp Automations Metric Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2 mb-4">
+        <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between">
+          <div>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">0-Min Nudges Sent</span>
+            <span className="text-3xl font-black text-blue-500">{stats.whatsappStats?.nudge_0_min || 0}</span>
+          </div>
+          <div className="text-[11px] text-slate-400 font-semibold mt-3 pt-2 border-t border-slate-50 flex justify-between">
+            <span>💬 30m No Module Start</span>
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between">
+          <div>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Mission Incomplete (2h)</span>
+            <span className="text-3xl font-black text-rose-500">{stats.whatsappStats?.nudge_mission_incomplete || 0}</span>
+          </div>
+          <div className="text-[11px] text-slate-400 font-semibold mt-3 pt-2 border-t border-slate-50 flex justify-between">
+            <span>💬 2h Module Abandoned</span>
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between">
+          <div>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Streak Break (24h)</span>
+            <span className="text-3xl font-black text-orange-500">{stats.whatsappStats?.nudge_streak_break || 0}</span>
+          </div>
+          <div className="text-[11px] text-slate-400 font-semibold mt-3 pt-2 border-t border-slate-50 flex justify-between">
+            <span>💬 24h Inactive</span>
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between">
+          <div>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">3-Days Inactive</span>
+            <span className="text-3xl font-black text-indigo-500">{stats.whatsappStats?.nudge_3_days_inactive || 0}</span>
+          </div>
+          <div className="text-[11px] text-slate-400 font-semibold mt-3 pt-2 border-t border-slate-50 flex justify-between">
+            <span>💬 72h Inactive</span>
           </div>
         </div>
       </div>
@@ -775,6 +859,45 @@ const UserAnalytics = () => {
               ))}
             </div>
           </div>
+
+          {/* Region Distribution */}
+          <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex-1 flex flex-col justify-between">
+            <div>
+              <h3 className="text-lg font-black text-slate-800 mb-1">Region Distribution</h3>
+              <p className="text-xs text-slate-400 font-medium mb-4">Breakdown of users by geographical region.</p>
+            </div>
+            <div className="h-[200px] w-full flex items-center justify-center">
+              {chartsData.regionDistribution && chartsData.regionDistribution.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={chartsData.regionDistribution}
+                      innerRadius={50}
+                      outerRadius={80}
+                      paddingAngle={3}
+                      dataKey="value"
+                    >
+                      {chartsData.regionDistribution.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={CHART_COLORS[(index + 5) % CHART_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip contentStyle={{ borderRadius: '8px', fontSize: '11px' }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <span className="text-sm italic text-gray-400">No region data available.</span>
+              )}
+            </div>
+            {/* Custom Legends */}
+            <div className="mt-4 grid grid-cols-2 gap-2 text-[10px] font-bold text-slate-600 max-h-[80px] overflow-y-auto">
+              {chartsData.regionDistribution?.map((entry, index) => (
+                <div key={entry.name} className="flex items-center gap-1.5 truncate">
+                  <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: CHART_COLORS[(index + 5) % CHART_COLORS.length] }}></span>
+                  <span className="truncate" title={entry.name}>{entry.name} ({entry.value})</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -931,6 +1054,9 @@ className="text-[10px] font-bold text-slate-600 bg-slate-50 border border-slate-
                 <th className="py-4 px-6 select-none cursor-pointer hover:bg-slate-100/50" onClick={() => handleSort('school')}>
                   School / Institution {sortField === 'school' ? (sortDirection === 'asc' ? '▴' : '▾') : ''}
                 </th>
+                <th className="py-4 px-5 select-none cursor-pointer hover:bg-slate-100/50" onClick={() => handleSort('region')}>
+                  Region {sortField === 'region' ? (sortDirection === 'asc' ? '▴' : '▾') : ''}
+                </th>
                 <th className="py-4 px-4 text-center select-none cursor-pointer hover:bg-slate-100/50" onClick={() => handleSort('classLevel')}>
                   Class {sortField === 'classLevel' ? (sortDirection === 'asc' ? '▴' : '▾') : ''}
                 </th>
@@ -1047,6 +1173,14 @@ className="text-[10px] font-bold text-slate-600 bg-slate-50 border border-slate-
                           </button>
                         </td>
 
+                        {/* Region */}
+                        <td className="py-4 px-5 font-semibold text-slate-600">
+                          <div className="flex flex-col">
+                            <span className="truncate max-w-[120px]" title={user.region}>{user.region || '—'}</span>
+                            <span className="text-[10px] text-slate-400 truncate max-w-[120px]" title={user.city}>{user.city || ''}</span>
+                          </div>
+                        </td>
+
                         {/* Grade */}
                         <td className="py-4 px-4 text-center font-bold text-slate-700">
                           {user.classLevel === 'Not Specified' ? '—' : `Class ${user.classLevel}`}
@@ -1136,7 +1270,7 @@ className="text-[10px] font-bold text-slate-600 bg-slate-50 border border-slate-
                       {isExpanded && (
                         <tr>
                           <td colSpan={14} className="py-4 px-8 bg-slate-50/40 border-t border-b border-slate-100">
-                            <UserProgressDetails chaptersProgress={user.chaptersProgress} />
+                            <UserProgressDetails chaptersProgress={user.chaptersProgress} whatsappNudges={user.whatsappNudges} />
                           </td>
                         </tr>
                       )}

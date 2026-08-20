@@ -27,12 +27,19 @@ const WeeklyStreak = ({ streakCount = 0, currentDayCompleted = false, onComplete
   const todayIndex = (new Date().getDay() + 6) % 7;
 
   useEffect(() => {
-    // Basic logic to show some previous days as completed if user has a streak
+    setLocalStreak(streakCount);
+    
+    // Logic to show previous days as completed based on actual streak count
     const prevDays = [];
-    if (streakCount > 0) {
-      for (let i = 0; i < todayIndex; i++) {
-        prevDays.push(i);
-      }
+    // If currentDayCompleted is true, streakCount already includes today.
+    let previousDaysToTick = currentDayCompleted ? streakCount - 1 : streakCount;
+    
+    // We only display the current week (Monday to Sunday), so clamp previous days to todayIndex
+    previousDaysToTick = Math.min(Math.max(previousDaysToTick, 0), todayIndex);
+    
+    for (let i = 0; i < previousDaysToTick; i++) {
+      // tick backwards from yesterday
+      prevDays.push(todayIndex - 1 - i);
     }
     
     if (currentDayCompleted) {

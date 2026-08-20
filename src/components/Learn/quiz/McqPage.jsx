@@ -8,6 +8,7 @@ import networkHelper from '../../../utils/apiBase.js';
 import NetworkError from '../../ui/NetworkError.jsx';
 import { trackLevelStart } from '../../../utils/analytics.js';
 import { getLearningParams } from '../../../utils/analyticsHelpers.js';
+import { trackFirstQuestionAnswered } from '../../../utils/analytics.js';
 import ConceptExitConfirm from '../../modals/ConceptExitConfirm.jsx';
 import NoSkipsModal from '../../modals/NoSkipsModal.jsx';
 import correctSfx from '../../../assets/sounds/correct-choice-43861.mp3';
@@ -587,7 +588,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         source: searchParams.get('source') || "question_submit"
       });
 
-      window.hyTrack?.("first_question_answered", {
+      trackFirstQuestionAnswered(user?.classLevel || "unknown_class", moduleNumber, chapterIdParam, {
         ...learningParams,
         question_number: 1,
         question_type: item.type || "mcq",

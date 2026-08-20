@@ -76,8 +76,11 @@ export const setupPushNotifications = async (userId, requestPermission = true) =
   });
 
   // Method called when a notification is tapped from a terminated or detached state
-  PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
-    console.log('Push action performed: ' + JSON.stringify(notification));
+  PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
+    console.log('Push action performed: ' + JSON.stringify(action));
+    window.hyTrack?.('notification_opened', { 
+      notification_id: action.notification.data?.id || action.notification.id || 'unknown' 
+    });
   });
 
   // Register with Apple / Google to receive push via APNS/FCM

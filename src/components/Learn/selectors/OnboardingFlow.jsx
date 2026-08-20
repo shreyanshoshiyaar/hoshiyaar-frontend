@@ -2,12 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import BoardSelect from './BoardSelect.jsx';
+import { setUserProperties } from '../../../utils/analytics.js';
 
 export default function OnboardingFlow() {
   const navigate = useNavigate();
   const { user, login } = useAuth();
   const [data, setData] = useState({ board: '', subject: '' });
   const [isProcessing, setIsProcessing] = useState(false);
+
+  useEffect(() => {
+    // Track start
+    window.hyTrack?.('onboarding_status', { status: 'started' });
+    setUserProperties({ onboarding_status: 'started' });
+  }, []);
 
   const updateData = (partial) => setData((d) => ({ ...d, ...(partial || {}) }));
 
@@ -24,6 +31,9 @@ export default function OnboardingFlow() {
       }
     } catch (_) {}
     window.hyTrack?.('onboarding_step_completed', { board: finalData.board, subject: finalData.subject });
+    window.hyTrack?.('onboarding_status', { status: 'completed' });
+    setUserProperties({ onboarding_status: 'completed' });
+    
     try { login?.({ ...(user || {}), ...finalData, onboardingCompleted: true }); } catch (_) {}
     navigate('/welcome', { replace: true });
   };

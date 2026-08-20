@@ -63,6 +63,11 @@ const updateActivity = (userId, fcmToken, opts) => {
   return api.post('/api/auth/update-activity', { userId, fcmToken, platform: getPlatform() }, opts);
 };
 
+// Update user location
+const updateLocation = (userId, locationData, opts) => {
+  return api.post('/api/auth/update-location', { userId, ...locationData }, opts);
+};
+
 // Simple in-memory cache for GET requests to reduce redundant network calls
 const cache = new Map();
 const CACHE_TTL = 30000; // 30 seconds
@@ -98,9 +103,14 @@ const getCompletedModuleIds = (userId, { subject } = {}, opts) => api.get('/api/
 const checkUsername = (username, opts) => api.get('/api/auth/check-username', { params: { username }, ...(opts || {}) });
 
 // Leaderboard API
-const getLeaderboard = (school, timeframe = 'total', opts) => {
-  const params = school ? { school, timeframe } : { timeframe };
+const getLeaderboard = (school, timeframe = 'total', metric = 'points', opts) => {
+  const params = school ? { school, timeframe, metric } : { timeframe, metric };
   return cachedGet('/api/points/leaderboard', { params, ...(opts || {}) });
+};
+
+// Sync streak to backend
+const syncStreak = (userId, streak, opts) => {
+  return api.post('/api/points/sync-streak', { userId, streak }, opts);
 };
 
 // Get points summary
@@ -163,9 +173,12 @@ const authService = {
   registerGuest,
   login,
   adminLogin,
+  verifyOtp,
+  resetPassword,
   updateOnboarding,
   updateProfile,
   updateActivity,
+  updateLocation,
   getUser,
   getProgress,
   updateProgress,
@@ -173,6 +186,7 @@ const authService = {
   checkUsername,
   checkUser,
   getLeaderboard,
+  syncStreak,
   getSchoolNames,
   getSummary,
   getOlaSchoolSuggestions,

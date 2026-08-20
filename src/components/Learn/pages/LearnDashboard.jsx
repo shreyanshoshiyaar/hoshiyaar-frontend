@@ -437,8 +437,8 @@ const LearnDashboard = ({ onboardingData }) => {
 
   // Track dashboard view
   useEffect(() => {
-    window.hyTrack?.('view_dashboard');
-  }, []);
+    window.hyTrack?.('home_viewed', { "class": user?.classLevel || "unknown_class" });
+  }, [user]);
 
   const [showChapters, setShowChapters] = useState(false);
   const [chapterStats, setChapterStats] = useState({}); // { [chapterId]: { total, completed } }
@@ -1388,9 +1388,9 @@ const LearnDashboard = ({ onboardingData }) => {
     try {
       // TEMPORARY DEBUG: Force reset their streak for today so they can test the modal!
       const todayStr = new Date().toDateString();
-      if (localStorage.getItem("daily_streak_day") === todayStr && !localStorage.getItem("streak_tested_v2")) {
+      if (localStorage.getItem("daily_streak_day") === todayStr && !localStorage.getItem("streak_tested_v3")) {
         localStorage.removeItem("daily_streak_day");
-        localStorage.setItem("streak_tested_v2", "true");
+        localStorage.setItem("streak_tested_v3", "true");
       }
 
       let count = Number(localStorage.getItem("daily_streak_count")) || 0;
@@ -2483,7 +2483,12 @@ const LearnDashboard = ({ onboardingData }) => {
                                           const params = new URLSearchParams();
                                           if (chapterId) params.set('chapterId', chapterId);
                                           const query = params.toString();
-                                          window.hyTrack?.('click_module', { module_title: mod.title });
+                                          window.hyTrack?.('module_selected', { 
+                                            module_title: mod.title,
+                                            module_id: mod._id,
+                                            chapter_id: chapterId,
+                                            "class": user?.classLevel || "unknown_class"
+                                          });
                                           navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
                                         }}
                                       >
@@ -2497,7 +2502,12 @@ const LearnDashboard = ({ onboardingData }) => {
                                           const params = new URLSearchParams();
                                           if (chapterId) params.set('chapterId', chapterId);
                                           const query = params.toString();
-                                          window.hyTrack?.('click_module', { module_title: mod.title });
+                                          window.hyTrack?.('module_selected', { 
+                                            module_title: mod.title,
+                                            module_id: mod._id,
+                                            chapter_id: chapterId,
+                                            "class": user?.classLevel || "unknown_class"
+                                          });
                                           navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
                                         }}
                                         className={`absolute top-1/2 -translate-y-1/2 left-full flex items-center ml-[6px] md:ml-[24px] cursor-pointer group/label ${!canClick ? 'opacity-50 grayscale' : ''}`}
