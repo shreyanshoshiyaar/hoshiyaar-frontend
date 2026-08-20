@@ -66,6 +66,7 @@ export const getSignupSource = () => {
 
 /**
  * Tracks the start of a level/module.
+ */
 export const trackLevelStart = (moduleId, levelName, classLevel, chapterId) => {
     if (typeof window.hyTrack !== 'function') return;
     
