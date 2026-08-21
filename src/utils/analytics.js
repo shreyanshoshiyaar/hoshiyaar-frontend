@@ -50,6 +50,27 @@ export const captureSignupSource = () => {
     try {
         const urlParams = new URLSearchParams(window.location.search);
         const source = urlParams.get('utm_source') || urlParams.get('ref') || 'direct';
+        const medium = urlParams.get('utm_medium') || '';
+        const campaign = urlParams.get('utm_campaign') || '';
+
+        // Track WhatsApp Template Clicks dynamically based on campaign
+        if (source === 'whatsapp' || source === 'whatsapp_nudge') {
+            const eventParams = {
+                utm_campaign: campaign,
+                utm_medium: medium,
+                utm_source: source
+            };
+            
+            // Fire to GA4 via gtag
+            if (typeof window.gtag === 'function') {
+                window.gtag('event', 'whatsapp_link_clicked', eventParams);
+            }
+            // Fire to internal tracking
+            if (typeof window.hyTrack === 'function') {
+                window.hyTrack('whatsapp_link_clicked', eventParams);
+            }
+        }
+
         // Only set if not already set, to preserve the original source of acquisition
         if (!localStorage.getItem('signup_source')) {
             localStorage.setItem('signup_source', source);
