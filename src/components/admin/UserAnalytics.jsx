@@ -53,43 +53,48 @@ const formatRelativeDate = (dateVal) => {
   return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 };
 
-// Detailed Row Component showing per-chapter performance
 const UserProgressDetails = ({ chaptersProgress, whatsappNudges = {} }) => {
+  const whatsappLogsBlock = (
+    <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-4 shadow-inner mb-4">
+      <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+        <span>💬 Automated WhatsApp Communication Logs</span>
+      </h4>
+      <div className="flex flex-wrap gap-3">
+        <div className={`text-xs px-3 py-1.5 rounded-lg border ${whatsappNudges.noModule30mSent ? 'bg-green-50 text-green-700 border-green-200 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
+          0-Min Nudge: {whatsappNudges.noModule30mSent ? '✅ Sent' : 'Pending'}
+        </div>
+        <div className={`text-xs px-3 py-1.5 rounded-lg border ${whatsappNudges.startedNotCompleted2hSent ? 'bg-green-50 text-green-700 border-green-200 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
+          Mission Incomplete (2h): {whatsappNudges.startedNotCompleted2hSent ? '✅ Sent' : 'Pending'}
+        </div>
+        <div className={`text-xs px-3 py-1.5 rounded-lg border ${whatsappNudges.inactive24hSent ? 'bg-green-50 text-green-700 border-green-200 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
+          Streak Break (24h): {whatsappNudges.inactive24hSent ? '✅ Sent' : 'Pending'}
+        </div>
+        <div className={`text-xs px-3 py-1.5 rounded-lg border ${whatsappNudges.inactive3DaysSent ? 'bg-green-50 text-green-700 border-green-200 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
+          3-Days Inactive: {whatsappNudges.inactive3DaysSent ? '✅ Sent' : 'Pending'}
+        </div>
+      </div>
+    </div>
+  );
+
   if (!chaptersProgress || chaptersProgress.length === 0) {
     return (
       <div className="space-y-4">
         <div className="text-sm text-gray-500 italic p-4 bg-gray-50 rounded-lg">
           No lesson progress or quiz activity has been logged yet for this student.
         </div>
-        <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-4 shadow-inner">
-          <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-            <span>💬 Automated WhatsApp Communication Logs</span>
-          </h4>
-          <div className="flex flex-wrap gap-3">
-            <div className={`text-xs px-3 py-1.5 rounded-lg border ${whatsappNudges.noModule30mSent ? 'bg-green-50 text-green-700 border-green-200 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
-              0-Min Nudge: {whatsappNudges.noModule30mSent ? '✅ Sent' : 'Pending'}
-            </div>
-            <div className={`text-xs px-3 py-1.5 rounded-lg border ${whatsappNudges.startedNotCompleted2hSent ? 'bg-green-50 text-green-700 border-green-200 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
-              Mission Incomplete (2h): {whatsappNudges.startedNotCompleted2hSent ? '✅ Sent' : 'Pending'}
-            </div>
-            <div className={`text-xs px-3 py-1.5 rounded-lg border ${whatsappNudges.inactive24hSent ? 'bg-green-50 text-green-700 border-green-200 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
-              Streak Break (24h): {whatsappNudges.inactive24hSent ? '✅ Sent' : 'Pending'}
-            </div>
-            <div className={`text-xs px-3 py-1.5 rounded-lg border ${whatsappNudges.inactive3DaysSent ? 'bg-green-50 text-green-700 border-green-200 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
-              3-Days Inactive: {whatsappNudges.inactive3DaysSent ? '✅ Sent' : 'Pending'}
-            </div>
-          </div>
-        </div>
+        {whatsappLogsBlock}
       </div>
     );
   }
 
 
   return (
-    <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-4 shadow-inner">
-      <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-        <span>📖 Detailed Learning & Performance Logs</span>
-      </h4>
+    <div>
+      {whatsappLogsBlock}
+      <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-4 shadow-inner">
+        <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+          <span>📖 Detailed Learning & Performance Logs</span>
+        </h4>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {chaptersProgress.map((ch, idx) => {
           const statsArray = ch.stats ? (ch.stats instanceof Map ? Array.from(ch.stats.entries()) : Object.entries(ch.stats)) : [];
@@ -186,25 +191,6 @@ const UserProgressDetails = ({ chaptersProgress, whatsappNudges = {} }) => {
         })}
       </div>
       
-      {/* WhatsApp Logs Section */}
-      <div className="mt-4 border-t border-slate-200 pt-4">
-        <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 mb-3">
-          <span>💬 Automated WhatsApp Communication Logs</span>
-        </h4>
-        <div className="flex flex-wrap gap-3">
-          <div className={`text-xs px-3 py-1.5 rounded-lg border ${whatsappNudges.noModule30mSent ? 'bg-green-50 text-green-700 border-green-200 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
-            0-Min Nudge: {whatsappNudges.noModule30mSent ? '✅ Sent' : 'Pending'}
-          </div>
-          <div className={`text-xs px-3 py-1.5 rounded-lg border ${whatsappNudges.startedNotCompleted2hSent ? 'bg-green-50 text-green-700 border-green-200 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
-            Mission Incomplete (2h): {whatsappNudges.startedNotCompleted2hSent ? '✅ Sent' : 'Pending'}
-          </div>
-          <div className={`text-xs px-3 py-1.5 rounded-lg border ${whatsappNudges.inactive24hSent ? 'bg-green-50 text-green-700 border-green-200 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
-            Streak Break (24h): {whatsappNudges.inactive24hSent ? '✅ Sent' : 'Pending'}
-          </div>
-          <div className={`text-xs px-3 py-1.5 rounded-lg border ${whatsappNudges.inactive3DaysSent ? 'bg-green-50 text-green-700 border-green-200 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
-            3-Days Inactive: {whatsappNudges.inactive3DaysSent ? '✅ Sent' : 'Pending'}
-          </div>
-        </div>
       </div>
     </div>
   );
@@ -635,7 +621,12 @@ const UserAnalytics = () => {
         <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between">
           <div>
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">0-Min Nudges Sent</span>
-            <span className="text-3xl font-black text-blue-500">{stats.whatsappStats?.nudge_0_min || 0}</span>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-black text-blue-500">{stats.whatsappStats?.nudge_0_min || 0}</span>
+              <span className="text-xs font-bold text-green-500 bg-green-50 px-2 py-0.5 rounded-full">
+                {stats.whatsappStats?.nudge_0_min_converted || 0} Converted
+              </span>
+            </div>
           </div>
           <div className="text-[11px] text-slate-400 font-semibold mt-3 pt-2 border-t border-slate-50 flex justify-between">
             <span>💬 30m No Module Start</span>
