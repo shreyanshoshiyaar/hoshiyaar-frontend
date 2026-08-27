@@ -43,8 +43,7 @@ const Disclaimer = lazy(() => import('./components/Legal/Disclaimer.jsx'));
 const DeleteAccountPage = lazy(() => import('./components/features/DeleteAccountPage.jsx'));
 const AndroidForcedInstall = lazy(() => import('./components/layout/AndroidForcedInstall.jsx'));
 const InteractiveStory = lazy(() => import('./components/features/InteractiveStory.jsx'));
-const ExamPlay = lazy(() => import('./components/features/ExamMode/ExamPlay.jsx'));
-const ExamRevision = lazy(() => import('./components/features/ExamMode/ExamRevision.jsx'));
+const ExamFlow = lazy(() => import('./components/features/ExamMode/ExamFlow.jsx'));
 const MidLessonStreakModal = lazy(() => import('./components/Learn/modals/MidLessonStreakModal.jsx'));
 
 import { CapacitorUpdater } from '@capgo/capacitor-updater';
@@ -338,14 +337,9 @@ function App() {
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/loading" element={<LoadingPage />} />
                 <Route path="/story-demo" element={<InteractiveStory />} />
-                <Route path="/exam/play" element={
+                <Route path="/exam/flow" element={
                   <ProtectedRoute>
-                    <ExamPlay />
-                  </ProtectedRoute>
-                } />
-                <Route path="/exam/revision" element={
-                  <ProtectedRoute>
-                    <ExamRevision />
+                    <ExamFlow />
                   </ProtectedRoute>
                 } />
                 {/* Home Page Route */}

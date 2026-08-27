@@ -368,6 +368,7 @@ const ExamPlay = () => {
   const examQuestions = location.state.questions;
   const subjectKnowledge = location.state.subjectKnowledge || '';
   const chapterTitle = location.state.chapterTitle || 'Exam';
+  const chapterId = location.state.chapterId || null;
 
   const [screen, setScreen] = useState('CHALLENGE');
   const [timeLeft, setTimeLeft] = useState(TIME_LIMIT);
