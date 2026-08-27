@@ -205,18 +205,17 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
             
             <button
               onClick={() => {
-                if (examConfig.revisionCards && examConfig.revisionCards.length > 0) {
-                  setShowRevisionPrompt(true);
-                } else {
-                  navigate('/exam/play', { 
+                  navigate('/exam/flow', { 
                     state: { 
+                      flowItems: examConfig.flowItems,
+                      revisionCards: examConfig.revisionCards,
                       questions: examConfig.questions,
+                      mcqs: examConfig.mcqs,
                       subjectKnowledge: examConfig.subjectKnowledge,
                       chapterTitle,
                       chapterId 
                     } 
                   });
-                }
               }}
               className="group relative w-full sm:w-auto overflow-hidden bg-gradient-to-r from-cyan-500 to-purple-600 text-white text-sm font-bold uppercase tracking-widest py-3 px-10 rounded-xl shadow-[0_0_20px_rgba(0,255,204,0.3)] hover:shadow-[0_0_30px_rgba(112,0,255,0.5)] transition-all duration-300 transform active:scale-95"
             >
@@ -234,67 +233,6 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
           </div>
         )}
       </div>
-
-      {/* Revision Prompt Modal */}
-      {showRevisionPrompt && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
-          <div className="bg-[#1A2C5B] rounded-2xl p-6 md:p-8 max-w-md w-full border border-white/10 shadow-[0_0_40px_rgba(0,0,0,0.5)] transform scale-100 transition-all text-center relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 to-purple-500"></div>
-            
-            <div className="text-5xl mb-4">📚</div>
-            <h3 className="text-2xl font-black text-white mb-2">Quick Revision?</h3>
-            <p className="text-gray-300 text-sm md:text-base mb-8">
-              We have a quick comic-style revision ready for you. Would you like to review the concepts before starting the exam?
-            </p>
-            
-            <div className="flex flex-col gap-3">
-              <button
-                onClick={() => {
-                  setShowRevisionPrompt(false);
-                  navigate('/exam/revision', { 
-                    state: { 
-                      revisionCards: examConfig.revisionCards,
-                      questions: examConfig.questions,
-                      subjectKnowledge: examConfig.subjectKnowledge,
-                      chapterTitle,
-                      chapterId 
-                    } 
-                  });
-                }}
-                className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg hover:shadow-cyan-500/30 transition-all active:scale-95"
-              >
-                TAKE REVISION
-              </button>
-              
-              <button
-                onClick={() => {
-                  setShowRevisionPrompt(false);
-                  navigate('/exam/play', { 
-                    state: { 
-                      questions: examConfig.questions,
-                      subjectKnowledge: examConfig.subjectKnowledge,
-                      chapterTitle,
-                      chapterId 
-                    } 
-                  });
-                }}
-                className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 font-bold py-3 px-4 rounded-xl transition-all active:scale-95"
-              >
-                SKIP & START EXAM
-              </button>
-            </div>
-            
-            <button 
-              onClick={() => setShowRevisionPrompt(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
-            >
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
