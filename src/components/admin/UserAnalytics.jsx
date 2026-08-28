@@ -472,7 +472,7 @@ const UserAnalytics = () => {
     if (!filteredUsers.length) return;
 
     const headers = [
-      'Username', 'Name', 'Email', 'Phone', 'School', 'Region', 'Class', 'Type', 'Points', 'Use Time (mins)', 'Accuracy (%)', 'Last Active', 'Last Session Module', 'Registered At'
+      'Username', 'Name', 'Email', 'Phone', 'School', 'Region', 'Class', 'Type', 'Points', 'Use Time (mins)', 'Accuracy (%)', 'Days Visited', 'Last Active', 'Last Session Module', 'Registered At'
     ];
 
     const rows = filteredUsers.map(u => [
@@ -487,6 +487,7 @@ const UserAnalytics = () => {
       u.totalPoints || 0,
       u.useTime || 0,
       u.accuracy || 0,
+      u.activeDaysCount || 0,
       u.lastActive ? new Date(u.lastActive).toISOString() : '',
       `"${(u.lastSessionLocation || 'N/A').replace(/"/g, '""')}"`,
       u.createdAt ? new Date(u.createdAt).toISOString() : ''
