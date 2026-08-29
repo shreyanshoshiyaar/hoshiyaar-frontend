@@ -40,7 +40,7 @@ const injectMetaTags = (html, meta) => {
   // Inject the actual H1 and blog content into the HTML body for SEO scanners that don't execute JS
   if (meta.h1Title || meta.rawContent) {
     const seoHtml = `
-      <div style="display: none;">
+      <div>
         ${meta.h1Title ? `<h1>${meta.h1Title}</h1>` : ''}
         ${meta.rawContent ? `<div>${meta.rawContent}</div>` : ''}
       </div>
