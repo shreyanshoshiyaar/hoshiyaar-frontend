@@ -803,7 +803,7 @@ const UserAnalytics = () => {
               )}
             </div>
             {/* Custom Legends */}
-            <div className="mt-4 grid grid-cols-2 gap-2 text-[10px] font-bold text-slate-600 max-h-[80px] overflow-y-auto">
+            <div className="mt-4 grid grid-cols-2 gap-2 text-[10px] font-bold text-slate-600 max-h-[120px] overflow-y-auto pb-2 pr-1">
               {chartsData.gradeDistribution?.map((entry, index) => (
                 <div key={entry.name} className="flex items-center gap-1.5 truncate">
                   <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }}></span>
@@ -842,7 +842,7 @@ const UserAnalytics = () => {
               )}
             </div>
             {/* Custom Legends */}
-            <div className="mt-4 grid grid-cols-2 gap-2 text-[10px] font-bold text-slate-600 max-h-[80px] overflow-y-auto">
+            <div className="mt-4 grid grid-cols-2 gap-2 text-[10px] font-bold text-slate-600 max-h-[120px] overflow-y-auto pb-2 pr-1">
               {chartsData.platformDistribution?.map((entry, index) => (
                 <div key={entry.name} className="flex items-center gap-1.5 truncate">
                   <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: CHART_COLORS[(index + 3) % CHART_COLORS.length] }}></span>
@@ -881,7 +881,7 @@ const UserAnalytics = () => {
               )}
             </div>
             {/* Custom Legends */}
-            <div className="mt-4 grid grid-cols-2 gap-2 text-[10px] font-bold text-slate-600 max-h-[80px] overflow-y-auto">
+            <div className="mt-4 grid grid-cols-2 gap-2 text-[10px] font-bold text-slate-600 max-h-[120px] overflow-y-auto pb-2 pr-1">
               {chartsData.regionDistribution?.map((entry, index) => (
                 <div key={entry.name} className="flex items-center gap-1.5 truncate">
                   <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: CHART_COLORS[(index + 5) % CHART_COLORS.length] }}></span>
