@@ -850,6 +850,7 @@ const UserAnalytics = () => {
                 </div>
               ))}
             </div>
+          </div>
         </div>
 
         {/* Region Distribution (Full Width) */}
