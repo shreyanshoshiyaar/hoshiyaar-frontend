@@ -13,11 +13,11 @@
     },
     {
       "source": "/blogs/:path*",
-      "destination": "/api/render"
+      "destination": "/api/render?path=:path*"
     },
     {
       "source": "/blogs",
-      "destination": "/api/render"
+      "destination": "/api/render?path=blogs"
     },
     {
       "source": "/(.*)",
