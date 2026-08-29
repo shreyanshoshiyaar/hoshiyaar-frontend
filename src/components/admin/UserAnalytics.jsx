@@ -665,7 +665,7 @@ const UserAnalytics = () => {
       {/* 2. Visualizations and Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Active Usage & Signups Timeline */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm lg:col-span-8 flex flex-col">
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm lg:col-span-7 flex flex-col">
           <div className="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h3 className="text-lg font-black text-slate-800">Signups & Active Users Timeline</h3>
@@ -773,7 +773,7 @@ const UserAnalytics = () => {
         </div>
 
         {/* Right Column: Distributions */}
-        <div className="lg:col-span-4 flex flex-col gap-6">
+        <div className="lg:col-span-5 flex flex-col gap-6">
           {/* Grade Distribution */}
           <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex-1 flex flex-col justify-between">
             <div>
@@ -858,36 +858,38 @@ const UserAnalytics = () => {
               <h3 className="text-lg font-black text-slate-800 mb-1">Region Distribution</h3>
               <p className="text-xs text-slate-400 font-medium mb-4">Breakdown of users by geographical region.</p>
             </div>
-            <div className="h-[200px] w-full flex items-center justify-center">
-              {chartsData.regionDistribution && chartsData.regionDistribution.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={chartsData.regionDistribution}
-                      innerRadius={50}
-                      outerRadius={80}
-                      paddingAngle={3}
-                      dataKey="value"
-                    >
-                      {chartsData.regionDistribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={CHART_COLORS[(index + 5) % CHART_COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip contentStyle={{ borderRadius: '8px', fontSize: '11px' }} />
-                  </PieChart>
-                </ResponsiveContainer>
-              ) : (
-                <span className="text-sm italic text-gray-400">No region data available.</span>
-              )}
-            </div>
-            {/* Custom Legends */}
-            <div className="mt-4 grid grid-cols-2 gap-2 text-[10px] font-bold text-slate-600 max-h-[120px] overflow-y-auto pb-2 pr-1">
-              {chartsData.regionDistribution?.map((entry, index) => (
-                <div key={entry.name} className="flex items-center gap-1.5 truncate">
-                  <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: CHART_COLORS[(index + 5) % CHART_COLORS.length] }}></span>
-                  <span className="truncate" title={entry.name}>{entry.name} ({entry.value})</span>
-                </div>
-              ))}
+            <div className="flex flex-col xl:flex-row items-center gap-4">
+              <div className="h-[200px] w-full xl:w-1/3 flex items-center justify-center shrink-0">
+                {chartsData.regionDistribution && chartsData.regionDistribution.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={chartsData.regionDistribution}
+                        innerRadius={50}
+                        outerRadius={80}
+                        paddingAngle={3}
+                        dataKey="value"
+                      >
+                        {chartsData.regionDistribution.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={CHART_COLORS[(index + 5) % CHART_COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip contentStyle={{ borderRadius: '8px', fontSize: '11px' }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <span className="text-sm italic text-gray-400">No region data available.</span>
+                )}
+              </div>
+              {/* Custom Legends */}
+              <div className="w-full xl:w-2/3 grid grid-cols-3 gap-2 text-[10px] font-bold text-slate-600 max-h-[200px] overflow-y-auto pb-2 pr-1">
+                {chartsData.regionDistribution?.map((entry, index) => (
+                  <div key={entry.name} className="flex items-center gap-1.5 truncate">
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: CHART_COLORS[(index + 5) % CHART_COLORS.length] }}></span>
+                    <span className="truncate" title={entry.name}>{entry.name} ({entry.value})</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
