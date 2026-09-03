@@ -427,7 +427,7 @@ const UnifiedAuth = () => {
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <select
                   name="classLevel"
                   value={formData.classLevel}
@@ -440,6 +440,15 @@ const UnifiedAuth = () => {
                     <option key={c} value={c} className="bg-white text-slate-900">Class {c}</option>
                   ))}
                 </select>
+
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={onChange}
+                  placeholder="Email Address (Optional)"
+                  className="w-full bg-white border border-slate-300 rounded-xl p-3.5 focus:outline-none focus:border-blue-500 transition-all text-sm shadow-sm"
+                />
               </div>
 
               <div className="relative mt-2">
