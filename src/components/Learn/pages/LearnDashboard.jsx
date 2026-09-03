@@ -870,7 +870,7 @@ const LearnDashboard = ({ onboardingData }) => {
         subjectId: null,
         order: 1
       };
-      setChapters([dummyChapter]);
+      setChaptersList([dummyChapter]);
       setUnitsList([
         { _id: 'dummy-unit-1', title: 'Getting Started', order: 1 }
       ]);
