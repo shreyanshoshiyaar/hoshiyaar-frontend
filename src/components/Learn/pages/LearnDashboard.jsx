@@ -20,6 +20,7 @@ import DesktopHomeDashboard from "../../layout/DesktopHomeDashboard.jsx";
 import DesktopLeaderboard from "../../layout/DesktopLeaderboard.jsx";
 import DesktopMore from "../../layout/DesktopMore.jsx";
 import MobileMore from "../../layout/MobileMore.jsx";
+import ChallengesPage from "./ChallengesPage.jsx";
 const DASHBOARD_VERSION = "V5.1-FREQ-3";
 
 // --- SVG Icons for the Dashboard ---
@@ -140,6 +141,12 @@ const NavRanksIcon = React.memo(({ active }) => (
     <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
     <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
     <rect x="6" y="4" width="12" height="10" rx="2" />
+  </svg>
+));
+
+const NavChallengesIcon = React.memo(({ active }) => (
+  <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
   </svg>
 ));
 
@@ -369,6 +376,7 @@ const LearnDashboard = ({ onboardingData }) => {
     const p = location.pathname;
     if (p === '/learn') return 'learn';
     if (p === '/ranks') return 'ranks';
+    if (p === '/challenges') return 'challenges';
     if (p === '/more') return 'more';
     if (p === '/exam') return 'exam';
     return 'home'; // /home or anything else
@@ -1382,21 +1390,12 @@ const LearnDashboard = ({ onboardingData }) => {
     return () => clearInterval(id);
   }, [tipHidden]);
 
-  // Daily streak: properly tracks consecutive daily visits
   // Daily streak: Read the current streak state for display
   useEffect(() => {
     try {
-      // TEMPORARY DEBUG: Force reset their streak for today so they can test the modal!
-      const todayStr = new Date().toDateString();
-      if (localStorage.getItem("daily_streak_day") === todayStr && !localStorage.getItem("streak_tested_v3")) {
-        localStorage.removeItem("daily_streak_day");
-        localStorage.setItem("streak_tested_v3", "true");
-      }
-
-      let count = Number(localStorage.getItem("daily_streak_count")) || 0;
-      setStreak(count || 1);
+      setStreak(user?.streak || 0);
     } catch (_) { }
-  }, []);
+  }, [user]);
 
   // Refresh progress when window gains focus (user returns from lesson)
   useEffect(() => {
@@ -1571,21 +1570,23 @@ const LearnDashboard = ({ onboardingData }) => {
     }
   }, [user?._id, user?.username, user?.school, leaderboardTimeframe, leaderboardScope, leaderboardMetric, streak]);
 
-  const handleLeaderboardSearch = async (e) => {
+  const handleLeaderboardSearch = async (e, directSchool = null) => {
     if (e) e.preventDefault();
-    if (!leaderboardSchool.trim()) return;
+    const targetSchool = directSchool || leaderboardSchool;
+    if (!targetSchool.trim()) return;
 
+    if (directSchool) setLeaderboardSchool(directSchool);
     setShowSuggestions(false);
     
     // If user is logged in and school is different, update profile
-    if (user?._id && leaderboardSchool !== user.school) {
+    if (user?._id && targetSchool !== user.school) {
       try {
         const updateResponse = await authService.updateProfile({
           userId: user._id,
-          school: leaderboardSchool
+          school: targetSchool
         });
         if (updateResponse?.data && updateUser) {
-          updateUser({ ...user, school: leaderboardSchool });
+          updateUser({ ...user, school: targetSchool });
         }
         setIsChangingSchool(false);
       } catch (updateErr) {
@@ -1594,7 +1595,7 @@ const LearnDashboard = ({ onboardingData }) => {
     }
 
     setLeaderboardScope('school');
-    fetchLeaderboard(leaderboardSchool, null, 'school');
+    fetchLeaderboard(targetSchool, null, 'school');
   };
 
   // Fetch school suggestions for autocomplete
@@ -1983,6 +1984,14 @@ const LearnDashboard = ({ onboardingData }) => {
           </a>
           <a
             href="#"
+            onClick={(e) => { e.preventDefault(); navigate('/challenges'); }}
+            className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors ${activeTab === 'challenges' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
+          >
+            <NavChallengesIcon active={activeTab === 'challenges'} />
+            <span>Challenges</span>
+          </a>
+          <a
+            href="#"
             onClick={(e) => { e.preventDefault(); navigate('/more'); }}
             className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors ${activeTab === 'more' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
           >
@@ -2085,6 +2094,8 @@ const LearnDashboard = ({ onboardingData }) => {
               onNavigateToPractice={() => navigate('/learn')}
             />
           )
+        ) : activeTab === 'challenges' ? (
+          <ChallengesPage />
         ) : activeTab === 'more' ? (
           isMobileLayout ? (
             <MobileMore stars={stars} weeklyStars={weeklyStars} />
@@ -3048,20 +3059,20 @@ const LearnDashboard = ({ onboardingData }) => {
             <div className="relative">
               {(!user?.school || isChangingSchool) ? (
                 <div className="flex flex-col gap-2">
-                  <form onSubmit={handleLeaderboardSearch} className="flex gap-2">
+                  <div className="flex gap-2">
                     <div className="relative flex-grow">
                       <input
                         type="text"
-                        placeholder={isManualSchoolInput ? "Enter school name..." : "Search school name..."}
+                        placeholder="Search school name..."
                         className="w-full px-3 py-1.5 rounded-xl border-2 border-indigo-100 text-sm focus:outline-none focus:border-indigo-400 font-bold"
                         value={leaderboardSchool}
                         onChange={(e) => {
                           setLeaderboardSchool(e.target.value);
-                          if (!isManualSchoolInput) setShowSuggestions(true);
+                          setShowSuggestions(true);
                         }}
-                        onFocus={() => { if (!isManualSchoolInput) setShowSuggestions(true); }}
+                        onFocus={() => { setShowSuggestions(true); }}
                       />
-                      {!isManualSchoolInput && showSuggestions && leaderboardSchool.length >= 2 && (
+                      {showSuggestions && leaderboardSchool.length >= 2 && (
                         <div className="absolute left-0 right-0 top-full mt-2 bg-white border-2 border-indigo-100 rounded-2xl shadow-[0_12px_24px_-8px_rgba(79,70,229,0.2)] z-[1000] overflow-hidden max-h-64 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200 no-scrollbar">
                           {schoolSuggestions.length > 0 ? (
                             schoolSuggestions.map((school, i) => (
@@ -3069,19 +3080,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                 key={i}
                                 className="px-4 py-3 hover:bg-indigo-50 cursor-pointer text-[11px] font-bold text-gray-700 transition-all border-b border-indigo-50 last:border-0 flex items-center gap-3 group"
                                 onClick={async () => {
-                                  setLeaderboardSchool(school);
-                                  setShowSuggestions(false);
-                                  setLeaderboardLoading(true);
-                                  if (user?._id) {
-                                    try {
-                                      const resp = await authService.updateProfile({ userId: user._id, school });
-                                      if (resp.data && updateUser) updateUser({ ...user, school });
-                                      setIsChangingSchool(false);
-                                    } catch (err) {
-                                      console.error('Failed to update school:', err);
-                                    }
-                                  }
-                                  fetchLeaderboard(school);
+                                  handleLeaderboardSearch(null, school);
                                 }}
                               >
                                 <div className="w-6 h-6 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-500 group-hover:bg-indigo-200 transition-colors shrink-0">
@@ -3098,7 +3097,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                 <div className="animate-spin w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full mx-auto" />
                               ) : (
                                 <div className="text-[11px] font-bold text-gray-400">
-                                  No schools found. Try manual input?
+                                  No schools found.
                                 </div>
                               )}
                             </div>
@@ -3106,14 +3105,7 @@ const LearnDashboard = ({ onboardingData }) => {
                         </div>
                       )}
                     </div>
-                    <button
-                      type="submit"
-                      disabled={leaderboardLoading || !leaderboardSchool.trim()}
-                      className="px-3 py-1.5 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white rounded-xl text-xs font-black transition-all active:scale-95 shadow-[0_4px_0_0_#4338ca]"
-                    >
-                      {leaderboardLoading ? "..." : "OK"}
-                    </button>
-                  </form>
+                  </div>
                 </div>
               ) : null}
             </div>

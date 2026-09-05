@@ -6,14 +6,17 @@ import WeeklyStreak from '../../common/WeeklyStreak.jsx';
 
 const fireballAnimation = null; // Removed missing asset import
 
+import { useAuth } from '../../../context/AuthContext';
+
 export default function MidLessonStreakModal() {
   const { midLessonStreakEarned, dismissMidLessonStreak } = useStars();
+  const { user } = useAuth();
   const [streakCount, setStreakCount] = useState(0);
 
   useEffect(() => {
     if (midLessonStreakEarned) {
       try {
-        setStreakCount(Number(localStorage.getItem('daily_streak_count')) || 1);
+        setStreakCount(user?.streak || 1);
         // Trigger haptics when shown
         Haptics.impact({ style: ImpactStyle.Heavy });
         setTimeout(() => Haptics.impact({ style: ImpactStyle.Heavy }), 200);

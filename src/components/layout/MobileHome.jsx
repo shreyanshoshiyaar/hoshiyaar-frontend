@@ -73,7 +73,7 @@ const MobileHome = ({
   }, [user]);
   const userIndex = leaderboardData?.findIndex(d => d.username === user?.username || d.userId === user?._id);
   const myRank = userIndex !== -1 ? userIndex + 1 : '-';
-  const myStreak = localStorage.getItem('daily_streak_count') || user?.streak || 0;
+  const myStreak = user?.streak || 0;
 
   // Prepare leaderboard subset (1 above, self, 1 below)
   const lbItems = React.useMemo(() => {
@@ -188,10 +188,9 @@ const MobileHome = ({
         {/* Weekly Streak Section */}
         <WeeklyStreak 
           streakCount={myStreak}
-          currentDayCompleted={false} 
-          onCompleteDay={() => {
-            setTimeout(() => setShowCelebration(true), 600);
-          }}
+          currentDayCompleted={
+            user?.lastStreakDate && new Date(user.lastStreakDate).toDateString() === new Date().toDateString()
+          }
         />
 
         {/* Bento Grid (Compact) */}

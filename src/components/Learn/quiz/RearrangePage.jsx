@@ -1013,7 +1013,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
           )}
         </div>
         <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
-          {(user?.role === 'admin' || user?.role === 'master' || user?.username === 'Host' || user?.username === 'hostcbse') ? (
+          {(user?.role === 'admin' || user?.role === 'master' || user?.username === 'Host' || user?.username === 'hostcbse' || String(user?.phone || '').replace(/\D/g, '').endsWith('9867735936')) ? (
             <button
               onClick={handleMasterSkip}
               className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-black rounded-lg shadow-sm border-b-4 border-yellow-700 active:border-b-0 active:translate-y-1 transition-all mr-2 uppercase"

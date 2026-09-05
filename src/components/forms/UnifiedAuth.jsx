@@ -45,6 +45,11 @@ const UnifiedAuth = () => {
       setUsernameStatus({ checking: false, available: null, message: '' });
       return;
     }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (emailRegex.test(value)) {
+      setUsernameStatus({ checking: false, available: false, message: 'Username cannot be an email' });
+      return;
+    }
     setUsernameStatus((s) => ({ ...s, checking: true, message: '' }));
     const id = setTimeout(async () => {
       try {
@@ -446,8 +451,9 @@ const UnifiedAuth = () => {
                   name="email"
                   value={formData.email}
                   onChange={onChange}
-                  placeholder="Email Address (Optional)"
+                  placeholder="Email Address"
                   className="w-full bg-white border border-slate-300 rounded-xl p-3.5 focus:outline-none focus:border-blue-500 transition-all text-sm shadow-sm"
+                  required
                 />
               </div>
 

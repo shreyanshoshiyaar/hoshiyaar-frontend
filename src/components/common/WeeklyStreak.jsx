@@ -27,12 +27,16 @@ const WeeklyStreak = ({ streakCount = 0, currentDayCompleted = false, onComplete
   const todayIndex = (new Date().getDay() + 6) % 7;
 
   useEffect(() => {
-    setLocalStreak(streakCount);
+    let effectiveStreak = Number(streakCount) || 0;
+    if (currentDayCompleted && effectiveStreak < 1) {
+      effectiveStreak = 1;
+    }
+    setLocalStreak(effectiveStreak);
     
     // Logic to show previous days as completed based on actual streak count
     const prevDays = [];
     // If currentDayCompleted is true, streakCount already includes today.
-    let previousDaysToTick = currentDayCompleted ? streakCount - 1 : streakCount;
+    let previousDaysToTick = currentDayCompleted ? effectiveStreak - 1 : effectiveStreak;
     
     // We only display the current week (Monday to Sunday), so clamp previous days to todayIndex
     previousDaysToTick = Math.min(Math.max(previousDaysToTick, 0), todayIndex);
@@ -53,17 +57,8 @@ const WeeklyStreak = ({ streakCount = 0, currentDayCompleted = false, onComplete
   const handleDayClick = async (index) => {
     // Only allow clicking today if not already completed
     if (index === todayIndex && !isCompleted) {
-      triggerHaptic(ImpactStyle.Medium);
-      
-      // Animate the circle filling and checkmark drawing
-      const newCompleted = [...completedDays, index];
-      setCompletedDays(newCompleted);
-      setIsCompleted(true);
-      setLocalStreak(prev => prev + 1);
-
-      if (onCompleteDay) {
-        onCompleteDay();
-      }
+      triggerHaptic(ImpactStyle.Light);
+      // Removed manual streak claim on click. Streak must be earned via gameplay.
     } else {
       triggerHaptic(ImpactStyle.Light);
     }
