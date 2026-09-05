@@ -43,6 +43,12 @@ const MoreIcon = ({ active }) => (
   </svg>
 );
 
+const ChallengesIcon = ({ active }) => (
+  <svg className={`w-6 h-6 ${active ? 'text-[#2563EB]' : 'text-gray-400'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+  </svg>
+);
+
 const BottomNavigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -52,13 +58,14 @@ const BottomNavigation = () => {
   const isLearn = path === '/learn';
   const isExam = path === '/exam';
   const isRanks = path === '/ranks';
+  const isChallenges = path === '/challenges';
   const isMore = path === '/more';
 
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 flex justify-around items-center pb-safe pt-2 z-[2000] shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
       <button 
         onClick={() => navigate('/home', { replace: true })}
-        className={`flex flex-col items-center justify-center w-1/5 pb-2 relative transition-all ${isHome ? 'text-[#2563EB]' : 'text-gray-400'}`}
+        className={`flex flex-col items-center justify-center flex-1 pb-2 relative transition-all ${isHome ? 'text-[#2563EB]' : 'text-gray-400'}`}
       >
         <HomeIcon active={isHome} />
         <span className="text-[10px] font-black mt-1">Home</span>
@@ -67,7 +74,7 @@ const BottomNavigation = () => {
 
       <button 
         onClick={() => navigate('/learn', { replace: true })}
-        className={`flex flex-col items-center justify-center w-1/5 pb-2 relative transition-all ${isLearn ? 'text-[#2563EB]' : 'text-gray-400'}`}
+        className={`flex flex-col items-center justify-center flex-1 pb-2 relative transition-all ${isLearn ? 'text-[#2563EB]' : 'text-gray-400'}`}
       >
         <LearnIcon active={isLearn} />
         <span className="text-[10px] font-black mt-1">Learn</span>
@@ -76,7 +83,7 @@ const BottomNavigation = () => {
 
       <button 
         onClick={() => navigate('/exam', { replace: true })}
-        className={`flex flex-col items-center justify-center w-1/5 pb-2 relative transition-all ${isExam ? 'text-[#2563EB]' : 'text-gray-400'}`}
+        className={`flex flex-col items-center justify-center flex-1 pb-2 relative transition-all ${isExam ? 'text-[#2563EB]' : 'text-gray-400'}`}
       >
         <ExamIcon active={isExam} />
         <span className="text-[10px] font-black mt-1">Exam</span>
@@ -85,7 +92,7 @@ const BottomNavigation = () => {
 
       <button 
         onClick={() => navigate('/ranks', { replace: true })}
-        className={`flex flex-col items-center justify-center w-1/5 pb-2 relative transition-all ${isRanks ? 'text-[#2563EB]' : 'text-gray-400'}`}
+        className={`flex flex-col items-center justify-center flex-1 pb-2 relative transition-all ${isRanks ? 'text-[#2563EB]' : 'text-gray-400'}`}
       >
         <RanksIcon active={isRanks} />
         <span className="text-[10px] font-black mt-1">Ranks</span>
@@ -93,8 +100,17 @@ const BottomNavigation = () => {
       </button>
 
       <button 
+        onClick={() => navigate('/challenges', { replace: true })}
+        className={`flex flex-col items-center justify-center flex-1 pb-2 relative transition-all ${isChallenges ? 'text-[#2563EB]' : 'text-gray-400'}`}
+      >
+        <ChallengesIcon active={isChallenges} />
+        <span className="text-[10px] font-black mt-1">Challenges</span>
+        {isChallenges && <div className="absolute top-[-8px] left-1/2 -translate-x-1/2 w-8 h-1 bg-[#2563EB] rounded-full" />}
+      </button>
+
+      <button 
         onClick={() => navigate('/more', { replace: true })}
-        className={`flex flex-col items-center justify-center w-1/5 pb-2 relative transition-all ${isMore ? 'text-[#2563EB]' : 'text-gray-400'}`}
+        className={`flex flex-col items-center justify-center flex-1 pb-2 relative transition-all ${isMore ? 'text-[#2563EB]' : 'text-gray-400'}`}
       >
         <MoreIcon active={isMore} />
         <span className="text-[10px] font-black mt-1">More</span>

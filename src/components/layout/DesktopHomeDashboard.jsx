@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import curriculumService from '../../services/curriculumService';
 import { useStars } from '../../context/StarsContext.jsx';
+import WeeklyStreak from '../common/WeeklyStreak.jsx';
 import heroChar from '../../assets/images/heroChar.png'; // Fallback image
 
 const HexagonRankIcon = ({ rank }) => (
@@ -41,7 +42,7 @@ const DesktopHomeDashboard = ({
 
   const userIndex = leaderboardData?.findIndex(d => d.username === user?.username || d.userId === user?._id);
   const myRank = userIndex !== -1 ? userIndex + 1 : '-';
-  const myStreak = localStorage.getItem('daily_streak_count') || user?.streak || 0;
+  const myStreak = user?.streak || 0;
 
   const [missionVideoUrl, setMissionVideoUrl] = useState('https://www.youtube.com/embed/uHDSRZK74Dk');
 
@@ -96,7 +97,6 @@ const DesktopHomeDashboard = ({
       </div>
 
       <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col h-full gap-4">
-        
         {/* Desktop Hero Banner - full image */}
         <div
           className="relative w-full rounded-3xl overflow-hidden shadow-md border border-white/60 shrink-0 lg:h-[28vh] max-h-[280px] min-h-[180px]"

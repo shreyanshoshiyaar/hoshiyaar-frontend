@@ -116,7 +116,7 @@ const NavigationController = () => {
           const currentPath = locationRef.current.pathname;
           
           // Define base/dashboard routes where back should exit the app
-          const dashboardRoutes = ['/', '/login', '/home', '/learn', '/ranks', '/more'];
+          const dashboardRoutes = ['/', '/login', '/home', '/learn', '/ranks', '/more', '/challenges'];
           
           if (dashboardRoutes.includes(currentPath) || !canGoBack) {
             // Exit app from dashboard routes with a confirmation
@@ -396,6 +396,14 @@ function App() {
                 />
                 <Route 
                   path="/more" 
+                  element={
+                    <ProtectedRoute>
+                      <Learn />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/challenges" 
                   element={
                     <ProtectedRoute>
                       <Learn />

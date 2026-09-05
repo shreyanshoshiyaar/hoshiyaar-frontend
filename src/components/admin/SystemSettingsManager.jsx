@@ -6,6 +6,8 @@ const SystemSettingsManager = () => {
   const [missionVideoDesktopUrl, setMissionVideoDesktopUrl] = useState('');
   const [homepageSlides, setHomepageSlides] = useState(['', '', '', '', '', '']);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [examModeLive, setExamModeLive] = useState(false);
+  const [challengesLive, setChallengesLive] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
@@ -34,6 +36,14 @@ const SystemSettingsManager = () => {
       const resMaintenance = await curriculumService.getSetting('maintenance_mode');
       if (resMaintenance.data) {
         setMaintenanceMode(resMaintenance.data.value === true || resMaintenance.data.value === 'true');
+      }
+      const resExam = await curriculumService.getSetting('exam_mode_live');
+      if (resExam.data) {
+        setExamModeLive(resExam.data.value === true || resExam.data.value === 'true');
+      }
+      const resChallenges = await curriculumService.getSetting('challenges_live');
+      if (resChallenges.data) {
+        setChallengesLive(resChallenges.data.value === true || resChallenges.data.value === 'true');
       }
     } catch (err) {
       console.error('Failed to fetch setting', err);
@@ -156,6 +166,46 @@ const SystemSettingsManager = () => {
     }
   };
 
+  const handleToggleExamMode = async (newValue) => {
+    try {
+      setSaving(true);
+      setMessage({ text: '', type: '' });
+      await curriculumService.updateSetting({
+        key: 'exam_mode_live',
+        value: newValue,
+        description: "If true, exam mode is open to normal users"
+      });
+      setExamModeLive(newValue);
+      setMessage({ text: newValue ? 'Exam Mode is now LIVE for all students! 🚀' : 'Exam Mode set to BETA (Admins only) 🔒', type: 'success' });
+      setTimeout(() => setMessage({ text: '', type: '' }), 3000);
+    } catch (err) {
+      setMessage({ text: 'Failed to update Exam Mode setting.', type: 'error' });
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleToggleChallenges = async (newValue) => {
+    try {
+      setSaving(true);
+      setMessage({ text: '', type: '' });
+      await curriculumService.updateSetting({
+        key: 'challenges_live',
+        value: newValue,
+        description: "If true, challenges feature is open to normal users"
+      });
+      setChallengesLive(newValue);
+      setMessage({ text: newValue ? 'Challenges feature is now LIVE for all students! 🎯' : 'Challenges set to BETA (Admins only) 🔒', type: 'success' });
+      setTimeout(() => setMessage({ text: '', type: '' }), 3000);
+    } catch (err) {
+      setMessage({ text: 'Failed to update Challenges setting.', type: 'error' });
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* MAINTENANCE MODE SECTION */}
@@ -175,7 +225,7 @@ const SystemSettingsManager = () => {
           <button
             onClick={() => handleToggleMaintenance(!maintenanceMode)}
             disabled={saving || loading}
-            className={`px-6 py-3 rounded-2xl text-sm font-black uppercase tracking-widest transition-all active:scale-[0.98] ${
+            className={`px-6 py-3 rounded-2xl text-sm font-black uppercase tracking-widest transition-all active:scale-[0.98] cursor-pointer ${
               saving || loading
               ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
               : maintenanceMode
@@ -191,6 +241,93 @@ const SystemSettingsManager = () => {
             ⚠️ WARNING: The app is currently inaccessible to users. They will see the maintenance screen until you turn this off.
           </div>
         )}
+      </div>
+
+      {/* FEATURE ACCESS & BETA RELEASES SECTION */}
+      <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight">Feature Releases & Student Access</h2>
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Toggle student access between Live and Beta (Coming Soon)</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* EXAM MODE TOGGLE */}
+          <div className={`p-5 rounded-2xl border transition-all flex flex-col justify-between gap-4 ${examModeLive ? 'bg-emerald-50/50 border-emerald-200' : 'bg-amber-50/40 border-amber-200'}`}>
+            <div>
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">📝</span>
+                  <h3 className="text-base font-black text-gray-800 uppercase tracking-tight">Exam Mode</h3>
+                </div>
+                <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                  examModeLive ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                }`}>
+                  {examModeLive ? '🟢 Live for All' : '🔒 Beta (Admins Only)'}
+                </span>
+              </div>
+              <p className="text-xs font-semibold text-gray-500 leading-relaxed">
+                {examModeLive 
+                  ? 'Exam Mode is currently LIVE for all registered students across all chapters.' 
+                  : 'Normal students see the "Coming Soon" screen. Only Admin accounts can access and test.'}
+              </p>
+            </div>
+            <button
+              onClick={() => handleToggleExamMode(!examModeLive)}
+              disabled={saving || loading}
+              className={`w-full py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-[0.98] cursor-pointer ${
+                saving || loading
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : examModeLive
+                    ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-md shadow-amber-200'
+                    : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-200'
+              }`}
+            >
+              {saving ? 'Saving...' : examModeLive ? 'Switch to Beta (Admins Only)' : 'Make Exam Mode Live 🚀'}
+            </button>
+          </div>
+
+          {/* CHALLENGES TOGGLE */}
+          <div className={`p-5 rounded-2xl border transition-all flex flex-col justify-between gap-4 ${challengesLive ? 'bg-emerald-50/50 border-emerald-200' : 'bg-amber-50/40 border-amber-200'}`}>
+            <div>
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">🎯</span>
+                  <h3 className="text-base font-black text-gray-800 uppercase tracking-tight">Challenges & Goals</h3>
+                </div>
+                <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                  challengesLive ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                }`}>
+                  {challengesLive ? '🟢 Live for All' : '🔒 Beta (Admins Only)'}
+                </span>
+              </div>
+              <p className="text-xs font-semibold text-gray-500 leading-relaxed">
+                {challengesLive 
+                  ? 'Challenges & Weekly Goals are currently LIVE for all students.' 
+                  : 'Normal students see the "Coming Soon" screen. Only Admin accounts can access.'}
+              </p>
+            </div>
+            <button
+              onClick={() => handleToggleChallenges(!challengesLive)}
+              disabled={saving || loading}
+              className={`w-full py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-[0.98] cursor-pointer ${
+                saving || loading
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : challengesLive
+                    ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-md shadow-amber-200'
+                    : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-200'
+              }`}
+            >
+              {saving ? 'Saving...' : challengesLive ? 'Switch to Beta (Admins Only)' : 'Make Challenges Live 🚀'}
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* MISSION VIDEO SECTION */}

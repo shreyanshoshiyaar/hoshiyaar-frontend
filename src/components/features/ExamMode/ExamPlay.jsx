@@ -356,7 +356,11 @@ const FireworksCanvas = () => {
 
 const ExamPlay = () => {
   const { user } = useAuth();
-  const isAdmin = user?.role === 'admin';
+  const cleanPhone = String(user?.phone || '').replace(/\D/g, '');
+  const isAdmin = user?.role === 'admin' || 
+                  cleanPhone.endsWith('9867735936') || 
+                  ['Host', 'hostcbse'].includes(user?.username) ||
+                  sessionStorage.getItem('isAdmin') === 'true';
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -676,7 +680,7 @@ const ExamPlay = () => {
 
   return (
     <div 
-      className="w-full h-[100dvh] font-sans overflow-hidden flex flex-col relative z-0 bg-gradient-to-b from-[#0F204C] to-[#1A3673] select-none" 
+      className={`w-full h-[100dvh] font-sans overflow-hidden flex flex-col relative z-0 bg-gradient-to-b from-[#0F204C] to-[#1A3673] ${isAdmin ? '' : 'select-none'}`} 
       onPointerDown={interactAudio}
       onCopy={(e) => { if (!isAdmin) e.preventDefault(); }}
       onCut={(e) => { if (!isAdmin) e.preventDefault(); }}

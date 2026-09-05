@@ -218,32 +218,30 @@ export const StarsProvider = ({ children }) => {
           // Check if we hit the 5 question milestone
           if (questionsPlayed >= 5) {
             if (storedDay !== todayStr) {
-              // Earn the streak!
-              let count = Number(localStorage.getItem("daily_streak_count")) || 0;
-              
-              if (!storedDay) {
-                count = 1;
-              } else {
-                const lastVisit = new Date(storedDay);
-                const yesterday = new Date(today);
-                yesterday.setDate(today.getDate() - 1);
-                
-                if (lastVisit.toDateString() === yesterday.toDateString()) {
-                  count = count + 1;
-                } else {
-                  count = 1;
-                }
-              }
-              
-              localStorage.setItem("daily_streak_count", String(count));
               localStorage.setItem("daily_streak_day", todayStr);
               setMidLessonStreakEarned(true);
               
-              // Sync to backend
+              // Sync to backend and let it calculate the new streak
               const uid = getUserId();
               if (uid) {
                 import('../services/authService.js').then(({ default: authService }) => {
-                  authService.syncStreak(uid, count).catch(e => console.warn('Sync failed', e));
+                  authService.syncStreak(uid).then(res => {
+                     // Update the global user context with the new streak from backend
+                     const data = res.data || res; // Handle if apiClient unpacks data automatically
+                     if (data && data.success) {
+                       const currentUserStr = localStorage.getItem('user');
+                       if (currentUserStr) {
+                         try {
+                           const userObj = JSON.parse(currentUserStr);
+                           userObj.streak = data.currentStreak;
+                           userObj.lastStreakDate = data.lastStreakDate;
+                           localStorage.setItem('user', JSON.stringify(userObj));
+                           // Note: ideally we would dispatch a context update here, 
+                           // but the user object will refresh on next dashboard load or refresh()
+                         } catch(e) {}
+                       }
+                     }
+                  }).catch(e => console.warn('Sync failed', e));
                 });
               }
             }

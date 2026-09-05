@@ -41,6 +41,11 @@ const Signup = () => {
       setUsernameStatus({ checking: false, available: null, message: '' });
       return;
     }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (emailRegex.test(value)) {
+      setUsernameStatus({ checking: false, available: false, message: 'Username cannot be an email' });
+      return;
+    }
     setUsernameStatus((s) => ({ ...s, checking: true, message: '' }));
     const id = setTimeout(async () => {
       try {
@@ -355,6 +360,7 @@ const Signup = () => {
                 onChange={onChange}
                 placeholder="Email Address"
                 className="w-full bg-white border border-slate-300 rounded-xl p-3.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm text-slate-900 placeholder-slate-400 shadow-sm"
+                required
               />
 
               <div className="grid grid-cols-1 gap-4">

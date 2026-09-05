@@ -214,6 +214,12 @@ const UserAnalytics = () => {
   const [schoolSuggestions, setSchoolSuggestions] = useState([]);
   const [updatingSchool, setUpdatingSchool] = useState(false);
   const [schoolUpdateError, setSchoolUpdateError] = useState('');
+
+  // Edit Username Modal state
+  const [editingUsernameUser, setEditingUsernameUser] = useState(null);
+  const [newUsername, setNewUsername] = useState('');
+  const [updatingUsername, setUpdatingUsername] = useState(false);
+  const [usernameUpdateError, setUsernameUpdateError] = useState('');
   // Search & Filter state
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState('all'); // all, registered, guest
@@ -344,6 +350,43 @@ const UserAnalytics = () => {
       setSchoolUpdateError(err.response?.data?.message || 'Server connection error');
     } finally {
       setUpdatingSchool(false);
+    }
+  };
+
+  const openUsernameEditModal = (user) => {
+    setEditingUsernameUser(user);
+    setNewUsername(user.username || '');
+    setUsernameUpdateError('');
+  };
+
+  const closeUsernameEditModal = () => {
+    setEditingUsernameUser(null);
+    setNewUsername('');
+    setUsernameUpdateError('');
+  };
+
+  const handleUsernameUpdate = async () => {
+    if (!editingUsernameUser || !newUsername.trim()) return;
+    
+    try {
+      setUpdatingUsername(true);
+      setUsernameUpdateError('');
+      // updateOnboarding route expects userId and whatever fields we want to update
+      const response = await authService.updateOnboarding({ userId: editingUsernameUser._id, username: newUsername.trim() });
+      
+      // Update local users state
+      setUsers(prevUsers => prevUsers.map(u => {
+        if (u._id === editingUsernameUser._id) {
+          return { ...u, username: newUsername.trim() };
+        }
+        return u;
+      }));
+      closeUsernameEditModal();
+    } catch (err) {
+      console.error('Error updating username:', err);
+      setUsernameUpdateError(err.response?.data?.message || 'Server connection error');
+    } finally {
+      setUpdatingUsername(false);
     }
   };
 
@@ -1084,20 +1127,34 @@ className="text-[10px] font-bold text-slate-600 bg-slate-50 border border-slate-
                       <tr className={`hover:bg-slate-50/50 transition-colors ${isExpanded ? 'bg-slate-50/20' : ''}`}>
                         {/* Name Profile */}
                         <td className="py-4 px-6">
-                          <div className="flex flex-col">
-                            <span className="font-extrabold text-slate-800 flex items-center gap-1.5">
-                              {user.username}
-                              {user.isGuest ? (
-                                <span className="bg-slate-100 text-slate-500 border border-slate-200 text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0">
-                                  Guest
-                                </span>
-                              ) : (
-                                <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0">
-                                  Student
-                                </span>
-                              )}
-                            </span>
-                            <span className="text-xs text-slate-400 font-medium">Name: {user.name}</span>
+                          <div className="flex flex-col group">
+                            <div className="flex items-center gap-2">
+                              <span className="font-extrabold text-slate-800 flex items-center gap-1.5">
+                                {user.username}
+                                {user.isGuest ? (
+                                  <span className="bg-slate-100 text-slate-500 border border-slate-200 text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0">
+                                    Guest
+                                  </span>
+                                ) : (
+                                  <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0">
+                                    Student
+                                  </span>
+                                )}
+                              </span>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openUsernameEditModal(user);
+                                }}
+                                className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100 shrink-0"
+                                title="Edit Username"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                              </button>
+                            </div>
+                            <span className="text-xs text-slate-400 font-medium mt-1">Name: {user.name}</span>
                           </div>
                         </td>
 
@@ -1396,6 +1453,77 @@ className="text-[10px] font-bold text-slate-600 bg-slate-50 border border-slate-
           </div>
         </div>
       )}
+
+      {/* Edit Username Modal */}
+      {editingUsernameUser && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm animate-fade-in-up">
+            <div className="p-6 relative">
+              <button 
+                onClick={closeUsernameEditModal}
+                className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+                title="Close"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+              <h3 className="text-xl font-bold text-slate-800 mb-2 pr-8">Edit Username</h3>
+              <p className="text-sm text-slate-500 mb-6">
+                Current username: <strong className="text-slate-700">{editingUsernameUser.username}</strong>
+              </p>
+              
+              <div className="space-y-4">
+                <div className="relative">
+                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                    New Username
+                  </label>
+                  <input
+                    type="text"
+                    value={newUsername}
+                    onChange={(e) => setNewUsername(e.target.value)}
+                    placeholder="Enter new username"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-700 font-medium"
+                    autoFocus
+                  />
+                  {usernameUpdateError && (
+                    <p className="text-red-500 text-xs font-medium mt-2 flex items-center gap-1">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      {usernameUpdateError}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3 rounded-b-2xl">
+              <button
+                onClick={closeUsernameEditModal}
+                disabled={updatingUsername}
+                className="px-5 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 rounded-xl transition-all disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUsernameUpdate}
+                disabled={updatingUsername || !newUsername.trim()}
+                className="px-5 py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md shadow-indigo-600/20 transition-all flex items-center gap-2 disabled:opacity-70"
+              >
+                {updatingUsername ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Saving...
+                  </>
+                ) : 'Save'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

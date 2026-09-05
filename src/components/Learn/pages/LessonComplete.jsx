@@ -20,12 +20,28 @@ const LessonComplete = () => {
   const { items } = useModuleItems(moduleNumber);
   const [isChecking, setIsChecking] = useState(true);
   const { hasItems, getStagedForModule, clearStagedForModule } = useReview();
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const { stars } = useStars();
   const [scores, setScores] = useState({ best: 0, last: 0 });
   const isNewBest = Math.max(0, Number(scores.last || 0)) >= Math.max(0, Number(scores.best || 0)) && (scores.last || 0) > 0;
   const [showConfetti, setShowConfetti] = useState(false);
-  const myStreak = localStorage.getItem('daily_streak_count') || user?.streak || 0;
+  const [currentStreakCount, setCurrentStreakCount] = useState(() => Math.max(1, Number(user?.streak) || 1));
+
+  useEffect(() => {
+    if (user?._id) {
+      import('../../../services/authService.js').then(({ default: authService }) => {
+        authService.syncStreak(user._id).then(res => {
+          const data = res?.data || res;
+          if (data && data.success && data.currentStreak) {
+            setCurrentStreakCount(data.currentStreak);
+            if (updateUser) {
+              updateUser({ ...user, streak: data.currentStreak, lastStreakDate: data.lastStreakDate });
+            }
+          }
+        }).catch(err => console.warn('[LessonComplete] Failed to sync streak:', err));
+      });
+    }
+  }, [user?._id]);
 
   const fireLevelEnd = (score) => {
     if (typeof window.hyTrack !== 'function' || !moduleNumber) return;
@@ -222,10 +238,6 @@ const LessonComplete = () => {
             {showConfetti && (
               <ConfettiAnimation />
             )}
-            
-            <h1 className="text-3xl md:text-5xl text-gray-900 font-black drop-shadow-sm leading-tight">
-              CONGRATULATIONS!
-            </h1>
           </div>
 
           {/* Total Stars card - Horizontal Sleek Glassmorphic Design */}
@@ -245,7 +257,7 @@ const LessonComplete = () => {
 
           <div className="w-full max-w-xl animate-fade-in px-2 mt-2">
             <WeeklyStreak 
-              streakCount={myStreak}
+              streakCount={currentStreakCount}
               currentDayCompleted={true}
             />
           </div>

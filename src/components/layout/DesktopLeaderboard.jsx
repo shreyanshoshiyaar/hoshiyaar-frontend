@@ -78,59 +78,127 @@ const DesktopLeaderboard = ({
 
         {/* Leaderboard Scope Settings */}
         {leaderboardScope === 'school' && (
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-blue-100 flex flex-col md:flex-row justify-between items-center gap-4 shrink-0">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-xl">🏫</div>
-              <div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Current School</p>
-                <h2 className="text-sm font-black text-blue-900">{user?.school || "No school selected"}</h2>
+          <div className="bg-white rounded-2xl p-4 shadow-sm border border-blue-100 flex flex-col gap-3 shrink-0 transition-all">
+            {!isChangingSchool ? (
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 shrink-0 border border-blue-100">
+                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z" />
+                      <path d="M6 6h10" />
+                      <path d="M6 10h10" />
+                      <path d="M6 14h10" />
+                    </svg>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Current School</p>
+                    <h2 className="text-sm font-extrabold text-blue-900 truncate" title={user?.school || "No school selected"}>
+                      {user?.school || "No school selected"}
+                    </h2>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={() => {
+                    setLeaderboardSchool('');
+                    setIsChangingSchool(true);
+                    setShowSuggestions(true);
+                  }}
+                  className="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-[#2563EB] font-black rounded-xl text-xs transition-all border border-blue-200 cursor-pointer shrink-0 flex items-center gap-1.5 shadow-sm active:scale-95 self-end sm:self-auto"
+                >
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                  </svg>
+                  <span>{user?.school ? "Change School" : "Add School"}</span>
+                </button>
               </div>
-            </div>
-            
-            <div className="flex items-center gap-3 w-full md:w-auto">
-              {isChangingSchool ? (
-                <form onSubmit={handleLeaderboardSearch} className="flex gap-2 w-full">
-                  <div className="relative flex-grow">
+            ) : (
+              <div className="flex flex-col gap-2 w-full animate-in fade-in duration-200">
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <span className="text-xs font-black text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <svg className="w-4 h-4 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <circle cx="11" cy="11" r="8" />
+                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                    Search & Select School
+                  </span>
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      setIsChangingSchool(false);
+                      setShowSuggestions(false);
+                    }} 
+                    className="text-xs font-bold text-gray-500 hover:text-gray-800 px-2 py-1 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+
+                <div className="relative w-full">
+                  <div className="relative flex items-center">
                     <input
                       type="text"
-                      placeholder="Search school..."
-                      className="w-full px-3 py-1.5 rounded-lg border-2 border-blue-100 focus:border-blue-500 outline-none font-bold text-xs"
+                      autoFocus
+                      placeholder="Type school name or locality..."
+                      className="w-full pl-10 pr-10 py-2.5 rounded-xl border-2 border-blue-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none font-bold text-xs sm:text-sm text-gray-800 transition-all bg-white"
                       value={leaderboardSchool}
                       onChange={(e) => {
                         setLeaderboardSchool(e.target.value);
                         setShowSuggestions(true);
                       }}
+                      onFocus={() => setShowSuggestions(true)}
                     />
-                    {showSuggestions && schoolSuggestions.length > 0 && (
-                      <div className="absolute left-0 right-0 top-full mt-1 bg-white rounded-xl shadow-xl border border-gray-100 z-50 max-h-40 overflow-y-auto">
-                        {schoolSuggestions.map((s, i) => (
-                          <div 
-                            key={i} 
-                            className="px-3 py-2 border-b border-gray-50 last:border-0 hover:bg-blue-50 font-bold text-xs cursor-pointer"
-                            onClick={() => {
-                              setLeaderboardSchool(s);
-                              setShowSuggestions(false);
-                              fetchLeaderboard(s);
-                            }}
-                          >
-                            {s}
-                          </div>
-                        ))}
-                      </div>
+                    <div className="absolute left-3.5 text-gray-400 pointer-events-none">
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <circle cx="11" cy="11" r="8" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                      </svg>
+                    </div>
+                    {leaderboardSchool && (
+                      <button
+                        type="button"
+                        onClick={() => setLeaderboardSchool('')}
+                        className="absolute right-3 text-gray-400 hover:text-gray-600 p-1 cursor-pointer"
+                      >
+                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <line x1="18" y1="6" x2="6" y2="18" />
+                          <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                      </button>
                     )}
                   </div>
-                  <button className="bg-blue-600 text-white px-4 rounded-lg font-black text-xs hover:bg-blue-700 transition-colors">Join</button>
-                  <button type="button" onClick={() => setIsChangingSchool(false)} className="text-gray-400 hover:text-gray-600 px-1 font-bold text-xs">Cancel</button>
-                </form>
-              ) : (
-                <button 
-                  onClick={() => setIsChangingSchool(true)}
-                  className="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold rounded-lg text-xs transition-colors"
-                >
-                  {user?.school ? "Change School" : "Add School"}
-                </button>
-              )}
-            </div>
+
+                  {showSuggestions && leaderboardSchool.trim().length >= 2 && (
+                    <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-2xl border border-blue-100 z-[100] max-h-60 overflow-y-auto no-scrollbar divide-y divide-gray-100">
+                      {schoolSuggestions.length > 0 ? (
+                        schoolSuggestions.map((s, i) => (
+                          <div 
+                            key={i} 
+                            className="px-4 py-3 hover:bg-blue-50 font-bold text-xs text-gray-700 hover:text-blue-900 cursor-pointer flex items-start gap-3 transition-colors group"
+                            onClick={() => {
+                              handleLeaderboardSearch(null, s);
+                              setIsChangingSchool(false);
+                            }}
+                          >
+                            <div className="w-6 h-6 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-blue-200">
+                              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+                                <circle cx="12" cy="9" r="2.5" />
+                              </svg>
+                            </div>
+                            <span className="line-clamp-2 leading-relaxed">{s}</span>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="px-4 py-4 text-center text-xs font-semibold text-gray-400">
+                          No schools found. Try typing another keyword.
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -228,7 +296,6 @@ const DesktopLeaderboard = ({
                 <div className="flex items-center px-4 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 mb-2">
                   <div className="w-12">Rank</div>
                   <div className="flex-1">Student</div>
-                  {leaderboardScope === 'global' && <div className="flex-1 hidden md:block">School</div>}
                   <div className="w-24 text-right">{leaderboardMetric === 'streak' ? 'Streak' : 'Stars'}</div>
                 </div>
 
@@ -259,12 +326,6 @@ const DesktopLeaderboard = ({
                           {isMe ? 'You' : (entry.username || entry.name)}
                         </span>
                       </div>
-
-                      {leaderboardScope === 'global' && (
-                        <div className="flex-1 hidden md:block text-xs text-gray-500 font-bold truncate">
-                          {entry.school || '—'}
-                        </div>
-                      )}
                       
                       <div className="w-24 flex items-center justify-end gap-1.5">
                         <span className="text-sm font-black text-gray-800">
