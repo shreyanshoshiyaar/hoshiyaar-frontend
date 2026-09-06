@@ -358,9 +358,8 @@ const Signup = () => {
                 name="email"
                 value={formData.email}
                 onChange={onChange}
-                placeholder="Email Address"
+                placeholder="Email Address (Optional)"
                 className="w-full bg-white border border-slate-300 rounded-xl p-3.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm text-slate-900 placeholder-slate-400 shadow-sm"
-                required
               />
 
               <div className="grid grid-cols-1 gap-4">
