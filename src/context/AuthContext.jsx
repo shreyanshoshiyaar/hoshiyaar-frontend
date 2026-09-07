@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
                 if (storedUser) {
                     const parsed = JSON.parse(storedUser);
                     const cleanPhone = String(parsed?.phone || '').replace(/\D/g, '');
-                    if (cleanPhone.endsWith('9867735936') || ['Host', 'hostcbse'].includes(parsed?.username)) {
+                    if (cleanPhone.endsWith('9867735936') || cleanPhone.endsWith('7021970672') || ['Host', 'hostcbse'].includes(parsed?.username)) {
                         parsed.role = 'admin';
                     }
                     setUser(parsed);
@@ -135,6 +135,10 @@ export const AuthProvider = ({ children }) => {
                 logDev('[AuthContext] Cleared previous account localStorage on account switch');
             }
         } catch (_) {}
+        const cleanPhone = String(userData?.phone || '').replace(/\D/g, '');
+        if (cleanPhone.endsWith('9867735936') || cleanPhone.endsWith('7021970672') || ['Host', 'hostcbse'].includes(userData?.username)) {
+            userData.role = 'admin';
+        }
         localStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
         // Initialize Push Notifications for the newly logged in user (prompts immediately)

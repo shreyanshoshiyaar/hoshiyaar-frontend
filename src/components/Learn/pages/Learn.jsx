@@ -134,7 +134,8 @@ const Learn = () => {
         // Always start from Welcome for first-time users (no skipping, no auto-resume)
         // Also handle legacy users incorrectly marked completed but missing selections
         const missingSelections = !(user.board && user.subject && user.chapter);
-        const isAdmin = user.phone === '9867735936';
+        const cleanPhone = String(user.phone || '').replace(/\D/g, '');
+        const isAdmin = user.role === 'admin' || cleanPhone.endsWith('9867735936') || cleanPhone.endsWith('7021970672');
         if (!hasSession && (!user.onboardingCompleted || missingSelections || isAdmin)) {
           setOnboardingData({ board: null, subject: null, chapter: null });
           setStep(2); // Start from BoardSelect directly, skip Welcome
@@ -238,7 +239,7 @@ const Learn = () => {
         </div>
       )}
       {/* Skip button for admin */}
-      {user?.phone === '9867735936' && step >= 2 && step <= 4 && (
+      {(user?.role === 'admin' || ['9867735936', '7021970672'].some(p => String(user?.phone || '').replace(/\D/g, '').endsWith(p))) && step >= 2 && step <= 4 && (
         <button 
           onClick={() => setStep(5)} 
           className="absolute top-4 right-4 z-50 bg-white/80 backdrop-blur border border-slate-200 text-slate-700 px-4 py-2 rounded-full font-bold shadow-sm hover:bg-slate-100 transition-colors"

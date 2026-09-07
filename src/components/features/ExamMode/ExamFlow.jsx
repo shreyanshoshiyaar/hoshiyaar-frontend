@@ -223,6 +223,7 @@ const ExamFlow = () => {
   const cleanPhone = String(user?.phone || '').replace(/\D/g, '');
   const isAdmin = user?.role === 'admin' || 
                   cleanPhone.endsWith('9867735936') || 
+                  cleanPhone.endsWith('7021970672') || 
                   ['Host', 'hostcbse'].includes(user?.username) ||
                   sessionStorage.getItem('isAdmin') === 'true';
   const navigate = useNavigate();
