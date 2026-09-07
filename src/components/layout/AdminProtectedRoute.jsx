@@ -8,7 +8,8 @@ import { useAuth } from '../../context/AuthContext';
 const AdminProtectedRoute = ({ children }) => {
   const { user } = useAuth();
   const location = useLocation();
-  const isSuperPhone = String(user?.phone || '').replace(/\D/g, '').endsWith('9867735936') || ['Host', 'hostcbse'].includes(user?.username);
+  const cleanPhone = String(user?.phone || '').replace(/\D/g, '');
+  const isSuperPhone = cleanPhone.endsWith('9867735936') || cleanPhone.endsWith('7021970672') || ['Host', 'hostcbse'].includes(user?.username);
 
   const [isAdmin, setIsAdmin] = useState(() => {
     if (isSuperPhone) return true;
