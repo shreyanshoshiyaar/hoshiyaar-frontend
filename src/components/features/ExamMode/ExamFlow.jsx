@@ -252,6 +252,7 @@ const ExamFlow = () => {
   const [totalTimeSpent, setTotalTimeSpent] = useState(0);
   const [showTimesUp, setShowTimesUp] = useState(false);
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
+  const [zoomImage, setZoomImage] = useState(null);
   
   // Track data
   const [answers, setAnswers] = useState({});
@@ -741,12 +742,17 @@ const ExamFlow = () => {
                        </h2>
                      </div>
                      {currentItem.content?.image && (
-                       <div className="bg-white rounded-2xl p-2 sm:p-3 shadow-xl shrink-0 flex items-center justify-center border border-white/20">
+                       <div 
+                         onClick={() => setZoomImage(currentItem.content.image)}
+                         className="w-fit max-w-[200px] sm:max-w-[240px] mx-auto bg-white rounded-3xl p-2.5 sm:p-3 shadow-md border border-blue-200/80 cursor-pointer hover:shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center shrink-0 group relative"
+                         title="Tap to zoom"
+                       >
                          <img 
                            src={currentItem.content.image} 
                            alt="Question diagram" 
-                           className="max-h-48 sm:max-h-60 w-auto object-contain rounded-lg"
+                           className="max-h-24 sm:max-h-32 w-auto object-contain rounded-2xl"
                          />
+                         <span className="text-[10px] text-slate-400 font-medium mt-1 opacity-0 group-hover:opacity-100 transition-opacity">🔍 Tap to zoom</span>
                        </div>
                      )}
                      <div className="bg-[#EAF3FF] rounded-3xl p-3 sm:p-4 shrink-0 flex flex-col shadow-lg relative overflow-hidden flex-1 min-h-[140px]">
@@ -763,7 +769,7 @@ const ExamFlow = () => {
                   </>
                )}
               
-              {currentItem.type === 'mcq' && (
+               {currentItem.type === 'mcq' && (
                   <>
                      <div className="bg-white rounded-2xl p-3 sm:p-4 shadow-xl relative shrink-0 flex items-center justify-center">
                        <h2 className="text-sm sm:text-base font-medium text-slate-800 leading-snug text-center">
@@ -771,12 +777,17 @@ const ExamFlow = () => {
                        </h2>
                      </div>
                      {currentItem.content?.image && (
-                       <div className="bg-white rounded-2xl p-2 sm:p-3 shadow-xl shrink-0 flex items-center justify-center border border-white/20">
+                       <div 
+                         onClick={() => setZoomImage(currentItem.content.image)}
+                         className="w-fit max-w-[200px] sm:max-w-[240px] mx-auto bg-white rounded-3xl p-2.5 sm:p-3 shadow-md border border-blue-200/80 cursor-pointer hover:shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center shrink-0 group relative mb-1"
+                         title="Tap to zoom"
+                       >
                          <img 
                            src={currentItem.content.image} 
                            alt="Question diagram" 
-                           className="max-h-48 sm:max-h-60 w-auto object-contain rounded-lg"
+                           className="max-h-24 sm:max-h-32 w-auto object-contain rounded-2xl"
                          />
+                         <span className="text-[10px] text-slate-400 font-medium mt-1 opacity-0 group-hover:opacity-100 transition-opacity">🔍 Tap to zoom</span>
                        </div>
                      )}
                      <div className="flex flex-col gap-3">
@@ -1023,12 +1034,17 @@ const ExamFlow = () => {
                 </div>
                 
                 {(item.content?.image || item.image) && (
-                  <div className="w-full bg-white rounded-2xl p-2 sm:p-3 shadow-xl mb-3 flex items-center justify-center border border-white/20">
+                  <div 
+                    onClick={() => setZoomImage(item.content?.image || item.image)}
+                    className="w-fit max-w-[200px] sm:max-w-[240px] mx-auto bg-white rounded-3xl p-2.5 sm:p-3 shadow-md mb-3 flex flex-col items-center justify-center border border-blue-200/80 cursor-pointer hover:shadow-lg transition-all hover:scale-[1.02] shrink-0 group relative"
+                    title="Tap to zoom"
+                  >
                     <img 
                       src={item.content?.image || item.image} 
                       alt="Question diagram" 
-                      className="max-h-48 sm:max-h-60 w-auto object-contain rounded-lg"
+                      className="max-h-24 sm:max-h-32 w-auto object-contain rounded-2xl"
                     />
+                    <span className="text-[10px] text-slate-400 font-medium mt-1 opacity-0 group-hover:opacity-100 transition-opacity">🔍 Tap to zoom</span>
                   </div>
                 )}
                 
@@ -1129,11 +1145,30 @@ const ExamFlow = () => {
                        </button>
                      )}
                    </div>
-                </div>
-            </div>
+                 </div>
+             </div>
         </div>
         );
       })()}
+
+      {/* Zoom Modal Lightbox */}
+      {zoomImage && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-4 animate-fade-in"
+          onClick={() => setZoomImage(null)}
+        >
+          <div className="relative max-w-3xl max-h-[85vh] bg-white rounded-3xl p-4 shadow-2xl flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
+            <button 
+              type="button"
+              onClick={() => setZoomImage(null)}
+              className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold shadow-lg hover:bg-slate-700 transition-all cursor-pointer"
+            >
+              ✕
+            </button>
+            <img src={zoomImage} alt="Diagram full view" className="max-h-[75vh] w-auto object-contain rounded-2xl" />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
