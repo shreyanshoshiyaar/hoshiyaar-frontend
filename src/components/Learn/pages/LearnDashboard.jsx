@@ -2108,6 +2108,7 @@ const LearnDashboard = ({ onboardingData }) => {
             chapterTitle={chapterTitle} 
             subjectName={subjectName}
             chaptersList={chaptersList}
+            userClass={user?.classLevel || user?.class || user?.classTitle}
             onChangeChapter={(id, title) => {
               setChapterId(id);
               setChapterTitle(title);
