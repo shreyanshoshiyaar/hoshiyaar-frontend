@@ -599,75 +599,10 @@ const ExamDashboard = ({
           <div className="bg-black/20 backdrop-blur-xl rounded-2xl p-6 sm:p-8 shadow-[0_8px_32px_0_rgba(0,0,0,0.2)] border border-white/10 w-full text-center flex flex-col items-center">
             <div className="text-4xl sm:text-5xl mb-3 opacity-70 filter grayscale">⏳</div>
             <h3 className="text-lg sm:text-xl font-bold text-gray-200 mb-1.5 tracking-wide">No Exam Available</h3>
-            <p className="text-gray-400 text-xs sm:text-sm mb-4 max-w-md">
+            <p className="text-gray-400 text-xs sm:text-sm max-w-md">
               An exam has not been configured for this chapter yet. <br/>
-              {classExamChapters.length > 0 
-                ? (activeClass ? `Select an available Class ${activeClass} exam below:` : "Select an available chapter below to access its exam:")
-                : (availableChapters.length > 0 ? "Select an available exam below:" : "Please check back later.")}
+              Please check back later or use <span className="text-cyan-300 font-semibold">Change Chapter</span> above.
             </p>
-
-            {availableChapters.length > 0 && onChangeChapter && (
-              <div className="w-full max-w-md flex flex-col items-center bg-white/5 border border-white/10 p-4 rounded-xl backdrop-blur-md shadow-xl">
-                <label className="text-[11px] uppercase tracking-widest text-cyan-300 font-bold mb-2 flex items-center gap-1.5">
-                  <span>{classExamChapters.length > 0 && activeClass ? `Class ${activeClass} Exams` : "Available Chapters with Exams"}</span>
-                </label>
-                <div className="relative w-full">
-                  <select
-                    value=""
-                    onChange={(e) => {
-                      const sel = availableChapters.find(c => String(c._id) === e.target.value);
-                      if (sel && onChangeChapter) {
-                        onChangeChapter(sel._id, sel.title);
-                      }
-                    }}
-                    className="w-full appearance-none bg-gradient-to-r from-blue-600/40 via-indigo-600/40 to-cyan-600/40 hover:from-blue-600/60 hover:to-cyan-600/60 border border-cyan-400/50 hover:border-cyan-300 text-white font-bold text-xs sm:text-sm py-2.5 pl-3 pr-8 rounded-lg cursor-pointer shadow-lg outline-none transition-all text-center"
-                  >
-                    <option value="" disabled className="text-black bg-white">
-                      Select a chapter with exam...
-                    </option>
-                    {classExamChapters.length > 0 ? (
-                      <>
-                        <optgroup label={activeClass ? `Class ${activeClass}` : "Current Class"} className="text-gray-700 font-bold">
-                          {classExamChapters.map(ch => (
-                            <option key={ch._id} value={ch._id} className="text-black bg-white font-medium">
-                              {ch.title}
-                            </option>
-                          ))}
-                        </optgroup>
-                        {otherClassChapters.length > 0 && (
-                          <optgroup label="Other Classes" className="text-gray-700 font-bold">
-                            {otherClassChapters.map(ch => (
-                              <option key={ch._id} value={ch._id} className="text-black bg-white font-normal">
-                                {ch.title} ({ch.subjectId?.classId?.name ? `Class ${ch.subjectId.classId.name} • ` : ''}{ch.subjectId?.name || 'Science'})
-                              </option>
-                            ))}
-                          </optgroup>
-                        )}
-                      </>
-                    ) : (
-                      availableChapters.map(ch => (
-                        <option key={ch._id} value={ch._id} className="text-black bg-white font-medium">
-                          {ch.title}{ch.subjectId?.name && ch.subjectId?.name !== subjectName ? ` (${ch.subjectId.name})` : ''}
-                        </option>
-                      ))
-                    )}
-                  </select>
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-cyan-300 text-xs">
-                    ▼
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => {
-                    setShowChapterModal(true);
-                    if (availableChapters.length === 0) fetchAvailableExamChapters();
-                  }}
-                  className="mt-2.5 text-xs text-cyan-300 hover:text-cyan-200 underline font-semibold cursor-pointer"
-                >
-                  Or browse available exams in a list
-                </button>
-              </div>
-            )}
           </div>
         )}
       </div>
