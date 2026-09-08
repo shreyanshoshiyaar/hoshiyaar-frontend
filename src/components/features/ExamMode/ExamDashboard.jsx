@@ -18,6 +18,7 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
   const [examLimits, setExamLimits] = useState(null);
   const [latestSession, setLatestSession] = useState(null);
   const [availableChapters, setAvailableChapters] = useState([]);
+  const [subjectExamChapters, setSubjectExamChapters] = useState([]);
   const [examChaptersLoaded, setExamChaptersLoaded] = useState(false);
   const cleanPhone = String(user?.phone || '').replace(/\D/g, '');
   const isAdmin = user?.role === 'admin' || 
@@ -29,29 +30,18 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
     let isMounted = true;
     const fetchAvailableExamChapters = async () => {
       try {
-        const res = await curriculumService.getExamAvailableChapters();
+        const res = await curriculumService.getExamAvailableChapters({ bypassCache: true });
         if (!isMounted) return;
         if (res?.data?.success) {
           const validIds = new Set((res.data.chapterIds || []).map(id => String(id)));
           const allExamChapters = res.data.chapters || [];
 
-          // Prefer chapters matching the current subject list if any have exams
-          let filtered = (chaptersList || []).filter(ch => validIds.has(String(ch._id)));
+          // Chapters matching current subject that have exams
+          const subjectMatches = (chaptersList || []).filter(ch => validIds.has(String(ch._id)));
 
-          // Fallback to all available exam chapters across the curriculum if none in the current subject
-          if (filtered.length === 0 && allExamChapters.length > 0) {
-            filtered = allExamChapters;
-          }
-
-          setAvailableChapters(filtered);
-
-          // If current chapter doesn't have an exam, automatically switch to first available exam chapter
-          if (filtered.length > 0) {
-            const currentHasExam = filtered.some(c => String(c._id) === String(chapterId));
-            if (!currentHasExam && onChangeChapter) {
-              onChangeChapter(filtered[0]._id, filtered[0].title);
-            }
-          }
+          setSubjectExamChapters(subjectMatches);
+          // Set availableChapters to all exam chapters so switching to any available exam is possible
+          setAvailableChapters(allExamChapters.length > 0 ? allExamChapters : subjectMatches);
         }
       } catch (err) {
         console.error('Failed to fetch available exam chapters:', err);
@@ -62,7 +52,7 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
 
     fetchAvailableExamChapters();
     return () => { isMounted = false; };
-  }, [chaptersList, chapterId, onChangeChapter]);
+  }, [chaptersList]);
 
   useEffect(() => {
     const fetchExamConfigAndScore = async () => {
@@ -193,22 +183,45 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
             Please select a chapter from the dropdown below to access its exam.
           </p>
           {onChangeChapter && availableChapters.length > 0 && (
-             <div className="mt-6 flex justify-center relative">
-               <select 
-                 value=""
-                 onChange={(e) => {
-                   const sel = availableChapters.find(c => String(c._id) === e.target.value);
-                   if (sel) onChangeChapter(sel._id, sel.title);
-                 }}
-                 className="px-6 py-2 bg-blue-500/20 hover:bg-blue-500/40 text-blue-200 border border-blue-500/50 rounded-xl transition-all cursor-pointer outline-none appearance-none text-center"
-               >
-                 <option value="" disabled className="text-black">Change Topic</option>
-                 {availableChapters.map(ch => (
-                   <option key={ch._id} value={ch._id} className="text-black">{ch.title}</option>
-                 ))}
-               </select>
-               <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-blue-200 text-xs">
-                 ▼
+             <div className="mt-6 flex justify-center relative w-full max-w-md mx-auto">
+               <div className="relative w-full">
+                 <select 
+                   value=""
+                   onChange={(e) => {
+                     const sel = availableChapters.find(c => String(c._id) === e.target.value);
+                     if (sel) onChangeChapter(sel._id, sel.title);
+                   }}
+                   className="w-full appearance-none bg-blue-500/20 hover:bg-blue-500/40 text-blue-200 border border-blue-500/50 py-3 pl-4 pr-10 rounded-xl transition-all cursor-pointer outline-none text-center font-bold"
+                 >
+                   <option value="" disabled className="text-black bg-white">Select a Chapter with Exam</option>
+                   {subjectExamChapters.length > 0 && availableChapters.length > subjectExamChapters.length ? (
+                     <>
+                       <optgroup label="Current Subject" className="text-gray-700 font-bold">
+                         {subjectExamChapters.map(ch => (
+                           <option key={ch._id} value={ch._id} className="text-black bg-white font-normal">
+                             {ch.title}
+                           </option>
+                         ))}
+                       </optgroup>
+                       <optgroup label="Other Subjects" className="text-gray-700 font-bold">
+                         {availableChapters.filter(ch => !subjectExamChapters.some(s => String(s._id) === String(ch._id))).map(ch => (
+                           <option key={ch._id} value={ch._id} className="text-black bg-white font-normal">
+                             {ch.title} ({ch.subjectId?.name || 'Curriculum'})
+                           </option>
+                         ))}
+                       </optgroup>
+                     </>
+                   ) : (
+                     availableChapters.map(ch => (
+                       <option key={ch._id} value={ch._id} className="text-black bg-white font-medium">
+                         {ch.title}{ch.subjectId?.name && ch.subjectId?.name !== subjectName ? ` (${ch.subjectId.name})` : ''}
+                       </option>
+                     ))
+                   )}
+                 </select>
+                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-blue-200 text-xs">
+                   ▼
+                 </div>
                </div>
              </div>
           )}
@@ -234,35 +247,55 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
             <h2 className="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-purple-400 drop-shadow-sm mb-2">
               Exam Mode
             </h2>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 mt-1">
-              {onChangeChapter && availableChapters.length > 0 ? (
-                <div className="relative flex flex-col sm:flex-row items-center gap-2 group cursor-pointer">
-                  <p className="text-white font-semibold text-lg tracking-wide text-center group-hover:text-cyan-200 transition-colors">
-                    {chapterTitle || 'Loading...'}
-                  </p>
-                  <div className="relative flex items-center justify-center bg-white/10 hover:bg-white/20 border border-white/20 rounded-full px-2 py-0.5 transition-colors overflow-hidden">
-                    <span className="text-[9px] text-white uppercase tracking-widest font-bold flex items-center gap-1">
-                      Change Topic <span className="text-[7px] opacity-70">▼</span>
-                    </span>
-                    <select 
-                      value=""
-                      onChange={(e) => {
-                        const sel = availableChapters.find(c => String(c._id) === e.target.value);
-                        if (sel) onChangeChapter(sel._id, sel.title);
-                      }}
-                      className="absolute inset-0 opacity-0 cursor-pointer text-black"
-                    >
-                      <option value="" disabled>Change Topic</option>
-                      {availableChapters.map(ch => (
-                        <option key={ch._id} value={ch._id}>{ch.title}</option>
-                      ))}
-                    </select>
+            {onChangeChapter && availableChapters.length > 0 ? (
+              <div className="flex flex-col items-center justify-center gap-1.5 mt-2 w-full max-w-lg mx-auto">
+                <div className="relative w-full flex justify-center">
+                  <select
+                    value={availableChapters.some(c => String(c._id) === String(chapterId)) ? chapterId : ""}
+                    onChange={(e) => {
+                      const sel = availableChapters.find(c => String(c._id) === e.target.value);
+                      if (sel && onChangeChapter) onChangeChapter(sel._id, sel.title);
+                    }}
+                    className="w-full appearance-none bg-black/40 hover:bg-black/60 border border-cyan-400/40 hover:border-cyan-300 text-white font-bold text-sm sm:text-base py-2.5 pl-4 pr-10 rounded-2xl cursor-pointer shadow-lg backdrop-blur-md outline-none transition-all text-center truncate"
+                  >
+                    {!availableChapters.some(c => String(c._id) === String(chapterId)) && (
+                      <option value="" disabled className="text-black bg-white">
+                        {chapterTitle ? `${chapterTitle} (No Exam Available)` : 'Select Chapter with Exam'}
+                      </option>
+                    )}
+                    {subjectExamChapters.length > 0 && availableChapters.length > subjectExamChapters.length ? (
+                      <>
+                        <optgroup label="Current Subject" className="text-gray-700 font-bold">
+                          {subjectExamChapters.map(ch => (
+                            <option key={ch._id} value={ch._id} className="text-black bg-white font-normal">
+                              {ch.title}
+                            </option>
+                          ))}
+                        </optgroup>
+                        <optgroup label="Other Subjects" className="text-gray-700 font-bold">
+                          {availableChapters.filter(ch => !subjectExamChapters.some(s => String(s._id) === String(ch._id))).map(ch => (
+                            <option key={ch._id} value={ch._id} className="text-black bg-white font-normal">
+                              {ch.title} ({ch.subjectId?.name || 'Curriculum'})
+                            </option>
+                          ))}
+                        </optgroup>
+                      </>
+                    ) : (
+                      availableChapters.map(ch => (
+                        <option key={ch._id} value={ch._id} className="text-black bg-white font-medium">
+                          {ch.title}{ch.subjectId?.name && ch.subjectId?.name !== subjectName ? ` (${ch.subjectId.name})` : ''}
+                        </option>
+                      ))
+                    )}
+                  </select>
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-cyan-300 text-xs">
+                    ▼
                   </div>
                 </div>
-              ) : (
-                <p className="text-white font-semibold text-lg tracking-wide">{chapterTitle || 'Loading...'}</p>
-              )}
-            </div>
+              </div>
+            ) : (
+              <p className="text-white font-semibold text-lg tracking-wide mt-1">{chapterTitle || 'Loading...'}</p>
+            )}
             <p className="text-cyan-200/80 text-xs mt-2 uppercase tracking-widest">{displaySubjectName}</p>
           </div>
         </div>
@@ -408,12 +441,64 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
             </div>
           </div>
         ) : (
-          <div className="bg-black/20 backdrop-blur-xl rounded-[2rem] p-10 shadow-[0_8px_32px_0_rgba(0,0,0,0.2)] border border-white/10 w-full max-w-2xl mx-auto text-center flex flex-col items-center">
-            <div className="text-6xl mb-5 opacity-70 filter grayscale">⏳</div>
-            <h3 className="text-2xl font-bold text-gray-200 mb-3 tracking-wide">No Exam Available</h3>
-            <p className="text-gray-400 text-lg">
-              An exam has not been configured for this chapter yet. <br/> Please check back later.
+          <div className="bg-black/20 backdrop-blur-xl rounded-[2rem] p-8 sm:p-10 shadow-[0_8px_32px_0_rgba(0,0,0,0.2)] border border-white/10 w-full max-w-2xl mx-auto text-center flex flex-col items-center">
+            <div className="text-5xl sm:text-6xl mb-4 opacity-70 filter grayscale">⏳</div>
+            <h3 className="text-2xl sm:text-3xl font-bold text-gray-200 mb-2 tracking-wide">No Exam Available</h3>
+            <p className="text-gray-400 text-sm sm:text-base mb-6 max-w-md">
+              An exam has not been configured for this chapter yet. <br/>
+              {availableChapters.length > 0 ? "Select an available chapter below to access its exam:" : "Please check back later."}
             </p>
+
+            {availableChapters.length > 0 && onChangeChapter && (
+              <div className="w-full max-w-md flex flex-col items-center bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-md shadow-xl">
+                <label className="text-xs uppercase tracking-widest text-cyan-300 font-bold mb-2.5 flex items-center gap-1.5">
+                  <span>Available Chapters with Exams</span>
+                </label>
+                <div className="relative w-full">
+                  <select
+                    value=""
+                    onChange={(e) => {
+                      const sel = availableChapters.find(c => String(c._id) === e.target.value);
+                      if (sel && onChangeChapter) {
+                        onChangeChapter(sel._id, sel.title);
+                      }
+                    }}
+                    className="w-full appearance-none bg-gradient-to-r from-blue-600/40 via-indigo-600/40 to-cyan-600/40 hover:from-blue-600/60 hover:to-cyan-600/60 border border-cyan-400/50 hover:border-cyan-300 text-white font-bold text-sm sm:text-base py-3 pl-4 pr-10 rounded-xl cursor-pointer shadow-lg outline-none transition-all text-center"
+                  >
+                    <option value="" disabled className="text-black bg-white">
+                      Select a chapter with exam...
+                    </option>
+                    {subjectExamChapters.length > 0 && availableChapters.length > subjectExamChapters.length ? (
+                      <>
+                        <optgroup label="Current Subject" className="text-gray-700 font-bold">
+                          {subjectExamChapters.map(ch => (
+                            <option key={ch._id} value={ch._id} className="text-black bg-white font-normal">
+                              {ch.title}
+                            </option>
+                          ))}
+                        </optgroup>
+                        <optgroup label="Other Subjects" className="text-gray-700 font-bold">
+                          {availableChapters.filter(ch => !subjectExamChapters.some(s => String(s._id) === String(ch._id))).map(ch => (
+                            <option key={ch._id} value={ch._id} className="text-black bg-white font-normal">
+                              {ch.title} ({ch.subjectId?.name || 'Curriculum'})
+                            </option>
+                          ))}
+                        </optgroup>
+                      </>
+                    ) : (
+                      availableChapters.map(ch => (
+                        <option key={ch._id} value={ch._id} className="text-black bg-white font-medium">
+                          {ch.title}{ch.subjectId?.name && ch.subjectId?.name !== subjectName ? ` (${ch.subjectId.name})` : ''}
+                        </option>
+                      ))
+                    )}
+                  </select>
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-cyan-300 text-sm">
+                    ▼
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

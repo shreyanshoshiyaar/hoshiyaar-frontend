@@ -2111,6 +2111,11 @@ const LearnDashboard = ({ onboardingData }) => {
             onChangeChapter={(id, title) => {
               setChapterId(id);
               setChapterTitle(title);
+              try {
+                const url = new URL(window.location.href);
+                url.searchParams.set('chapterId', id);
+                window.history.replaceState({}, '', url.pathname + url.search);
+              } catch (e) {}
             }} 
           />
         ) : (
