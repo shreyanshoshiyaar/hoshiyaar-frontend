@@ -20,6 +20,7 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
   const [availableChapters, setAvailableChapters] = useState([]);
   const [subjectExamChapters, setSubjectExamChapters] = useState([]);
   const [examChaptersLoaded, setExamChaptersLoaded] = useState(false);
+  const [showChapterModal, setShowChapterModal] = useState(false);
   const cleanPhone = String(user?.phone || '').replace(/\D/g, '');
   const isAdmin = user?.role === 'admin' || 
                   ['9867735936', '7021970672', '9820277252'].some(p => cleanPhone.endsWith(p)) || 
@@ -247,55 +248,23 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
             <h2 className="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-purple-400 drop-shadow-sm mb-2">
               Exam Mode
             </h2>
-            {onChangeChapter && availableChapters.length > 0 ? (
-              <div className="flex flex-col items-center justify-center gap-1.5 mt-2 w-full max-w-lg mx-auto">
-                <div className="relative w-full flex justify-center">
-                  <select
-                    value={availableChapters.some(c => String(c._id) === String(chapterId)) ? chapterId : ""}
-                    onChange={(e) => {
-                      const sel = availableChapters.find(c => String(c._id) === e.target.value);
-                      if (sel && onChangeChapter) onChangeChapter(sel._id, sel.title);
-                    }}
-                    className="w-full appearance-none bg-black/40 hover:bg-black/60 border border-cyan-400/40 hover:border-cyan-300 text-white font-bold text-sm sm:text-base py-2.5 pl-4 pr-10 rounded-2xl cursor-pointer shadow-lg backdrop-blur-md outline-none transition-all text-center truncate"
-                  >
-                    {!availableChapters.some(c => String(c._id) === String(chapterId)) && (
-                      <option value="" disabled className="text-black bg-white">
-                        {chapterTitle ? `${chapterTitle} (No Exam Available)` : 'Select Chapter with Exam'}
-                      </option>
-                    )}
-                    {subjectExamChapters.length > 0 && availableChapters.length > subjectExamChapters.length ? (
-                      <>
-                        <optgroup label="Current Subject" className="text-gray-700 font-bold">
-                          {subjectExamChapters.map(ch => (
-                            <option key={ch._id} value={ch._id} className="text-black bg-white font-normal">
-                              {ch.title}
-                            </option>
-                          ))}
-                        </optgroup>
-                        <optgroup label="Other Subjects" className="text-gray-700 font-bold">
-                          {availableChapters.filter(ch => !subjectExamChapters.some(s => String(s._id) === String(ch._id))).map(ch => (
-                            <option key={ch._id} value={ch._id} className="text-black bg-white font-normal">
-                              {ch.title} ({ch.subjectId?.name || 'Curriculum'})
-                            </option>
-                          ))}
-                        </optgroup>
-                      </>
-                    ) : (
-                      availableChapters.map(ch => (
-                        <option key={ch._id} value={ch._id} className="text-black bg-white font-medium">
-                          {ch.title}{ch.subjectId?.name && ch.subjectId?.name !== subjectName ? ` (${ch.subjectId.name})` : ''}
-                        </option>
-                      ))
-                    )}
-                  </select>
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-cyan-300 text-xs">
-                    ▼
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <p className="text-white font-semibold text-lg tracking-wide mt-1">{chapterTitle || 'Loading...'}</p>
-            )}
+            <div className="flex flex-col items-center justify-center gap-2 mt-2 w-full max-w-lg mx-auto">
+              <p className="text-white font-extrabold text-lg sm:text-xl tracking-wide text-center">
+                {chapterTitle || 'Loading...'}
+              </p>
+              {onChangeChapter && (
+                <button
+                  onClick={() => setShowChapterModal(true)}
+                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/50 hover:border-cyan-300 text-cyan-200 hover:text-white text-xs sm:text-sm font-black tracking-wider uppercase transition-all shadow-md active:scale-95 cursor-pointer"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                  </svg>
+                  <span>Change Chapter</span>
+                  <span className="text-[10px] opacity-75">▼</span>
+                </button>
+              )}
+            </div>
             <p className="text-cyan-200/80 text-xs mt-2 uppercase tracking-widest">{displaySubjectName}</p>
           </div>
         </div>
@@ -439,6 +408,24 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
                 </button>
               )}
             </div>
+
+            {/* Change Chapter Secondary Button */}
+            {onChangeChapter && (
+              <div className="w-full flex justify-center mt-4 pt-3 border-t border-white/5">
+                <button
+                  onClick={() => setShowChapterModal(true)}
+                  className="text-xs sm:text-sm font-bold text-cyan-300 hover:text-cyan-200 flex items-center gap-2 py-2 px-4 rounded-xl bg-white/5 hover:bg-white/10 border border-cyan-400/30 hover:border-cyan-400 transition-all cursor-pointer"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                  </svg>
+                  <span>Change Chapter</span>
+                  {availableChapters.length > 0 && (
+                    <span className="text-[10px] text-gray-300 opacity-80">({availableChapters.length} with exams)</span>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           <div className="bg-black/20 backdrop-blur-xl rounded-[2rem] p-8 sm:p-10 shadow-[0_8px_32px_0_rgba(0,0,0,0.2)] border border-white/10 w-full max-w-2xl mx-auto text-center flex flex-col items-center">
@@ -497,11 +484,99 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
                     ▼
                   </div>
                 </div>
+
+                <button
+                  onClick={() => setShowChapterModal(true)}
+                  className="mt-3 text-xs text-cyan-300 hover:text-cyan-200 underline font-semibold"
+                >
+                  Or browse all available exams in a list
+                </button>
               </div>
             )}
           </div>
         )}
       </div>
+
+      {/* Chapter Selection Modal */}
+      {showChapterModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+          <div className="bg-gradient-to-b from-[#1A2C5B] to-[#0F204C] border border-cyan-400/30 rounded-3xl p-6 w-full max-w-lg shadow-2xl relative text-white flex flex-col max-h-[85vh]">
+            {/* Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
+              <div>
+                <h3 className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-purple-400">
+                  Select Exam Chapter
+                </h3>
+                <p className="text-xs text-cyan-200/70 mt-0.5">
+                  Only chapters with active exams are available
+                </p>
+              </div>
+              <button
+                onClick={() => setShowChapterModal(false)}
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white flex items-center justify-center text-lg font-bold transition-all cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Chapters List */}
+            <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+              {availableChapters.length === 0 ? (
+                <div className="text-center py-8 text-gray-400">
+                  <p className="text-sm">Loading available exam chapters...</p>
+                </div>
+              ) : (
+                availableChapters.map(ch => {
+                  const isSelected = String(ch._id) === String(chapterId);
+                  return (
+                    <button
+                      key={ch._id}
+                      onClick={() => {
+                        if (onChangeChapter) onChangeChapter(ch._id, ch.title);
+                        setShowChapterModal(false);
+                      }}
+                      className={`w-full text-left p-4 rounded-2xl border transition-all duration-200 flex items-center justify-between gap-3 cursor-pointer ${
+                        isSelected
+                          ? 'bg-gradient-to-r from-cyan-500/25 to-blue-600/25 border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.25)]'
+                          : 'bg-white/5 hover:bg-white/10 border-white/10 hover:border-cyan-400/40'
+                      }`}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className={`font-bold text-sm sm:text-base leading-snug ${isSelected ? 'text-cyan-200' : 'text-white'}`}>
+                          {ch.title}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1 uppercase tracking-wider font-semibold">
+                          {ch.subjectId?.name || subjectName} {ch.subjectId?.classId?.name ? `• Class ${ch.subjectId.classId.name}` : ''}
+                        </p>
+                      </div>
+                      <div className="shrink-0 flex items-center gap-2">
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-black tracking-wider uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                          Exam Ready
+                        </span>
+                        {isSelected && (
+                          <span className="w-6 h-6 rounded-full bg-cyan-400 text-slate-900 flex items-center justify-center text-xs font-black">
+                            ✓
+                          </span>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="pt-4 mt-4 border-t border-white/10 text-center">
+              <button
+                onClick={() => setShowChapterModal(false)}
+                className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
