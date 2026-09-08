@@ -17,11 +17,52 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
   const [showRevisionPrompt, setShowRevisionPrompt] = useState(false);
   const [examLimits, setExamLimits] = useState(null);
   const [latestSession, setLatestSession] = useState(null);
+  const [availableChapters, setAvailableChapters] = useState([]);
+  const [examChaptersLoaded, setExamChaptersLoaded] = useState(false);
   const cleanPhone = String(user?.phone || '').replace(/\D/g, '');
   const isAdmin = user?.role === 'admin' || 
                   ['9867735936', '7021970672', '9820277252'].some(p => cleanPhone.endsWith(p)) || 
                   ['Host', 'hostcbse', 'AKSHITRAVULA', 'AKSHIT', 'SB10', 'Nidhi sekhri'].includes(user?.username) ||
                   sessionStorage.getItem('isAdmin') === 'true';
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchAvailableExamChapters = async () => {
+      try {
+        const res = await curriculumService.getExamAvailableChapters();
+        if (!isMounted) return;
+        if (res?.data?.success) {
+          const validIds = new Set((res.data.chapterIds || []).map(id => String(id)));
+          const allExamChapters = res.data.chapters || [];
+
+          // Prefer chapters matching the current subject list if any have exams
+          let filtered = (chaptersList || []).filter(ch => validIds.has(String(ch._id)));
+
+          // Fallback to all available exam chapters across the curriculum if none in the current subject
+          if (filtered.length === 0 && allExamChapters.length > 0) {
+            filtered = allExamChapters;
+          }
+
+          setAvailableChapters(filtered);
+
+          // If current chapter doesn't have an exam, automatically switch to first available exam chapter
+          if (filtered.length > 0) {
+            const currentHasExam = filtered.some(c => String(c._id) === String(chapterId));
+            if (!currentHasExam && onChangeChapter) {
+              onChangeChapter(filtered[0]._id, filtered[0].title);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch available exam chapters:', err);
+      } finally {
+        if (isMounted) setExamChaptersLoaded(true);
+      }
+    };
+
+    fetchAvailableExamChapters();
+    return () => { isMounted = false; };
+  }, [chaptersList, chapterId, onChangeChapter]);
 
   useEffect(() => {
     const fetchExamConfigAndScore = async () => {
@@ -151,18 +192,18 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
           <p className="text-gray-300 max-w-md text-lg">
             Please select a chapter from the dropdown below to access its exam.
           </p>
-          {onChangeChapter && chaptersList.length > 0 && (
+          {onChangeChapter && availableChapters.length > 0 && (
              <div className="mt-6 flex justify-center relative">
                <select 
                  value=""
                  onChange={(e) => {
-                   const sel = chaptersList.find(c => String(c._id) === e.target.value);
+                   const sel = availableChapters.find(c => String(c._id) === e.target.value);
                    if (sel) onChangeChapter(sel._id, sel.title);
                  }}
                  className="px-6 py-2 bg-blue-500/20 hover:bg-blue-500/40 text-blue-200 border border-blue-500/50 rounded-xl transition-all cursor-pointer outline-none appearance-none text-center"
                >
                  <option value="" disabled className="text-black">Change Topic</option>
-                 {chaptersList.map(ch => (
+                 {availableChapters.map(ch => (
                    <option key={ch._id} value={ch._id} className="text-black">{ch.title}</option>
                  ))}
                </select>
@@ -175,6 +216,9 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
       </div>
     );
   }
+
+  const currentChapterObj = availableChapters.find(c => String(c._id) === String(chapterId));
+  const displaySubjectName = currentChapterObj?.subjectId?.name || subjectName;
 
   return (
     <div className="relative min-h-screen w-full flex flex-col items-center py-12 px-4 md:px-8 overflow-hidden bg-gradient-to-b from-[#0F204C] to-[#1A3673]">
@@ -191,7 +235,7 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
               Exam Mode
             </h2>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-2 mt-1">
-              {onChangeChapter && chaptersList.length > 0 ? (
+              {onChangeChapter && availableChapters.length > 0 ? (
                 <div className="relative flex flex-col sm:flex-row items-center gap-2 group cursor-pointer">
                   <p className="text-white font-semibold text-lg tracking-wide text-center group-hover:text-cyan-200 transition-colors">
                     {chapterTitle || 'Loading...'}
@@ -203,13 +247,13 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
                     <select 
                       value=""
                       onChange={(e) => {
-                        const sel = chaptersList.find(c => String(c._id) === e.target.value);
+                        const sel = availableChapters.find(c => String(c._id) === e.target.value);
                         if (sel) onChangeChapter(sel._id, sel.title);
                       }}
                       className="absolute inset-0 opacity-0 cursor-pointer text-black"
                     >
                       <option value="" disabled>Change Topic</option>
-                      {chaptersList.map(ch => (
+                      {availableChapters.map(ch => (
                         <option key={ch._id} value={ch._id}>{ch.title}</option>
                       ))}
                     </select>
@@ -219,18 +263,18 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
                 <p className="text-white font-semibold text-lg tracking-wide">{chapterTitle || 'Loading...'}</p>
               )}
             </div>
-            <p className="text-cyan-200/80 text-xs mt-2 uppercase tracking-widest">{subjectName}</p>
+            <p className="text-cyan-200/80 text-xs mt-2 uppercase tracking-widest">{displaySubjectName}</p>
           </div>
         </div>
 
-        {loading ? (
+        {loading || !examChaptersLoaded ? (
           <div className="flex justify-center my-8 bg-black/20 p-6 rounded-[1.5rem] backdrop-blur-md border border-white/10">
             <div className="flex flex-col items-center p-8">
               <div className="w-12 h-12 border-4 border-cyan-400/30 border-t-cyan-400 rounded-full animate-spin mb-4"></div>
               <p className="text-cyan-200/80 tracking-wide font-medium animate-pulse">Loading exam configuration...</p>
             </div>
           </div>
-        ) : examConfig && examConfig.questions && examConfig.questions.length > 0 ? (
+        ) : examConfig && ((examConfig.questions && examConfig.questions.length > 0) || (examConfig.flowItems && examConfig.flowItems.length > 0)) ? (
           <div className="bg-black/30 backdrop-blur-xl rounded-[1.5rem] p-6 sm:p-8 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] border border-white/10 w-full max-w-3xl mx-auto text-center flex flex-col items-center transform transition-all hover:-translate-y-1 duration-300 relative">
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mb-4 mt-2 bg-gradient-to-r from-white/5 to-white/10 border border-white/10 rounded-2xl px-6 py-4 shadow-[inset_0_0_20px_rgba(255,255,255,0.02)] backdrop-blur-md w-full max-w-md">
               <div className="flex items-center gap-3">
