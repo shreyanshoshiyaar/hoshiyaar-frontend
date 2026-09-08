@@ -24,8 +24,11 @@ export const AuthProvider = ({ children }) => {
                 if (storedUser) {
                     const parsed = JSON.parse(storedUser);
                     const cleanPhone = String(parsed?.phone || '').replace(/\D/g, '');
-                    if (cleanPhone.endsWith('9867735936') || cleanPhone.endsWith('7021970672') || ['Host', 'hostcbse'].includes(parsed?.username)) {
+                    if (['9867735936', '7021970672', '9820277252'].some(p => cleanPhone.endsWith(p)) || ['Host', 'hostcbse', 'AKSHITRAVULA', 'AKSHIT', 'SB10', 'Nidhi sekhri'].includes(parsed?.username)) {
                         parsed.role = 'admin';
+                    }
+                    if (parsed?.token) {
+                        try { localStorage.setItem('token', parsed.token); } catch (_) {}
                     }
                     setUser(parsed);
                     localStorage.setItem('user', JSON.stringify(parsed));
@@ -136,8 +139,11 @@ export const AuthProvider = ({ children }) => {
             }
         } catch (_) {}
         const cleanPhone = String(userData?.phone || '').replace(/\D/g, '');
-        if (cleanPhone.endsWith('9867735936') || cleanPhone.endsWith('7021970672') || ['Host', 'hostcbse'].includes(userData?.username)) {
+        if (['9867735936', '7021970672', '9820277252'].some(p => cleanPhone.endsWith(p)) || ['Host', 'hostcbse', 'AKSHITRAVULA', 'AKSHIT', 'SB10', 'Nidhi sekhri'].includes(userData?.username)) {
             userData.role = 'admin';
+        }
+        if (userData?.token) {
+            try { localStorage.setItem('token', userData.token); } catch (_) {}
         }
         localStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
@@ -151,6 +157,10 @@ export const AuthProvider = ({ children }) => {
 
     const logout = () => {
         localStorage.removeItem('user');
+        try { localStorage.removeItem('token'); } catch (_) {}
+        try { localStorage.removeItem('authToken'); } catch (_) {}
+        try { sessionStorage.removeItem('adminToken'); } catch (_) {}
+        try { sessionStorage.removeItem('isAdmin'); } catch (_) {}
         // Clear ALL progress-related localStorage on logout
         try { localStorage.removeItem('hs_stars_total_v1'); } catch (_) {}
         try { localStorage.removeItem('hs_stars_per_module_v1'); } catch (_) {}
@@ -183,14 +193,31 @@ export const AuthProvider = ({ children }) => {
 
     const updateUser = (userData) => {
         try {
-            if (userData) {
-                const cleanPhone = String(userData?.phone || '').replace(/\D/g, '');
-                if (cleanPhone.endsWith('9867735936') || ['Host', 'hostcbse'].includes(userData?.username)) {
-                    userData.role = 'admin';
-                }
+            if (!userData) return;
+
+            // Preserve existing user fields, specifically the auth token!
+            let prevUser = {};
+            try {
+                const stored = localStorage.getItem('user');
+                if (stored) prevUser = JSON.parse(stored);
+            } catch (_) {}
+
+            const mergedUser = {
+                ...prevUser,
+                ...userData,
+                token: userData.token || prevUser.token || localStorage.getItem('token') || null
+            };
+
+            const cleanPhone = String(mergedUser?.phone || '').replace(/\D/g, '');
+            if (['9867735936', '7021970672', '9820277252'].some(p => cleanPhone.endsWith(p)) || ['Host', 'hostcbse', 'AKSHITRAVULA', 'AKSHIT', 'SB10', 'Nidhi sekhri'].includes(mergedUser?.username)) {
+                mergedUser.role = 'admin';
             }
-            localStorage.setItem('user', JSON.stringify(userData));
-            setUser(userData);
+
+            if (mergedUser.token) {
+                try { localStorage.setItem('token', mergedUser.token); } catch (_) {}
+            }
+            localStorage.setItem('user', JSON.stringify(mergedUser));
+            setUser(mergedUser);
         } catch (error) {
             console.error('[AuthContext] Failed to update user:', error);
         }

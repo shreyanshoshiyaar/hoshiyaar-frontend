@@ -220,7 +220,7 @@ const updateBlog = (id, data, opts) => api.put(`/api/blogs/${id}`, data, opts);
 const deleteBlog = (id, opts) => api.delete(`/api/blogs/${id}`, opts);
 
 // Admin User Analytics
-const getUsersAnalytics = (opts) => api.get('/api/admin/users-analytics', opts);
+const getUsersAnalytics = (opts) => api.get('/api/admin/users-analytics', { timeout: 90000, ...(opts || {}) });
 const updateUserSchool = (id, school, opts) => api.put(`/api/admin/users/${id}/school`, { school }, opts);
 
 const claimWeeklyGoal = (userId, opts) => api.post(`/api/auth/user/${userId}/claim-weekly-goal`, {}, opts);

@@ -17,11 +17,10 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
   const [showRevisionPrompt, setShowRevisionPrompt] = useState(false);
   const [examLimits, setExamLimits] = useState(null);
   const [latestSession, setLatestSession] = useState(null);
-  const cleanPhone = (user?.phone || '').replace(/\D/g, '');
+  const cleanPhone = String(user?.phone || '').replace(/\D/g, '');
   const isAdmin = user?.role === 'admin' || 
-                  cleanPhone.endsWith('9867735936') || 
-                  cleanPhone.endsWith('7021970672') || 
-                  ['Host', 'hostcbse'].includes(user?.username) ||
+                  ['9867735936', '7021970672', '9820277252'].some(p => cleanPhone.endsWith(p)) || 
+                  ['Host', 'hostcbse', 'AKSHITRAVULA', 'AKSHIT', 'SB10', 'Nidhi sekhri'].includes(user?.username) ||
                   sessionStorage.getItem('isAdmin') === 'true';
 
   useEffect(() => {

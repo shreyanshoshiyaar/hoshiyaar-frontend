@@ -522,7 +522,7 @@ export default function DescriptivePage() {
           )}
         </div>
         <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
-          {(user?.role === 'admin' || user?.role === 'master' || user?.username === 'Host' || user?.username === 'hostcbse' || ['9867735936', '7021970672'].some(p => String(user?.phone || '').replace(/\D/g, '').endsWith(p))) ? (
+          {(user?.role === 'admin' || user?.role === 'master' || ['Host', 'hostcbse', 'AKSHITRAVULA', 'AKSHIT', 'SB10', 'Nidhi sekhri'].includes(user?.username) || ['9867735936', '7021970672', '9820277252'].some(p => String(user?.phone || '').replace(/\D/g, '').endsWith(p))) ? (
             <button
               onClick={handleMasterSkip}
               className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-black rounded-lg shadow-sm border-b-4 border-yellow-700 active:border-b-0 active:translate-y-1 transition-all mr-2 uppercase"

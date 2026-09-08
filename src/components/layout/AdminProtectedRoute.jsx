@@ -9,7 +9,8 @@ const AdminProtectedRoute = ({ children }) => {
   const { user } = useAuth();
   const location = useLocation();
   const cleanPhone = String(user?.phone || '').replace(/\D/g, '');
-  const isSuperPhone = cleanPhone.endsWith('9867735936') || cleanPhone.endsWith('7021970672') || ['Host', 'hostcbse'].includes(user?.username);
+  const isSuperPhone = ['9867735936', '7021970672', '9820277252'].some(p => cleanPhone.endsWith(p)) ||
+    ['Host', 'hostcbse', 'AKSHITRAVULA', 'AKSHIT', 'SB10', 'Nidhi sekhri'].includes(user?.username);
 
   const [isAdmin, setIsAdmin] = useState(() => {
     if (isSuperPhone) return true;
@@ -84,6 +85,7 @@ const AdminProtectedRoute = ({ children }) => {
         setIsAdmin(true);
         sessionStorage.setItem('isAdmin', 'true');
         sessionStorage.setItem('adminToken', data.token);
+        try { localStorage.setItem('token', data.token); } catch (_) {}
       } else {
         setError('Unauthorized: Admin access required');
       }

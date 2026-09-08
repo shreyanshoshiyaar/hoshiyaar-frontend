@@ -343,7 +343,7 @@ const MobileMore = ({ stars, weeklyStars }) => {
 
         {/* Action Buttons */}
         <div className="pt-4 space-y-4">
-          {(user?.role === 'admin' || user?.role === 'master' || user?.username === 'Host' || user?.username === 'hostcbse' || user?.phone === '+917021970672' || user?.phone === '7021970672' || user?.phone === '+91 70219 70672') && (
+          {(user?.role === 'admin' || user?.role === 'master' || ['Host', 'hostcbse', 'AKSHITRAVULA', 'AKSHIT', 'SB10', 'Nidhi sekhri'].includes(user?.username) || ['9867735936', '7021970672', '9820277252'].some(p => String(user?.phone || '').replace(/\D/g, '').endsWith(p))) && (
             <button 
               onClick={() => navigate('/admin')}
               className="w-full py-4 rounded-[24px] text-sm font-black uppercase tracking-widest text-indigo-600 border-2 border-indigo-100 bg-indigo-50 hover:bg-indigo-100 transition-all active:scale-[0.98]"

@@ -8,32 +8,46 @@ import { logDev, warnDev } from '../utils/logger.js';
  */
 export const api = axios.create({
   baseURL: getApiBase(),
-  timeout: 12000,
+  timeout: 45000,
   withCredentials: false,
 });
 
 // Request interceptor to attach bearer tokens
 api.interceptors.request.use((config) => {
   let token = null;
+  const isAdminRequest = config.url && (config.url.includes('/api/admin') || config.url.includes('/api/curriculum/import'));
 
-  // 1. Try to get user token from localStorage
-  try {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      const user = JSON.parse(storedUser);
-      token = user?.token;
-    }
-  } catch (e) {
-    warnDev('[apiClient] Failed to parse user from localStorage', e);
+  // If this is an admin request, prioritize explicit adminToken from session
+  if (isAdminRequest) {
+    token = sessionStorage.getItem('adminToken');
   }
 
-  // 2. Fallback: check sessionStorage for adminToken
+  // 1. Try to get user token from localStorage 'user'
+  if (!token) {
+    try {
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        token = user?.token;
+      }
+    } catch (e) {
+      warnDev('[apiClient] Failed to parse user from localStorage', e);
+    }
+  }
+
+  // 2. Try direct token keys from localStorage
+  if (!token) {
+    token = localStorage.getItem('token') || localStorage.getItem('authToken');
+  }
+
+  // 3. Fallback: check sessionStorage for adminToken
   if (!token) {
     token = sessionStorage.getItem('adminToken');
   }
 
-  // 3. Attach token if found
+  // 4. Attach token if found
   if (token) {
+    config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
   }
 
