@@ -81,6 +81,14 @@ export const setupPushNotifications = async (userId, requestPermission = true) =
     window.hyTrack?.('notification_opened', { 
       notification_id: action.notification.data?.id || action.notification.id || 'unknown' 
     });
+
+    const targetUrl = action.notification.data?.url || action.notification.data?.targetUrl;
+    if (targetUrl) {
+      console.log('Navigating to notification target URL:', targetUrl);
+      if (window.location.pathname + window.location.search !== targetUrl) {
+        window.location.href = targetUrl;
+      }
+    }
   });
 
   // Register with Apple / Google to receive push via APNS/FCM
