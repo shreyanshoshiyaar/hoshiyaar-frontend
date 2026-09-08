@@ -280,6 +280,7 @@ const ExamFlow = () => {
                  id: i.id,
                  type: i.type,
                  question: i.text || i.question || i.content?.text || '',
+                 image: i.image || i.content?.image || null,
                  expectedAnswer: i.expected || i.expectedAnswer || i.content?.expected || '',
                  userAnswer: '',
                  score: i.type === 'mcq' ? 100 : 50,
@@ -295,6 +296,7 @@ const ExamFlow = () => {
                   index: i,
                   content: {
                       text: q.question,
+                      image: q.image || null,
                       expected: q.expectedAnswer,
                       options: q.options || []
                   },
@@ -338,7 +340,7 @@ const ExamFlow = () => {
               // Ensure consistent shape: 'content' holds the payload
               let contentPayload = item;
               if (item.type === 'descriptive_question' || item.type === 'mcq') {
-                  contentPayload = { text: item.text, expected: item.expected, options: item.options };
+                  contentPayload = { text: item.text, expected: item.expected, options: item.options, image: item.image };
               } else if (item.type === 'revision_card') {
                   contentPayload = item.content;
               }
@@ -517,6 +519,7 @@ const ExamFlow = () => {
                      id: i.id,
                      type: i.type,
                      question: i.content?.text || i.text || '',
+                     image: i.content?.image || i.image || null,
                      userAnswer: answers[i.id] || '',
                      expectedAnswer: i.content?.expected || i.expected || '',
                      right: fb.right || null,
@@ -732,7 +735,16 @@ const ExamFlow = () => {
               
               {currentItem.type === 'descriptive_question' && (
                  <>
-                    <div className="bg-white rounded-2xl p-3 sm:p-4 shadow-xl relative shrink-0 flex items-center justify-center">
+                    <div className="bg-white rounded-2xl p-3 sm:p-4 shadow-xl relative shrink-0 flex flex-col items-center justify-center gap-2">
+                      {currentItem.content?.image && (
+                        <div className="max-h-44 sm:max-h-52 w-full flex items-center justify-center overflow-hidden rounded-lg bg-slate-50 p-1">
+                          <img 
+                            src={currentItem.content.image} 
+                            alt="Question diagram" 
+                            className="max-h-40 sm:max-h-48 w-auto object-contain rounded"
+                          />
+                        </div>
+                      )}
                       <h2 className="text-sm sm:text-base font-medium text-slate-800 leading-snug text-center">
                         {currentItem.content.text}
                       </h2>
@@ -753,7 +765,16 @@ const ExamFlow = () => {
               
               {currentItem.type === 'mcq' && (
                  <>
-                    <div className="bg-white rounded-2xl p-3 sm:p-4 shadow-xl relative shrink-0 flex items-center justify-center mb-4">
+                    <div className="bg-white rounded-2xl p-3 sm:p-4 shadow-xl relative shrink-0 flex flex-col items-center justify-center mb-4 gap-2">
+                      {currentItem.content?.image && (
+                        <div className="max-h-44 sm:max-h-52 w-full flex items-center justify-center overflow-hidden rounded-lg bg-slate-50 p-1">
+                          <img 
+                            src={currentItem.content.image} 
+                            alt="Question diagram" 
+                            className="max-h-40 sm:max-h-48 w-auto object-contain rounded"
+                          />
+                        </div>
+                      )}
                       <h2 className="text-sm sm:text-base font-medium text-slate-800 leading-snug text-center">
                         {currentItem.content.text}
                       </h2>
@@ -997,8 +1018,17 @@ const ExamFlow = () => {
             </div>
 
             <div className="flex-1 px-3 sm:px-4 py-3 sm:py-4 flex flex-col items-center justify-start min-h-0 max-w-5xl mx-auto w-full overflow-y-auto overflow-x-hidden">
-                <div className="w-full bg-white rounded-2xl p-3 sm:p-4 shadow-xl mb-3 text-slate-800 font-medium text-center text-xs sm:text-sm">
-                    {item.content?.text || item.content?.question || item.text || item.question}
+                <div className="w-full bg-white rounded-2xl p-3 sm:p-4 shadow-xl mb-3 text-slate-800 font-medium text-center text-xs sm:text-sm flex flex-col items-center justify-center gap-2">
+                    {(item.content?.image || item.image) && (
+                      <div className="max-h-40 sm:max-h-48 w-full flex items-center justify-center overflow-hidden rounded-lg bg-slate-50 p-1">
+                        <img 
+                          src={item.content?.image || item.image} 
+                          alt="Question diagram" 
+                          className="max-h-36 sm:max-h-44 w-auto object-contain rounded"
+                        />
+                      </div>
+                    )}
+                    <span>{item.content?.text || item.content?.question || item.text || item.question}</span>
                 </div>
                 
                 <div className="w-full bg-[#EAF3FF] rounded-2xl p-3 sm:p-4 shadow-xl mb-4 text-[#5A7A9C] font-medium min-h-[70px] text-xs sm:text-sm">
