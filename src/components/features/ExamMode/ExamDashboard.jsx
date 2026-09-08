@@ -20,6 +20,8 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
   const [availableChapters, setAvailableChapters] = useState([]);
   const [subjectExamChapters, setSubjectExamChapters] = useState([]);
   const [examChaptersLoaded, setExamChaptersLoaded] = useState(false);
+  const [chaptersLoading, setChaptersLoading] = useState(false);
+  const [chaptersLoadError, setChaptersLoadError] = useState(false);
   const [showChapterModal, setShowChapterModal] = useState(false);
   const cleanPhone = String(user?.phone || '').replace(/\D/g, '');
   const isAdmin = user?.role === 'admin' || 
@@ -27,33 +29,45 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
                   ['Host', 'hostcbse', 'AKSHITRAVULA', 'AKSHIT', 'SB10', 'Nidhi sekhri'].includes(user?.username) ||
                   sessionStorage.getItem('isAdmin') === 'true';
 
-  useEffect(() => {
-    let isMounted = true;
-    const fetchAvailableExamChapters = async () => {
-      try {
-        const res = await curriculumService.getExamAvailableChapters({ bypassCache: true });
-        if (!isMounted) return;
-        if (res?.data?.success) {
-          const validIds = new Set((res.data.chapterIds || []).map(id => String(id)));
-          const allExamChapters = res.data.chapters || [];
+  const fetchAvailableExamChapters = async () => {
+    setChaptersLoading(true);
+    setChaptersLoadError(false);
+    try {
+      const res = await curriculumService.getExamAvailableChapters({ bypassCache: true });
+      const payload = res?.data?.success ? res.data : (res?.data || res);
+      let allExamChapters = payload?.chapters || [];
+      let validIds = new Set((payload?.chapterIds || allExamChapters.map(c => String(c._id))).map(String));
 
-          // Chapters matching current subject that have exams
-          const subjectMatches = (chaptersList || []).filter(ch => validIds.has(String(ch._id)));
-
-          setSubjectExamChapters(subjectMatches);
-          // Set availableChapters to all exam chapters so switching to any available exam is possible
-          setAvailableChapters(allExamChapters.length > 0 ? allExamChapters : subjectMatches);
-        }
-      } catch (err) {
-        console.error('Failed to fetch available exam chapters:', err);
-      } finally {
-        if (isMounted) setExamChaptersLoaded(true);
+      // If current chapter has exam config but backend list didn't include it yet, add it
+      if (chapterId && examConfig && !validIds.has(String(chapterId))) {
+        allExamChapters = [{ _id: chapterId, title: chapterTitle, subjectId: { name: subjectName } }, ...allExamChapters];
+        validIds.add(String(chapterId));
       }
-    };
 
+      // If backend returned nothing or failed to populate, fallback to current chapter
+      if (allExamChapters.length === 0 && chapterId && examConfig) {
+        allExamChapters = [{ _id: chapterId, title: chapterTitle, subjectId: { name: subjectName } }];
+        validIds.add(String(chapterId));
+      }
+
+      const subjectMatches = (chaptersList || []).filter(ch => validIds.has(String(ch._id)));
+      setSubjectExamChapters(subjectMatches);
+      setAvailableChapters(allExamChapters.length > 0 ? allExamChapters : (subjectMatches.length > 0 ? subjectMatches : (chapterId ? [{ _id: chapterId, title: chapterTitle, subjectId: { name: subjectName } }] : [])));
+    } catch (err) {
+      console.error('Failed to fetch available exam chapters:', err);
+      setChaptersLoadError(true);
+      if (chapterId && examConfig) {
+        setAvailableChapters([{ _id: chapterId, title: chapterTitle, subjectId: { name: subjectName } }]);
+      }
+    } finally {
+      setChaptersLoading(false);
+      setExamChaptersLoaded(true);
+    }
+  };
+
+  useEffect(() => {
     fetchAvailableExamChapters();
-    return () => { isMounted = false; };
-  }, [chaptersList]);
+  }, [chaptersList, chapterId, examConfig]);
 
   useEffect(() => {
     const fetchExamConfigAndScore = async () => {
@@ -235,29 +249,32 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
   const displaySubjectName = currentChapterObj?.subjectId?.name || subjectName;
 
   return (
-    <div className="relative min-h-screen w-full flex flex-col items-center py-12 px-4 md:px-8 overflow-hidden bg-gradient-to-b from-[#0F204C] to-[#1A3673]">
+    <div className="relative min-h-[calc(100vh-4rem)] md:min-h-screen w-full flex flex-col items-center justify-start py-5 px-3 sm:px-6 overflow-hidden bg-gradient-to-b from-[#0F204C] to-[#1A3673]">
       <ParticleBackground />
       
-      <div className="w-full max-w-4xl relative z-10">
+      <div className="w-full max-w-2xl relative z-10 flex flex-col items-center">
         {/* Header Card */}
-        <div className="bg-white/10 backdrop-blur-xl border border-white/20 text-white rounded-[1.5rem] p-5 md:p-6 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] w-full relative overflow-hidden mb-6 transition-transform hover:scale-[1.01] duration-500">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-400/20 rounded-full -mr-20 -mt-20 blur-3xl mix-blend-screen"></div>
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/20 rounded-full -ml-10 -mb-10 blur-3xl mix-blend-screen"></div>
+        <div className="bg-white/10 backdrop-blur-xl border border-white/20 text-white rounded-2xl p-3.5 sm:p-4 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] w-full relative overflow-hidden mb-3 transition-transform hover:scale-[1.005] duration-300">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-cyan-400/20 rounded-full -mr-16 -mt-16 blur-3xl mix-blend-screen pointer-events-none"></div>
+          <div className="absolute bottom-0 left-0 w-36 h-36 bg-purple-500/20 rounded-full -ml-8 -mb-8 blur-3xl mix-blend-screen pointer-events-none"></div>
           
           <div className="relative z-10 text-center flex flex-col items-center justify-center">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-purple-400 drop-shadow-sm mb-2">
+            <h2 className="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-purple-400 drop-shadow-sm mb-0.5 tracking-wide">
               Exam Mode
             </h2>
-            <div className="flex flex-col items-center justify-center gap-2 mt-2 w-full max-w-lg mx-auto">
-              <p className="text-white font-extrabold text-lg sm:text-xl tracking-wide text-center">
+            <div className="flex flex-col items-center justify-center gap-1.5 mt-1 w-full max-w-lg mx-auto">
+              <p className="text-white font-extrabold text-sm sm:text-base tracking-wide text-center leading-snug">
                 {chapterTitle || 'Loading...'}
               </p>
               {onChangeChapter && (
                 <button
-                  onClick={() => setShowChapterModal(true)}
-                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/50 hover:border-cyan-300 text-cyan-200 hover:text-white text-xs sm:text-sm font-black tracking-wider uppercase transition-all shadow-md active:scale-95 cursor-pointer"
+                  onClick={() => {
+                    setShowChapterModal(true);
+                    if (availableChapters.length === 0) fetchAvailableExamChapters();
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/50 hover:border-cyan-300 text-cyan-200 hover:text-white text-xs font-black tracking-wider uppercase transition-all shadow-sm active:scale-95 cursor-pointer"
                 >
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                   </svg>
                   <span>Change Chapter</span>
@@ -265,31 +282,31 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
                 </button>
               )}
             </div>
-            <p className="text-cyan-200/80 text-xs mt-2 uppercase tracking-widest">{displaySubjectName}</p>
+            <p className="text-cyan-200/80 text-[10px] sm:text-xs mt-1 uppercase tracking-widest font-semibold">{displaySubjectName}</p>
           </div>
         </div>
 
         {loading || !examChaptersLoaded ? (
-          <div className="flex justify-center my-8 bg-black/20 p-6 rounded-[1.5rem] backdrop-blur-md border border-white/10">
-            <div className="flex flex-col items-center p-8">
-              <div className="w-12 h-12 border-4 border-cyan-400/30 border-t-cyan-400 rounded-full animate-spin mb-4"></div>
-              <p className="text-cyan-200/80 tracking-wide font-medium animate-pulse">Loading exam configuration...</p>
+          <div className="flex justify-center my-4 bg-black/20 p-5 rounded-2xl backdrop-blur-md border border-white/10 w-full">
+            <div className="flex flex-col items-center p-4">
+              <div className="w-8 h-8 border-3 border-cyan-400/30 border-t-cyan-400 rounded-full animate-spin mb-3"></div>
+              <p className="text-cyan-200/80 text-xs tracking-wide font-medium animate-pulse">Loading exam configuration...</p>
             </div>
           </div>
         ) : examConfig && ((examConfig.questions && examConfig.questions.length > 0) || (examConfig.flowItems && examConfig.flowItems.length > 0)) ? (
-          <div className="bg-black/30 backdrop-blur-xl rounded-[1.5rem] p-6 sm:p-8 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] border border-white/10 w-full max-w-3xl mx-auto text-center flex flex-col items-center transform transition-all hover:-translate-y-1 duration-300 relative">
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mb-4 mt-2 bg-gradient-to-r from-white/5 to-white/10 border border-white/10 rounded-2xl px-6 py-4 shadow-[inset_0_0_20px_rgba(255,255,255,0.02)] backdrop-blur-md w-full max-w-md">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-400/20 text-amber-300 flex items-center justify-center text-xl font-bold">
+          <div className="bg-black/30 backdrop-blur-xl rounded-2xl p-4 sm:p-5 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] border border-white/10 w-full text-center flex flex-col items-center relative">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-3 bg-gradient-to-r from-white/5 to-white/10 border border-white/10 rounded-xl px-4 py-2.5 shadow-[inset_0_0_20px_rgba(255,255,255,0.02)] backdrop-blur-md w-full max-w-sm">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-amber-400/20 text-amber-300 flex items-center justify-center text-base font-bold">
                   📝
                 </div>
-                <div className="flex flex-col items-start border-l-2 border-white/10 pl-3">
-                   <span className="text-[10px] text-cyan-300/80 uppercase tracking-[0.2em] font-bold mb-1 leading-none">Last Score</span>
+                <div className="flex flex-col items-start border-l-2 border-white/10 pl-2.5">
+                   <span className="text-[9px] text-cyan-300/80 uppercase tracking-[0.15em] font-bold mb-0.5 leading-none">Last Score</span>
                    <div className="flex items-baseline gap-1">
-                     <span className="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-br from-yellow-300 to-orange-500 drop-shadow-sm leading-none">
+                     <span className="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-yellow-300 to-orange-500 drop-shadow-sm leading-none">
                         {latestScore !== null ? latestScore : '--'}
                      </span>
-                     {latestScore !== null && <span className="text-xs font-bold text-white/30 tracking-widest">/100</span>}
+                     {latestScore !== null && <span className="text-[10px] font-bold text-white/30 tracking-widest">/100</span>}
                    </div>
                 </div>
               </div>
@@ -297,12 +314,12 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
 
             {/* Live Attempts Left Pill */}
             {examLimits && (
-              <div className={`flex items-center justify-center gap-2 px-4 py-1.5 rounded-full mb-3 text-xs font-black tracking-wide border shadow-sm ${
+              <div className={`flex items-center justify-center gap-1.5 px-3 py-1 rounded-full mb-2.5 text-[11px] font-black tracking-wide border shadow-sm ${
                 examLimits.exhausted 
                   ? 'bg-rose-500/20 text-rose-200 border-rose-500/40' 
                   : 'bg-cyan-500/20 text-cyan-200 border-cyan-400/30'
               }`}>
-                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <circle cx="12" cy="12" r="10" />
                   <polyline points="12 6 12 12 16 14" />
                 </svg>
@@ -310,27 +327,27 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
               </div>
             )}
 
-            <h3 className="text-xl sm:text-2xl font-black text-white mb-2 tracking-wide">Ready to test your knowledge?</h3>
-            <p className="text-gray-300 mb-4 max-w-lg text-xs sm:text-sm leading-relaxed px-2">
+            <h3 className="text-base sm:text-lg font-extrabold text-white mb-1 tracking-wide">Ready to test your knowledge?</h3>
+            <p className="text-gray-300 mb-3 max-w-md text-xs leading-relaxed px-2">
               This exam evaluates your descriptive and MCQ answers with strict AI scoring and concept feedback.
             </p>
 
             {/* Limit Exhaustion Alert Banner */}
             {examLimits?.exhausted && (
-              <div className="w-full max-w-md p-4 rounded-2xl bg-rose-950/60 border border-rose-500/40 text-rose-200 text-xs sm:text-sm font-semibold mb-6 flex items-start gap-3 text-left animate-in fade-in">
-                <svg className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="w-full max-w-md p-3 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-200 text-xs font-semibold mb-3 flex items-start gap-2.5 text-left animate-in fade-in">
+                <svg className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
                 <div>
                   <p className="font-extrabold text-white mb-0.5">Attempt Limit Reached</p>
-                  <p className="text-xs text-rose-200/90 leading-relaxed">
+                  <p className="text-[11px] text-rose-200/90 leading-relaxed">
                     {examLimits.exhaustedMessage || 'You have reached your weekly limit for Exam Mode. Your attempts will reset on Monday!'}
                   </p>
                 </div>
               </div>
             )}
             
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 w-full max-w-xl mx-auto mt-2">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 w-full max-w-lg mx-auto mt-1">
               <button
                 onClick={() => {
                   if (examLimits?.exhausted) return;
@@ -347,13 +364,13 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
                   });
                 }}
                 disabled={examLimits?.exhausted}
-                className={`group relative flex-1 w-full min-h-[52px] overflow-hidden text-xs sm:text-sm font-black uppercase tracking-wider px-6 rounded-2xl transition-all duration-300 transform flex items-center justify-center gap-2.5 ${
+                className={`group relative flex-1 w-full min-h-[44px] overflow-hidden text-xs font-black uppercase tracking-wider px-5 py-2.5 rounded-xl transition-all duration-300 transform flex items-center justify-center gap-2 ${
                   examLimits?.exhausted
                     ? 'bg-gray-700/60 text-gray-400 border border-gray-600 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 text-white shadow-[0_4px_20px_rgba(6,182,212,0.35)] hover:shadow-[0_4px_25px_rgba(6,182,212,0.55)] active:scale-95 cursor-pointer border border-cyan-400/30'
+                    : 'bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 text-white shadow-[0_4px_16px_rgba(6,182,212,0.35)] hover:shadow-[0_4px_20px_rgba(6,182,212,0.55)] active:scale-95 cursor-pointer border border-cyan-400/30'
                 }`}
               >
-                <svg className="w-4 h-4 text-cyan-200 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-3.5 h-3.5 text-cyan-200 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -398,9 +415,9 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
                       }
                     });
                   }}
-                  className="flex-1 w-full min-h-[52px] px-6 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-700 hover:from-purple-500 hover:to-indigo-600 text-white border border-purple-400/40 shadow-[0_4px_20px_rgba(147,51,234,0.35)] hover:shadow-[0_4px_25px_rgba(147,51,234,0.55)] transition-all flex items-center justify-center gap-2.5 cursor-pointer active:scale-95 whitespace-nowrap"
+                  className="flex-1 w-full min-h-[44px] px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-700 hover:from-purple-500 hover:to-indigo-600 text-white border border-purple-400/40 shadow-[0_4px_16px_rgba(147,51,234,0.35)] hover:shadow-[0_4px_20px_rgba(147,51,234,0.55)] transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 whitespace-nowrap"
                 >
-                  <svg className="w-4 h-4 text-purple-200 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-3.5 h-3.5 text-purple-200 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                   </svg>
@@ -409,36 +426,39 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
               )}
             </div>
 
-            {/* Change Chapter Secondary Button */}
+            {/* Change Chapter Secondary Link */}
             {onChangeChapter && (
-              <div className="w-full flex justify-center mt-4 pt-3 border-t border-white/5">
+              <div className="w-full flex justify-center mt-3 pt-2.5 border-t border-white/5">
                 <button
-                  onClick={() => setShowChapterModal(true)}
-                  className="text-xs sm:text-sm font-bold text-cyan-300 hover:text-cyan-200 flex items-center gap-2 py-2 px-4 rounded-xl bg-white/5 hover:bg-white/10 border border-cyan-400/30 hover:border-cyan-400 transition-all cursor-pointer"
+                  onClick={() => {
+                    setShowChapterModal(true);
+                    if (availableChapters.length === 0) fetchAvailableExamChapters();
+                  }}
+                  className="text-xs font-bold text-cyan-300 hover:text-cyan-200 flex items-center gap-1.5 py-1 px-3 rounded-lg bg-white/5 hover:bg-white/10 border border-cyan-400/20 hover:border-cyan-400/50 transition-all cursor-pointer"
                 >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                   </svg>
                   <span>Change Chapter</span>
                   {availableChapters.length > 0 && (
-                    <span className="text-[10px] text-gray-300 opacity-80">({availableChapters.length} with exams)</span>
+                    <span className="text-[10px] text-gray-300 opacity-80">({availableChapters.length} available)</span>
                   )}
                 </button>
               </div>
             )}
           </div>
         ) : (
-          <div className="bg-black/20 backdrop-blur-xl rounded-[2rem] p-8 sm:p-10 shadow-[0_8px_32px_0_rgba(0,0,0,0.2)] border border-white/10 w-full max-w-2xl mx-auto text-center flex flex-col items-center">
-            <div className="text-5xl sm:text-6xl mb-4 opacity-70 filter grayscale">⏳</div>
-            <h3 className="text-2xl sm:text-3xl font-bold text-gray-200 mb-2 tracking-wide">No Exam Available</h3>
-            <p className="text-gray-400 text-sm sm:text-base mb-6 max-w-md">
+          <div className="bg-black/20 backdrop-blur-xl rounded-2xl p-6 sm:p-8 shadow-[0_8px_32px_0_rgba(0,0,0,0.2)] border border-white/10 w-full text-center flex flex-col items-center">
+            <div className="text-4xl sm:text-5xl mb-3 opacity-70 filter grayscale">⏳</div>
+            <h3 className="text-lg sm:text-xl font-bold text-gray-200 mb-1.5 tracking-wide">No Exam Available</h3>
+            <p className="text-gray-400 text-xs sm:text-sm mb-4 max-w-md">
               An exam has not been configured for this chapter yet. <br/>
               {availableChapters.length > 0 ? "Select an available chapter below to access its exam:" : "Please check back later."}
             </p>
 
             {availableChapters.length > 0 && onChangeChapter && (
-              <div className="w-full max-w-md flex flex-col items-center bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-md shadow-xl">
-                <label className="text-xs uppercase tracking-widest text-cyan-300 font-bold mb-2.5 flex items-center gap-1.5">
+              <div className="w-full max-w-md flex flex-col items-center bg-white/5 border border-white/10 p-4 rounded-xl backdrop-blur-md shadow-xl">
+                <label className="text-[11px] uppercase tracking-widest text-cyan-300 font-bold mb-2 flex items-center gap-1.5">
                   <span>Available Chapters with Exams</span>
                 </label>
                 <div className="relative w-full">
@@ -450,7 +470,7 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
                         onChangeChapter(sel._id, sel.title);
                       }
                     }}
-                    className="w-full appearance-none bg-gradient-to-r from-blue-600/40 via-indigo-600/40 to-cyan-600/40 hover:from-blue-600/60 hover:to-cyan-600/60 border border-cyan-400/50 hover:border-cyan-300 text-white font-bold text-sm sm:text-base py-3 pl-4 pr-10 rounded-xl cursor-pointer shadow-lg outline-none transition-all text-center"
+                    className="w-full appearance-none bg-gradient-to-r from-blue-600/40 via-indigo-600/40 to-cyan-600/40 hover:from-blue-600/60 hover:to-cyan-600/60 border border-cyan-400/50 hover:border-cyan-300 text-white font-bold text-xs sm:text-sm py-2.5 pl-3 pr-8 rounded-lg cursor-pointer shadow-lg outline-none transition-all text-center"
                   >
                     <option value="" disabled className="text-black bg-white">
                       Select a chapter with exam...
@@ -480,14 +500,17 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
                       ))
                     )}
                   </select>
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-cyan-300 text-sm">
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-cyan-300 text-xs">
                     ▼
                   </div>
                 </div>
 
                 <button
-                  onClick={() => setShowChapterModal(true)}
-                  className="mt-3 text-xs text-cyan-300 hover:text-cyan-200 underline font-semibold"
+                  onClick={() => {
+                    setShowChapterModal(true);
+                    if (availableChapters.length === 0) fetchAvailableExamChapters();
+                  }}
+                  className="mt-2.5 text-xs text-cyan-300 hover:text-cyan-200 underline font-semibold"
                 >
                   Or browse all available exams in a list
                 </button>
@@ -499,31 +522,52 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
 
       {/* Chapter Selection Modal */}
       {showChapterModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-          <div className="bg-gradient-to-b from-[#1A2C5B] to-[#0F204C] border border-cyan-400/30 rounded-3xl p-6 w-full max-w-lg shadow-2xl relative text-white flex flex-col max-h-[85vh]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+          <div className="bg-gradient-to-b from-[#1A2C5B] to-[#0F204C] border border-cyan-400/30 rounded-2xl p-4 sm:p-5 w-full max-w-md shadow-2xl relative text-white flex flex-col max-h-[82vh]">
             {/* Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-3">
               <div>
-                <h3 className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-purple-400">
+                <h3 className="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-purple-400">
                   Select Exam Chapter
                 </h3>
-                <p className="text-xs text-cyan-200/70 mt-0.5">
+                <p className="text-[11px] text-cyan-200/70 mt-0.5">
                   Only chapters with active exams are available
                 </p>
               </div>
               <button
                 onClick={() => setShowChapterModal(false)}
-                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white flex items-center justify-center text-lg font-bold transition-all cursor-pointer"
+                className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white flex items-center justify-center text-sm font-bold transition-all cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
             {/* Chapters List */}
-            <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-              {availableChapters.length === 0 ? (
-                <div className="text-center py-8 text-gray-400">
-                  <p className="text-sm">Loading available exam chapters...</p>
+            <div className="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+              {chaptersLoading ? (
+                <div className="flex flex-col items-center justify-center py-8 text-cyan-200/80 gap-2">
+                  <div className="w-6 h-6 border-2 border-cyan-400/30 border-t-cyan-400 rounded-full animate-spin"></div>
+                  <p className="text-xs font-medium animate-pulse">Loading available exam chapters...</p>
+                </div>
+              ) : chaptersLoadError && availableChapters.length === 0 ? (
+                <div className="text-center py-6 text-rose-300 space-y-2">
+                  <p className="text-xs">Failed to load exam chapters.</p>
+                  <button
+                    onClick={fetchAvailableExamChapters}
+                    className="px-3 py-1 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-200 text-xs font-bold rounded-lg border border-cyan-400/30 transition-all"
+                  >
+                    🔄 Retry
+                  </button>
+                </div>
+              ) : availableChapters.length === 0 ? (
+                <div className="text-center py-6 text-gray-400">
+                  <p className="text-xs">No exam chapters found.</p>
+                  <button
+                    onClick={fetchAvailableExamChapters}
+                    className="mt-2 px-3 py-1 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-lg transition-all"
+                  >
+                    🔄 Refresh
+                  </button>
                 </div>
               ) : (
                 availableChapters.map(ch => {
@@ -535,26 +579,26 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
                         if (onChangeChapter) onChangeChapter(ch._id, ch.title);
                         setShowChapterModal(false);
                       }}
-                      className={`w-full text-left p-4 rounded-2xl border transition-all duration-200 flex items-center justify-between gap-3 cursor-pointer ${
+                      className={`w-full text-left p-3 rounded-xl border transition-all duration-200 flex items-center justify-between gap-2.5 cursor-pointer ${
                         isSelected
-                          ? 'bg-gradient-to-r from-cyan-500/25 to-blue-600/25 border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.25)]'
+                          ? 'bg-gradient-to-r from-cyan-500/25 to-blue-600/25 border-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.25)]'
                           : 'bg-white/5 hover:bg-white/10 border-white/10 hover:border-cyan-400/40'
                       }`}
                     >
                       <div className="flex-1 min-w-0">
-                        <p className={`font-bold text-sm sm:text-base leading-snug ${isSelected ? 'text-cyan-200' : 'text-white'}`}>
+                        <p className={`font-bold text-xs sm:text-sm leading-snug truncate ${isSelected ? 'text-cyan-200' : 'text-white'}`}>
                           {ch.title}
                         </p>
-                        <p className="text-xs text-gray-400 mt-1 uppercase tracking-wider font-semibold">
+                        <p className="text-[10px] text-gray-400 mt-0.5 uppercase tracking-wider font-semibold">
                           {ch.subjectId?.name || subjectName} {ch.subjectId?.classId?.name ? `• Class ${ch.subjectId.classId.name}` : ''}
                         </p>
                       </div>
-                      <div className="shrink-0 flex items-center gap-2">
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-black tracking-wider uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                          Exam Ready
+                      <div className="shrink-0 flex items-center gap-1.5">
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-black tracking-wider uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                          Ready
                         </span>
                         {isSelected && (
-                          <span className="w-6 h-6 rounded-full bg-cyan-400 text-slate-900 flex items-center justify-center text-xs font-black">
+                          <span className="w-5 h-5 rounded-full bg-cyan-400 text-slate-900 flex items-center justify-center text-[10px] font-black">
                             ✓
                           </span>
                         )}
@@ -566,10 +610,10 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
             </div>
 
             {/* Footer */}
-            <div className="pt-4 mt-4 border-t border-white/10 text-center">
+            <div className="pt-3 mt-3 border-t border-white/10 text-center">
               <button
                 onClick={() => setShowChapterModal(false)}
-                className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
+                className="w-full py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
               >
                 Close
               </button>
