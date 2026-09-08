@@ -264,11 +264,12 @@ const UserAnalytics = () => {
     fetchAnalyticsData();
   }, []);
 
-  const fetchAnalyticsData = async () => {
+  const fetchAnalyticsData = async (forceRefresh = false) => {
     try {
       setLoading(true);
       setError('');
-      const response = await authService.getUsersAnalytics();
+      const params = forceRefresh ? { refresh: 'true' } : {};
+      const response = await authService.getUsersAnalytics({ params });
       if (response.data && response.data.success) {
         setStats(response.data.stats || {});
         setChartsData(response.data.chartsData || {});
@@ -277,8 +278,14 @@ const UserAnalytics = () => {
         setError('Failed to load tracking data');
       }
     } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.message || 'Server connection error');
+      console.error('[UserAnalytics] fetch error:', err);
+      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        setError('Connection timed out while loading user metrics. Please retry.');
+      } else if (err.response?.status === 401 || err.response?.status === 403) {
+        setError(err.response?.data?.message || 'Unauthorized: Please verify you are logged in with an admin account.');
+      } else {
+        setError(err.response?.data?.message || err.message || 'Server connection error. Please verify backend connectivity.');
+      }
     } finally {
       setLoading(false);
     }

@@ -1,14 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import curriculumService from '../../services/curriculumService';
-import axios from 'axios';
-import { getApiBase } from '../../utils/apiBase.js';
-
-const API = getApiBase();
-const http = axios.create({
-  baseURL: API,
-  timeout: 42000,
-  withCredentials: false,
-});
+import http from '../../services/apiClient.js';
 
 const ContentEditor = ({
   moduleId,
