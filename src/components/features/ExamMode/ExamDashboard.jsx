@@ -425,27 +425,6 @@ const ExamDashboard = ({ chapterId, chapterTitle, subjectName, chaptersList = []
                 </button>
               )}
             </div>
-
-            {/* Change Chapter Secondary Link */}
-            {onChangeChapter && (
-              <div className="w-full flex justify-center mt-3 pt-2.5 border-t border-white/5">
-                <button
-                  onClick={() => {
-                    setShowChapterModal(true);
-                    if (availableChapters.length === 0) fetchAvailableExamChapters();
-                  }}
-                  className="text-xs font-bold text-cyan-300 hover:text-cyan-200 flex items-center gap-1.5 py-1 px-3 rounded-lg bg-white/5 hover:bg-white/10 border border-cyan-400/20 hover:border-cyan-400/50 transition-all cursor-pointer"
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                  </svg>
-                  <span>Change Chapter</span>
-                  {availableChapters.length > 0 && (
-                    <span className="text-[10px] text-gray-300 opacity-80">({availableChapters.length} available)</span>
-                  )}
-                </button>
-              </div>
-            )}
           </div>
         ) : (
           <div className="bg-black/20 backdrop-blur-xl rounded-2xl p-6 sm:p-8 shadow-[0_8px_32px_0_rgba(0,0,0,0.2)] border border-white/10 w-full text-center flex flex-col items-center">
