@@ -50,6 +50,10 @@ const curriculumService = {
       params: { board, subject, ...extraParams, ...(passedOpts.params || {}) }
     });
   },
+  getExamAvailableChapters(opts) {
+    const passedOpts = passOpts(opts);
+    return cachedGet(`/api/curriculum/exam-chapters`, passedOpts);
+  },
   toggleChapterPublishStatus(id, isPublished) {
     // This mutates data on the server, no cache
     return api.patch(`/api/curriculum/chapters/${id}/publish`, { isPublished });
