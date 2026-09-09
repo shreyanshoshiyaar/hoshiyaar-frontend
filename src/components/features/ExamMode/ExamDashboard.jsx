@@ -25,16 +25,7 @@ const ExamDashboard = ({
   const [showRevisionPrompt, setShowRevisionPrompt] = useState(false);
   const [examLimits, setExamLimits] = useState(null);
   const [latestSession, setLatestSession] = useState(null);
-  const [availableChapters, setAvailableChapters] = useState(() => {
-    try {
-      const cached = sessionStorage.getItem('hoshiyaar_exam_chapters');
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      }
-    } catch (e) {}
-    return [];
-  });
+  const [availableChapters, setAvailableChapters] = useState([]);
   const [subjectExamChapters, setSubjectExamChapters] = useState([]);
   const [examChaptersLoaded, setExamChaptersLoaded] = useState(false);
   const [chaptersLoading, setChaptersLoading] = useState(false);
@@ -56,7 +47,7 @@ const ExamDashboard = ({
       // 1. First try direct native fetch to avoid header/preflight interceptor issues
       try {
         const apiBase = getApiBase();
-        const directResp = await fetch(`${apiBase}/api/curriculum/exam-chapters`, {
+        const directResp = await fetch(`${apiBase}/api/curriculum/exam-chapters?_t=${Date.now()}`, {
           method: 'GET',
           cache: 'no-store'
         });
@@ -89,83 +80,11 @@ const ExamDashboard = ({
         allExamChapters = payload.chapters;
       }
 
-      let validIds = new Set((payload?.chapterIds || allExamChapters.map(c => String(c._id))).map(String));
-
-      // If current chapter has exam config but backend list didn't include it yet, add it
-      if (chapterId && examConfig && !validIds.has(String(chapterId))) {
-        allExamChapters = [{ _id: chapterId, title: chapterTitle, subjectId: { name: subjectName, classId: { name: activeClass || '7' } } }, ...allExamChapters];
-        validIds.add(String(chapterId));
-      }
-
-      // Known Class 7 Chapter with exam fallback
-      const knownClass7ExamId = '6a203270482593fcbdf0cc58';
-      if (!validIds.has(knownClass7ExamId)) {
-        const matchFromList = (chaptersList || []).find(c => String(c._id) === knownClass7ExamId);
-        if (matchFromList || (chapterId && String(chapterId) === knownClass7ExamId)) {
-          allExamChapters.push({
-            _id: knownClass7ExamId,
-            title: matchFromList?.title || 'Chapter 2: Exploring Substances: Acidic, Basic, and Neutral',
-            subjectId: { name: subjectName || 'Science', classId: { name: '7' } }
-          });
-          validIds.add(knownClass7ExamId);
-        }
-      }
-
-      // If backend returned nothing, fallback to current chapter if valid
-      if (allExamChapters.length === 0 && chapterId && examConfig) {
-        allExamChapters = [{ _id: chapterId, title: chapterTitle, subjectId: { name: subjectName, classId: { name: activeClass || '7' } } }];
-        validIds.add(String(chapterId));
-      }
-
-      const subjectMatches = (chaptersList || []).filter(ch => validIds.has(String(ch._id)));
-      setSubjectExamChapters(subjectMatches);
-
-      const finalList = allExamChapters.length > 0 
-        ? allExamChapters 
-        : (subjectMatches.length > 0 
-            ? subjectMatches 
-            : (chapterId && examConfig ? [{ _id: chapterId, title: chapterTitle, subjectId: { name: subjectName, classId: { name: activeClass || '7' } } }] : []));
-
-      if (finalList.length > 0) {
-        setAvailableChapters(finalList);
-        try {
-          sessionStorage.setItem('hoshiyaar_exam_chapters', JSON.stringify(finalList));
-        } catch (e) {}
-        setChaptersLoadError(false);
-      } else {
-        setChaptersLoadError(false);
-      }
+      setAvailableChapters(allExamChapters);
+      setChaptersLoadError(false);
     } catch (err) {
       console.error('Failed to fetch available exam chapters:', err);
-      // Restore from sessionStorage if present to avoid error UI
-      try {
-        const cached = sessionStorage.getItem('hoshiyaar_exam_chapters');
-        if (cached) {
-          const parsed = JSON.parse(cached);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setAvailableChapters(parsed);
-            setChaptersLoadError(false);
-            return;
-          }
-        }
-      } catch (e) {}
-
-      // If Class 7 chapter 2 is in current view or chaptersList, recover gracefully
-      const matchFromList = (chaptersList || []).find(c => String(c._id) === '6a203270482593fcbdf0cc58');
-      if (matchFromList || String(chapterId) === '6a203270482593fcbdf0cc58') {
-        const recoveryChapter = {
-          _id: '6a203270482593fcbdf0cc58',
-          title: matchFromList?.title || chapterTitle || 'Chapter 2: Exploring Substances: Acidic, Basic, and Neutral',
-          subjectId: { name: subjectName || 'Science', classId: { name: '7' } }
-        };
-        setAvailableChapters([recoveryChapter]);
-        setChaptersLoadError(false);
-      } else if (chapterId && examConfig) {
-        setAvailableChapters([{ _id: chapterId, title: chapterTitle, subjectId: { name: subjectName, classId: { name: activeClass || '7' } } }]);
-        setChaptersLoadError(false);
-      } else {
-        setChaptersLoadError(true);
-      }
+      setChaptersLoadError(true);
     } finally {
       setChaptersLoading(false);
       setExamChaptersLoaded(true);
@@ -174,7 +93,13 @@ const ExamDashboard = ({
 
   useEffect(() => {
     fetchAvailableExamChapters();
-  }, [chaptersList, chapterId, examConfig]);
+  }, [chaptersList, chapterId]);
+
+  useEffect(() => {
+    if (showChapterModal) {
+      fetchAvailableExamChapters();
+    }
+  }, [showChapterModal]);
 
   useEffect(() => {
     const fetchExamConfigAndScore = async () => {
@@ -295,7 +220,7 @@ const ExamDashboard = ({
     );
   }
 
-  const normalizeClass = (c) => String(c || '').replace(/^class\s*/i, '').trim();
+  const normalizeClass = (c) => String(c || '').replace(/^class\s*/i, '').replace(/(?:st|nd|rd|th)$/i, '').trim();
 
   const currentChapterObj = availableChapters.find(c => String(c._id) === String(chapterId));
   const displaySubjectName = currentChapterObj?.subjectId?.name || subjectName;
@@ -311,14 +236,13 @@ const ExamDashboard = ({
 
   const isMatchingClass = (ch) => {
     if (!activeClass) return true;
-    if (chaptersList && chaptersList.some(c => String(c._id) === String(ch._id))) return true;
     const chClass = normalizeClass(ch?.subjectId?.classId?.name || ch?.classLevel || ch?.classTitle || '');
-    if (chClass) return chClass === activeClass;
+    if (chClass) return String(chClass) === String(activeClass);
+    if (chaptersList && chaptersList.some(c => String(c._id) === String(ch._id))) return true;
     return false;
   };
 
   const classExamChapters = availableChapters.filter(isMatchingClass);
-  const otherClassChapters = availableChapters.filter(ch => !isMatchingClass(ch));
 
   if (!chapterId) {
     return (
@@ -342,24 +266,13 @@ const ExamDashboard = ({
                  >
                    <option value="" disabled className="text-black bg-white">Select a Chapter with Exam</option>
                    {classExamChapters.length > 0 ? (
-                     <>
-                       <optgroup label={activeClass ? `Class ${activeClass} Exams` : "Available Exams"} className="text-gray-700 font-bold">
-                         {classExamChapters.map(ch => (
-                           <option key={ch._id} value={ch._id} className="text-black bg-white font-medium">
-                             {ch.title}
-                           </option>
-                         ))}
-                       </optgroup>
-                       {otherClassChapters.length > 0 && (
-                         <optgroup label="Other Classes" className="text-gray-700 font-bold">
-                           {otherClassChapters.map(ch => (
-                             <option key={ch._id} value={ch._id} className="text-black bg-white font-normal">
-                               {ch.title} ({ch.subjectId?.classId?.name ? `Class ${ch.subjectId.classId.name} • ` : ''}{ch.subjectId?.name || 'Science'})
-                             </option>
-                           ))}
-                         </optgroup>
-                       )}
-                     </>
+                     <optgroup label={activeClass ? `Class ${activeClass} Exams` : "Available Exams"} className="text-gray-700 font-bold">
+                       {classExamChapters.map(ch => (
+                         <option key={ch._id} value={ch._id} className="text-black bg-white font-medium">
+                           {ch.title}
+                         </option>
+                       ))}
+                     </optgroup>
                    ) : (
                      availableChapters.map(ch => (
                        <option key={ch._id} value={ch._id} className="text-black bg-white font-medium">
@@ -404,9 +317,6 @@ const ExamDashboard = ({
           </p>
         </div>
         <div className="shrink-0 flex items-center gap-1.5">
-          <span className="px-2 py-0.5 rounded-full text-[9px] font-black tracking-wider uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-            Ready
-          </span>
           {isSelected && (
             <span className="w-5 h-5 rounded-full bg-cyan-400 text-slate-900 flex items-center justify-center text-[10px] font-black">
               ✓
@@ -439,7 +349,7 @@ const ExamDashboard = ({
                 <button
                   onClick={() => {
                     setShowChapterModal(true);
-                    if (availableChapters.length === 0) fetchAvailableExamChapters();
+                    fetchAvailableExamChapters();
                   }}
                   className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/50 hover:border-cyan-300 text-cyan-200 hover:text-white text-xs font-black tracking-wider uppercase transition-all shadow-sm active:scale-95 cursor-pointer"
                 >
@@ -599,10 +509,22 @@ const ExamDashboard = ({
           <div className="bg-black/20 backdrop-blur-xl rounded-2xl p-6 sm:p-8 shadow-[0_8px_32px_0_rgba(0,0,0,0.2)] border border-white/10 w-full text-center flex flex-col items-center">
             <div className="text-4xl sm:text-5xl mb-3 opacity-70 filter grayscale">⏳</div>
             <h3 className="text-lg sm:text-xl font-bold text-gray-200 mb-1.5 tracking-wide">No Exam Available</h3>
-            <p className="text-gray-400 text-xs sm:text-sm max-w-md">
+            <p className="text-gray-400 text-xs sm:text-sm max-w-md mb-4">
               An exam has not been configured for this chapter yet. <br/>
-              Please check back later or use <span className="text-cyan-300 font-semibold">Change Chapter</span> above.
+              Please check back later or choose an available chapter below.
             </p>
+            {onChangeChapter && (
+              <button
+                onClick={() => {
+                  setShowChapterModal(true);
+                  fetchAvailableExamChapters();
+                }}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-cyan-500/25 transition-all active:scale-95 cursor-pointer"
+              >
+                <span>Select Available Chapter</span>
+                <span className="text-xs">→</span>
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -621,12 +543,21 @@ const ExamDashboard = ({
                   {activeClass ? `Available exams for Class ${activeClass}` : 'Only chapters with active exams are available'}
                 </p>
               </div>
-              <button
-                onClick={() => setShowChapterModal(false)}
-                className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white flex items-center justify-center text-sm font-bold transition-all cursor-pointer"
-              >
-                ✕
-              </button>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => fetchAvailableExamChapters()}
+                  className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-cyan-200 hover:text-white flex items-center justify-center text-xs font-bold transition-all cursor-pointer"
+                  title="Refresh exams"
+                >
+                  🔄
+                </button>
+                <button
+                  onClick={() => setShowChapterModal(false)}
+                  className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white flex items-center justify-center text-sm font-bold transition-all cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
 
             {/* Chapters List */}
@@ -646,16 +577,6 @@ const ExamDashboard = ({
                     🔄 Retry
                   </button>
                 </div>
-              ) : classExamChapters.length === 0 && otherClassChapters.length === 0 ? (
-                <div className="text-center py-6 text-gray-400">
-                  <p className="text-xs font-medium">No exam chapters found.</p>
-                  <button
-                    onClick={() => fetchAvailableExamChapters()}
-                    className="mt-2 px-3 py-1 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-lg transition-all cursor-pointer"
-                  >
-                    🔄 Refresh
-                  </button>
-                </div>
               ) : classExamChapters.length === 0 ? (
                 <div className="py-3 space-y-3">
                   <div className="text-center bg-white/5 border border-white/10 rounded-xl p-4">
@@ -666,16 +587,13 @@ const ExamDashboard = ({
                     <p className="text-[11px] text-cyan-200/70 mt-1 max-w-xs mx-auto">
                       Exams for Class {activeClass || 'your class'} are being prepared. Check back soon!
                     </p>
+                    <button
+                      onClick={() => fetchAvailableExamChapters()}
+                      className="mt-3 px-3 py-1 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-200 text-xs font-bold rounded-lg border border-cyan-400/30 transition-all cursor-pointer"
+                    >
+                      🔄 Refresh
+                    </button>
                   </div>
-
-                  {otherClassChapters.length > 0 && (
-                    <div className="space-y-2 pt-1">
-                      <p className="text-[10px] uppercase tracking-wider font-bold text-cyan-300 px-1">
-                        Exams available in other classes:
-                      </p>
-                      {otherClassChapters.map(ch => renderChapterButton(ch))}
-                    </div>
-                  )}
                 </div>
               ) : (
                 <>
@@ -684,31 +602,11 @@ const ExamDashboard = ({
                       {activeClass ? `Class ${activeClass} Exams` : 'Available Exams'}
                     </span>
                     <span className="text-[9px] bg-cyan-500/20 text-cyan-200 px-2 py-0.5 rounded-full border border-cyan-400/30 font-bold">
-                      {classExamChapters.length} ready
+                      {classExamChapters.length}
                     </span>
                   </div>
 
                   {classExamChapters.map(ch => renderChapterButton(ch))}
-
-                  {otherClassChapters.length > 0 && (
-                    <div className="pt-2.5 border-t border-white/10 mt-2">
-                      <button
-                        onClick={() => setShowOtherClasses(!showOtherClasses)}
-                        className="w-full flex items-center justify-between px-2.5 py-1.5 text-[11px] text-cyan-200/80 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-all font-medium cursor-pointer"
-                      >
-                        <span>
-                          {showOtherClasses ? 'Hide other classes' : `View ${otherClassChapters.length} exam(s) in other classes`}
-                        </span>
-                        <span className="text-xs">{showOtherClasses ? '▲' : '▼'}</span>
-                      </button>
-
-                      {showOtherClasses && (
-                        <div className="space-y-2 mt-2">
-                          {otherClassChapters.map(ch => renderChapterButton(ch))}
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </>
               )}
             </div>

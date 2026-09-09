@@ -734,73 +734,77 @@ const ExamFlow = () => {
                  </div>
               )}
               
-              {currentItem.type === 'descriptive_question' && (
-                  <>
-                     <div className="bg-white rounded-2xl p-3 sm:p-4 shadow-xl relative shrink-0 flex items-center justify-center">
-                       <h2 className="text-sm sm:text-base font-medium text-slate-800 leading-snug text-center">
-                         {currentItem.content.text}
-                       </h2>
-                     </div>
-                     {currentItem.content?.image && (
-                       <div 
-                         onClick={() => setZoomImage(currentItem.content.image)}
-                         className="w-fit max-w-[200px] sm:max-w-[240px] mx-auto bg-white rounded-3xl p-2.5 sm:p-3 shadow-md border border-blue-200/80 cursor-pointer hover:shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center shrink-0 group relative"
-                         title="Tap to zoom"
-                       >
-                         <img 
-                           src={currentItem.content.image} 
-                           alt="Question diagram" 
-                           className="max-h-24 sm:max-h-32 w-auto object-contain rounded-2xl"
-                         />
-                         <span className="text-[10px] text-slate-400 font-medium mt-1 opacity-0 group-hover:opacity-100 transition-opacity">🔍 Tap to zoom</span>
-                       </div>
-                     )}
-                     <div className="bg-[#EAF3FF] rounded-3xl p-3 sm:p-4 shrink-0 flex flex-col shadow-lg relative overflow-hidden flex-1 min-h-[140px]">
-                       <textarea 
-                         value={answers[currentItem.id]}
-                         onChange={(e) => setAnswers(prev => ({...prev, [currentItem.id]: e.target.value}))}
-                         onCopy={(e) => { if (!isAdmin) e.preventDefault(); }}
-                         onPaste={(e) => { if (!isAdmin) e.preventDefault(); }}
-                         onCut={(e) => { if (!isAdmin) e.preventDefault(); }}
-                         placeholder="Type your answer here..."
-                         className="w-full h-full bg-transparent resize-none focus:outline-none text-[#5A7A9C] font-medium text-sm sm:text-base placeholder-blue-300"
-                       />
-                     </div>
-                  </>
-               )}
-              
-               {currentItem.type === 'mcq' && (
-                  <>
-                     <div className="bg-white rounded-2xl p-3 sm:p-4 shadow-xl relative shrink-0 flex items-center justify-center">
-                       <h2 className="text-sm sm:text-base font-medium text-slate-800 leading-snug text-center">
-                         {currentItem.content.text}
-                       </h2>
-                     </div>
-                     {currentItem.content?.image && (
-                       <div 
-                         onClick={() => setZoomImage(currentItem.content.image)}
-                         className="w-fit max-w-[200px] sm:max-w-[240px] mx-auto bg-white rounded-3xl p-2.5 sm:p-3 shadow-md border border-blue-200/80 cursor-pointer hover:shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center shrink-0 group relative mb-1"
-                         title="Tap to zoom"
-                       >
-                         <img 
-                           src={currentItem.content.image} 
-                           alt="Question diagram" 
-                           className="max-h-24 sm:max-h-32 w-auto object-contain rounded-2xl"
-                         />
-                         <span className="text-[10px] text-slate-400 font-medium mt-1 opacity-0 group-hover:opacity-100 transition-opacity">🔍 Tap to zoom</span>
-                       </div>
-                     )}
-                     <div className="flex flex-col gap-3">
+               {currentItem.type === 'descriptive_question' && (
+                   <>
+                      <div className="bg-white rounded-2xl p-2.5 sm:p-3.5 shadow-xl relative shrink-0 flex flex-col items-center justify-center gap-2">
+                        <h2 className="text-sm sm:text-base font-medium text-slate-800 leading-snug text-center">
+                          {currentItem.content.text}
+                        </h2>
+                        {currentItem.content?.image && (
+                          <div 
+                            onClick={() => setZoomImage(currentItem.content.image)}
+                            className="w-full flex items-center justify-center overflow-hidden rounded-xl bg-slate-50/60 p-1.5 cursor-pointer group relative"
+                            title="Click to view full size"
+                          >
+                            <img 
+                              src={currentItem.content.image} 
+                              alt="Question diagram" 
+                              className="max-h-28 sm:max-h-36 md:max-h-40 w-auto max-w-full object-contain rounded-lg"
+                            />
+                            <span className="absolute bottom-1.5 right-2 bg-slate-900/70 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full opacity-75 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                              🔍 Enlarge
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="bg-[#EAF3FF] rounded-3xl p-3 sm:p-4 shrink-0 flex flex-col shadow-lg relative overflow-hidden flex-1 min-h-[100px] sm:min-h-[120px]">
+                        <textarea 
+                          value={answers[currentItem.id]}
+                          onChange={(e) => setAnswers(prev => ({...prev, [currentItem.id]: e.target.value}))}
+                          onCopy={(e) => { if (!isAdmin) e.preventDefault(); }}
+                          onPaste={(e) => { if (!isAdmin) e.preventDefault(); }}
+                          onCut={(e) => { if (!isAdmin) e.preventDefault(); }}
+                          placeholder="Type your answer here..."
+                          className="w-full h-full bg-transparent resize-none focus:outline-none text-[#5A7A9C] font-medium text-sm sm:text-base placeholder-blue-300"
+                        />
+                      </div>
+                   </>
+                )}
+               
+                {currentItem.type === 'mcq' && (
+                   <>
+                      <div className="bg-white rounded-2xl p-2.5 sm:p-3.5 shadow-xl relative shrink-0 flex flex-col items-center justify-center mb-2 gap-2">
+                        <h2 className="text-sm sm:text-base font-medium text-slate-800 leading-snug text-center">
+                          {currentItem.content.text}
+                        </h2>
+                        {currentItem.content?.image && (
+                          <div 
+                            onClick={() => setZoomImage(currentItem.content.image)}
+                            className="w-full flex items-center justify-center overflow-hidden rounded-xl bg-slate-50/60 p-1.5 cursor-pointer group relative"
+                            title="Click to view full size"
+                          >
+                            <img 
+                              src={currentItem.content.image} 
+                              alt="Question diagram" 
+                              className="max-h-28 sm:max-h-36 md:max-h-40 w-auto max-w-full object-contain rounded-lg"
+                            />
+                            <span className="absolute bottom-1.5 right-2 bg-slate-900/70 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full opacity-75 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                              🔍 Enlarge
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                     <div className="flex flex-col gap-2">
                        {currentItem.content.options?.map((opt, idx) => (
                            <button 
                              key={idx}
                              onClick={() => setAnswers(prev => ({...prev, [currentItem.id]: opt}))}
-                             className={`p-4 rounded-xl text-left font-semibold transition-all break-words whitespace-normal leading-relaxed ${answers[currentItem.id] === opt ? 'bg-blue-600 text-white shadow-lg ring-2 ring-white/50 scale-[1.01]' : 'bg-white/10 text-white hover:bg-white/20 border border-white/10'}`}
+                             className={`p-3 sm:p-3.5 rounded-xl text-left font-semibold transition-all break-words whitespace-normal leading-snug text-xs sm:text-sm ${answers[currentItem.id] === opt ? 'bg-blue-600 text-white shadow-lg ring-2 ring-white/50 scale-[1.01]' : 'bg-white/10 text-white hover:bg-white/20 border border-white/10'}`}
                            >
                              {opt}
                            </button>
                        ))}
-                    </div>
+                     </div>
                  </>
               )}
               
@@ -1029,24 +1033,25 @@ const ExamFlow = () => {
             </div>
 
             <div className="flex-1 px-3 sm:px-4 py-3 sm:py-4 flex flex-col items-center justify-start min-h-0 max-w-5xl mx-auto w-full overflow-y-auto overflow-x-hidden">
-                <div className="w-full bg-white rounded-2xl p-3 sm:p-4 shadow-xl mb-3 text-slate-800 font-medium text-center text-xs sm:text-sm">
-                    {item.content?.text || item.content?.question || item.text || item.question}
+                <div className="w-full bg-white rounded-2xl p-2.5 sm:p-3.5 shadow-xl mb-3 text-slate-800 font-medium text-center text-xs sm:text-sm flex flex-col items-center justify-center gap-2">
+                    <span className="leading-snug">{item.content?.text || item.content?.question || item.text || item.question}</span>
+                    {(item.content?.image || item.image) && (
+                      <div 
+                        onClick={() => setZoomImage(item.content?.image || item.image)}
+                        className="w-full flex items-center justify-center overflow-hidden rounded-xl bg-slate-50/60 p-1.5 cursor-pointer group relative"
+                        title="Click to view full size"
+                      >
+                        <img 
+                          src={item.content?.image || item.image} 
+                          alt="Question diagram" 
+                          className="max-h-28 sm:max-h-36 md:max-h-40 w-auto max-w-full object-contain rounded-lg"
+                        />
+                        <span className="absolute bottom-1.5 right-2 bg-slate-900/70 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full opacity-75 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                          🔍 Enlarge
+                        </span>
+                      </div>
+                    )}
                 </div>
-                
-                {(item.content?.image || item.image) && (
-                  <div 
-                    onClick={() => setZoomImage(item.content?.image || item.image)}
-                    className="w-fit max-w-[200px] sm:max-w-[240px] mx-auto bg-white rounded-3xl p-2.5 sm:p-3 shadow-md mb-3 flex flex-col items-center justify-center border border-blue-200/80 cursor-pointer hover:shadow-lg transition-all hover:scale-[1.02] shrink-0 group relative"
-                    title="Tap to zoom"
-                  >
-                    <img 
-                      src={item.content?.image || item.image} 
-                      alt="Question diagram" 
-                      className="max-h-24 sm:max-h-32 w-auto object-contain rounded-2xl"
-                    />
-                    <span className="text-[10px] text-slate-400 font-medium mt-1 opacity-0 group-hover:opacity-100 transition-opacity">🔍 Tap to zoom</span>
-                  </div>
-                )}
                 
                 <div className="w-full bg-[#EAF3FF] rounded-2xl p-3 sm:p-4 shadow-xl mb-4 text-[#5A7A9C] font-medium min-h-[70px] text-xs sm:text-sm">
                     {answers[item.id] || <span className="italic opacity-50">Not answered</span>}
