@@ -52,7 +52,7 @@ const curriculumService = {
   },
   getExamAvailableChapters(opts) {
     const passedOpts = passOpts(opts);
-    return cachedGet(`/api/curriculum/exam-chapters`, passedOpts);
+    return cachedGet(`/api/curriculum/exam-chapters`, { bypassCache: true, ...passedOpts });
   },
   toggleChapterPublishStatus(id, isPublished) {
     // This mutates data on the server, no cache
