@@ -259,6 +259,7 @@ const ExamFlow = () => {
   const [feedbacks, setFeedbacks] = useState({});
   const [showExplanation, setShowExplanation] = useState({});
   const [attempts, setAttempts] = useState({});
+  const [evaluatingMap, setEvaluatingMap] = useState({});
   
   useEffect(() => {
       if (isPastReview && pastSession) {
@@ -312,6 +313,11 @@ const ExamFlow = () => {
           questionsList.forEach((q, i) => {
               const qId = q.id || `item_${i}`;
               pastAnswers[qId] = q.userAnswer || '';
+              const hasRealAiMissing = q.missing && 
+                !q.missing.startsWith('Some key explanatory') && 
+                !q.missing.startsWith('Expected key concepts:') && 
+                !q.missing.startsWith('Core conceptual') &&
+                !q.missing.startsWith('Key points to remember:');
               pastFeedbacks[qId] = {
                   id: qId,
                   right: q.right || null,
@@ -319,7 +325,8 @@ const ExamFlow = () => {
                   missing: q.missing || null,
                   grammar: q.grammar || null,
                   score: q.score !== undefined ? Number(q.score) : (q.isCorrect ? 100 : 0),
-                  isCorrect: q.isCorrect !== undefined ? Boolean(q.isCorrect) : false
+                  isCorrect: q.isCorrect !== undefined ? Boolean(q.isCorrect) : false,
+                  aiEvaluated: Boolean(q.aiEvaluated || (hasRealAiMissing && q.score !== undefined))
               };
           });
 
@@ -484,7 +491,10 @@ const ExamFlow = () => {
           const newFeedbacks = { ...feedbacks };
           if (Array.isArray(response.data)) {
               response.data.forEach(fb => {
-                  newFeedbacks[fb.id] = fb;
+                  newFeedbacks[fb.id] = {
+                    ...fb,
+                    aiEvaluated: fb.aiEvaluated !== undefined ? Boolean(fb.aiEvaluated) : true
+                  };
               });
           }
           setFeedbacks(newFeedbacks);
@@ -527,8 +537,9 @@ const ExamFlow = () => {
                      wrong: fb.wrong || null,
                      missing: fb.missing || null,
                      grammar: fb.grammar || null,
-                     score: i.type === 'mcq' ? (answers[i.id] === i.content?.expected ? 100 : 0) : (fb.score || 0),
-                     isCorrect: i.type === 'mcq' ? (answers[i.id] === i.content?.expected) : (fb.score >= 70),
+                     score: i.type === 'mcq' ? (answers[i.id] === i.content?.expected ? 100 : 0) : (fb.score !== undefined ? Number(fb.score) : 0),
+                     isCorrect: i.type === 'mcq' ? (answers[i.id] === i.content?.expected) : (fb.isCorrect !== undefined ? Boolean(fb.isCorrect) : (fb.score >= 70)),
+                     aiEvaluated: Boolean(fb.aiEvaluated),
                      options: i.content?.options || []
                  };
              });
@@ -562,29 +573,38 @@ const ExamFlow = () => {
   };
   
   const calculateScore = (fbState = feedbacks) => {
-      if (isPastReview && pastSession && pastSession.finalScore !== undefined) {
-          return Number(pastSession.finalScore);
-      }
       let totalItems = 0;
       let scoreSum = 0;
+      let hasAnyFb = false;
       flowItems.forEach(item => {
          if (item.type === 'descriptive_question') {
              totalItems++;
              const fb = fbState[item.id];
-             if (fb && fb.score !== undefined) scoreSum += Number(fb.score);
+             if (fb && fb.score !== undefined) {
+               scoreSum += Number(fb.score);
+               hasAnyFb = true;
+             }
          }
          if (item.type === 'mcq') {
              totalItems++;
              const fb = fbState[item.id];
              if (fb && fb.score !== undefined) {
                  scoreSum += Number(fb.score);
+                 hasAnyFb = true;
              } else {
                  const ans = (answers[item.id] || '').trim().toLowerCase();
                  const exp = (item.content?.expected || item.expected || '').trim().toLowerCase();
-                 if (ans && exp && ans === exp) scoreSum += 100;
+                 if (ans && exp && ans === exp) {
+                   scoreSum += 100;
+                   hasAnyFb = true;
+                 }
              }
          }
       });
+      if (hasAnyFb && totalItems > 0) return Math.round(scoreSum / totalItems);
+      if (isPastReview && pastSession && pastSession.finalScore !== undefined) {
+          return Number(pastSession.finalScore);
+      }
       return totalItems > 0 ? Math.round(scoreSum / totalItems) : 0;
   };
   
@@ -613,6 +633,213 @@ const ExamFlow = () => {
           }
       });
       return { correct, incorrect, skipped };
+  };
+
+  // On-demand AI evaluation for Review Analysis if a descriptive question lacks real AI generated concepts
+  useEffect(() => {
+    if (screen !== 'ANALYSIS') return;
+    if (!flowItems || flowItems.length === 0) return;
+
+    const qIndices = [];
+    flowItems.forEach((item, index) => {
+      if (item.type !== 'revision_card') qIndices.push(index);
+    });
+    if (qIndices.length === 0) return;
+
+    const validReviewIdx = Math.min(Math.max(0, currentReviewIndex), qIndices.length - 1);
+    const currentItemIdx = qIndices[validReviewIdx];
+    const item = flowItems[currentItemIdx];
+    if (!item || item.type !== 'descriptive_question') return;
+
+    const userAns = answers[item.id] ? answers[item.id].trim() : '';
+    if (!userAns || userAns.toLowerCase() === 'no answer submitted') return;
+
+    const fb = feedbacks[item.id];
+    const isFallbackMissing = !fb?.missing || 
+      fb.missing.startsWith('Some key explanatory') || 
+      fb.missing.startsWith('Expected key concepts:') || 
+      fb.missing.startsWith('Core conceptual points') ||
+      fb.missing.startsWith('Review core chapter') ||
+      fb.missing.startsWith('Missing details');
+
+    const needsAiEval = !fb || !fb.aiEvaluated || isFallbackMissing;
+
+    if (!needsAiEval || evaluatingMap[item.id]) return;
+
+    let isMounted = true;
+    const evaluateItem = async () => {
+      setEvaluatingMap(prev => ({ ...prev, [item.id]: true }));
+      try {
+        const expectedAnswer = item.content?.expected || item.content?.expectedAnswer || item.expected || item.expectedAnswer || item.content?.answer || item.answer || '';
+        const questionText = item.content?.text || item.content?.question || item.text || item.question || '';
+
+        const res = await api.post('/api/ai/evaluate', {
+          question: questionText,
+          userAnswer: userAns,
+          expectedAnswer,
+          subjectKnowledge: subjectKnowledge || chapterTitle || 'Science',
+          userId: user?._id,
+          chapterId,
+          chapterTitle
+        });
+
+        if (res.data && isMounted) {
+          const aiData = res.data;
+          const scoreNum = Number(aiData.score !== undefined ? aiData.score : (aiData.isCorrect ? 85 : 40));
+          const isCorr = Boolean(aiData.isCorrect !== undefined ? aiData.isCorrect : (scoreNum >= 70));
+
+          setFeedbacks(prev => {
+            const updated = {
+              ...prev,
+              [item.id]: {
+                id: item.id,
+                right: aiData.right,
+                wrong: aiData.wrong,
+                missing: aiData.missing,
+                grammar: aiData.grammar,
+                score: scoreNum,
+                isCorrect: isCorr,
+                aiEvaluated: true
+              }
+            };
+
+            // Persist into localStorage session
+            try {
+              if (chapterId) {
+                const localSessionKey = `hoshiyaar_last_exam_session_${chapterId}`;
+                const saved = localStorage.getItem(localSessionKey);
+                if (saved) {
+                  const parsedSession = JSON.parse(saved);
+                  if (parsedSession && Array.isArray(parsedSession.questions)) {
+                    parsedSession.questions = parsedSession.questions.map(q => {
+                      if (q.id === item.id) {
+                        return {
+                          ...q,
+                          right: aiData.right,
+                          wrong: aiData.wrong,
+                          missing: aiData.missing,
+                          grammar: aiData.grammar,
+                          score: scoreNum,
+                          isCorrect: isCorr,
+                          aiEvaluated: true
+                        };
+                      }
+                      return q;
+                    });
+                    const totalQScore = parsedSession.questions.reduce((sum, q) => sum + (Number(q.score) || 0), 0);
+                    parsedSession.finalScore = Math.round(totalQScore / parsedSession.questions.length);
+                    localStorage.setItem(localSessionKey, JSON.stringify(parsedSession));
+                    localStorage.setItem(`hoshiyaar_exam_score_${chapterId}`, parsedSession.finalScore);
+                  }
+                }
+              }
+            } catch (storageErr) {
+              console.warn('Could not update localStorage exam session with AI evaluation:', storageErr);
+            }
+
+            return updated;
+          });
+        }
+      } catch (err) {
+        console.error('Failed to evaluate question with AI:', err);
+      } finally {
+        if (isMounted) {
+          setEvaluatingMap(prev => ({ ...prev, [item.id]: false }));
+        }
+      }
+    };
+
+    evaluateItem();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [screen, currentReviewIndex, flowItems, answers, feedbacks, evaluatingMap, subjectKnowledge, chapterTitle, chapterId, user]);
+
+  const handleManualReEvaluate = async (item) => {
+    if (!item) return;
+    const userAns = answers[item.id] ? answers[item.id].trim() : '';
+    if (!userAns || userAns.toLowerCase() === 'no answer submitted') {
+      alert('Cannot evaluate an empty answer.');
+      return;
+    }
+    setEvaluatingMap(prev => ({ ...prev, [item.id]: true }));
+    try {
+      const expectedAnswer = item.content?.expected || item.content?.expectedAnswer || item.expected || item.expectedAnswer || item.content?.answer || item.answer || '';
+      const questionText = item.content?.text || item.content?.question || item.text || item.question || '';
+
+      const res = await api.post('/api/ai/evaluate', {
+        question: questionText,
+        userAnswer: userAns,
+        expectedAnswer,
+        subjectKnowledge: subjectKnowledge || chapterTitle || 'Science',
+        userId: user?._id,
+        chapterId,
+        chapterTitle
+      });
+
+      if (res.data) {
+        const aiData = res.data;
+        const scoreNum = Number(aiData.score !== undefined ? aiData.score : (aiData.isCorrect ? 85 : 40));
+        const isCorr = Boolean(aiData.isCorrect !== undefined ? aiData.isCorrect : (scoreNum >= 70));
+
+        setFeedbacks(prev => {
+          const updated = {
+            ...prev,
+            [item.id]: {
+              id: item.id,
+              right: aiData.right,
+              wrong: aiData.wrong,
+              missing: aiData.missing,
+              grammar: aiData.grammar,
+              score: scoreNum,
+              isCorrect: isCorr,
+              aiEvaluated: true
+            }
+          };
+
+          try {
+            if (chapterId) {
+              const localSessionKey = `hoshiyaar_last_exam_session_${chapterId}`;
+              const saved = localStorage.getItem(localSessionKey);
+              if (saved) {
+                const parsedSession = JSON.parse(saved);
+                if (parsedSession && Array.isArray(parsedSession.questions)) {
+                  parsedSession.questions = parsedSession.questions.map(q => {
+                    if (q.id === item.id) {
+                      return {
+                        ...q,
+                        right: aiData.right,
+                        wrong: aiData.wrong,
+                        missing: aiData.missing,
+                        grammar: aiData.grammar,
+                        score: scoreNum,
+                        isCorrect: isCorr,
+                        aiEvaluated: true
+                      };
+                    }
+                    return q;
+                  });
+                  const totalQScore = parsedSession.questions.reduce((sum, q) => sum + (Number(q.score) || 0), 0);
+                  parsedSession.finalScore = Math.round(totalQScore / parsedSession.questions.length);
+                  localStorage.setItem(localSessionKey, JSON.stringify(parsedSession));
+                  localStorage.setItem(`hoshiyaar_exam_score_${chapterId}`, parsedSession.finalScore);
+                }
+              }
+            }
+          } catch (storageErr) {
+            console.warn('Could not update localStorage exam session with AI evaluation:', storageErr);
+          }
+
+          return updated;
+        });
+      }
+    } catch (err) {
+      console.error('Manual re-evaluation failed:', err);
+      alert('AI evaluation failed: ' + (err.response?.data?.error || err.message));
+    } finally {
+      setEvaluatingMap(prev => ({ ...prev, [item.id]: false }));
+    }
   };
 
   const TopBar = ({ title, onBack }) => (
@@ -1042,8 +1269,21 @@ const ExamFlow = () => {
                 <div className="font-bold tracking-wider text-[10px] sm:text-xs text-right bg-white/10 px-2 sm:px-3 py-1.5 rounded-full border border-white/10 text-cyan-200">
                   Total Score: <span className="text-white font-black">{calculateScore()}%</span>
                 </div>
-                <div className={`font-bold tracking-wider text-[10px] sm:text-xs text-right px-2.5 sm:px-3 py-1.5 rounded-full border ${isCorrect ? 'bg-emerald-500/20 border-emerald-400/40 text-emerald-300' : 'bg-rose-500/20 border-rose-400/40 text-rose-300'}`}>
-                  Q{currentReviewIndex + 1}: <span className="font-black">{score}/100</span> {isCorrect ? '✓' : '✕'}
+                <div className={`font-bold tracking-wider text-[10px] sm:text-xs text-right px-2.5 sm:px-3 py-1.5 rounded-full border ${
+                  evaluatingMap[item.id]
+                    ? 'bg-blue-500/20 border-blue-400/40 text-blue-300 animate-pulse'
+                    : isCorrect 
+                      ? 'bg-emerald-500/20 border-emerald-400/40 text-emerald-300' 
+                      : 'bg-rose-500/20 border-rose-400/40 text-rose-300'
+                }`}>
+                  {evaluatingMap[item.id] ? (
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+                      Q{currentReviewIndex + 1}: AI Evaluating...
+                    </span>
+                  ) : (
+                    <>Q{currentReviewIndex + 1}: <span className="font-black">{score}/100</span> {isCorrect ? '✓' : '✕'}</>
+                  )}
                 </div>
               </div>
             </div>
@@ -1091,8 +1331,26 @@ const ExamFlow = () => {
                   <>
                     {/* Student's Answer */}
                     <div className="w-full bg-[#EAF3FF] rounded-xl p-2.5 sm:p-3 shadow-sm mb-2 text-slate-800 text-xs sm:text-sm border border-blue-100 shrink-0">
-                        <div className="flex items-center gap-1 text-blue-900 font-black text-[10px] sm:text-xs uppercase tracking-wider mb-1">
-                          <span>📝</span> Your Submitted Answer:
+                        <div className="flex items-center justify-between gap-1 text-blue-900 font-black text-[10px] sm:text-xs uppercase tracking-wider mb-1">
+                          <span className="flex items-center gap-1"><span>📝</span> Your Submitted Answer:</span>
+                          {userAns && (
+                            <div className="flex items-center gap-2">
+                              {fb?.aiEvaluated && !evaluatingMap[item.id] && (
+                                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                                  ✨ AI Evaluated
+                                </span>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => handleManualReEvaluate(item)}
+                                disabled={evaluatingMap[item.id]}
+                                className="text-[10px] font-bold text-blue-600 hover:text-blue-800 underline flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                                title="Re-run AI evaluation for this answer"
+                              >
+                                {evaluatingMap[item.id] ? '⚡ Evaluating...' : '⚡ Re-evaluate'}
+                              </button>
+                            </div>
+                          )}
                         </div>
                         <p className="text-slate-700 font-medium leading-relaxed whitespace-pre-wrap">
                           {userAns || <span className="italic text-slate-400">No answer was submitted for this question.</span>}
@@ -1107,7 +1365,14 @@ const ExamFlow = () => {
                              <div className="w-3.5 h-3.5 rounded-full bg-blue-500 text-white flex items-center justify-center text-[9px]">?</div>
                              Key Concepts Missing
                           </div>
-                          <p className="text-white text-xs sm:text-sm leading-relaxed">{missing}</p>
+                          {evaluatingMap[item.id] ? (
+                            <div className="flex items-center gap-2 text-cyan-300 py-1">
+                              <div className="w-3.5 h-3.5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+                              <span className="text-xs sm:text-sm font-medium animate-pulse">Extracting missing concepts via AI...</span>
+                            </div>
+                          ) : (
+                            <p className="text-white text-xs sm:text-sm leading-relaxed">{missing}</p>
+                          )}
                        </div>
                        
                        {/* 2. Corrections / Gaps (Rose card) */}
@@ -1116,7 +1381,14 @@ const ExamFlow = () => {
                              <div className="w-3.5 h-3.5 rounded-full bg-rose-500 text-white flex items-center justify-center text-[9px]">✕</div>
                              Corrections / Gaps
                           </div>
-                          <p className="text-white text-xs sm:text-sm leading-relaxed">{incorrect}</p>
+                          {evaluatingMap[item.id] ? (
+                            <div className="flex items-center gap-2 text-rose-300 py-1">
+                              <div className="w-3.5 h-3.5 border-2 border-rose-400 border-t-transparent rounded-full animate-spin"></div>
+                              <span className="text-xs sm:text-sm font-medium animate-pulse">Checking corrections & gaps via AI...</span>
+                            </div>
+                          ) : (
+                            <p className="text-white text-xs sm:text-sm leading-relaxed">{incorrect}</p>
+                          )}
                        </div>
                        
                        {/* 3. Grammar & Clarity (Yellow card) */}
@@ -1125,7 +1397,14 @@ const ExamFlow = () => {
                              <div className="w-3.5 h-3.5 rounded-full bg-yellow-500 text-white flex items-center justify-center text-[9px]">✎</div>
                              Grammar & Clarity
                           </div>
-                          <p className="text-white text-xs sm:text-sm leading-relaxed">{grammar}</p>
+                          {evaluatingMap[item.id] ? (
+                            <div className="flex items-center gap-2 text-yellow-300 py-1">
+                              <div className="w-3.5 h-3.5 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
+                              <span className="text-xs sm:text-sm font-medium animate-pulse">Analyzing grammar & phrasing via AI...</span>
+                            </div>
+                          ) : (
+                            <p className="text-white text-xs sm:text-sm leading-relaxed">{grammar}</p>
+                          )}
                        </div>
                     </div>
                   </>
