@@ -557,7 +557,8 @@ const ExamFlow = () => {
       } catch (e) {
          console.error("Failed to save exam score", e);
       }
-      setScreen('REPORT');
+      setCurrentReviewIndex(0);
+      setScreen('ANALYSIS');
   };
   
   const calculateScore = (fbState = feedbacks) => {
@@ -567,12 +568,13 @@ const ExamFlow = () => {
          if (item.type === 'descriptive_question') {
              totalItems++;
              const fb = fbState[item.id];
-             if (fb && fb.score) scoreSum += fb.score;
+             if (fb && fb.score !== undefined) scoreSum += Number(fb.score);
          }
          if (item.type === 'mcq') {
              totalItems++;
-             const ans = answers[item.id];
-             if (ans && ans === item.content.expected) scoreSum += 100;
+             const ans = (answers[item.id] || '').trim().toLowerCase();
+             const exp = (item.content?.expected || item.expected || '').trim().toLowerCase();
+             if (ans && exp && ans === exp) scoreSum += 100;
          }
       });
       return totalItems > 0 ? Math.round(scoreSum / totalItems) : 0;
@@ -586,18 +588,19 @@ const ExamFlow = () => {
       flowItems.forEach(item => {
           if (item.type === 'revision_card') return;
           
-          const ans = answers[item.id] || '';
-          if (!ans.trim()) {
+          const ans = (answers[item.id] || '').trim();
+          if (!ans) {
               skipped++;
               return;
           }
           
           if (item.type === 'descriptive_question') {
               const fb = fbState[item.id];
-              if (fb && fb.score >= 80) correct++;
+              if (fb && (fb.isCorrect || Number(fb.score) >= 70)) correct++;
               else incorrect++;
           } else if (item.type === 'mcq') {
-              if (ans === item.content.expected) correct++;
+              const exp = (item.content?.expected || item.expected || '').trim().toLowerCase();
+              if (ans.toLowerCase() === exp) correct++;
               else incorrect++;
           }
       });
@@ -941,6 +944,10 @@ const ExamFlow = () => {
         };
         
         const userAns = answers[item.id] ? answers[item.id].trim() : '';
+        const expectedAnswer = item.content?.expected || item.content?.expectedAnswer || item.expected || item.expectedAnswer || item.content?.answer || item.answer || '';
+        const questionText = item.content?.text || item.content?.question || item.text || item.question || '';
+        const questionImage = item.content?.image || item.image || null;
+        const mcqOptions = item.content?.options || item.options || [];
         
         if (item.type === 'descriptive_question') {
             const fb = feedbacks[item.id];
@@ -948,8 +955,8 @@ const ExamFlow = () => {
                 score = 0;
                 isCorrect = false;
                 right = null;
-                missing = "No answer was submitted for this question.";
-                incorrect = item.content?.expected ? `Expected key points: ${item.content.expected}` : "No response recorded.";
+                missing = expectedAnswer ? `Expected key concepts: ${expectedAnswer}` : "No answer was submitted for this question.";
+                incorrect = "No response recorded.";
                 grammar = "N/A (No answer submitted)";
             } else {
                 score = fb && fb.score !== undefined ? Number(fb.score) : (fb?.isCorrect ? 85 : 40);
@@ -959,10 +966,11 @@ const ExamFlow = () => {
                 incorrect = parseFeedback(fb?.wrong);
                 grammar = parseFeedback(fb?.grammar);
 
-                // Consistent fallbacks without contradictory text:
                 if (!missing) {
-                    if (isCorrect && score >= 80) {
+                    if (isCorrect && score >= 85) {
                         missing = "All required core concepts were covered!";
+                    } else if (expectedAnswer) {
+                        missing = `Important concepts from model answer: ${expectedAnswer}`;
                     } else {
                         missing = "Some key explanatory details or reasoning were missing.";
                     }
@@ -971,11 +979,15 @@ const ExamFlow = () => {
                 if (!incorrect) {
                     if (isCorrect) {
                         incorrect = "No major conceptual errors found in your answer.";
-                    } else if (item.content?.expected) {
-                        incorrect = `Expected key points: ${item.content.expected}`;
+                    } else if (expectedAnswer) {
+                        incorrect = `Review key concepts: ${expectedAnswer}`;
                     } else {
                         incorrect = "Incomplete or inaccurate explanation.";
                     }
+                }
+
+                if (!right) {
+                    right = isCorrect ? "Addressed the core question effectively." : "Partial or introductory understanding shown.";
                 }
 
                 if (!grammar) {
@@ -983,9 +995,9 @@ const ExamFlow = () => {
                 }
             }
         } else if (item.type === 'mcq') {
-            score = answers[item.id] === item.content?.expected ? 100 : 0;
-            isCorrect = score === 100;
-            incorrect = isCorrect ? null : `The correct answer was: ${item.content?.expected}`;
+            isCorrect = userAns.toLowerCase() === expectedAnswer.toLowerCase();
+            score = isCorrect ? 100 : 0;
+            incorrect = isCorrect ? null : `The correct answer was: ${expectedAnswer}`;
         }
         
         return (
@@ -1001,17 +1013,20 @@ const ExamFlow = () => {
               <h1 className="text-sm sm:text-lg font-black tracking-widest uppercase text-center flex-1 leading-tight">
                 ⚡ REVIEW ANALYSIS ⚡
               </h1>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                 <button
                   type="button"
                   onClick={handleExit}
-                  className="hidden sm:flex items-center gap-1 text-xs font-bold bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full border border-white/20 text-cyan-200 transition-colors cursor-pointer"
+                  className="hidden md:flex items-center gap-1 text-xs font-bold bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full border border-white/20 text-cyan-200 transition-colors cursor-pointer"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
                   Exam Home
                 </button>
-                <div className="font-bold tracking-widest text-xs sm:text-sm text-right bg-white/10 px-3 py-1.5 rounded-full border border-white/10 text-emerald-300">
-                  SCORE: {score}/100
+                <div className="font-bold tracking-wider text-[10px] sm:text-xs text-right bg-white/10 px-2 sm:px-3 py-1.5 rounded-full border border-white/10 text-cyan-200">
+                  Exam: <span className="text-white font-black">{calculateScore()}%</span>
+                </div>
+                <div className={`font-bold tracking-wider text-[10px] sm:text-xs text-right px-2.5 sm:px-3 py-1.5 rounded-full border ${isCorrect ? 'bg-emerald-500/20 border-emerald-400/40 text-emerald-300' : 'bg-rose-500/20 border-rose-400/40 text-rose-300'}`}>
+                  Q. Score: <span className="font-black">{score}/100</span>
                 </div>
               </div>
             </div>
@@ -1033,16 +1048,49 @@ const ExamFlow = () => {
             </div>
 
             <div className="flex-1 px-3 sm:px-4 py-3 sm:py-4 flex flex-col items-center justify-start min-h-0 max-w-5xl mx-auto w-full overflow-y-auto overflow-x-hidden">
-                <div className="w-full bg-white rounded-2xl p-2.5 sm:p-3.5 shadow-xl mb-3 text-slate-800 font-medium text-center text-xs sm:text-sm flex flex-col items-center justify-center gap-2">
-                    <span className="leading-snug">{item.content?.text || item.content?.question || item.text || item.question}</span>
-                    {(item.content?.image || item.image) && (
+                {/* Overall Exam Score Summary Banner */}
+                <div className="w-full bg-gradient-to-r from-purple-950/70 via-indigo-950/70 to-blue-950/70 border border-purple-500/30 rounded-2xl p-3 sm:px-4 sm:py-3 shadow-lg mb-3 flex flex-wrap items-center justify-between gap-3 text-white">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-400/40 flex items-center justify-center font-black text-sm text-purple-200 shrink-0">
+                      {calculateScore()}%
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] uppercase font-bold tracking-wider text-purple-200/80">Exam Completed</span>
+                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs font-semibold">
+                        <span className="text-emerald-400">✓ {calculateStats().correct} Correct</span>
+                        <span className="text-white/30">•</span>
+                        <span className="text-rose-400">✕ {calculateStats().incorrect} Incorrect</span>
+                        {calculateStats().skipped > 0 && (
+                          <>
+                            <span className="text-white/30">•</span>
+                            <span className="text-amber-400">⚠ {calculateStats().skipped} Skipped</span>
+                          </>
+                        )}
+                        <span className="text-white/30">•</span>
+                        <span className="text-cyan-300">⏱ {formatTime(totalTimeSpent)}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setScreen('REPORT')}
+                    className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-bold text-white transition flex items-center gap-1.5 cursor-pointer shrink-0 ml-auto"
+                  >
+                    <span>📊</span> Score Certificate
+                  </button>
+                </div>
+
+                {/* Question Box */}
+                <div className="w-full bg-white rounded-2xl p-3 sm:p-4 shadow-xl mb-3 text-slate-800 font-medium text-center text-xs sm:text-sm flex flex-col items-center justify-center gap-2">
+                    <span className="leading-snug font-semibold text-slate-900">{questionText}</span>
+                    {questionImage && (
                       <div 
-                        onClick={() => setZoomImage(item.content?.image || item.image)}
+                        onClick={() => setZoomImage(questionImage)}
                         className="w-full flex items-center justify-center overflow-hidden rounded-xl bg-slate-50/60 p-1.5 cursor-pointer group relative"
                         title="Click to view full size"
                       >
                         <img 
-                          src={item.content?.image || item.image} 
+                          src={questionImage} 
                           alt="Question diagram" 
                           className="max-h-28 sm:max-h-36 md:max-h-40 w-auto max-w-full object-contain rounded-lg"
                         />
@@ -1053,53 +1101,151 @@ const ExamFlow = () => {
                     )}
                 </div>
                 
-                <div className="w-full bg-[#EAF3FF] rounded-2xl p-3 sm:p-4 shadow-xl mb-4 text-[#5A7A9C] font-medium min-h-[70px] text-xs sm:text-sm">
-                    {answers[item.id] || <span className="italic opacity-50">Not answered</span>}
-                </div>
-                
-                <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-3 pb-4">
-                   {/* 1. What You Got Right (Green card) */}
-                   {item.type === 'descriptive_question' && right && (
-                     <div className="bg-[#0B3B24]/90 rounded-2xl p-3.5 sm:p-4 shadow-lg border border-emerald-500/20 flex flex-col gap-1.5">
-                        <div className="flex items-center gap-2 text-emerald-400 font-black text-[11px] sm:text-xs tracking-widest uppercase">
-                           <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">✓</div>
-                           What You Got Right
+                {/* DESCRIPTIVE QUESTION REVIEW */}
+                {item.type === 'descriptive_question' && (
+                  <>
+                    {/* Student's Answer */}
+                    <div className="w-full bg-[#EAF3FF] rounded-2xl p-3 sm:p-4 shadow-md mb-3 text-slate-800 text-xs sm:text-sm border border-blue-100">
+                        <div className="flex items-center gap-1.5 text-blue-900 font-black text-[11px] sm:text-xs uppercase tracking-wider mb-1.5">
+                          <span>📝</span> Your Submitted Answer:
                         </div>
-                        <p className="text-emerald-100 text-xs sm:text-sm leading-relaxed">{right}</p>
-                     </div>
-                   )}
+                        <p className="text-slate-700 font-medium leading-relaxed whitespace-pre-wrap">
+                          {userAns || <span className="italic text-slate-400">No answer was submitted for this question.</span>}
+                        </p>
+                    </div>
 
-                   {/* 2. Key Concepts Missing (Blue card) */}
-                   {item.type === 'descriptive_question' && (
-                     <div className="bg-[#1A2C5B] rounded-2xl p-3.5 sm:p-4 shadow-lg border border-blue-500/20 flex flex-col gap-1.5">
-                        <div className="flex items-center gap-2 text-blue-400 font-black text-[11px] sm:text-xs tracking-widest uppercase">
-                           <div className="w-4 h-4 rounded-full bg-blue-500 text-white flex items-center justify-center text-[10px]">?</div>
-                           Key Concepts Missing
+                    {/* Dedicated Model / Expected Answer Card */}
+                    {expectedAnswer && (
+                      <div className="w-full bg-gradient-to-br from-[#072417] to-[#04170E] border border-emerald-500/40 rounded-2xl p-3.5 sm:p-4 shadow-lg mb-3 text-xs sm:text-sm">
+                        <div className="flex items-center gap-2 text-emerald-400 font-black text-[11px] sm:text-xs tracking-wider uppercase mb-1.5">
+                          <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">🎯</div>
+                          Expected / Model Answer:
                         </div>
-                        <p className="text-white text-xs sm:text-sm leading-relaxed">{missing}</p>
-                     </div>
-                   )}
-                   
-                   {/* 3. Corrections / Incorrect (Red/Rose card) */}
-                   <div className={`bg-[#2D1B2E] rounded-2xl p-3.5 sm:p-4 shadow-lg border border-rose-500/20 flex flex-col gap-1.5 ${item.type === 'mcq' ? 'md:col-span-2 items-center text-center' : ''}`}>
-                      <div className="flex items-center gap-2 text-rose-400 font-black text-[11px] sm:text-xs tracking-widest uppercase">
-                         <div className="w-4 h-4 rounded-full bg-rose-500 text-white flex items-center justify-center text-[10px]">✕</div>
-                         {item.type === 'mcq' ? (isCorrect ? 'Result: Correct' : 'Result: Incorrect') : 'Corrections / Gaps'}
+                        <p className="text-emerald-100 font-medium leading-relaxed whitespace-pre-wrap">
+                          {expectedAnswer}
+                        </p>
                       </div>
-                      <p className="text-white text-xs sm:text-sm leading-relaxed">{incorrect}</p>
-                   </div>
-                   
-                   {/* 4. Grammar & Expression (Yellow card) */}
-                   {item.type === 'descriptive_question' && (
-                     <div className="bg-[#2D2A1B] rounded-2xl p-3.5 sm:p-4 shadow-lg border border-yellow-500/20 flex flex-col gap-1.5">
-                        <div className="flex items-center gap-2 text-yellow-400 font-black text-[11px] sm:text-xs tracking-widest uppercase">
-                           <div className="w-4 h-4 rounded-full bg-yellow-500 text-white flex items-center justify-center text-[10px]">✎</div>
-                           Grammar & Clarity
+                    )}
+                    
+                    {/* 2x2 AI Evaluation Cards */}
+                    <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-3 pb-4">
+                       {/* 1. What You Got Right (Green card) */}
+                       {right && (
+                         <div className="bg-[#0B3B24]/90 rounded-2xl p-3.5 sm:p-4 shadow-lg border border-emerald-500/20 flex flex-col gap-1.5">
+                            <div className="flex items-center gap-2 text-emerald-400 font-black text-[11px] sm:text-xs tracking-widest uppercase">
+                               <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">✓</div>
+                               What You Got Right
+                            </div>
+                            <p className="text-emerald-100 text-xs sm:text-sm leading-relaxed">{right}</p>
+                         </div>
+                       )}
+
+                       {/* 2. Key Concepts Missing (Blue card) */}
+                       <div className="bg-[#1A2C5B] rounded-2xl p-3.5 sm:p-4 shadow-lg border border-blue-500/20 flex flex-col gap-1.5">
+                          <div className="flex items-center gap-2 text-blue-400 font-black text-[11px] sm:text-xs tracking-widest uppercase">
+                             <div className="w-4 h-4 rounded-full bg-blue-500 text-white flex items-center justify-center text-[10px]">?</div>
+                             Key Concepts Missing
+                          </div>
+                          <p className="text-white text-xs sm:text-sm leading-relaxed">{missing}</p>
+                       </div>
+                       
+                       {/* 3. Corrections / Conceptual Gaps (Rose card) */}
+                       <div className="bg-[#2D1B2E] rounded-2xl p-3.5 sm:p-4 shadow-lg border border-rose-500/20 flex flex-col gap-1.5">
+                          <div className="flex items-center gap-2 text-rose-400 font-black text-[11px] sm:text-xs tracking-widest uppercase">
+                             <div className="w-4 h-4 rounded-full bg-rose-500 text-white flex items-center justify-center text-[10px]">✕</div>
+                             Corrections / Conceptual Gaps
+                          </div>
+                          <p className="text-white text-xs sm:text-sm leading-relaxed">{incorrect}</p>
+                       </div>
+                       
+                       {/* 4. Grammar & Expression (Yellow card) */}
+                       <div className="bg-[#2D2A1B] rounded-2xl p-3.5 sm:p-4 shadow-lg border border-yellow-500/20 flex flex-col gap-1.5">
+                          <div className="flex items-center gap-2 text-yellow-400 font-black text-[11px] sm:text-xs tracking-widest uppercase">
+                             <div className="w-4 h-4 rounded-full bg-yellow-500 text-white flex items-center justify-center text-[10px]">✎</div>
+                             Grammar & Scientific Expression
+                          </div>
+                          <p className="text-white text-xs sm:text-sm leading-relaxed">{grammar}</p>
+                       </div>
+                    </div>
+                  </>
+                )}
+
+                {/* MCQ QUESTION REVIEW */}
+                {item.type === 'mcq' && (
+                  <div className="w-full flex flex-col gap-3 pb-4">
+                    {/* MCQ Options Display */}
+                    {mcqOptions.length > 0 && (
+                      <div className="w-full bg-white/5 border border-white/10 rounded-2xl p-3.5 sm:p-4 shadow-md">
+                        <div className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-cyan-300 mb-2.5 flex items-center justify-between">
+                          <span>Options & Selections</span>
+                          <span className="text-[10px] text-white/50 font-normal">Compare your selection with the correct answer</span>
                         </div>
-                        <p className="text-white text-xs sm:text-sm leading-relaxed">{grammar}</p>
-                     </div>
-                   )}
-                </div>
+                        <div className="space-y-2">
+                          {mcqOptions.map((opt, oIdx) => {
+                            const isUserChoice = userAns.toLowerCase() === opt.toLowerCase();
+                            const isExpected = expectedAnswer.toLowerCase() === opt.toLowerCase();
+                            
+                            let cardStyle = "bg-white/5 border-white/10 text-white/80";
+                            let badge = null;
+
+                            if (isExpected && isUserChoice) {
+                              cardStyle = "bg-emerald-950/70 border-emerald-500 text-emerald-100 ring-1 ring-emerald-500/50 shadow-md";
+                              badge = (
+                                <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500 text-white px-2.5 py-0.5 rounded-full shrink-0 flex items-center gap-1">
+                                  ✓ Your Answer (Correct)
+                                </span>
+                              );
+                            } else if (isExpected) {
+                              cardStyle = "bg-emerald-950/50 border-emerald-500/60 text-emerald-200 shadow-sm";
+                              badge = (
+                                <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2.5 py-0.5 rounded-full shrink-0 flex items-center gap-1">
+                                  ✓ Correct Answer
+                                </span>
+                              );
+                            } else if (isUserChoice) {
+                              cardStyle = "bg-rose-950/70 border-rose-500 text-rose-200 ring-1 ring-rose-500/50 shadow-sm";
+                              badge = (
+                                <span className="text-[10px] font-black uppercase tracking-wider bg-rose-500 text-white px-2.5 py-0.5 rounded-full shrink-0 flex items-center gap-1">
+                                  ✕ Your Answer
+                                </span>
+                              );
+                            }
+
+                            return (
+                              <div key={oIdx} className={`p-2.5 sm:p-3 rounded-xl border flex items-center justify-between gap-3 text-xs sm:text-sm font-medium transition-colors ${cardStyle}`}>
+                                <span className="leading-snug">{opt}</span>
+                                {badge}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Result Summary Card */}
+                    {isCorrect ? (
+                      <div className="w-full bg-emerald-950/90 rounded-2xl p-4 shadow-lg border border-emerald-500/40 flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-black text-sm shrink-0">✓</div>
+                        <div>
+                          <div className="font-black text-xs sm:text-sm uppercase tracking-wider text-emerald-300">Result: Correct (+100)</div>
+                          <p className="text-emerald-100 text-xs sm:text-sm mt-0.5">
+                            Great job! You selected the right answer: <strong>"{expectedAnswer}"</strong>
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="w-full bg-rose-950/90 rounded-2xl p-4 shadow-lg border border-rose-500/40 flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center font-black text-sm shrink-0">✕</div>
+                        <div>
+                          <div className="font-black text-xs sm:text-sm uppercase tracking-wider text-rose-300">Result: Incorrect (0/100)</div>
+                          <p className="text-rose-100 text-xs sm:text-sm mt-0.5">
+                            Your selection: <span className="font-bold underline">{userAns || '(No selection)'}</span> • Correct answer: <span className="font-bold text-emerald-300">{expectedAnswer || 'N/A'}</span>
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Bottom Navigation Buttons */}
                 <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 pb-6 mt-auto">
