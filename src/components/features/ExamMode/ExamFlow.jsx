@@ -284,8 +284,8 @@ const ExamFlow = () => {
                  image: i.image || i.content?.image || null,
                  expectedAnswer: i.expected || i.expectedAnswer || i.content?.expected || '',
                  userAnswer: '',
-                 score: i.type === 'mcq' ? 100 : 50,
-                 isCorrect: true,
+                 score: 0,
+                 isCorrect: false,
                  options: i.options || i.content?.options || []
              }));
           }
@@ -314,12 +314,12 @@ const ExamFlow = () => {
               pastAnswers[qId] = q.userAnswer || '';
               pastFeedbacks[qId] = {
                   id: qId,
-                  right: q.right,
-                  wrong: q.wrong,
-                  missing: q.missing,
-                  grammar: q.grammar,
-                  score: q.score !== undefined ? q.score : (q.type === 'mcq' ? 100 : 75),
-                  isCorrect: q.isCorrect !== undefined ? q.isCorrect : true
+                  right: q.right || null,
+                  wrong: q.wrong || null,
+                  missing: q.missing || null,
+                  grammar: q.grammar || null,
+                  score: q.score !== undefined ? Number(q.score) : (q.isCorrect ? 100 : 0),
+                  isCorrect: q.isCorrect !== undefined ? Boolean(q.isCorrect) : false
               };
           });
 
@@ -562,6 +562,9 @@ const ExamFlow = () => {
   };
   
   const calculateScore = (fbState = feedbacks) => {
+      if (isPastReview && pastSession && pastSession.finalScore !== undefined) {
+          return Number(pastSession.finalScore);
+      }
       let totalItems = 0;
       let scoreSum = 0;
       flowItems.forEach(item => {
@@ -572,9 +575,14 @@ const ExamFlow = () => {
          }
          if (item.type === 'mcq') {
              totalItems++;
-             const ans = (answers[item.id] || '').trim().toLowerCase();
-             const exp = (item.content?.expected || item.expected || '').trim().toLowerCase();
-             if (ans && exp && ans === exp) scoreSum += 100;
+             const fb = fbState[item.id];
+             if (fb && fb.score !== undefined) {
+                 scoreSum += Number(fb.score);
+             } else {
+                 const ans = (answers[item.id] || '').trim().toLowerCase();
+                 const exp = (item.content?.expected || item.expected || '').trim().toLowerCase();
+                 if (ans && exp && ans === exp) scoreSum += 100;
+             }
          }
       });
       return totalItems > 0 ? Math.round(scoreSum / totalItems) : 0;
@@ -993,9 +1001,20 @@ const ExamFlow = () => {
                 }
             }
         } else if (item.type === 'mcq') {
-            isCorrect = userAns.toLowerCase() === expectedAnswer.toLowerCase();
-            score = isCorrect ? 100 : 0;
-            incorrect = isCorrect ? null : `The correct answer was: ${expectedAnswer}`;
+            const fb = feedbacks[item.id];
+            const hasUserAns = Boolean(userAns && userAns.trim());
+            const hasExpected = Boolean(expectedAnswer && expectedAnswer.trim());
+            if (fb && fb.score !== undefined) {
+                score = Number(fb.score);
+                isCorrect = fb.isCorrect !== undefined ? Boolean(fb.isCorrect) : (score >= 70);
+            } else if (hasUserAns && hasExpected) {
+                isCorrect = userAns.trim().toLowerCase() === expectedAnswer.trim().toLowerCase();
+                score = isCorrect ? 100 : 0;
+            } else {
+                isCorrect = false;
+                score = 0;
+            }
+            incorrect = isCorrect ? null : (expectedAnswer ? `The correct answer was: ${expectedAnswer}` : 'Option selected was incorrect.');
         }
         
         return (
@@ -1021,10 +1040,10 @@ const ExamFlow = () => {
                   Exam Home
                 </button>
                 <div className="font-bold tracking-wider text-[10px] sm:text-xs text-right bg-white/10 px-2 sm:px-3 py-1.5 rounded-full border border-white/10 text-cyan-200">
-                  Exam: <span className="text-white font-black">{calculateScore()}%</span>
+                  Total Score: <span className="text-white font-black">{calculateScore()}%</span>
                 </div>
                 <div className={`font-bold tracking-wider text-[10px] sm:text-xs text-right px-2.5 sm:px-3 py-1.5 rounded-full border ${isCorrect ? 'bg-emerald-500/20 border-emerald-400/40 text-emerald-300' : 'bg-rose-500/20 border-rose-400/40 text-rose-300'}`}>
-                  Q. Score: <span className="font-black">{score}/100</span>
+                  Q{currentReviewIndex + 1}: <span className="font-black">{score}/100</span> {isCorrect ? '✓' : '✕'}
                 </div>
               </div>
             </div>
