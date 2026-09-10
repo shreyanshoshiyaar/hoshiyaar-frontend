@@ -245,18 +245,88 @@ const ExamFlow = () => {
     startScreen = null
   } = location.state;
   
-  const [flowItems, setFlowItems] = useState([]);
+  const getInitialPastData = () => {
+    if (!isPastReview || !pastSession) return null;
+    let questionsList = pastSession.questions || [];
+    if (questionsList.length === 0 && chapterId) {
+      const localSaved = localStorage.getItem(`hoshiyaar_last_exam_session_${chapterId}`);
+      if (localSaved) {
+        try {
+          const parsed = JSON.parse(localSaved);
+          if (parsed.questions && parsed.questions.length > 0) {
+            questionsList = parsed.questions;
+          }
+        } catch(e) {}
+      }
+    }
+    if (questionsList.length === 0 && passedFlowItems && passedFlowItems.length > 0) {
+      questionsList = passedFlowItems.filter(i => i.type !== 'revision_card').map(i => ({
+        id: i.id,
+        type: i.type,
+        question: i.text || i.question || i.content?.text || '',
+        image: i.image || i.content?.image || null,
+        expectedAnswer: i.expected || i.expectedAnswer || i.content?.expected || '',
+        userAnswer: '',
+        score: 0,
+        isCorrect: false,
+        options: i.options || i.content?.options || []
+      }));
+    }
+
+    const items = questionsList.map((q, i) => {
+      const isMcq = q.type === 'mcq' || (q.wrong && q.wrong.includes('The correct answer was:')) || (q.expectedAnswer && !q.grammar && (q.options && q.options.length > 0));
+      return {
+        type: isMcq ? 'mcq' : 'descriptive_question',
+        index: i,
+        content: {
+          text: q.question,
+          image: q.image || null,
+          expected: q.expectedAnswer,
+          options: q.options || []
+        },
+        id: q.id || `item_${i}`
+      };
+    });
+
+    const pastAnswers = {};
+    const pastFeedbacks = {};
+    questionsList.forEach((q, i) => {
+      const qId = q.id || `item_${i}`;
+      pastAnswers[qId] = q.userAnswer || '';
+      const hasRealAiMissing = q.missing && 
+        !q.missing.startsWith('Some key explanatory') && 
+        !q.missing.startsWith('Expected key concepts:') && 
+        !q.missing.startsWith('Core conceptual') &&
+        !q.missing.startsWith('Key points to remember:');
+      pastFeedbacks[qId] = {
+        id: qId,
+        right: q.right || null,
+        wrong: q.wrong || null,
+        missing: q.missing || null,
+        grammar: q.grammar || null,
+        score: q.score !== undefined ? Number(q.score) : (q.isCorrect ? 100 : 0),
+        isCorrect: q.isCorrect !== undefined ? Boolean(q.isCorrect) : false,
+        aiEvaluated: Boolean(q.aiEvaluated || (hasRealAiMissing && q.score !== undefined))
+      };
+    });
+
+    return { items, pastAnswers, pastFeedbacks };
+  };
+
+  const initialPast = getInitialPastData();
+
+  const [flowItems, setFlowItems] = useState(() => initialPast ? initialPast.items : []);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [screen, setScreen] = useState(startScreen || (isPastReview ? 'REPORT' : 'FLOW')); // FLOW, LOADING, REPORT, ANALYSIS
   const [timeLeft, setTimeLeft] = useState(TIME_LIMIT);
-  const [totalTimeSpent, setTotalTimeSpent] = useState(0);
+  const [totalTimeSpent, setTotalTimeSpent] = useState(() => pastSession?.timeSpentSeconds || 0);
   const [showTimesUp, setShowTimesUp] = useState(false);
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
   const [zoomImage, setZoomImage] = useState(null);
   
   // Track data
-  const [answers, setAnswers] = useState({});
-  const [feedbacks, setFeedbacks] = useState({});
+  const [answers, setAnswers] = useState(() => initialPast ? initialPast.pastAnswers : {});
+  const [feedbacks, setFeedbacks] = useState(() => initialPast ? initialPast.pastFeedbacks : {});
   const [showExplanation, setShowExplanation] = useState({});
   const [attempts, setAttempts] = useState({});
   const [evaluatingMap, setEvaluatingMap] = useState({});
@@ -1162,6 +1232,7 @@ const ExamFlow = () => {
         const item = flowItems[currentItemIdx];
         if (!item) return null;
         
+        const fb = (item && item.id && feedbacks) ? (feedbacks[item.id] || {}) : {};
         let score = 0;
         let isCorrect = false;
         let right = null;
@@ -1185,7 +1256,6 @@ const ExamFlow = () => {
         const mcqOptions = item.content?.options || item.options || [];
         
         if (item.type === 'descriptive_question') {
-            const fb = feedbacks[item.id];
             if (!userAns) {
                 score = 0;
                 isCorrect = false;
@@ -1228,7 +1298,6 @@ const ExamFlow = () => {
                 }
             }
         } else if (item.type === 'mcq') {
-            const fb = feedbacks[item.id];
             const hasUserAns = Boolean(userAns && userAns.trim());
             const hasExpected = Boolean(expectedAnswer && expectedAnswer.trim());
             if (fb && fb.score !== undefined) {

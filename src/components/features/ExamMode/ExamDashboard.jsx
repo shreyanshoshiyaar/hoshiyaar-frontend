@@ -203,67 +203,67 @@ const ExamDashboard = ({
   }, [chapterId, user, subjectName]);
 
   const fetchUserExamHistory = async (currentProgData = null, currentScore = null) => {
-    if (!user?._id) return;
+    if (!user?._id || !chapterId) {
+      setPastExamSessions([]);
+      return;
+    }
     setLoadingHistory(true);
     try {
       let sessions = [];
       try {
         const res = await api.get('/api/ai/history', {
-          params: { userId: user._id }
+          params: { userId: user._id, chapterId: String(chapterId) }
         });
         if (res.data?.sessions && Array.isArray(res.data.sessions)) {
-          sessions = res.data.sessions;
+          // Keep only sessions belonging to this chapter
+          sessions = res.data.sessions.filter(s => String(s.chapterId) === String(chapterId));
         }
       } catch (apiErr) {
         console.warn('Failed to fetch /api/ai/history:', apiErr);
       }
 
-      // 1. Merge any local sessions stored in browser
+      // 1. Merge local session stored for THIS chapter only
       try {
-        const localKeyPrefix = 'hoshiyaar_last_exam_session_';
-        for (let i = 0; i < localStorage.length; i++) {
-          const k = localStorage.key(i);
-          if (k && k.startsWith(localKeyPrefix)) {
-            const raw = localStorage.getItem(k);
-            if (raw) {
-              const parsed = JSON.parse(raw);
-              if (parsed && parsed.chapterId && !sessions.some(s => String(s.chapterId) === String(parsed.chapterId) && s.createdAt === parsed.createdAt)) {
-                sessions.push(parsed);
-              }
+        const localKey = `hoshiyaar_last_exam_session_${chapterId}`;
+        const raw = localStorage.getItem(localKey);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && String(parsed.chapterId) === String(chapterId)) {
+            const exists = sessions.some(s => String(s.chapterId) === String(chapterId) && (s._id === parsed._id || s.createdAt === parsed.createdAt));
+            if (!exists) {
+              sessions.push(parsed);
             }
           }
         }
       } catch (locErr) {}
 
-      // 2. Merge from user progress records (from DB User.chaptersProgress)
+      // 2. Merge from user progress records for THIS chapter only
       if (currentProgData && Array.isArray(currentProgData)) {
-        currentProgData.forEach(p => {
-          if (!p.stats) return;
-          const statsObj = p.stats;
+        const currentChapProg = currentProgData.find(p => String(p.chapter) === String(chapterId));
+        if (currentChapProg?.stats) {
+          const statsObj = currentChapProg.stats;
           const examKey = Object.keys(statsObj).find(k => k.toLowerCase().includes('exam'));
           if (examKey) {
             const stat = statsObj[examKey];
-            const cId = String(p.chapter);
             const score = stat?.lastScore !== undefined ? stat.lastScore : stat?.bestScore;
             if (score !== undefined && score !== null) {
-              const exists = sessions.some(s => String(s.chapterId) === cId);
+              const exists = sessions.some(s => String(s.chapterId) === String(chapterId));
               if (!exists) {
-                const matchChap = availableChapters.find(c => String(c.id || c.chapterNumber || c._id) === cId);
                 sessions.push({
-                  chapterId: cId,
-                  chapterTitle: matchChap?.name || matchChap?.title || (cId === String(chapterId) ? chapterTitle : `Chapter ${cId}`),
+                  chapterId: String(chapterId),
+                  chapterTitle: chapterTitle || `Chapter ${chapterId}`,
                   finalScore: Number(score),
-                  subject: p.subject || 'Science',
+                  subject: currentChapProg.subject || subjectName || 'Science',
                   timeSpentSeconds: 0,
-                  createdAt: stat?.lastReviewedAt || p.updatedAt || new Date().toISOString()
+                  createdAt: stat?.lastReviewedAt || currentChapProg.updatedAt || new Date().toISOString()
                 });
               }
             }
           }
-        });
+        }
       }
 
-      // 3. If current chapter has a score, ensure it's displayed in previous analyses
+      // 3. If current chapter has a score, ensure it's displayed
       const effectiveScore = currentScore !== null ? currentScore : latestScore;
       if (effectiveScore !== null && chapterId) {
         const exists = sessions.some(s => String(s.chapterId) === String(chapterId));
@@ -278,6 +278,9 @@ const ExamDashboard = ({
           });
         }
       }
+
+      // Strict enforcement: Only sessions for the active chapter
+      sessions = sessions.filter(s => String(s.chapterId) === String(chapterId));
 
       sessions.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
       setPastExamSessions(sessions);
