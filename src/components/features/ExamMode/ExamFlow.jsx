@@ -1045,22 +1045,22 @@ const ExamFlow = () => {
               <span className="text-white font-bold ml-4 sm:ml-6 text-xs sm:text-sm">{currentReviewIndex + 1}/{questionIndices.length}</span>
             </div>
 
-            <div className="flex-1 px-3 sm:px-4 py-3 sm:py-4 flex flex-col items-center justify-start min-h-0 max-w-5xl mx-auto w-full overflow-y-auto overflow-x-hidden">
+            <div className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 flex flex-col items-center justify-start min-h-0 max-w-5xl mx-auto w-full overflow-y-auto overflow-x-hidden">
                 {/* Question Box */}
-                <div className="w-full bg-white rounded-2xl p-3 sm:p-4 shadow-xl mb-3 text-slate-800 font-medium text-center text-xs sm:text-sm flex flex-col items-center justify-center gap-2">
+                <div className="w-full bg-white rounded-xl p-2.5 sm:p-3 shadow-md mb-2 text-slate-800 font-medium text-center text-xs sm:text-sm flex flex-col items-center justify-center gap-1.5 shrink-0">
                     <span className="leading-snug font-semibold text-slate-900">{questionText}</span>
                     {questionImage && (
                       <div 
                         onClick={() => setZoomImage(questionImage)}
-                        className="w-full flex items-center justify-center overflow-hidden rounded-xl bg-slate-50/60 p-1.5 cursor-pointer group relative"
+                        className="w-full flex items-center justify-center overflow-hidden rounded-lg bg-slate-50/60 p-1 cursor-pointer group relative"
                         title="Click to view full size"
                       >
                         <img 
                           src={questionImage} 
                           alt="Question diagram" 
-                          className="max-h-28 sm:max-h-36 md:max-h-40 w-auto max-w-full object-contain rounded-lg"
+                          className="max-h-24 sm:max-h-32 w-auto max-w-full object-contain rounded"
                         />
-                        <span className="absolute bottom-1.5 right-2 bg-slate-900/70 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full opacity-75 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                        <span className="absolute bottom-1 right-2 bg-slate-900/70 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full opacity-75 group-hover:opacity-100 transition-opacity flex items-center gap-1">
                           🔍 Enlarge
                         </span>
                       </div>
@@ -1071,8 +1071,8 @@ const ExamFlow = () => {
                 {item.type === 'descriptive_question' && (
                   <>
                     {/* Student's Answer */}
-                    <div className="w-full bg-[#EAF3FF] rounded-2xl p-3 sm:p-4 shadow-md mb-3 text-slate-800 text-xs sm:text-sm border border-blue-100">
-                        <div className="flex items-center gap-1.5 text-blue-900 font-black text-[11px] sm:text-xs uppercase tracking-wider mb-1.5">
+                    <div className="w-full bg-[#EAF3FF] rounded-xl p-2.5 sm:p-3 shadow-sm mb-2 text-slate-800 text-xs sm:text-sm border border-blue-100 shrink-0">
+                        <div className="flex items-center gap-1 text-blue-900 font-black text-[10px] sm:text-xs uppercase tracking-wider mb-1">
                           <span>📝</span> Your Submitted Answer:
                         </div>
                         <p className="text-slate-700 font-medium leading-relaxed whitespace-pre-wrap">
@@ -1081,29 +1081,29 @@ const ExamFlow = () => {
                     </div>
                     
                     {/* AI Evaluation Cards */}
-                    <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-3 pb-4">
+                    <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-2.5 pb-2">
                        {/* 1. Key Concepts Missing (Blue card) */}
-                       <div className="bg-[#1A2C5B] rounded-2xl p-3.5 sm:p-4 shadow-lg border border-blue-500/20 flex flex-col gap-1.5">
-                          <div className="flex items-center gap-2 text-blue-400 font-black text-[11px] sm:text-xs tracking-widest uppercase">
-                             <div className="w-4 h-4 rounded-full bg-blue-500 text-white flex items-center justify-center text-[10px]">?</div>
+                       <div className="bg-[#1A2C5B] rounded-xl p-2.5 sm:p-3 shadow border border-blue-500/20 flex flex-col gap-1">
+                          <div className="flex items-center gap-1.5 text-blue-400 font-black text-[10px] sm:text-xs tracking-widest uppercase">
+                             <div className="w-3.5 h-3.5 rounded-full bg-blue-500 text-white flex items-center justify-center text-[9px]">?</div>
                              Key Concepts Missing
                           </div>
                           <p className="text-white text-xs sm:text-sm leading-relaxed">{missing}</p>
                        </div>
                        
                        {/* 2. Corrections / Gaps (Rose card) */}
-                       <div className="bg-[#2D1B2E] rounded-2xl p-3.5 sm:p-4 shadow-lg border border-rose-500/20 flex flex-col gap-1.5">
-                          <div className="flex items-center gap-2 text-rose-400 font-black text-[11px] sm:text-xs tracking-widest uppercase">
-                             <div className="w-4 h-4 rounded-full bg-rose-500 text-white flex items-center justify-center text-[10px]">✕</div>
+                       <div className="bg-[#2D1B2E] rounded-xl p-2.5 sm:p-3 shadow border border-rose-500/20 flex flex-col gap-1">
+                          <div className="flex items-center gap-1.5 text-rose-400 font-black text-[10px] sm:text-xs tracking-widest uppercase">
+                             <div className="w-3.5 h-3.5 rounded-full bg-rose-500 text-white flex items-center justify-center text-[9px]">✕</div>
                              Corrections / Gaps
                           </div>
                           <p className="text-white text-xs sm:text-sm leading-relaxed">{incorrect}</p>
                        </div>
                        
                        {/* 3. Grammar & Clarity (Yellow card) */}
-                       <div className="bg-[#2D2A1B] rounded-2xl p-3.5 sm:p-4 shadow-lg border border-yellow-500/20 flex flex-col gap-1.5">
-                          <div className="flex items-center gap-2 text-yellow-400 font-black text-[11px] sm:text-xs tracking-widest uppercase">
-                             <div className="w-4 h-4 rounded-full bg-yellow-500 text-white flex items-center justify-center text-[10px]">✎</div>
+                       <div className="bg-[#2D2A1B] rounded-xl p-2.5 sm:p-3 shadow border border-yellow-500/20 flex flex-col gap-1">
+                          <div className="flex items-center gap-1.5 text-yellow-400 font-black text-[10px] sm:text-xs tracking-widest uppercase">
+                             <div className="w-3.5 h-3.5 rounded-full bg-yellow-500 text-white flex items-center justify-center text-[9px]">✎</div>
                              Grammar & Clarity
                           </div>
                           <p className="text-white text-xs sm:text-sm leading-relaxed">{grammar}</p>
@@ -1190,14 +1190,14 @@ const ExamFlow = () => {
                 )}
 
                 {/* Bottom Navigation Buttons */}
-                <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 pb-6 mt-auto">
+                <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-2 pt-1 pb-3 mt-auto shrink-0">
                    <button
                      type="button"
                      onClick={(e) => {
                        e.stopPropagation();
                        setScreen('REPORT');
                      }}
-                     className="w-full sm:w-auto px-5 py-3 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                     className="w-full sm:w-auto px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
                    >
                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 17l-5-5m0 0l5-5m-5 5h12" /></svg>
                      Back to Score Report
@@ -1211,7 +1211,7 @@ const ExamFlow = () => {
                            e.stopPropagation();
                            setCurrentReviewIndex(prev => prev - 1);
                          }}
-                         className="flex-1 sm:flex-initial px-5 py-3 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-all cursor-pointer active:scale-95"
+                         className="flex-1 sm:flex-initial px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-all cursor-pointer active:scale-95"
                        >
                          Previous
                        </button>
@@ -1223,7 +1223,7 @@ const ExamFlow = () => {
                            e.stopPropagation();
                            setCurrentReviewIndex(prev => prev + 1);
                          }}
-                         className="flex-1 sm:flex-initial px-6 py-3 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-md cursor-pointer active:scale-95"
+                         className="flex-1 sm:flex-initial px-5 py-2 rounded-xl font-bold text-xs uppercase tracking-wider bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-md cursor-pointer active:scale-95"
                        >
                          Next Question ➔
                        </button>
@@ -1231,7 +1231,7 @@ const ExamFlow = () => {
                        <button
                          type="button"
                          onClick={handleExit}
-                         className="flex-1 sm:flex-initial px-6 py-3 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                         className="flex-1 sm:flex-initial px-5 py-2 rounded-xl font-black text-xs uppercase tracking-wider bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-95"
                        >
                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                          Complete & Exit
