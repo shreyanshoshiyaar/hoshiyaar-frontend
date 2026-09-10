@@ -561,10 +561,20 @@ const ExamFlow = () => {
           const newFeedbacks = { ...feedbacks };
           if (Array.isArray(response.data)) {
               response.data.forEach(fb => {
-                  newFeedbacks[fb.id] = {
+                  const evalData = {
                     ...fb,
                     aiEvaluated: fb.aiEvaluated !== undefined ? Boolean(fb.aiEvaluated) : true
                   };
+                  newFeedbacks[fb.id] = evalData;
+                  const matchedItem = flowItems.find(it => {
+                    if (String(it.id) === String(fb.id)) return true;
+                    const c1 = String(it.id).replace(/\D/g, '');
+                    const c2 = String(fb.id).replace(/\D/g, '');
+                    return Boolean(c1 && c2 && c1 === c2);
+                  });
+                  if (matchedItem) {
+                    newFeedbacks[matchedItem.id] = evalData;
+                  }
               });
           }
           setFeedbacks(newFeedbacks);
@@ -1111,7 +1121,19 @@ const ExamFlow = () => {
         const item = flowItems[currentItemIdx];
         if (!item) return null;
         
-        const fb = (item && item.id && feedbacks) ? (feedbacks[item.id] || {}) : {};
+        const getFeedbackForItem = (itemId, index) => {
+            if (!feedbacks) return {};
+            if (itemId && feedbacks[itemId]) return feedbacks[itemId];
+            const idDigits = String(itemId || '').replace(/\D/g, '');
+            for (const [key, val] of Object.entries(feedbacks)) {
+                if (String(key) === String(itemId)) return val;
+                const keyDigits = String(key).replace(/\D/g, '');
+                if (idDigits && keyDigits && idDigits === keyDigits) return val;
+            }
+            if (index !== undefined && feedbacks[`item_${index}`]) return feedbacks[`item_${index}`];
+            return {};
+        };
+        const fb = getFeedbackForItem(item?.id, item?.index);
         let score = 0;
         let isCorrect = false;
         let right = null;
@@ -1297,14 +1319,7 @@ const ExamFlow = () => {
                              <div className="w-3.5 h-3.5 rounded-full bg-blue-500 text-white flex items-center justify-center text-[9px]">?</div>
                              Key Concepts Missing
                           </div>
-                          {evaluatingMap[item.id] ? (
-                            <div className="flex items-center gap-2 text-cyan-300 py-1">
-                              <div className="w-3.5 h-3.5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
-                              <span className="text-xs sm:text-sm font-medium animate-pulse">Extracting missing concepts via AI...</span>
-                            </div>
-                          ) : (
-                            <p className="text-white text-xs sm:text-sm leading-relaxed">{missing}</p>
-                          )}
+                          <p className="text-white text-xs sm:text-sm leading-relaxed">{missing}</p>
                        </div>
                        
                        {/* 2. Corrections / Gaps (Rose card) */}
@@ -1313,14 +1328,7 @@ const ExamFlow = () => {
                              <div className="w-3.5 h-3.5 rounded-full bg-rose-500 text-white flex items-center justify-center text-[9px]">✕</div>
                              Corrections / Gaps
                           </div>
-                          {evaluatingMap[item.id] ? (
-                            <div className="flex items-center gap-2 text-rose-300 py-1">
-                              <div className="w-3.5 h-3.5 border-2 border-rose-400 border-t-transparent rounded-full animate-spin"></div>
-                              <span className="text-xs sm:text-sm font-medium animate-pulse">Checking corrections & gaps via AI...</span>
-                            </div>
-                          ) : (
-                            <p className="text-white text-xs sm:text-sm leading-relaxed">{incorrect}</p>
-                          )}
+                          <p className="text-white text-xs sm:text-sm leading-relaxed">{incorrect}</p>
                        </div>
                        
                        {/* 3. Grammar & Clarity (Yellow card) */}
@@ -1329,14 +1337,7 @@ const ExamFlow = () => {
                              <div className="w-3.5 h-3.5 rounded-full bg-yellow-500 text-white flex items-center justify-center text-[9px]">✎</div>
                              Grammar & Clarity
                           </div>
-                          {evaluatingMap[item.id] ? (
-                            <div className="flex items-center gap-2 text-yellow-300 py-1">
-                              <div className="w-3.5 h-3.5 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
-                              <span className="text-xs sm:text-sm font-medium animate-pulse">Analyzing grammar & phrasing via AI...</span>
-                            </div>
-                          ) : (
-                            <p className="text-white text-xs sm:text-sm leading-relaxed">{grammar}</p>
-                          )}
+                          <p className="text-white text-xs sm:text-sm leading-relaxed">{grammar}</p>
                        </div>
                     </div>
                   </>
