@@ -969,8 +969,6 @@ const ExamFlow = () => {
                 if (!missing) {
                     if (isCorrect && score >= 85) {
                         missing = "All required core concepts were covered!";
-                    } else if (expectedAnswer) {
-                        missing = `Important concepts from model answer: ${expectedAnswer}`;
                     } else {
                         missing = "Some key explanatory details or reasoning were missing.";
                     }
@@ -980,7 +978,7 @@ const ExamFlow = () => {
                     if (isCorrect) {
                         incorrect = "No major conceptual errors found in your answer.";
                     } else if (expectedAnswer) {
-                        incorrect = `Review key concepts: ${expectedAnswer}`;
+                        incorrect = `Expected key points: ${expectedAnswer}`;
                     } else {
                         incorrect = "Incomplete or inaccurate explanation.";
                     }
@@ -1048,38 +1046,6 @@ const ExamFlow = () => {
             </div>
 
             <div className="flex-1 px-3 sm:px-4 py-3 sm:py-4 flex flex-col items-center justify-start min-h-0 max-w-5xl mx-auto w-full overflow-y-auto overflow-x-hidden">
-                {/* Overall Exam Score Summary Banner */}
-                <div className="w-full bg-gradient-to-r from-purple-950/70 via-indigo-950/70 to-blue-950/70 border border-purple-500/30 rounded-2xl p-3 sm:px-4 sm:py-3 shadow-lg mb-3 flex flex-wrap items-center justify-between gap-3 text-white">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-400/40 flex items-center justify-center font-black text-sm text-purple-200 shrink-0">
-                      {calculateScore()}%
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[10px] uppercase font-bold tracking-wider text-purple-200/80">Exam Completed</span>
-                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs font-semibold">
-                        <span className="text-emerald-400">✓ {calculateStats().correct} Correct</span>
-                        <span className="text-white/30">•</span>
-                        <span className="text-rose-400">✕ {calculateStats().incorrect} Incorrect</span>
-                        {calculateStats().skipped > 0 && (
-                          <>
-                            <span className="text-white/30">•</span>
-                            <span className="text-amber-400">⚠ {calculateStats().skipped} Skipped</span>
-                          </>
-                        )}
-                        <span className="text-white/30">•</span>
-                        <span className="text-cyan-300">⏱ {formatTime(totalTimeSpent)}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setScreen('REPORT')}
-                    className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-bold text-white transition flex items-center gap-1.5 cursor-pointer shrink-0 ml-auto"
-                  >
-                    <span>📊</span> Score Certificate
-                  </button>
-                </div>
-
                 {/* Question Box */}
                 <div className="w-full bg-white rounded-2xl p-3 sm:p-4 shadow-xl mb-3 text-slate-800 font-medium text-center text-xs sm:text-sm flex flex-col items-center justify-center gap-2">
                     <span className="leading-snug font-semibold text-slate-900">{questionText}</span>
@@ -1113,19 +1079,6 @@ const ExamFlow = () => {
                           {userAns || <span className="italic text-slate-400">No answer was submitted for this question.</span>}
                         </p>
                     </div>
-
-                    {/* Dedicated Model / Expected Answer Card */}
-                    {expectedAnswer && (
-                      <div className="w-full bg-gradient-to-br from-[#072417] to-[#04170E] border border-emerald-500/40 rounded-2xl p-3.5 sm:p-4 shadow-lg mb-3 text-xs sm:text-sm">
-                        <div className="flex items-center gap-2 text-emerald-400 font-black text-[11px] sm:text-xs tracking-wider uppercase mb-1.5">
-                          <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">🎯</div>
-                          Expected / Model Answer:
-                        </div>
-                        <p className="text-emerald-100 font-medium leading-relaxed whitespace-pre-wrap">
-                          {expectedAnswer}
-                        </p>
-                      </div>
-                    )}
                     
                     {/* 2x2 AI Evaluation Cards */}
                     <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-3 pb-4">
@@ -1149,20 +1102,20 @@ const ExamFlow = () => {
                           <p className="text-white text-xs sm:text-sm leading-relaxed">{missing}</p>
                        </div>
                        
-                       {/* 3. Corrections / Conceptual Gaps (Rose card) */}
+                       {/* 3. Corrections / Gaps (Rose card) */}
                        <div className="bg-[#2D1B2E] rounded-2xl p-3.5 sm:p-4 shadow-lg border border-rose-500/20 flex flex-col gap-1.5">
                           <div className="flex items-center gap-2 text-rose-400 font-black text-[11px] sm:text-xs tracking-widest uppercase">
                              <div className="w-4 h-4 rounded-full bg-rose-500 text-white flex items-center justify-center text-[10px]">✕</div>
-                             Corrections / Conceptual Gaps
+                             Corrections / Gaps
                           </div>
                           <p className="text-white text-xs sm:text-sm leading-relaxed">{incorrect}</p>
                        </div>
                        
-                       {/* 4. Grammar & Expression (Yellow card) */}
+                       {/* 4. Grammar & Clarity (Yellow card) */}
                        <div className="bg-[#2D2A1B] rounded-2xl p-3.5 sm:p-4 shadow-lg border border-yellow-500/20 flex flex-col gap-1.5">
                           <div className="flex items-center gap-2 text-yellow-400 font-black text-[11px] sm:text-xs tracking-widest uppercase">
                              <div className="w-4 h-4 rounded-full bg-yellow-500 text-white flex items-center justify-center text-[10px]">✎</div>
-                             Grammar & Scientific Expression
+                             Grammar & Clarity
                           </div>
                           <p className="text-white text-xs sm:text-sm leading-relaxed">{grammar}</p>
                        </div>
