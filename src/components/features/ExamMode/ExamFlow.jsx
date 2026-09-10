@@ -702,129 +702,8 @@ const ExamFlow = () => {
               else incorrect++;
           }
       });
-      return { correct, incorrect, skipped };
-  };
-
-  // On-demand AI evaluation for Review Analysis if a descriptive question lacks real AI generated concepts
-  useEffect(() => {
-    if (screen !== 'ANALYSIS') return;
-    if (!flowItems || flowItems.length === 0) return;
-
-    const qIndices = [];
-    flowItems.forEach((item, index) => {
-      if (item.type !== 'revision_card') qIndices.push(index);
-    });
-    if (qIndices.length === 0) return;
-
-    const validReviewIdx = Math.min(Math.max(0, currentReviewIndex), qIndices.length - 1);
-    const currentItemIdx = qIndices[validReviewIdx];
-    const item = flowItems[currentItemIdx];
-    if (!item || item.type !== 'descriptive_question') return;
-
-    const userAns = answers[item.id] ? answers[item.id].trim() : '';
-    if (!userAns || userAns.toLowerCase() === 'no answer submitted') return;
-
-    const fb = feedbacks[item.id];
-    const isFallbackMissing = !fb?.missing || 
-      fb.missing.startsWith('Some key explanatory') || 
-      fb.missing.startsWith('Expected key concepts:') || 
-      fb.missing.startsWith('Core conceptual points') ||
-      fb.missing.startsWith('Review core chapter') ||
-      fb.missing.startsWith('Missing details');
-
-    const needsAiEval = !fb || !fb.aiEvaluated || isFallbackMissing;
-
-    if (!needsAiEval || evaluatingMap[item.id]) return;
-
-    let isMounted = true;
-    const evaluateItem = async () => {
-      setEvaluatingMap(prev => ({ ...prev, [item.id]: true }));
-      try {
-        const expectedAnswer = item.content?.expected || item.content?.expectedAnswer || item.expected || item.expectedAnswer || item.content?.answer || item.answer || '';
-        const questionText = item.content?.text || item.content?.question || item.text || item.question || '';
-
-        const res = await api.post('/api/ai/evaluate', {
-          question: questionText,
-          userAnswer: userAns,
-          expectedAnswer,
-          subjectKnowledge: subjectKnowledge || chapterTitle || 'Science',
-          userId: user?._id,
-          chapterId,
-          chapterTitle
-        });
-
-        if (res.data && isMounted) {
-          const aiData = res.data;
-          const scoreNum = Number(aiData.score !== undefined ? aiData.score : (aiData.isCorrect ? 85 : 40));
-          const isCorr = Boolean(aiData.isCorrect !== undefined ? aiData.isCorrect : (scoreNum >= 70));
-
-          setFeedbacks(prev => {
-            const updated = {
-              ...prev,
-              [item.id]: {
-                id: item.id,
-                right: aiData.right,
-                wrong: aiData.wrong,
-                missing: aiData.missing,
-                grammar: aiData.grammar,
-                score: scoreNum,
-                isCorrect: isCorr,
-                aiEvaluated: true
-              }
-            };
-
-            // Persist into localStorage session
-            try {
-              if (chapterId) {
-                const localSessionKey = `hoshiyaar_last_exam_session_${chapterId}`;
-                const saved = localStorage.getItem(localSessionKey);
-                if (saved) {
-                  const parsedSession = JSON.parse(saved);
-                  if (parsedSession && Array.isArray(parsedSession.questions)) {
-                    parsedSession.questions = parsedSession.questions.map(q => {
-                      if (q.id === item.id) {
-                        return {
-                          ...q,
-                          right: aiData.right,
-                          wrong: aiData.wrong,
-                          missing: aiData.missing,
-                          grammar: aiData.grammar,
-                          score: scoreNum,
-                          isCorrect: isCorr,
-                          aiEvaluated: true
-                        };
-                      }
-                      return q;
-                    });
-                    const totalQScore = parsedSession.questions.reduce((sum, q) => sum + (Number(q.score) || 0), 0);
-                    parsedSession.finalScore = Math.round(totalQScore / parsedSession.questions.length);
-                    localStorage.setItem(localSessionKey, JSON.stringify(parsedSession));
-                    localStorage.setItem(`hoshiyaar_exam_score_${chapterId}`, parsedSession.finalScore);
-                  }
-                }
-              }
-            } catch (storageErr) {
-              console.warn('Could not update localStorage exam session with AI evaluation:', storageErr);
-            }
-
-            return updated;
-          });
-        }
-      } catch (err) {
-        console.error('Failed to evaluate question with AI:', err);
-      } finally {
-        if (isMounted) {
-          setEvaluatingMap(prev => ({ ...prev, [item.id]: false }));
-        }
-      }
-    };
-
-    evaluateItem();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [screen, currentReviewIndex, flowItems, answers, feedbacks, evaluatingMap, subjectKnowledge, chapterTitle, chapterId, user]);
+       return { correct, incorrect, skipped };
+   };
 
   const handleManualReEvaluate = async (item) => {
     if (!item) return;
@@ -1335,24 +1214,8 @@ const ExamFlow = () => {
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
                   Exam Home
                 </button>
-                <div className="font-bold tracking-wider text-[10px] sm:text-xs text-right bg-white/10 px-2 sm:px-3 py-1.5 rounded-full border border-white/10 text-cyan-200">
+                <div className="font-bold tracking-wider text-[10px] sm:text-xs text-right bg-white/10 px-3 py-1.5 rounded-full border border-white/10 text-cyan-200">
                   Total Score: <span className="text-white font-black">{calculateScore()}%</span>
-                </div>
-                <div className={`font-bold tracking-wider text-[10px] sm:text-xs text-right px-2.5 sm:px-3 py-1.5 rounded-full border ${
-                  evaluatingMap[item.id]
-                    ? 'bg-blue-500/20 border-blue-400/40 text-blue-300 animate-pulse'
-                    : isCorrect 
-                      ? 'bg-emerald-500/20 border-emerald-400/40 text-emerald-300' 
-                      : 'bg-rose-500/20 border-rose-400/40 text-rose-300'
-                }`}>
-                  {evaluatingMap[item.id] ? (
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-                      Q{currentReviewIndex + 1}: AI Evaluating...
-                    </span>
-                  ) : (
-                    <>Q{currentReviewIndex + 1}: <span className="font-black">{score}/100</span> {isCorrect ? '✓' : '✕'}</>
-                  )}
                 </div>
               </div>
             </div>
@@ -1536,7 +1399,7 @@ const ExamFlow = () => {
                       <div className="w-full bg-emerald-950/90 rounded-2xl p-4 shadow-lg border border-emerald-500/40 flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-black text-sm shrink-0">✓</div>
                         <div>
-                          <div className="font-black text-xs sm:text-sm uppercase tracking-wider text-emerald-300">Result: Correct (+100)</div>
+                          <div className="font-black text-xs sm:text-sm uppercase tracking-wider text-emerald-300">Result: Correct</div>
                           <p className="text-emerald-100 text-xs sm:text-sm mt-0.5">
                             Great job! You selected the right answer: <strong>"{expectedAnswer}"</strong>
                           </p>
@@ -1546,7 +1409,7 @@ const ExamFlow = () => {
                       <div className="w-full bg-rose-950/90 rounded-2xl p-4 shadow-lg border border-rose-500/40 flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center font-black text-sm shrink-0">✕</div>
                         <div>
-                          <div className="font-black text-xs sm:text-sm uppercase tracking-wider text-rose-300">Result: Incorrect (0/100)</div>
+                          <div className="font-black text-xs sm:text-sm uppercase tracking-wider text-rose-300">Result: Incorrect</div>
                           <p className="text-rose-100 text-xs sm:text-sm mt-0.5">
                             Your selection: <span className="font-bold underline">{userAns || '(No selection)'}</span> • Correct answer: <span className="font-bold text-emerald-300">{expectedAnswer || 'N/A'}</span>
                           </p>
