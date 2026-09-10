@@ -612,6 +612,21 @@ const ExamFlow = () => {
     return null;
   };
 
+  const resolveAns = (item) => {
+    if (!item) return '';
+    if (answers[item.id]) return answers[item.id];
+    if (item.userAnswer) return item.userAnswer;
+    if (item.content?.userAnswer) return item.content.userAnswer;
+    const idDigits = String(item.id || '').replace(/\D/g, '');
+    for (const [key, val] of Object.entries(answers)) {
+      if (String(key) === String(item.id)) return val;
+      const keyDigits = String(key).replace(/\D/g, '');
+      if (idDigits && keyDigits && idDigits === keyDigits) return val;
+    }
+    if (item.index !== undefined && answers[`item_${item.index}`]) return answers[`item_${item.index}`];
+    return '';
+  };
+
   const finalizeExam = async (fbState) => {
       const finalScore = calculateScore(fbState);
       try {
@@ -624,7 +639,7 @@ const ExamFlow = () => {
                      type: i.type,
                      question: i.content?.text || i.text || '',
                      image: i.content?.image || i.image || null,
-                     userAnswer: answers[i.id] || '',
+                     userAnswer: resolveAns(i),
                      expectedAnswer: i.content?.expected || i.expected || '',
                      right: fb.right || null,
                      wrong: fb.wrong || null,
@@ -730,11 +745,12 @@ const ExamFlow = () => {
 
   const handleManualReEvaluate = async (item) => {
     if (!item) return;
-    const userAns = (answers[item.id] || item.userAnswer || '').trim();
+    const userAns = resolveAns(item).trim();
     if (!userAns || userAns.toLowerCase() === 'no answer submitted') {
       alert('Cannot evaluate an empty answer.');
       return;
     }
+    if (evaluatingMap[item.id]) return;
     setEvaluatingMap(prev => ({ ...prev, [item.id]: true }));
     try {
       const expectedAnswer = item.content?.expected || item.content?.expectedAnswer || item.expected || item.expectedAnswer || item.content?.answer || item.answer || '';
@@ -820,11 +836,33 @@ const ExamFlow = () => {
       }
     } catch (err) {
       console.error('Manual re-evaluation failed:', err);
-      alert('AI evaluation failed: ' + (err.response?.data?.error || err.message));
     } finally {
       setEvaluatingMap(prev => ({ ...prev, [item.id]: false }));
     }
   };
+
+  // Auto-evaluate any unevaluated descriptive question when viewing Review Analysis
+  useEffect(() => {
+    if (screen !== 'ANALYSIS' || flowItems.length === 0) return;
+    
+    const questionIndices = [];
+    flowItems.forEach((it, idx) => {
+      if (it.type !== 'revision_card') questionIndices.push(idx);
+    });
+    if (questionIndices.length === 0) return;
+
+    const validReviewIdx = Math.min(Math.max(0, currentReviewIndex), questionIndices.length - 1);
+    const currentItemIdx = questionIndices[validReviewIdx];
+    const curItem = flowItems[currentItemIdx];
+
+    if (curItem && curItem.type === 'descriptive_question') {
+      const uAns = resolveAns(curItem).trim();
+      const fb = resolveFb(feedbacks, curItem);
+      if (uAns && uAns.length > 5 && uAns.toLowerCase() !== 'no answer submitted' && !fb?.aiEvaluated && !evaluatingMap[curItem.id]) {
+        handleManualReEvaluate(curItem);
+      }
+    }
+  }, [screen, currentReviewIndex, flowItems, feedbacks, evaluatingMap]);
 
   const TopBar = ({ title, onBack }) => (
     <div className="flex items-center justify-center p-4 sm:px-6 text-white shrink-0 max-w-3xl mx-auto w-full relative h-20">
@@ -1163,7 +1201,7 @@ const ExamFlow = () => {
             return val;
         };
         
-        const userAns = answers[item.id] ? answers[item.id].trim() : '';
+        const userAns = resolveAns(item).trim();
         const expectedAnswer = item.content?.expected || item.content?.expectedAnswer || item.expected || item.expectedAnswer || item.content?.answer || item.answer || '';
         const questionText = item.content?.text || item.content?.question || item.text || item.question || '';
         const questionImage = item.content?.image || item.image || null;
@@ -1174,7 +1212,7 @@ const ExamFlow = () => {
                 score = 0;
                 isCorrect = false;
                 right = null;
-                missing = expectedAnswer ? `Expected key concepts: ${expectedAnswer}` : "No answer was submitted for this question.";
+                missing = expectedAnswer ? expectedAnswer : "No answer was submitted for this question.";
                 incorrect = "No response recorded.";
                 grammar = "N/A (No answer submitted)";
             } else {
