@@ -322,6 +322,19 @@ const ExamDashboard = ({
       }
     }
 
+    if (!sessionQuestions || sessionQuestions.length === 0) {
+      if (user?._id) {
+        try {
+          const sRes = await api.get('/api/ai/latest-session', {
+            params: { userId: user._id, chapterId: sessionToPass.chapterId || chapterId }
+          });
+          if (sRes.data?.session?.questions?.length > 0) {
+            sessionQuestions = sRes.data.session.questions;
+          }
+        } catch (e) {}
+      }
+    }
+
     navigate('/exam/flow', {
       state: {
         pastSession: { ...sessionToPass, questions: sessionQuestions },
