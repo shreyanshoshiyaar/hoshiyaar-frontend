@@ -717,7 +717,7 @@ const ExamFlow = () => {
 
   const handleManualReEvaluate = async (item) => {
     if (!item) return;
-    const userAns = answers[item.id] ? answers[item.id].trim() : '';
+    const userAns = (answers[item.id] || item.userAnswer || '').trim();
     if (!userAns || userAns.toLowerCase() === 'no answer submitted') {
       alert('Cannot evaluate an empty answer.');
       return;
@@ -741,21 +741,30 @@ const ExamFlow = () => {
         const aiData = res.data;
         const scoreNum = Number(aiData.score !== undefined ? aiData.score : (aiData.isCorrect ? 85 : 40));
         const isCorr = Boolean(aiData.isCorrect !== undefined ? aiData.isCorrect : (scoreNum >= 70));
+        const idDigits = String(item.id).replace(/\D/g, '');
+
+        const evalData = {
+          id: item.id,
+          right: aiData.right,
+          wrong: aiData.wrong,
+          missing: aiData.missing,
+          grammar: aiData.grammar,
+          score: scoreNum,
+          isCorrect: isCorr,
+          aiEvaluated: true
+        };
 
         setFeedbacks(prev => {
           const updated = {
             ...prev,
-            [item.id]: {
-              id: item.id,
-              right: aiData.right,
-              wrong: aiData.wrong,
-              missing: aiData.missing,
-              grammar: aiData.grammar,
-              score: scoreNum,
-              isCorrect: isCorr,
-              aiEvaluated: true
-            }
+            [item.id]: evalData
           };
+          if (idDigits) {
+            updated[idDigits] = evalData;
+          }
+          if (item.index !== undefined) {
+            updated[`item_${item.index}`] = evalData;
+          }
 
           try {
             if (chapterId) {
@@ -764,8 +773,11 @@ const ExamFlow = () => {
               if (saved) {
                 const parsedSession = JSON.parse(saved);
                 if (parsedSession && Array.isArray(parsedSession.questions)) {
-                  parsedSession.questions = parsedSession.questions.map(q => {
-                    if (q.id === item.id) {
+                  parsedSession.questions = parsedSession.questions.map((q, qIdx) => {
+                    const match = q.id === item.id || 
+                                  (item.index !== undefined && qIdx === item.index) ||
+                                  (idDigits && String(q.id).replace(/\D/g, '') === idDigits);
+                    if (match) {
                       return {
                         ...q,
                         right: aiData.right,
@@ -1175,18 +1187,18 @@ const ExamFlow = () => {
                 if (!missing) {
                     if (isCorrect && score >= 85) {
                         missing = "All required core concepts were covered!";
+                    } else if (expectedAnswer) {
+                        missing = expectedAnswer;
                     } else {
-                        missing = "Some key explanatory details or reasoning were missing.";
+                        missing = "Key concepts from the curriculum were omitted.";
                     }
                 }
 
                 if (!incorrect) {
                     if (isCorrect) {
                         incorrect = "No major conceptual errors found in your answer.";
-                    } else if (expectedAnswer) {
-                        incorrect = `Expected key points: ${expectedAnswer}`;
                     } else {
-                        incorrect = "Incomplete or inaccurate explanation.";
+                        incorrect = "Review your explanation and use precise scientific terminology.";
                     }
                 }
 
@@ -1195,7 +1207,7 @@ const ExamFlow = () => {
                 }
 
                 if (!grammar) {
-                    grammar = "Clear sentence structure and terminology.";
+                    grammar = "Express thoughts in clear, structured sentences with relevant terms.";
                 }
             }
         } else if (item.type === 'mcq') {
