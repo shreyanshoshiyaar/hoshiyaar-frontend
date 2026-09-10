@@ -25,6 +25,8 @@ const ExamDashboard = ({
   const [showRevisionPrompt, setShowRevisionPrompt] = useState(false);
   const [examLimits, setExamLimits] = useState(null);
   const [latestSession, setLatestSession] = useState(null);
+  const [pastExamSessions, setPastExamSessions] = useState([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
   const [availableChapters, setAvailableChapters] = useState([]);
   const [subjectExamChapters, setSubjectExamChapters] = useState([]);
   const [examChaptersLoaded, setExamChaptersLoaded] = useState(false);
@@ -196,6 +198,68 @@ const ExamDashboard = ({
 
     fetchExamConfigAndScore();
   }, [chapterId, user, subjectName]);
+
+  const fetchUserExamHistory = async () => {
+    if (!user?._id) return;
+    setLoadingHistory(true);
+    try {
+      const res = await api.get('/api/ai/history', {
+        params: { userId: user._id }
+      });
+      let sessions = [];
+      if (res.data?.sessions && Array.isArray(res.data.sessions)) {
+        sessions = res.data.sessions;
+      }
+
+      // Merge any local sessions stored in browser
+      try {
+        const localKeyPrefix = 'hoshiyaar_last_exam_session_';
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && k.startsWith(localKeyPrefix)) {
+            const raw = localStorage.getItem(k);
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (parsed && parsed.chapterId && !sessions.some(s => String(s.chapterId) === String(parsed.chapterId) && s.createdAt === parsed.createdAt)) {
+                sessions.push(parsed);
+              }
+            }
+          }
+        }
+      } catch (locErr) {}
+
+      sessions.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+      setPastExamSessions(sessions);
+    } catch (err) {
+      console.warn('Failed to fetch user exam history:', err);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user?._id) {
+      fetchUserExamHistory();
+    }
+  }, [user?._id]);
+
+  const openPastReview = (sessionToPass) => {
+    if (!sessionToPass) return;
+    navigate('/exam/flow', {
+      state: {
+        pastSession: sessionToPass,
+        isPastReview: true,
+        startScreen: 'ANALYSIS',
+        chapterTitle: sessionToPass.chapterTitle || chapterTitle,
+        chapterId: sessionToPass.chapterId || chapterId,
+        subjectKnowledge: sessionToPass.subject || examConfig?.subjectKnowledge || subjectName,
+        flowItems: examConfig?.flowItems || sessionToPass.questions,
+        revisionCards: examConfig?.revisionCards,
+        questions: examConfig?.questions,
+        mcqs: examConfig?.mcqs
+      }
+    });
+  };
 
   // Show Coming Soon immediately for non-admins to avoid long loading screen, 
   // it will automatically update if examModeLive is fetched as true
@@ -466,33 +530,39 @@ const ExamDashboard = ({
               {(latestSession || latestScore !== null) && (
                 <button
                   onClick={() => {
-                    const sessionToPass = latestSession || {
-                      finalScore: latestScore,
-                      questions: (examConfig?.flowItems || []).filter(i => i.type !== 'revision_card').map((item, idx) => ({
-                        id: `item_${idx}`,
-                        type: item.type,
-                        question: item.text || item.question || item.content?.text || '',
-                        expectedAnswer: item.expected || item.expectedAnswer || item.content?.expected || '',
-                        userAnswer: '',
-                        score: item.type === 'mcq' ? 100 : 50,
-                        isCorrect: true,
-                        options: item.options || item.content?.options || []
-                      }))
-                    };
-                    navigate('/exam/flow', {
-                      state: {
-                        pastSession: sessionToPass,
-                        isPastReview: true,
-                        startScreen: 'ANALYSIS',
+                    let sessionToPass = latestSession;
+                    if (!sessionToPass || !sessionToPass.questions || sessionToPass.questions.length === 0) {
+                      const localSaved = localStorage.getItem(`hoshiyaar_last_exam_session_${chapterId}`);
+                      if (localSaved) {
+                        try {
+                          const parsed = JSON.parse(localSaved);
+                          if (parsed && parsed.questions && parsed.questions.length > 0) {
+                            sessionToPass = parsed;
+                          }
+                        } catch (e) {
+                          console.error("Failed to parse local session", e);
+                        }
+                      }
+                    }
+
+                    if (!sessionToPass) {
+                      sessionToPass = {
+                        finalScore: latestScore !== null ? latestScore : 0,
                         chapterTitle,
                         chapterId,
-                        subjectKnowledge: examConfig?.subjectKnowledge || subjectName,
-                        flowItems: examConfig?.flowItems,
-                        revisionCards: examConfig?.revisionCards,
-                        questions: examConfig?.questions,
-                        mcqs: examConfig?.mcqs
-                      }
-                    });
+                        questions: (examConfig?.flowItems || []).filter(i => i.type !== 'revision_card').map((item, idx) => ({
+                          id: `item_${idx}`,
+                          type: item.type,
+                          question: item.text || item.question || item.content?.text || '',
+                          expectedAnswer: item.expected || item.expectedAnswer || item.content?.expected || '',
+                          userAnswer: '',
+                          score: 0,
+                          isCorrect: false,
+                          options: item.options || item.content?.options || []
+                        }))
+                      };
+                    }
+                    openPastReview(sessionToPass);
                   }}
                   className="flex-1 w-full min-h-[44px] px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-700 hover:from-purple-500 hover:to-indigo-600 text-white border border-purple-400/40 shadow-[0_4px_16px_rgba(147,51,234,0.35)] hover:shadow-[0_4px_20px_rgba(147,51,234,0.55)] transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 whitespace-nowrap"
                 >
@@ -527,6 +597,102 @@ const ExamDashboard = ({
             )}
           </div>
         )}
+
+        {/* --- DEDICATED PREVIOUS EXAM ANALYSES SECTION --- */}
+        <div className="w-full mt-6 mb-6">
+          <div className="flex items-center justify-between mb-3 px-1">
+            <div className="flex items-center gap-2">
+              <span className="text-base sm:text-lg">📜</span>
+              <h3 className="text-sm sm:text-base font-black text-white tracking-wide">
+                Previous Exam Analyses
+              </h3>
+            </div>
+            {pastExamSessions.length > 0 && (
+              <span className="text-[11px] font-bold text-cyan-200/70 bg-white/10 px-2.5 py-0.5 rounded-full border border-white/10">
+                {pastExamSessions.length} {pastExamSessions.length === 1 ? 'attempt' : 'attempts'}
+              </span>
+            )}
+          </div>
+
+          {loadingHistory ? (
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-center text-cyan-200/70 text-xs backdrop-blur-md">
+              <div className="w-5 h-5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+              Loading your past exam analyses...
+            </div>
+          ) : pastExamSessions.length === 0 ? (
+            <div className="bg-black/25 backdrop-blur-md border border-white/10 rounded-2xl p-5 text-center text-gray-300 text-xs">
+              <p className="font-semibold text-white/90 mb-1">No Past Exam Analyses Found</p>
+              <p className="text-[11px] text-gray-400 max-w-sm mx-auto">
+                When you complete an exam, your detailed question-by-question analysis and AI feedback will appear here so you can review anytime.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              {pastExamSessions.map((session, sIdx) => {
+                const score = session.finalScore !== undefined ? session.finalScore : 0;
+                const isPassed = score >= 70;
+                const isAverage = score >= 50 && score < 70;
+                const dateStr = session.createdAt ? new Date(session.createdAt).toLocaleDateString(undefined, {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                }) : 'Recent';
+
+                return (
+                  <div
+                    key={session._id || sIdx}
+                    className="bg-black/35 hover:bg-black/50 backdrop-blur-md border border-white/10 hover:border-cyan-400/40 rounded-2xl p-3.5 sm:p-4 transition-all shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
+                  >
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div
+                        className={`w-11 h-11 rounded-xl flex items-center justify-center font-black text-sm shrink-0 border shadow-inner ${
+                          isPassed
+                            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                            : isAverage
+                            ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                            : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                        }`}
+                      >
+                        {score}%
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h4 className="text-xs sm:text-sm font-black text-white truncate group-hover:text-cyan-200 transition-colors">
+                          {session.chapterTitle || 'Chapter Exam'}
+                        </h4>
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] text-cyan-200/70 mt-1">
+                          <span>📅 {dateStr}</span>
+                          {session.timeSpentSeconds > 0 && (
+                            <>
+                              <span>•</span>
+                              <span>⏱ {Math.floor(session.timeSpentSeconds / 60)}m {session.timeSpentSeconds % 60}s</span>
+                            </>
+                          )}
+                          {session.questions && (
+                            <>
+                              <span>•</span>
+                              <span>{session.questions.length} questions</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => openPastReview(session)}
+                      className="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white border border-purple-400/30 shadow-md transition-all flex items-center justify-center gap-1.5 shrink-0 active:scale-95 cursor-pointer"
+                    >
+                      <span>Review Analysis</span>
+                      <span>➔</span>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Chapter Selection Modal */}
