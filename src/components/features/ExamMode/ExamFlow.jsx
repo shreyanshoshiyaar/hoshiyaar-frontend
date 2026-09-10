@@ -1080,20 +1080,9 @@ const ExamFlow = () => {
                         </p>
                     </div>
                     
-                    {/* 2x2 AI Evaluation Cards */}
+                    {/* AI Evaluation Cards */}
                     <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-3 pb-4">
-                       {/* 1. What You Got Right (Green card) */}
-                       {right && (
-                         <div className="bg-[#0B3B24]/90 rounded-2xl p-3.5 sm:p-4 shadow-lg border border-emerald-500/20 flex flex-col gap-1.5">
-                            <div className="flex items-center gap-2 text-emerald-400 font-black text-[11px] sm:text-xs tracking-widest uppercase">
-                               <div className="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">✓</div>
-                               What You Got Right
-                            </div>
-                            <p className="text-emerald-100 text-xs sm:text-sm leading-relaxed">{right}</p>
-                         </div>
-                       )}
-
-                       {/* 2. Key Concepts Missing (Blue card) */}
+                       {/* 1. Key Concepts Missing (Blue card) */}
                        <div className="bg-[#1A2C5B] rounded-2xl p-3.5 sm:p-4 shadow-lg border border-blue-500/20 flex flex-col gap-1.5">
                           <div className="flex items-center gap-2 text-blue-400 font-black text-[11px] sm:text-xs tracking-widest uppercase">
                              <div className="w-4 h-4 rounded-full bg-blue-500 text-white flex items-center justify-center text-[10px]">?</div>
@@ -1102,7 +1091,7 @@ const ExamFlow = () => {
                           <p className="text-white text-xs sm:text-sm leading-relaxed">{missing}</p>
                        </div>
                        
-                       {/* 3. Corrections / Gaps (Rose card) */}
+                       {/* 2. Corrections / Gaps (Rose card) */}
                        <div className="bg-[#2D1B2E] rounded-2xl p-3.5 sm:p-4 shadow-lg border border-rose-500/20 flex flex-col gap-1.5">
                           <div className="flex items-center gap-2 text-rose-400 font-black text-[11px] sm:text-xs tracking-widest uppercase">
                              <div className="w-4 h-4 rounded-full bg-rose-500 text-white flex items-center justify-center text-[10px]">✕</div>
@@ -1111,7 +1100,7 @@ const ExamFlow = () => {
                           <p className="text-white text-xs sm:text-sm leading-relaxed">{incorrect}</p>
                        </div>
                        
-                       {/* 4. Grammar & Clarity (Yellow card) */}
+                       {/* 3. Grammar & Clarity (Yellow card) */}
                        <div className="bg-[#2D2A1B] rounded-2xl p-3.5 sm:p-4 shadow-lg border border-yellow-500/20 flex flex-col gap-1.5">
                           <div className="flex items-center gap-2 text-yellow-400 font-black text-[11px] sm:text-xs tracking-widest uppercase">
                              <div className="w-4 h-4 rounded-full bg-yellow-500 text-white flex items-center justify-center text-[10px]">✎</div>
