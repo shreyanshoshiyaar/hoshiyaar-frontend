@@ -188,6 +188,9 @@ const ExamDashboard = ({
            } catch (lErr) {
              console.warn('Failed to fetch exam limits', lErr);
            }
+
+           // Immediately populate exam history with loaded progressData and latest score
+           await fetchUserExamHistory(progressData, foundScore ?? (localScore ? Number(localScore) : null));
         }
       } catch (err) {
         console.error('Failed to fetch exam config', err);
@@ -199,19 +202,23 @@ const ExamDashboard = ({
     fetchExamConfigAndScore();
   }, [chapterId, user, subjectName]);
 
-  const fetchUserExamHistory = async () => {
+  const fetchUserExamHistory = async (currentProgData = null, currentScore = null) => {
     if (!user?._id) return;
     setLoadingHistory(true);
     try {
-      const res = await api.get('/api/ai/history', {
-        params: { userId: user._id }
-      });
       let sessions = [];
-      if (res.data?.sessions && Array.isArray(res.data.sessions)) {
-        sessions = res.data.sessions;
+      try {
+        const res = await api.get('/api/ai/history', {
+          params: { userId: user._id }
+        });
+        if (res.data?.sessions && Array.isArray(res.data.sessions)) {
+          sessions = res.data.sessions;
+        }
+      } catch (apiErr) {
+        console.warn('Failed to fetch /api/ai/history:', apiErr);
       }
 
-      // Merge any local sessions stored in browser
+      // 1. Merge any local sessions stored in browser
       try {
         const localKeyPrefix = 'hoshiyaar_last_exam_session_';
         for (let i = 0; i < localStorage.length; i++) {
@@ -228,6 +235,50 @@ const ExamDashboard = ({
         }
       } catch (locErr) {}
 
+      // 2. Merge from user progress records (from DB User.chaptersProgress)
+      if (currentProgData && Array.isArray(currentProgData)) {
+        currentProgData.forEach(p => {
+          if (!p.stats) return;
+          const statsObj = p.stats;
+          const examKey = Object.keys(statsObj).find(k => k.toLowerCase().includes('exam'));
+          if (examKey) {
+            const stat = statsObj[examKey];
+            const cId = String(p.chapter);
+            const score = stat?.lastScore !== undefined ? stat.lastScore : stat?.bestScore;
+            if (score !== undefined && score !== null) {
+              const exists = sessions.some(s => String(s.chapterId) === cId);
+              if (!exists) {
+                const matchChap = availableChapters.find(c => String(c.id || c.chapterNumber || c._id) === cId);
+                sessions.push({
+                  chapterId: cId,
+                  chapterTitle: matchChap?.name || matchChap?.title || (cId === String(chapterId) ? chapterTitle : `Chapter ${cId}`),
+                  finalScore: Number(score),
+                  subject: p.subject || 'Science',
+                  timeSpentSeconds: 0,
+                  createdAt: stat?.lastReviewedAt || p.updatedAt || new Date().toISOString()
+                });
+              }
+            }
+          }
+        });
+      }
+
+      // 3. If current chapter has a score, ensure it's displayed in previous analyses
+      const effectiveScore = currentScore !== null ? currentScore : latestScore;
+      if (effectiveScore !== null && chapterId) {
+        const exists = sessions.some(s => String(s.chapterId) === String(chapterId));
+        if (!exists) {
+          sessions.unshift({
+            chapterId: String(chapterId),
+            chapterTitle: chapterTitle || `Chapter ${chapterId}`,
+            finalScore: Number(effectiveScore),
+            subject: subjectName || 'Science',
+            timeSpentSeconds: 0,
+            createdAt: new Date().toISOString()
+          });
+        }
+      }
+
       sessions.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
       setPastExamSessions(sessions);
     } catch (err) {
@@ -241,22 +292,45 @@ const ExamDashboard = ({
     if (user?._id) {
       fetchUserExamHistory();
     }
-  }, [user?._id]);
+  }, [user?._id, chapterId]);
 
-  const openPastReview = (sessionToPass) => {
+  const openPastReview = async (sessionToPass) => {
     if (!sessionToPass) return;
+    let configForSession = examConfig;
+    if (String(sessionToPass.chapterId) !== String(chapterId)) {
+      try {
+        const resp = await curriculumService.getSetting(`exam_config_${sessionToPass.chapterId}`);
+        if (resp.data?.value) {
+          configForSession = resp.data.value;
+        }
+      } catch (e) {}
+    }
+
+    let sessionQuestions = sessionToPass.questions;
+    if (!sessionQuestions || sessionQuestions.length === 0) {
+      const localSaved = localStorage.getItem(`hoshiyaar_last_exam_session_${sessionToPass.chapterId}`);
+      if (localSaved) {
+        try {
+          const parsed = JSON.parse(localSaved);
+          if (parsed?.questions?.length > 0) {
+            sessionQuestions = parsed.questions;
+          }
+        } catch (e) {}
+      }
+    }
+
     navigate('/exam/flow', {
       state: {
-        pastSession: sessionToPass,
+        pastSession: { ...sessionToPass, questions: sessionQuestions },
         isPastReview: true,
         startScreen: 'ANALYSIS',
-        chapterTitle: sessionToPass.chapterTitle || chapterTitle,
+        chapterTitle: sessionToPass.chapterTitle || configForSession?.chapterTitle || chapterTitle,
         chapterId: sessionToPass.chapterId || chapterId,
-        subjectKnowledge: sessionToPass.subject || examConfig?.subjectKnowledge || subjectName,
-        flowItems: examConfig?.flowItems || sessionToPass.questions,
-        revisionCards: examConfig?.revisionCards,
-        questions: examConfig?.questions,
-        mcqs: examConfig?.mcqs
+        subjectKnowledge: sessionToPass.subject || configForSession?.subjectKnowledge || subjectName,
+        flowItems: (sessionQuestions && sessionQuestions.length > 0) ? sessionQuestions : (configForSession?.flowItems || []),
+        revisionCards: configForSession?.revisionCards,
+        questions: configForSession?.questions,
+        mcqs: configForSession?.mcqs
       }
     });
   };
