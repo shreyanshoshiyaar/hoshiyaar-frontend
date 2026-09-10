@@ -599,13 +599,26 @@ const ExamFlow = () => {
       }
   };
   
+  const resolveFb = (fbState, item) => {
+    if (!fbState || !item) return null;
+    if (fbState[item.id]) return fbState[item.id];
+    const idDigits = String(item.id || '').replace(/\D/g, '');
+    for (const [key, val] of Object.entries(fbState)) {
+      if (String(key) === String(item.id)) return val;
+      const keyDigits = String(key).replace(/\D/g, '');
+      if (idDigits && keyDigits && idDigits === keyDigits) return val;
+    }
+    if (item.index !== undefined && fbState[`item_${item.index}`]) return fbState[`item_${item.index}`];
+    return null;
+  };
+
   const finalizeExam = async (fbState) => {
       const finalScore = calculateScore(fbState);
       try {
           if (chapterId) {
              localStorage.setItem(`hoshiyaar_exam_score_${chapterId}`, finalScore);
              const savedQuestions = flowItems.filter(i => i.type !== 'revision_card').map(i => {
-                 const fb = fbState[i.id] || {};
+                 const fb = resolveFb(fbState, i) || {};
                  return {
                      id: i.id,
                      type: i.type,
@@ -651,7 +664,7 @@ const ExamFlow = () => {
       setCurrentReviewIndex(0);
       setScreen('ANALYSIS');
   };
-  
+
   const calculateScore = (fbState = feedbacks) => {
       let totalItems = 0;
       let scoreSum = 0;
@@ -659,7 +672,7 @@ const ExamFlow = () => {
       flowItems.forEach(item => {
          if (item.type === 'descriptive_question') {
              totalItems++;
-             const fb = fbState[item.id];
+             const fb = resolveFb(fbState, item);
              if (fb && fb.score !== undefined) {
                scoreSum += Number(fb.score);
                hasAnyFb = true;
@@ -667,7 +680,7 @@ const ExamFlow = () => {
          }
          if (item.type === 'mcq') {
              totalItems++;
-             const fb = fbState[item.id];
+             const fb = resolveFb(fbState, item);
              if (fb && fb.score !== undefined) {
                  scoreSum += Number(fb.score);
                  hasAnyFb = true;
@@ -703,7 +716,7 @@ const ExamFlow = () => {
           }
           
           if (item.type === 'descriptive_question') {
-              const fb = fbState[item.id];
+              const fb = resolveFb(fbState, item);
               if (fb && (fb.isCorrect || Number(fb.score) >= 70)) correct++;
               else incorrect++;
           } else if (item.type === 'mcq') {
@@ -1133,19 +1146,7 @@ const ExamFlow = () => {
         const item = flowItems[currentItemIdx];
         if (!item) return null;
         
-        const getFeedbackForItem = (itemId, index) => {
-            if (!feedbacks) return {};
-            if (itemId && feedbacks[itemId]) return feedbacks[itemId];
-            const idDigits = String(itemId || '').replace(/\D/g, '');
-            for (const [key, val] of Object.entries(feedbacks)) {
-                if (String(key) === String(itemId)) return val;
-                const keyDigits = String(key).replace(/\D/g, '');
-                if (idDigits && keyDigits && idDigits === keyDigits) return val;
-            }
-            if (index !== undefined && feedbacks[`item_${index}`]) return feedbacks[`item_${index}`];
-            return {};
-        };
-        const fb = getFeedbackForItem(item?.id, item?.index);
+        const fb = resolveFb(feedbacks, item) || {};
         let score = 0;
         let isCorrect = false;
         let right = null;
