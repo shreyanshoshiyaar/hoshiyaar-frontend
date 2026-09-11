@@ -1278,19 +1278,28 @@ const ExamFlow = () => {
             </div>
             
             <div className="px-3 py-1.5 sm:px-6 flex items-center gap-2 shrink-0 max-w-4xl mx-auto w-full mt-1">
-              <div className="flex-1 flex items-center justify-between relative">
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-white/20 rounded-full"></div>
+              <div className="flex-1 relative h-6 mx-1 flex items-center">
+                {/* Background Track */}
+                <div className="absolute left-0 w-full h-1.5 bg-slate-800/60 rounded-full border border-white/10 shadow-[inset_0_1px_3px_rgba(0,0,0,0.5)]"></div>
+                {/* Progress Fill */}
                 <div 
-                  className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-[#10B981] rounded-full transition-all duration-500"
-                  style={{ width: `${questionIndices.length > 1 ? (currentReviewIndex / (questionIndices.length - 1)) * 100 : 0}%` }}
+                  className="absolute left-0 h-1.5 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-300"
+                  style={{ 
+                    width: `${questionIndices.length > 1 ? (currentReviewIndex / (questionIndices.length - 1)) * 100 : 100}%`,
+                    boxShadow: '0 0 10px rgba(16, 185, 129, 0.4)'
+                  }}
                 ></div>
-                {questionIndices.map((_, idx) => (
-                  <div key={idx} className="relative z-10 flex items-center justify-center bg-[#0F204C] rounded-full px-1 cursor-pointer" onClick={() => setCurrentReviewIndex(idx)}>
-                    <span className={`text-base sm:text-xl transition-all duration-300 ${idx <= currentReviewIndex ? (idx === currentReviewIndex ? 'drop-shadow-[0_0_8px_rgba(250,204,21,0.8)] scale-125' : '') : 'opacity-20 grayscale'}`}>⭐</span>
-                  </div>
-                ))}
+                {/* Glowing Indicator Dot */}
+                <div 
+                  className="absolute transition-all duration-300 flex items-center justify-center z-10"
+                  style={{ left: `calc(${questionIndices.length > 1 ? (currentReviewIndex / (questionIndices.length - 1)) * 100 : 100}% - 8px)` }}
+                >
+                  <div className="w-4 h-4 bg-white rounded-full shadow-[0_0_12px_rgba(16,185,129,0.8)] border-2 border-emerald-400"></div>
+                </div>
               </div>
-              <span className="text-white font-bold ml-4 sm:ml-6 text-xs sm:text-sm">{currentReviewIndex + 1}/{questionIndices.length}</span>
+              <span className="text-white font-bold ml-3 text-xs sm:text-sm shrink-0">
+                {currentReviewIndex + 1}/{questionIndices.length}
+              </span>
             </div>
 
             <div className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 flex flex-col items-center justify-start min-h-0 max-w-5xl mx-auto w-full overflow-y-auto overflow-x-hidden">

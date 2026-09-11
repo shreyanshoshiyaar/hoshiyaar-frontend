@@ -585,27 +585,35 @@ const ExamPlay = () => {
     </div>
   );
 
-  const ProgressBar = () => (
-    <div className="px-4 py-2 sm:px-6 flex items-center gap-2 shrink-0 max-w-3xl mx-auto w-full mt-2">
-      <div className="flex-1 flex items-center justify-between relative">
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-white/20 rounded-full"></div>
-        <div 
-          className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-yellow-400 rounded-full transition-all duration-500"
-          style={{ width: `${(currentIdx / (examQuestions.length - 1)) * 100}%` }}
-        ></div>
-        {examQuestions.map((_, i) => (
-          <div key={i} className="relative z-10 flex items-center justify-center bg-[#0F204C] rounded-full px-1">
-            {i <= currentIdx ? (
-               <span className={`text-xl sm:text-2xl transition-all duration-300 ${i === currentIdx ? 'drop-shadow-[0_0_8px_rgba(250,204,21,0.8)] scale-125' : ''}`}>⭐</span>
-            ) : (
-               <span className="text-xl sm:text-2xl opacity-20 grayscale">⭐</span>
-            )}
+  const ProgressBar = () => {
+    const total = examQuestions.length;
+    const progressPercentage = total > 1 ? (currentIdx / (total - 1)) * 100 : 100;
+
+    return (
+      <div className="px-4 py-2 sm:px-6 flex items-center gap-2 shrink-0 max-w-3xl mx-auto w-full mt-2">
+        <div className="flex-1 relative h-6 mx-2 flex items-center">
+          {/* Background Track */}
+          <div className="absolute left-0 w-full h-1.5 bg-slate-800/60 rounded-full shadow-[inset_0_1px_3px_rgba(0,0,0,0.5)] border border-white/5"></div>
+          {/* Progress Fill */}
+          <div 
+            className="absolute left-0 h-1.5 bg-gradient-to-r from-amber-500 via-yellow-400 to-yellow-300 rounded-full transition-all duration-500 ease-out"
+            style={{ 
+              width: `${progressPercentage}%`,
+              boxShadow: '0 0 10px rgba(250, 204, 21, 0.4)'
+            }}
+          ></div>
+          {/* Glowing Orb Indicator */}
+          <div 
+            className="absolute transition-all duration-500 ease-out flex items-center justify-center z-10"
+            style={{ left: `calc(${progressPercentage}% - 8px)` }}
+          >
+            <div className="w-4 h-4 bg-white rounded-full shadow-[0_0_12px_4px_rgba(250,204,21,0.8)] border-2 border-yellow-300"></div>
           </div>
-        ))}
+        </div>
+        <span className="text-white font-bold ml-6 sm:text-base shrink-0">{currentIdx + 1}/{total}</span>
       </div>
-      <span className="text-white font-bold ml-6 sm:text-base">{currentIdx + 1}/{examQuestions.length}</span>
-    </div>
-  );
+    );
+  };
 
   const ScoreGauge = ({ score }) => {
     return (
