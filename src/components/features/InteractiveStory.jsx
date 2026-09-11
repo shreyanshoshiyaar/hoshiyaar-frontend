@@ -133,6 +133,14 @@ export default function InteractiveStory() {
     }
   };
 
+  const handleSkip = (e) => {
+    e?.stopPropagation();
+    if (audioRef.current) audioRef.current.pause();
+    if (bgmRef.current) bgmRef.current.pause();
+    window.hyTrack?.('story_demo_skipped');
+    navigateToFirstLesson(story?.board || user?.board, story?.classLevel || user?.classLevel);
+  };
+
   const handleTextComplete = () => {
     setShowOptions(true);
   };
@@ -163,6 +171,19 @@ export default function InteractiveStory() {
       }}
     >
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
+
+      {/* Top Header with Skip button */}
+      <div className="absolute top-0 left-0 right-0 p-4 sm:p-6 flex justify-end items-center z-50 pointer-events-auto">
+        <button
+          onClick={handleSkip}
+          className="px-4 py-2 bg-black/40 hover:bg-black/60 active:scale-95 text-white/90 hover:text-white rounded-full font-bold text-xs sm:text-sm backdrop-blur-md border border-white/20 shadow-lg flex items-center gap-1.5 transition-all"
+        >
+          <span>Skip</span>
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
 
       <div className="relative w-full max-w-6xl mx-auto flex-1 flex items-center justify-start md:justify-center px-4 sm:px-8 pb-32 md:pb-16 mt-16 md:mt-0">
         <div className="relative animate-in slide-in-from-left fade-in duration-500 ease-out flex flex-col items-start max-w-[85%] sm:max-w-lg md:max-w-2xl z-20 md:items-center w-full">
