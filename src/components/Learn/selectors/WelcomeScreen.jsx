@@ -7,7 +7,47 @@ export default function WelcomeScreen({ onContinue }) {
 
   const [videoError, setVideoError] = React.useState(null);
 
+  const getStorageKey = () => {
+    try {
+      const userObj = JSON.parse(localStorage.getItem('user'));
+      return userObj?._id ? `welcomeVideoSeen_${userObj._id}` : 'welcomeVideoSeen_guest';
+    } catch (_) {
+      return 'welcomeVideoSeen_guest';
+    }
+  };
+
+  const proceedNext = () => {
+    try {
+      const key = getStorageKey();
+      localStorage.setItem(key, 'true');
+      const userObj = JSON.parse(localStorage.getItem('user'));
+      if (userObj?._id) {
+        sessionStorage.setItem(`learnWasOnDashboard_${userObj._id}`, 'true');
+      }
+    } catch (_) {}
+
+    if (onContinue) {
+      onContinue();
+    } else {
+      if (sessionStorage.getItem('entryType') === 'signup') {
+        window.hyTrack?.('click_story_demo');
+        navigate('/story-demo', { replace: true });
+      } else {
+        window.hyTrack?.('skip_story_demo');
+        navigate('/learn', { replace: true });
+      }
+    }
+  };
+
   useEffect(() => {
+    try {
+      const key = getStorageKey();
+      if (localStorage.getItem(key) === 'true') {
+        proceedNext();
+        return;
+      }
+    } catch (_) {}
+
     window.hyTrack?.('view_welcome_screen');
     if (videoRef.current) {
       // Attempt to autoplay
@@ -60,26 +100,7 @@ export default function WelcomeScreen({ onContinue }) {
       {/* Continue Button */}
       <div className="w-full max-w-sm mt-auto relative z-10">
         <button 
-          onClick={() => {
-            if (onContinue) {
-              onContinue();
-            } else {
-              try {
-                const userObj = JSON.parse(localStorage.getItem('user'));
-                if (userObj?._id) {
-                  sessionStorage.setItem(`learnWasOnDashboard_${userObj._id}`, 'true');
-                }
-              } catch (_) {}
-              
-              if (sessionStorage.getItem('entryType') === 'signup') {
-                window.hyTrack?.('click_story_demo');
-                navigate('/story-demo');
-              } else {
-                window.hyTrack?.('skip_story_demo');
-                navigate('/learn', { replace: true });
-              }
-            }
-          }}
+          onClick={proceedNext}
           className="w-full bg-[#3b82f6] hover:bg-[#2563eb] text-white font-extrabold py-4 rounded-2xl shadow-[0_4px_0_#1d4ed8] active:shadow-[0_0px_0_#1d4ed8] active:translate-y-1 transition-all text-lg tracking-wider"
         >
           PLAY NOW
