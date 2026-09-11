@@ -330,6 +330,7 @@ const ExamFlow = () => {
   const [showExplanation, setShowExplanation] = useState({});
   const [attempts, setAttempts] = useState({});
   const [isEvaluatingBatch, setIsEvaluatingBatch] = useState(false);
+  const [hasClickedEvaluate, setHasClickedEvaluate] = useState(false);
   const autoEvaluatedRef = useRef(false);
   
   useEffect(() => {
@@ -533,6 +534,7 @@ const ExamFlow = () => {
 
   const evaluateAllAnswersTogether = async (showLoading = false) => {
       if (isEvaluatingBatch) return;
+      setHasClickedEvaluate(true);
 
       const itemsToEvaluate = [];
       const allQuestionsPayload = [];
@@ -1214,26 +1216,27 @@ const ExamFlow = () => {
                 ⚡ REVIEW ANALYSIS ⚡
               </h1>
               <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                {flowItems.some(it => it.type === 'descriptive_question' && resolveAns(it).trim() && (!resolveFb(feedbacks, it) || !resolveFb(feedbacks, it)?.aiEvaluated)) && (
+                {!hasClickedEvaluate && !isEvaluatingBatch && flowItems.some(it => it.type === 'descriptive_question' && resolveAns(it).trim() && (!resolveFb(feedbacks, it) || !resolveFb(feedbacks, it)?.aiEvaluated)) && (
                   <button
                     type="button"
-                    onClick={() => evaluateAllAnswersTogether(false)}
-                    disabled={isEvaluatingBatch}
-                    className="flex items-center gap-1 text-[11px] sm:text-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-900 px-2.5 sm:px-3 py-1.5 rounded-full shadow transition-all cursor-pointer disabled:opacity-60"
-                    title="Evaluate all questions together in a single batch"
+                    onClick={() => {
+                      if (hasClickedEvaluate || isEvaluatingBatch) return;
+                      setHasClickedEvaluate(true);
+                      evaluateAllAnswersTogether(false);
+                    }}
+                    disabled={hasClickedEvaluate || isEvaluatingBatch}
+                    className="flex items-center gap-1 text-[11px] sm:text-xs font-bold bg-amber-400 hover:bg-amber-300 active:scale-95 text-slate-900 px-2.5 sm:px-3 py-1.5 rounded-full shadow transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
+                    title="Evaluate all questions together in a single batch (can only be clicked once)"
                   >
-                    {isEvaluatingBatch ? (
-                      <>
-                        <span className="animate-spin text-xs">⚡</span>
-                        <span className="hidden sm:inline">Evaluating...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>⚡</span>
-                        <span>Evaluate All with AI</span>
-                      </>
-                    )}
+                    <span>⚡</span>
+                    <span>Evaluate All with AI</span>
                   </button>
+                )}
+                {isEvaluatingBatch && (
+                  <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-bold bg-amber-400/20 border border-amber-400/40 text-amber-200 px-2.5 sm:px-3 py-1.5 rounded-full shadow animate-pulse pointer-events-none select-none">
+                    <span className="animate-spin text-xs">⚡</span>
+                    <span>Evaluating...</span>
+                  </div>
                 )}
                 <button
                   type="button"
