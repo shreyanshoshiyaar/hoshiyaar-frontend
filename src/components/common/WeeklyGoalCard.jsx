@@ -6,6 +6,20 @@ import authService from '../../services/authService';
 import { useAuth } from '../../context/AuthContext';
 import { useStars } from '../../context/StarsContext';
 
+// Helper to check if a saved reset timestamp is from a previous week relative to Monday 00:00 IST
+const isPastWeek = (lastReset) => {
+  if (!lastReset) return true;
+  const IST_OFFSET = 5.5 * 60 * 60 * 1000;
+  const now = new Date();
+  const istNow = new Date(now.getTime() + IST_OFFSET);
+  const day = istNow.getUTCDay(); // 0 = Sun, 1 = Mon...
+  const daysToSubtract = day === 0 ? 6 : day - 1;
+  const mondayIST = new Date(istNow.getTime() - daysToSubtract * 24 * 60 * 60 * 1000);
+  mondayIST.setUTCHours(0, 0, 0, 0);
+  const currentMondayUTC = new Date(mondayIST.getTime() - IST_OFFSET);
+  return new Date(lastReset) < currentMondayUTC;
+};
+
 const WeeklyGoalCard = ({ goalData, onClaimSuccess, showStartButton = true }) => {
   const { width, height } = useWindowSize();
   const { user, updateUser } = useAuth();
@@ -16,8 +30,9 @@ const WeeklyGoalCard = ({ goalData, onClaimSuccess, showStartButton = true }) =>
   const [showConfetti, setShowConfetti] = useState(false);
 
   const currentGoal = goalData || user?.weeklyGoal || {};
-  const modulesCompleted = Number(currentGoal?.modulesCompleted || 0);
-  const claimed = Boolean(currentGoal?.claimed);
+  const isStale = isPastWeek(currentGoal?.lastReset);
+  const modulesCompleted = isStale ? 0 : Number(currentGoal?.modulesCompleted || 0);
+  const claimed = isStale ? false : Boolean(currentGoal?.claimed);
   const progress = Math.min((modulesCompleted / 3) * 100, 100);
   const isGoalMet = modulesCompleted >= 3;
 
