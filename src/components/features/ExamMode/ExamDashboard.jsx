@@ -222,7 +222,7 @@ const ExamDashboard = ({
         console.warn('Failed to fetch /api/ai/history:', apiErr);
       }
 
-      // 1. Merge local session stored for THIS chapter only
+      // 1. Sync & merge any unsaved local session to DB
       try {
         const localKey = `hoshiyaar_last_exam_session_${chapterId}`;
         const raw = localStorage.getItem(localKey);
@@ -232,6 +232,10 @@ const ExamDashboard = ({
             const exists = sessions.some(s => String(s.chapterId) === String(chapterId) && (s._id === parsed._id || s.createdAt === parsed.createdAt));
             if (!exists) {
               sessions.push(parsed);
+              // Proactively sync this unpersisted session to DB
+              if (user?._id && parsed.questions && parsed.questions.length > 0) {
+                api.post('/api/ai/save-session', { ...parsed, userId: user._id }).catch(() => {});
+              }
             }
           }
         }
