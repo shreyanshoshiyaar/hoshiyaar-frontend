@@ -1920,19 +1920,11 @@ const LearnDashboard = ({ onboardingData }) => {
               <span>Logout</span>
             </a>
             <a
-              href="#"
-              onClick={async (e) => {
+              href="/account/remove"
+              onClick={(e) => {
                 e.preventDefault();
                 setIsMobileMenuOpen(false);
-                if (window.confirm('WARNING: Are you sure you want to PERMANENTLY DELETE your account? This action cannot be undone and all your progress will be lost.')) {
-                  try {
-                    const { default: authSvc } = await import('../../../services/authService.js');
-                    await authSvc.deleteAccount(user._id);
-                    handleLogout();
-                  } catch (err) {
-                    alert('Failed to delete account. Please try again.');
-                  }
-                }
+                navigate('/account/remove');
               }}
               className="py-2 px-4 text-[11px] font-black uppercase tracking-widest text-red-400/50 hover:text-red-500 transition-colors text-center"
             >

@@ -358,6 +358,7 @@ const Signup = () => {
                 name="email"
                 value={formData.email}
                 onChange={onChange}
+                onBlur={() => setFormData(prev => ({ ...prev, email: prev.email.trim() }))}
                 placeholder="Email Address (Optional)"
                 className="w-full bg-white border border-slate-300 rounded-xl p-3.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm text-slate-900 placeholder-slate-400 shadow-sm"
               />
