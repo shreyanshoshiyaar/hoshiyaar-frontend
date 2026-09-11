@@ -47,7 +47,7 @@ const Login = () => {
           });
           login(response.data);
           try { sessionStorage.setItem('entryType', 'login'); } catch (_) {}
-          navigate('/welcome');
+          navigate('/learn');
         }
       
     } catch (err) {
