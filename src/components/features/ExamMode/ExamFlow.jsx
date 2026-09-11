@@ -329,8 +329,15 @@ const ExamFlow = () => {
   const [feedbacks, setFeedbacks] = useState(() => initialPast ? initialPast.pastFeedbacks : {});
   const [showExplanation, setShowExplanation] = useState({});
   const [attempts, setAttempts] = useState({});
-  const [isEvaluatingBatch, setIsEvaluatingBatch] = useState(false);
-  const [hasClickedEvaluate, setHasClickedEvaluate] = useState(false);
+  const evalStorageKey = `hoshiyaar_eval_lock_${chapterId || 'default'}`;
+  const [hasClickedEvaluate, setHasClickedEvaluate] = useState(() => {
+    try {
+      return sessionStorage.getItem(evalStorageKey) === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const evaluatingBatchRef = useRef(false);
   const autoEvaluatedRef = useRef(false);
   
   useEffect(() => {
@@ -533,8 +540,13 @@ const ExamFlow = () => {
   };
 
   const evaluateAllAnswersTogether = async (showLoading = false) => {
-      if (isEvaluatingBatch) return;
+      // GUARDRAIL: Synchronous atomic check to block millisecond double-clicks
+      if (evaluatingBatchRef.current || isEvaluatingBatch) return;
+      evaluatingBatchRef.current = true;
       setHasClickedEvaluate(true);
+      try {
+        sessionStorage.setItem(evalStorageKey, 'true');
+      } catch (_) {}
 
       const itemsToEvaluate = [];
       const allQuestionsPayload = [];
@@ -598,6 +610,7 @@ const ExamFlow = () => {
       if (itemsToEvaluate.length === 0) {
           setFeedbacks(newFeedbacks);
           await finalizeExam(newFeedbacks);
+          evaluatingBatchRef.current = false;
           return;
       }
       
@@ -650,23 +663,34 @@ const ExamFlow = () => {
           await finalizeExam(newFeedbacks);
       } finally {
           setIsEvaluatingBatch(false);
+          evaluatingBatchRef.current = false;
       }
   };
 
   const submitBatchDescriptive = async () => {
+      if (evaluatingBatchRef.current || isEvaluatingBatch) return;
       await evaluateAllAnswersTogether(true);
   };
 
   // Auto-evaluate unevaluated descriptive answers together in ONE batch upon viewing Review Analysis
   useEffect(() => {
     if (screen === 'ANALYSIS' && flowItems.length > 0 && !autoEvaluatedRef.current) {
+      const isLocked = (() => {
+        try {
+          return sessionStorage.getItem(evalStorageKey) === 'true';
+        } catch {
+          return false;
+        }
+      })();
+
       const hasUnevaluated = flowItems.some(it => {
         if (it.type !== 'descriptive_question') return false;
         const ans = resolveAns(it).trim();
         const fb = resolveFb(feedbacks, it);
         return ans && ans.toLowerCase() !== 'no answer submitted' && (!fb || !fb.aiEvaluated);
       });
-      if (hasUnevaluated) {
+
+      if (hasUnevaluated && !isLocked && !evaluatingBatchRef.current && !isEvaluatingBatch) {
         autoEvaluatedRef.current = true;
         evaluateAllAnswersTogether(false);
       }
@@ -1220,8 +1244,11 @@ const ExamFlow = () => {
                   <button
                     type="button"
                     onClick={() => {
-                      if (hasClickedEvaluate || isEvaluatingBatch) return;
+                      if (hasClickedEvaluate || isEvaluatingBatch || evaluatingBatchRef.current) return;
                       setHasClickedEvaluate(true);
+                      try {
+                        sessionStorage.setItem(evalStorageKey, 'true');
+                      } catch (_) {}
                       evaluateAllAnswersTogether(false);
                     }}
                     disabled={hasClickedEvaluate || isEvaluatingBatch}
