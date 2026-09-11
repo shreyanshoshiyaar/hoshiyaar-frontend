@@ -1203,8 +1203,6 @@ const ExamFlow = () => {
                 if (!missing) {
                     if (isCorrect && score >= 85) {
                         missing = "All required core concepts were covered!";
-                    } else if (expectedAnswer) {
-                        missing = expectedAnswer;
                     } else {
                         missing = "Key concepts from the curriculum were omitted.";
                     }
@@ -1328,7 +1326,18 @@ const ExamFlow = () => {
                     
                     {/* AI Evaluation Cards */}
                     <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-2.5 pb-2">
-                       {/* 1. Key Concepts Missing (Blue card) */}
+                       {/* 1. Ideal Answer (Emerald card) */}
+                       <div className="bg-[#0D2E24] rounded-xl p-2.5 sm:p-3 shadow border border-emerald-500/30 flex flex-col gap-1">
+                          <div className="flex items-center gap-1.5 text-emerald-400 font-black text-[10px] sm:text-xs tracking-widest uppercase">
+                             <div className="w-3.5 h-3.5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[9px]">★</div>
+                             Ideal Answer
+                          </div>
+                          <p className="text-white text-xs sm:text-sm leading-relaxed whitespace-pre-wrap">
+                             {expectedAnswer || <span className="italic text-emerald-200/70">Refer to chapter notes and textbook for the model answer.</span>}
+                          </p>
+                       </div>
+
+                       {/* 2. Key Concepts Missing (Blue card) */}
                        <div className="bg-[#1A2C5B] rounded-xl p-2.5 sm:p-3 shadow border border-blue-500/20 flex flex-col gap-1">
                           <div className="flex items-center gap-1.5 text-blue-400 font-black text-[10px] sm:text-xs tracking-widest uppercase">
                              <div className="w-3.5 h-3.5 rounded-full bg-blue-500 text-white flex items-center justify-center text-[9px]">?</div>
@@ -1337,7 +1346,7 @@ const ExamFlow = () => {
                           <p className="text-white text-xs sm:text-sm leading-relaxed">{missing}</p>
                        </div>
                        
-                       {/* 2. Corrections / Gaps (Rose card) */}
+                       {/* 3. Corrections / Gaps (Rose card) */}
                        <div className="bg-[#2D1B2E] rounded-xl p-2.5 sm:p-3 shadow border border-rose-500/20 flex flex-col gap-1">
                           <div className="flex items-center gap-1.5 text-rose-400 font-black text-[10px] sm:text-xs tracking-widest uppercase">
                              <div className="w-3.5 h-3.5 rounded-full bg-rose-500 text-white flex items-center justify-center text-[9px]">✕</div>
@@ -1346,7 +1355,7 @@ const ExamFlow = () => {
                           <p className="text-white text-xs sm:text-sm leading-relaxed">{incorrect}</p>
                        </div>
                        
-                       {/* 3. Grammar & Clarity (Yellow card) */}
+                       {/* 4. Grammar & Clarity (Yellow card) */}
                        <div className="bg-[#2D2A1B] rounded-xl p-2.5 sm:p-3 shadow border border-yellow-500/20 flex flex-col gap-1">
                           <div className="flex items-center gap-1.5 text-yellow-400 font-black text-[10px] sm:text-xs tracking-widest uppercase">
                              <div className="w-3.5 h-3.5 rounded-full bg-yellow-500 text-white flex items-center justify-center text-[9px]">✎</div>
