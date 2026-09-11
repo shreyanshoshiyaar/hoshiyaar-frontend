@@ -329,7 +329,6 @@ const ExamFlow = () => {
   const [feedbacks, setFeedbacks] = useState(() => initialPast ? initialPast.pastFeedbacks : {});
   const [showExplanation, setShowExplanation] = useState({});
   const [attempts, setAttempts] = useState({});
-  const [evaluatingMap, setEvaluatingMap] = useState({});
   
   useEffect(() => {
       if (isPastReview && pastSession) {
@@ -502,103 +501,6 @@ const ExamFlow = () => {
       goNextStep();
   };
   
-  const submitBatchDescriptive = async () => {
-      const itemsToEvaluate = [];
-      const allQuestionsPayload = [];
-
-      flowItems.forEach(item => {
-          if (item.type === 'revision_card') return;
-
-          const ans = answers[item.id] || '';
-          const qText = item.content?.text || item.content?.question || item.text || item.question || '';
-          const expText = item.content?.expected || item.content?.expectedAnswer || item.expected || item.answer || '';
-          
-          if (item.type === 'descriptive_question') {
-              itemsToEvaluate.push({
-                  id: item.id,
-                  index: item.index,
-                  question: qText,
-                  expectedAnswer: expText,
-                  userAnswer: ans.trim() || 'No answer submitted'
-              });
-              allQuestionsPayload.push({
-                  id: item.id,
-                  type: 'descriptive_question',
-                  question: qText,
-                  expectedAnswer: expText,
-                  userAnswer: ans.trim()
-              });
-          } else if (item.type === 'mcq') {
-              allQuestionsPayload.push({
-                  id: item.id,
-                  type: 'mcq',
-                  question: qText,
-                  expectedAnswer: expText,
-                  userAnswer: ans.trim(),
-                  options: item.content?.options || []
-              });
-          }
-      });
-      
-      if (itemsToEvaluate.length === 0) {
-          await finalizeExam(feedbacks);
-          return;
-      }
-      
-      setScreen('LOADING');
-      try {
-          const response = await api.post('/api/ai/evaluate-batch', {
-            items: itemsToEvaluate,
-            allQuestions: allQuestionsPayload,
-            subjectKnowledge,
-            userId: user?._id,
-            chapterId,
-            chapterTitle,
-            subject: subjectKnowledge,
-            timeSpentSeconds: totalTimeSpent
-          });
-          
-          const newFeedbacks = { ...feedbacks };
-          if (Array.isArray(response.data)) {
-              response.data.forEach(fb => {
-                  const evalData = {
-                    ...fb,
-                    aiEvaluated: fb.aiEvaluated !== undefined ? Boolean(fb.aiEvaluated) : true
-                  };
-                  newFeedbacks[fb.id] = evalData;
-                  const matchedItem = flowItems.find(it => {
-                    if (String(it.id) === String(fb.id)) return true;
-                    const c1 = String(it.id).replace(/\D/g, '');
-                    const c2 = String(fb.id).replace(/\D/g, '');
-                    return Boolean(c1 && c2 && c1 === c2);
-                  });
-                  if (matchedItem) {
-                    newFeedbacks[matchedItem.id] = evalData;
-                  }
-              });
-          }
-          setFeedbacks(newFeedbacks);
-          await finalizeExam(newFeedbacks);
-      } catch (error) {
-          console.error("Batch evaluation failed", error);
-          if (error.response?.status === 403) {
-            alert(error.response?.data?.error || "Weekly limit reached for Exam Mode.");
-          }
-          await finalizeExam(feedbacks);
-      }
-  };
-
-  const goNextStep = async () => {
-      setTotalTimeSpent(prev => prev + (TIME_LIMIT - timeLeft));
-      setScreen('FLOW');
-      if (currentIndex < flowItems.length - 1) {
-          setCurrentIndex(prev => prev + 1);
-          setTimeLeft(TIME_LIMIT);
-      } else {
-          await submitBatchDescriptive();
-      }
-  };
-  
   const resolveFb = (fbState, item) => {
     if (!fbState || !item) return null;
     if (fbState[item.id]) return fbState[item.id];
@@ -625,6 +527,126 @@ const ExamFlow = () => {
     }
     if (item.index !== undefined && answers[`item_${item.index}`]) return answers[`item_${item.index}`];
     return '';
+  };
+
+  const submitBatchDescriptive = async () => {
+      const itemsToEvaluate = [];
+      const allQuestionsPayload = [];
+      const newFeedbacks = { ...feedbacks };
+
+      flowItems.forEach(item => {
+          if (item.type === 'revision_card') return;
+
+          const ans = resolveAns(item).trim();
+          const qText = item.content?.text || item.content?.question || item.text || item.question || '';
+          const expText = item.content?.expected || item.content?.expectedAnswer || item.expected || item.answer || '';
+          
+          if (item.type === 'descriptive_question') {
+              const hasAnswer = ans && ans.toLowerCase() !== 'no answer submitted';
+              if (hasAnswer) {
+                  itemsToEvaluate.push({
+                      id: item.id,
+                      index: item.index,
+                      question: qText,
+                      expectedAnswer: expText,
+                      userAnswer: ans
+                  });
+              } else {
+                  // Instant zero feedback for unattempted questions - avoids wasting AI credits
+                  const blankFeedback = {
+                      id: item.id,
+                      right: 'No answer was submitted for this question.',
+                      wrong: 'Question was left unanswered.',
+                      missing: expText || 'Review the chapter to understand the required concepts for this question.',
+                      grammar: 'N/A (No answer submitted).',
+                      score: 0,
+                      isCorrect: false,
+                      aiEvaluated: false
+                  };
+                  newFeedbacks[item.id] = blankFeedback;
+                  if (item.index !== undefined) {
+                      newFeedbacks[`item_${item.index}`] = blankFeedback;
+                  }
+              }
+
+              allQuestionsPayload.push({
+                  id: item.id,
+                  type: 'descriptive_question',
+                  question: qText,
+                  expectedAnswer: expText,
+                  userAnswer: ans
+              });
+          } else if (item.type === 'mcq') {
+              allQuestionsPayload.push({
+                  id: item.id,
+                  type: 'mcq',
+                  question: qText,
+                  expectedAnswer: expText,
+                  userAnswer: ans,
+                  options: item.content?.options || []
+              });
+          }
+      });
+      
+      // If no descriptive questions were answered, finalize with blank scores without spending AI credits
+      if (itemsToEvaluate.length === 0) {
+          setFeedbacks(newFeedbacks);
+          await finalizeExam(newFeedbacks);
+          return;
+      }
+      
+      setScreen('LOADING');
+      try {
+          // Send ALL answered questions together in a SINGLE batch API call to save credits
+          const response = await api.post('/api/ai/evaluate-batch', {
+            items: itemsToEvaluate,
+            allQuestions: allQuestionsPayload,
+            subjectKnowledge,
+            userId: user?._id,
+            chapterId,
+            chapterTitle,
+            subject: subjectKnowledge,
+            timeSpentSeconds: totalTimeSpent
+          });
+          
+          if (Array.isArray(response.data)) {
+              response.data.forEach(fb => {
+                  const evalData = {
+                    ...fb,
+                    aiEvaluated: fb.aiEvaluated !== undefined ? Boolean(fb.aiEvaluated) : true
+                  };
+                  newFeedbacks[fb.id] = evalData;
+                  const matchedItem = flowItems.find(it => {
+                    if (String(it.id) === String(fb.id)) return true;
+                    const c1 = String(it.id).replace(/\D/g, '');
+                    const c2 = String(fb.id).replace(/\D/g, '');
+                    return Boolean(c1 && c2 && c1 === c2);
+                  });
+                  if (matchedItem) {
+                    newFeedbacks[matchedItem.id] = evalData;
+                  }
+              });
+          }
+          setFeedbacks(newFeedbacks);
+          await finalizeExam(newFeedbacks);
+      } catch (error) {
+          console.error("Batch evaluation failed", error);
+          if (error.response?.status === 403) {
+            alert(error.response?.data?.error || "Weekly limit reached for Exam Mode.");
+          }
+          await finalizeExam(newFeedbacks);
+      }
+  };
+
+  const goNextStep = async () => {
+      setTotalTimeSpent(prev => prev + (TIME_LIMIT - timeLeft));
+      setScreen('FLOW');
+      if (currentIndex < flowItems.length - 1) {
+          setCurrentIndex(prev => prev + 1);
+          setTimeLeft(TIME_LIMIT);
+      } else {
+          await submitBatchDescriptive();
+      }
   };
 
   const finalizeExam = async (fbState) => {
@@ -743,126 +765,6 @@ const ExamFlow = () => {
        return { correct, incorrect, skipped };
    };
 
-  const handleManualReEvaluate = async (item) => {
-    if (!item) return;
-    const userAns = resolveAns(item).trim();
-    if (!userAns || userAns.toLowerCase() === 'no answer submitted') {
-      alert('Cannot evaluate an empty answer.');
-      return;
-    }
-    if (evaluatingMap[item.id]) return;
-    setEvaluatingMap(prev => ({ ...prev, [item.id]: true }));
-    try {
-      const expectedAnswer = item.content?.expected || item.content?.expectedAnswer || item.expected || item.expectedAnswer || item.content?.answer || item.answer || '';
-      const questionText = item.content?.text || item.content?.question || item.text || item.question || '';
-
-      const res = await api.post('/api/ai/evaluate', {
-        question: questionText,
-        userAnswer: userAns,
-        expectedAnswer,
-        subjectKnowledge: subjectKnowledge || chapterTitle || 'Science',
-        userId: user?._id,
-        chapterId,
-        chapterTitle
-      });
-
-      if (res.data) {
-        const aiData = res.data;
-        const scoreNum = Number(aiData.score !== undefined ? aiData.score : (aiData.isCorrect ? 85 : 40));
-        const isCorr = Boolean(aiData.isCorrect !== undefined ? aiData.isCorrect : (scoreNum >= 70));
-        const idDigits = String(item.id).replace(/\D/g, '');
-
-        const evalData = {
-          id: item.id,
-          right: aiData.right,
-          wrong: aiData.wrong,
-          missing: aiData.missing,
-          grammar: aiData.grammar,
-          score: scoreNum,
-          isCorrect: isCorr,
-          aiEvaluated: true
-        };
-
-        setFeedbacks(prev => {
-          const updated = {
-            ...prev,
-            [item.id]: evalData
-          };
-          if (idDigits) {
-            updated[idDigits] = evalData;
-          }
-          if (item.index !== undefined) {
-            updated[`item_${item.index}`] = evalData;
-          }
-
-          try {
-            if (chapterId) {
-              const localSessionKey = `hoshiyaar_last_exam_session_${chapterId}`;
-              const saved = localStorage.getItem(localSessionKey);
-              if (saved) {
-                const parsedSession = JSON.parse(saved);
-                if (parsedSession && Array.isArray(parsedSession.questions)) {
-                  parsedSession.questions = parsedSession.questions.map((q, qIdx) => {
-                    const match = q.id === item.id || 
-                                  (item.index !== undefined && qIdx === item.index) ||
-                                  (idDigits && String(q.id).replace(/\D/g, '') === idDigits);
-                    if (match) {
-                      return {
-                        ...q,
-                        right: aiData.right,
-                        wrong: aiData.wrong,
-                        missing: aiData.missing,
-                        grammar: aiData.grammar,
-                        score: scoreNum,
-                        isCorrect: isCorr,
-                        aiEvaluated: true
-                      };
-                    }
-                    return q;
-                  });
-                  const totalQScore = parsedSession.questions.reduce((sum, q) => sum + (Number(q.score) || 0), 0);
-                  parsedSession.finalScore = Math.round(totalQScore / parsedSession.questions.length);
-                  localStorage.setItem(localSessionKey, JSON.stringify(parsedSession));
-                  localStorage.setItem(`hoshiyaar_exam_score_${chapterId}`, parsedSession.finalScore);
-                }
-              }
-            }
-          } catch (storageErr) {
-            console.warn('Could not update localStorage exam session with AI evaluation:', storageErr);
-          }
-
-          return updated;
-        });
-      }
-    } catch (err) {
-      console.error('Manual re-evaluation failed:', err);
-    } finally {
-      setEvaluatingMap(prev => ({ ...prev, [item.id]: false }));
-    }
-  };
-
-  // Auto-evaluate any unevaluated descriptive question when viewing Review Analysis
-  useEffect(() => {
-    if (screen !== 'ANALYSIS' || flowItems.length === 0) return;
-    
-    const questionIndices = [];
-    flowItems.forEach((it, idx) => {
-      if (it.type !== 'revision_card') questionIndices.push(idx);
-    });
-    if (questionIndices.length === 0) return;
-
-    const validReviewIdx = Math.min(Math.max(0, currentReviewIndex), questionIndices.length - 1);
-    const currentItemIdx = questionIndices[validReviewIdx];
-    const curItem = flowItems[currentItemIdx];
-
-    if (curItem && curItem.type === 'descriptive_question') {
-      const uAns = resolveAns(curItem).trim();
-      const fb = resolveFb(feedbacks, curItem);
-      if (uAns && uAns.length > 5 && uAns.toLowerCase() !== 'no answer submitted' && !fb?.aiEvaluated && !evaluatingMap[curItem.id]) {
-        handleManualReEvaluate(curItem);
-      }
-    }
-  }, [screen, currentReviewIndex, flowItems, feedbacks, evaluatingMap]);
 
   const TopBar = ({ title, onBack }) => (
     <div className="flex items-center justify-center p-4 sm:px-6 text-white shrink-0 max-w-3xl mx-auto w-full relative h-20">
@@ -1338,23 +1240,10 @@ const ExamFlow = () => {
                     <div className="w-full bg-[#EAF3FF] rounded-xl p-2.5 sm:p-3 shadow-sm mb-2 text-slate-800 text-xs sm:text-sm border border-blue-100 shrink-0">
                         <div className="flex items-center justify-between gap-1 text-blue-900 font-black text-[10px] sm:text-xs uppercase tracking-wider mb-1">
                           <span className="flex items-center gap-1"><span>📝</span> Your Submitted Answer:</span>
-                          {userAns && (
-                            <div className="flex items-center gap-2">
-                              {fb?.aiEvaluated && !evaluatingMap[item.id] && (
-                                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
-                                  ✨ AI Evaluated
-                                </span>
-                              )}
-                              <button
-                                type="button"
-                                onClick={() => handleManualReEvaluate(item)}
-                                disabled={evaluatingMap[item.id]}
-                                className="text-[10px] font-bold text-blue-600 hover:text-blue-800 underline flex items-center gap-1 cursor-pointer disabled:opacity-50"
-                                title="Re-run AI evaluation for this answer"
-                              >
-                                {evaluatingMap[item.id] ? '⚡ Evaluating...' : '⚡ Re-evaluate'}
-                              </button>
-                            </div>
+                          {userAns && fb?.aiEvaluated && (
+                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                              ✨ AI Evaluated
+                            </span>
                           )}
                         </div>
                         <p className="text-slate-700 font-medium leading-relaxed whitespace-pre-wrap">
