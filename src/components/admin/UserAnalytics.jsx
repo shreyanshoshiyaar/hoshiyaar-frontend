@@ -63,15 +63,6 @@ const UserProgressDetails = ({ chaptersProgress, whatsappNudges = {} }) => {
         <div className={`text-xs px-3 py-1.5 rounded-lg border ${whatsappNudges.noModule30mSent ? 'bg-green-50 text-green-700 border-green-200 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
           0-Min Nudge: {whatsappNudges.noModule30mSent ? '✅ Sent' : 'Pending'}
         </div>
-        <div className={`text-xs px-3 py-1.5 rounded-lg border ${whatsappNudges.startedNotCompleted2hSent ? 'bg-green-50 text-green-700 border-green-200 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
-          Mission Incomplete (2h): {whatsappNudges.startedNotCompleted2hSent ? '✅ Sent' : 'Pending'}
-        </div>
-        <div className={`text-xs px-3 py-1.5 rounded-lg border ${whatsappNudges.inactive24hSent ? 'bg-green-50 text-green-700 border-green-200 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
-          Streak Break (24h): {whatsappNudges.inactive24hSent ? '✅ Sent' : 'Pending'}
-        </div>
-        <div className={`text-xs px-3 py-1.5 rounded-lg border ${whatsappNudges.inactive3DaysSent ? 'bg-green-50 text-green-700 border-green-200 font-bold' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
-          3-Days Inactive: {whatsappNudges.inactive3DaysSent ? '✅ Sent' : 'Pending'}
-        </div>
       </div>
     </div>
   );
@@ -689,8 +680,9 @@ const UserAnalytics = () => {
         </div>
       </div>
 
-      {/* WhatsApp Automations Metric Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2 mb-4">
+      {/* WhatsApp Automations & Module Engagement Metric Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2 mb-4">
+        {/* 0-Min Nudge Card */}
         <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between">
           <div>
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">0-Min Nudges Sent</span>
@@ -705,31 +697,20 @@ const UserAnalytics = () => {
             <span>💬 30m No Module Start</span>
           </div>
         </div>
+
+        {/* 0-Min / No Module Started Users Count */}
         <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between">
           <div>
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Mission Incomplete (2h)</span>
-            <span className="text-3xl font-black text-rose-500">{stats.whatsappStats?.nudge_mission_incomplete || 0}</span>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">No Module Started Users (0-Min)</span>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-black text-rose-500">{stats.noModuleStartedCount || 0}</span>
+              <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                {stats.totalUsers ? Math.round(((stats.noModuleStartedCount || 0) / stats.totalUsers) * 100) : 0}% of all users
+              </span>
+            </div>
           </div>
           <div className="text-[11px] text-slate-400 font-semibold mt-3 pt-2 border-t border-slate-50 flex justify-between">
-            <span>💬 2h Module Abandoned</span>
-          </div>
-        </div>
-        <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between">
-          <div>
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Streak Break (24h)</span>
-            <span className="text-3xl font-black text-orange-500">{stats.whatsappStats?.nudge_streak_break || 0}</span>
-          </div>
-          <div className="text-[11px] text-slate-400 font-semibold mt-3 pt-2 border-t border-slate-50 flex justify-between">
-            <span>💬 24h Inactive</span>
-          </div>
-        </div>
-        <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between">
-          <div>
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">3-Days Inactive</span>
-            <span className="text-3xl font-black text-indigo-500">{stats.whatsappStats?.nudge_3_days_inactive || 0}</span>
-          </div>
-          <div className="text-[11px] text-slate-400 font-semibold mt-3 pt-2 border-t border-slate-50 flex justify-between">
-            <span>💬 72h Inactive</span>
+            <span>⏳ Signed up with 0 modules started</span>
           </div>
         </div>
       </div>
