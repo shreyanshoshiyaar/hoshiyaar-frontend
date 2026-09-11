@@ -579,6 +579,28 @@ const UserAnalytics = () => {
     document.body.removeChild(link);
   };
 
+  const [downloadingSessions, setDownloadingSessions] = useState(false);
+
+  const handleDownloadSessionsCSV = async () => {
+    try {
+      setDownloadingSessions(true);
+      const res = await authService.downloadSessionsCSV();
+      const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `hoshiyaar_normal_sessions_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error('Failed to download sessions CSV', err);
+      alert('Failed to download sessions CSV. Please try again.');
+    } finally {
+      setDownloadingSessions(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
@@ -988,10 +1010,20 @@ const UserAnalytics = () => {
               </div>
               <button
                 onClick={downloadCSV}
-className="text-[10px] font-bold text-slate-600 bg-slate-50 border border-slate-200 hover:bg-slate-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm whitespace-nowrap self-start sm:self-auto"
+                className="text-[10px] font-bold text-slate-600 bg-slate-50 border border-slate-200 hover:bg-slate-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm whitespace-nowrap self-start sm:self-auto"
+                title="Download user-wise activity CSV"
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                Export CSV
+                Export Users CSV
+              </button>
+              <button
+                onClick={handleDownloadSessionsCSV}
+                disabled={downloadingSessions}
+                className="text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm whitespace-nowrap self-start sm:self-auto disabled:opacity-50"
+                title="Download session-wise normal sessions CSV"
+              >
+                <svg className="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                {downloadingSessions ? 'Exporting...' : 'Export Sessions CSV'}
               </button>
             </div>
           </div>

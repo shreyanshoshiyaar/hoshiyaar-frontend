@@ -221,6 +221,8 @@ const deleteBlog = (id, opts) => api.delete(`/api/blogs/${id}`, opts);
 
 // Admin User Analytics
 const getUsersAnalytics = (opts) => api.get('/api/admin/users-analytics', { timeout: 90000, ...(opts || {}) });
+const getSessionsAnalytics = (opts) => api.get('/api/admin/sessions', { timeout: 90000, ...(opts || {}) });
+const downloadSessionsCSV = (opts) => api.get('/api/admin/sessions/export-csv', { responseType: 'blob', timeout: 90000, ...(opts || {}) });
 const updateUserSchool = (id, school, opts) => api.put(`/api/admin/users/${id}/school`, { school }, opts);
 
 const claimWeeklyGoal = (userId, opts) => api.post(`/api/auth/user/${userId}/claim-weekly-goal`, {}, opts);
@@ -255,12 +257,14 @@ const authService = {
   updateBlog,
   deleteBlog,
   getUsersAnalytics,
+  getSessionsAnalytics,
+  downloadSessionsCSV,
   updateUserSchool,
   sendOtp,
   verifyOtp,
   resetPassword,
   claimWeeklyGoal,
-  deleteAccount: (userId, opts) => api.delete(`/api/auth/user/${userId}`, opts),
+  deleteAccount: (userId, data = {}, opts = {}) => api.delete(`/api/auth/user/${userId}`, { data, ...opts }),
 };
 
 export default authService;

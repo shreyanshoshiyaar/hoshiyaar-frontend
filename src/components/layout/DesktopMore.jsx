@@ -381,19 +381,7 @@ const DesktopMore = ({ stars, weeklyStars }) => {
                   <span className="text-gray-400">›</span>
                 </button>
                  <button 
-                  onClick={async () => {
-                    if (window.confirm('WARNING: Are you sure you want to PERMANENTLY DELETE your account? This action cannot be undone and all your progress will be lost.')) {
-                      try {
-                        setSaving(true);
-                        await authService.deleteAccount(user._id);
-                        logout();
-                        window.location.href = '/';
-                      } catch (err) {
-                        setError('Failed to delete account. Please try again.');
-                        setSaving(false);
-                      }
-                    }
-                  }}
+                  onClick={() => navigate('/account/remove')}
                   className="px-4 py-2.5 text-left font-bold text-xs text-red-500 hover:bg-red-50 rounded-lg transition-colors mt-0.5 flex items-center justify-between"
                 >
                   Delete Account
