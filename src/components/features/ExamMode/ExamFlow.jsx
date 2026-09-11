@@ -970,13 +970,30 @@ const ExamFlow = () => {
            
            <div className="flex-1 p-2 sm:px-4 sm:py-3 flex flex-col gap-3 overflow-y-auto min-h-0 max-w-5xl mx-auto w-full">
               {currentItem.type === 'revision_card' && (
-                 <div className="flex-1 min-h-0 flex flex-col items-center justify-center animate-fade-in relative group">
+                 <div 
+                   onClick={() => setZoomImage(currentItem.content)}
+                   className="flex-1 min-h-0 flex flex-col items-center justify-center animate-fade-in relative group cursor-pointer"
+                   title="Click to enlarge"
+                 >
                     <img 
                       src={currentItem.content} 
                       alt="Revision" 
                       className="w-full h-full object-contain rounded-lg"
                       style={{ touchAction: 'pinch-zoom' }}
                     />
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setZoomImage(currentItem.content);
+                      }}
+                      className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-slate-900/80 hover:bg-slate-900 text-white text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm transition-all flex items-center gap-1.5 border border-white/20 active:scale-95"
+                    >
+                      <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+                      </svg>
+                      <span>Zoom</span>
+                    </button>
                  </div>
               )}
               
@@ -1520,18 +1537,33 @@ const ExamFlow = () => {
       {/* Zoom Modal Lightbox */}
       {zoomImage && (
         <div 
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-4 animate-fade-in"
+          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-2 sm:p-4 animate-fade-in"
           onClick={() => setZoomImage(null)}
         >
-          <div className="relative max-w-3xl max-h-[85vh] bg-white rounded-3xl p-4 shadow-2xl flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
-            <button 
-              type="button"
-              onClick={() => setZoomImage(null)}
-              className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold shadow-lg hover:bg-slate-700 transition-all cursor-pointer"
-            >
-              ✕
-            </button>
-            <img src={zoomImage} alt="Diagram full view" className="max-h-[75vh] w-auto object-contain rounded-2xl" />
+          <div 
+            className="relative max-w-4xl max-h-[92vh] w-full bg-slate-900/90 rounded-2xl p-2 sm:p-4 shadow-2xl flex flex-col items-center border border-white/10 overflow-hidden" 
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-full flex items-center justify-between pb-2 mb-2 border-b border-white/10 px-2 shrink-0">
+              <span className="text-white/80 text-xs sm:text-sm font-medium flex items-center gap-1.5">
+                <span>🔍</span> Pinch or scroll to inspect
+              </span>
+              <button 
+                type="button"
+                onClick={() => setZoomImage(null)}
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold text-sm transition-all cursor-pointer active:scale-90"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="flex-1 w-full overflow-auto flex items-center justify-center min-h-0">
+              <img 
+                src={zoomImage} 
+                alt="Diagram full view" 
+                className="max-h-[80vh] w-auto max-w-full object-contain rounded-xl select-none" 
+                style={{ touchAction: 'pinch-zoom' }}
+              />
+            </div>
           </div>
         </div>
       )}
