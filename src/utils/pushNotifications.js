@@ -82,6 +82,21 @@ export const setupPushNotifications = async (userId, requestPermission = true) =
       notification_id: action.notification.data?.id || action.notification.id || 'unknown' 
     });
 
+    // Track the notification click in our analytics backend (fire-and-forget)
+    try {
+      const notifType = action.notification.data?.type || 'unknown';
+      let userObj = null;
+      try { userObj = JSON.parse(localStorage.getItem('user')); } catch(e) {}
+
+      import('../utils/apiBase.js').then(({ getApiBase }) => {
+        fetch(`${getApiBase()}/api/track/notification-click`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: notifType, userId: userObj?._id || null }),
+        }).catch(() => {}); // silent fail for analytics
+      }).catch(() => {});
+    } catch(e) {}
+
     const targetUrl = action.notification.data?.url || action.notification.data?.targetUrl;
     if (targetUrl) {
       console.log('Navigating to notification target URL:', targetUrl);
