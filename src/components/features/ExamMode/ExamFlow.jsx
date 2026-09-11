@@ -329,6 +329,8 @@ const ExamFlow = () => {
   const [feedbacks, setFeedbacks] = useState(() => initialPast ? initialPast.pastFeedbacks : {});
   const [showExplanation, setShowExplanation] = useState({});
   const [attempts, setAttempts] = useState({});
+  const [isEvaluatingBatch, setIsEvaluatingBatch] = useState(false);
+  const autoEvaluatedRef = useRef(false);
   
   useEffect(() => {
       if (isPastReview && pastSession) {
@@ -529,7 +531,9 @@ const ExamFlow = () => {
     return '';
   };
 
-  const submitBatchDescriptive = async () => {
+  const evaluateAllAnswersTogether = async (showLoading = false) => {
+      if (isEvaluatingBatch) return;
+
       const itemsToEvaluate = [];
       const allQuestionsPayload = [];
       const newFeedbacks = { ...feedbacks };
@@ -595,7 +599,11 @@ const ExamFlow = () => {
           return;
       }
       
-      setScreen('LOADING');
+      setIsEvaluatingBatch(true);
+      if (showLoading) {
+          setScreen('LOADING');
+      }
+
       try {
           // Send ALL answered questions together in a SINGLE batch API call to save credits
           const response = await api.post('/api/ai/evaluate-batch', {
@@ -616,6 +624,9 @@ const ExamFlow = () => {
                     aiEvaluated: fb.aiEvaluated !== undefined ? Boolean(fb.aiEvaluated) : true
                   };
                   newFeedbacks[fb.id] = evalData;
+                  const idDigits = String(fb.id).replace(/\D/g, '');
+                  if (idDigits) newFeedbacks[idDigits] = evalData;
+
                   const matchedItem = flowItems.find(it => {
                     if (String(it.id) === String(fb.id)) return true;
                     const c1 = String(it.id).replace(/\D/g, '');
@@ -635,8 +646,30 @@ const ExamFlow = () => {
             alert(error.response?.data?.error || "Weekly limit reached for Exam Mode.");
           }
           await finalizeExam(newFeedbacks);
+      } finally {
+          setIsEvaluatingBatch(false);
       }
   };
+
+  const submitBatchDescriptive = async () => {
+      await evaluateAllAnswersTogether(true);
+  };
+
+  // Auto-evaluate unevaluated descriptive answers together in ONE batch upon viewing Review Analysis
+  useEffect(() => {
+    if (screen === 'ANALYSIS' && flowItems.length > 0 && !autoEvaluatedRef.current) {
+      const hasUnevaluated = flowItems.some(it => {
+        if (it.type !== 'descriptive_question') return false;
+        const ans = resolveAns(it).trim();
+        const fb = resolveFb(feedbacks, it);
+        return ans && ans.toLowerCase() !== 'no answer submitted' && (!fb || !fb.aiEvaluated);
+      });
+      if (hasUnevaluated) {
+        autoEvaluatedRef.current = true;
+        evaluateAllAnswersTogether(false);
+      }
+    }
+  }, [screen, flowItems, feedbacks]);
 
   const goNextStep = async () => {
       setTotalTimeSpent(prev => prev + (TIME_LIMIT - timeLeft));
@@ -1181,6 +1214,27 @@ const ExamFlow = () => {
                 ⚡ REVIEW ANALYSIS ⚡
               </h1>
               <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                {flowItems.some(it => it.type === 'descriptive_question' && resolveAns(it).trim() && (!resolveFb(feedbacks, it) || !resolveFb(feedbacks, it)?.aiEvaluated)) && (
+                  <button
+                    type="button"
+                    onClick={() => evaluateAllAnswersTogether(false)}
+                    disabled={isEvaluatingBatch}
+                    className="flex items-center gap-1 text-[11px] sm:text-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-900 px-2.5 sm:px-3 py-1.5 rounded-full shadow transition-all cursor-pointer disabled:opacity-60"
+                    title="Evaluate all questions together in a single batch"
+                  >
+                    {isEvaluatingBatch ? (
+                      <>
+                        <span className="animate-spin text-xs">⚡</span>
+                        <span className="hidden sm:inline">Evaluating...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>⚡</span>
+                        <span>Evaluate All with AI</span>
+                      </>
+                    )}
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={handleExit}
