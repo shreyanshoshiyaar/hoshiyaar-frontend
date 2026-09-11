@@ -748,7 +748,16 @@ const ExamPlay = () => {
             </div>
             {mode === 'REVIEW' && currentFeedback && (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 w-full shrink-0">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 w-full shrink-0">
+                  <section className="bg-[#0D2E24] rounded-2xl p-4 shadow-lg border border-emerald-500/30 flex flex-col w-full text-left">
+                    <h3 className="font-bold text-emerald-400 uppercase tracking-wider text-xs flex items-center gap-2 mb-2">
+                      <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow text-[10px]">★</div> 
+                      Ideal Answer
+                    </h3>
+                    <div className="text-white text-xs sm:text-sm font-normal leading-relaxed whitespace-pre-wrap">
+                      {question?.expected || question?.expectedAnswer || question?.answer || "Refer to chapter notes and textbook for the model answer."}
+                    </div>
+                  </section>
                   <section className="bg-[#1A2C5B] rounded-2xl p-4 shadow-lg border border-white/5 flex flex-col w-full text-left">
                     <h3 className="font-bold text-blue-400 uppercase tracking-wider text-xs flex items-center gap-2 mb-2">
                       <div className="w-5 h-5 rounded-full bg-blue-500 text-white flex items-center justify-center shadow text-[10px]">?</div> 
