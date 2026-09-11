@@ -749,14 +749,23 @@ const ExamFlow = () => {
                  };
              });
              const sessionData = {
+                 userId: user?._id || null,
                  chapterId,
                  chapterTitle,
+                 subject: subjectKnowledge || 'Unknown',
                  finalScore,
                  timeSpentSeconds: totalTimeSpent,
                  questions: savedQuestions,
                  createdAt: new Date().toISOString()
              };
              localStorage.setItem(`hoshiyaar_last_exam_session_${chapterId}`, JSON.stringify(sessionData));
+
+             // Always persist complete session to database
+             try {
+               await api.post('/api/ai/save-session', sessionData);
+             } catch (saveErr) {
+               console.warn("Failed to persist exam session to DB:", saveErr);
+             }
           }
          const userObj = JSON.parse(localStorage.getItem('hoshiyaar_user'));
          if (userObj && userObj._id && chapterId) {
