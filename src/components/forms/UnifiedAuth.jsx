@@ -133,7 +133,7 @@ const UnifiedAuth = () => {
           });
           login(response.data);
           try { sessionStorage.setItem('entryType', 'login'); } catch (_) {}
-          navigate('/welcome');
+          navigate('/learn');
         }
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Incorrect password.');

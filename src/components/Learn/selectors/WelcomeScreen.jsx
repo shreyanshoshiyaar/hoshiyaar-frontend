@@ -41,8 +41,16 @@ export default function WelcomeScreen({ onContinue }) {
 
   useEffect(() => {
     try {
+      const userObj = JSON.parse(localStorage.getItem('user'));
+      const isExistingUser = 
+        sessionStorage.getItem('entryType') === 'login' ||
+        userObj?.onboardingCompleted ||
+        (userObj?.totalPoints && userObj.totalPoints > 0) ||
+        (userObj?.chaptersProgress && userObj.chaptersProgress.length > 0);
+
       const key = getStorageKey();
-      if (localStorage.getItem(key) === 'true') {
+      if (isExistingUser || localStorage.getItem(key) === 'true') {
+        localStorage.setItem(key, 'true');
         proceedNext();
         return;
       }
