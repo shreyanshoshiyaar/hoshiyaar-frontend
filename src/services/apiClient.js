@@ -8,7 +8,7 @@ import { logDev, warnDev } from '../utils/logger.js';
  */
 export const api = axios.create({
   baseURL: getApiBase(),
-  timeout: 45000,
+  timeout: 120000,
   withCredentials: false,
 });
 

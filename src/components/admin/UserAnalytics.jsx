@@ -219,6 +219,11 @@ const UserAnalytics = () => {
   const [filterAccuracy, setFilterAccuracy] = useState('all'); // all, high, med, low
   const [filterPlatform, setFilterPlatform] = useState('all'); // all, web, app
 
+  // Export period state (all, today, yesterday, 7d, 30d, 90d, custom)
+  const [exportPeriod, setExportPeriod] = useState('all');
+  const [customStartDate, setCustomStartDate] = useState('');
+  const [customEndDate, setCustomEndDate] = useState('');
+
   const [appliedFilters, setAppliedFilters] = useState({
     search: '',
     type: 'all',
@@ -575,17 +580,23 @@ const UserAnalytics = () => {
   const handleDownloadUsersCSV = async () => {
     try {
       setDownloadingUsers(true);
-      const res = await authService.downloadUsersCSV();
+      const params = { period: exportPeriod };
+      if (exportPeriod === 'custom') {
+        if (customStartDate) params.startDate = customStartDate;
+        if (customEndDate) params.endDate = customEndDate;
+      }
+      const res = await authService.downloadUsersCSV({ params });
       const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.setAttribute('href', url);
-      link.setAttribute('download', `hoshiyaar_all_users_${new Date().toISOString().split('T')[0]}.csv`);
+      const periodLabel = exportPeriod === 'all' ? 'all_time' : exportPeriod;
+      link.setAttribute('download', `hoshiyaar_users_${periodLabel}_${new Date().toISOString().split('T')[0]}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     } catch (err) {
-      console.error('Failed to download full users CSV from backend', err);
+      console.error('Failed to download users CSV from backend', err);
       // Fallback to client-side filteredUsers export if network fails
       downloadCSV();
     } finally {
@@ -598,12 +609,18 @@ const UserAnalytics = () => {
   const handleDownloadSessionsCSV = async () => {
     try {
       setDownloadingSessions(true);
-      const res = await authService.downloadSessionsCSV();
+      const params = { period: exportPeriod };
+      if (exportPeriod === 'custom') {
+        if (customStartDate) params.startDate = customStartDate;
+        if (customEndDate) params.endDate = customEndDate;
+      }
+      const res = await authService.downloadSessionsCSV({ params });
       const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.setAttribute('href', url);
-      link.setAttribute('download', `hoshiyaar_normal_sessions_${new Date().toISOString().split('T')[0]}.csv`);
+      const periodLabel = exportPeriod === 'all' ? 'all_time' : exportPeriod;
+      link.setAttribute('download', `hoshiyaar_sessions_${periodLabel}_${new Date().toISOString().split('T')[0]}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -1008,24 +1025,64 @@ const UserAnalytics = () => {
               <h3 className="text-lg font-black text-slate-800">Student Logs & Individual Activity Tracking</h3>
               <p className="text-xs text-slate-400 font-medium">Comprehensive listing of all users, points milestones, active usage clustering and lesson progress.</p>
             </div>
-            <div className="flex items-center gap-3 self-start md:self-auto">
+            <div className="flex flex-wrap items-center gap-2 self-start md:self-auto">
               <div className="text-xs font-bold text-slate-500 bg-slate-50 border border-slate-150 px-3 py-1.5 rounded-lg">
                 Showing <strong className="text-slate-800">{filteredUsers.length}</strong> of {stats.totalUsers || users.length} Students
               </div>
+
+              {/* Export Period Selector */}
+              <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-2 py-1 rounded-lg">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Export Period:</span>
+                <select
+                  value={exportPeriod}
+                  onChange={(e) => setExportPeriod(e.target.value)}
+                  className="text-xs font-semibold text-slate-700 bg-transparent border-0 focus:ring-0 outline-none cursor-pointer py-0.5"
+                >
+                  <option value="all">All Time</option>
+                  <option value="today">Today (IST)</option>
+                  <option value="yesterday">Yesterday (IST)</option>
+                  <option value="7d">Last 7 Days</option>
+                  <option value="30d">Last 30 Days</option>
+                  <option value="90d">Last 90 Days</option>
+                  <option value="custom">Custom Range</option>
+                </select>
+              </div>
+
+              {/* Conditional Custom Date Range Pickers */}
+              {exportPeriod === 'custom' && (
+                <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 px-2 py-1 rounded-lg">
+                  <input
+                    type="date"
+                    value={customStartDate}
+                    onChange={(e) => setCustomStartDate(e.target.value)}
+                    className="text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded px-1.5 py-0.5 outline-none focus:border-indigo-500"
+                    title="Start Date"
+                  />
+                  <span className="text-xs text-slate-400 font-bold">to</span>
+                  <input
+                    type="date"
+                    value={customEndDate}
+                    onChange={(e) => setCustomEndDate(e.target.value)}
+                    className="text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded px-1.5 py-0.5 outline-none focus:border-indigo-500"
+                    title="End Date"
+                  />
+                </div>
+              )}
+
               <button
                 onClick={handleDownloadUsersCSV}
                 disabled={downloadingUsers}
                 className="text-[10px] font-bold text-slate-600 bg-slate-50 border border-slate-200 hover:bg-slate-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm whitespace-nowrap self-start sm:self-auto disabled:opacity-50"
-                title="Download all users activity CSV (full database)"
+                title={`Download users CSV for selected period (${exportPeriod})`}
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                {downloadingUsers ? 'Exporting All Users...' : 'Export Users CSV'}
+                {downloadingUsers ? 'Exporting Users...' : 'Export Users CSV'}
               </button>
               <button
                 onClick={handleDownloadSessionsCSV}
                 disabled={downloadingSessions}
                 className="text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm whitespace-nowrap self-start sm:self-auto disabled:opacity-50"
-                title="Download session-wise normal sessions CSV"
+                title={`Download session-wise CSV for selected period (${exportPeriod})`}
               >
                 <svg className="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 {downloadingSessions ? 'Exporting...' : 'Export Sessions CSV'}
