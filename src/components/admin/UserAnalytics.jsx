@@ -987,7 +987,7 @@ const UserAnalytics = () => {
             </div>
             <div className="flex items-center gap-3 self-start md:self-auto">
               <div className="text-xs font-bold text-slate-500 bg-slate-50 border border-slate-150 px-3 py-1.5 rounded-lg">
-                Showing <strong className="text-slate-800">{filteredUsers.length}</strong> of {users.length} Students
+                Showing <strong className="text-slate-800">{filteredUsers.length}</strong> of {stats.totalUsers || users.length} Students
               </div>
               <button
                 onClick={downloadCSV}
