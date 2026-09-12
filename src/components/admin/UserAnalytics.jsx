@@ -570,6 +570,29 @@ const UserAnalytics = () => {
     document.body.removeChild(link);
   };
 
+  const [downloadingUsers, setDownloadingUsers] = useState(false);
+
+  const handleDownloadUsersCSV = async () => {
+    try {
+      setDownloadingUsers(true);
+      const res = await authService.downloadUsersCSV();
+      const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `hoshiyaar_all_users_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error('Failed to download full users CSV from backend', err);
+      // Fallback to client-side filteredUsers export if network fails
+      downloadCSV();
+    } finally {
+      setDownloadingUsers(false);
+    }
+  };
+
   const [downloadingSessions, setDownloadingSessions] = useState(false);
 
   const handleDownloadSessionsCSV = async () => {
@@ -990,12 +1013,13 @@ const UserAnalytics = () => {
                 Showing <strong className="text-slate-800">{filteredUsers.length}</strong> of {stats.totalUsers || users.length} Students
               </div>
               <button
-                onClick={downloadCSV}
-                className="text-[10px] font-bold text-slate-600 bg-slate-50 border border-slate-200 hover:bg-slate-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm whitespace-nowrap self-start sm:self-auto"
-                title="Download user-wise activity CSV"
+                onClick={handleDownloadUsersCSV}
+                disabled={downloadingUsers}
+                className="text-[10px] font-bold text-slate-600 bg-slate-50 border border-slate-200 hover:bg-slate-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm whitespace-nowrap self-start sm:self-auto disabled:opacity-50"
+                title="Download all users activity CSV (full database)"
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                Export Users CSV
+                {downloadingUsers ? 'Exporting All Users...' : 'Export Users CSV'}
               </button>
               <button
                 onClick={handleDownloadSessionsCSV}
