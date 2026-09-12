@@ -223,6 +223,7 @@ const deleteBlog = (id, opts) => api.delete(`/api/blogs/${id}`, opts);
 const getUsersAnalytics = (opts) => api.get('/api/admin/users-analytics', { timeout: 90000, ...(opts || {}) });
 const getSessionsAnalytics = (opts) => api.get('/api/admin/sessions', { timeout: 90000, ...(opts || {}) });
 const downloadSessionsCSV = (opts) => api.get('/api/admin/sessions/export-csv', { responseType: 'blob', timeout: 90000, ...(opts || {}) });
+const downloadUsersCSV = (opts) => api.get('/api/admin/users/export-csv', { responseType: 'blob', timeout: 90000, ...(opts || {}) });
 const updateUserSchool = (id, school, opts) => api.put(`/api/admin/users/${id}/school`, { school }, opts);
 
 const claimWeeklyGoal = (userId, opts) => api.post(`/api/auth/user/${userId}/claim-weekly-goal`, {}, opts);
@@ -259,6 +260,7 @@ const authService = {
   getUsersAnalytics,
   getSessionsAnalytics,
   downloadSessionsCSV,
+  downloadUsersCSV,
   updateUserSchool,
   sendOtp,
   verifyOtp,
