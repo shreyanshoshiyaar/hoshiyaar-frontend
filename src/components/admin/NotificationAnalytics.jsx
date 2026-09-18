@@ -17,6 +17,7 @@ const TYPE_CONFIG = {
   inactivity_nudge: { label: 'Inactivity Nudge', color: '#F59E0B' },
   rank_drop: { label: 'Rank Drop', color: '#EC4899' },
   chapter_promo: { label: 'Chapter Promo', color: '#10B981' },
+  exam_mode_live: { label: 'Exam Mode Live (7:30 PM)', color: '#6366F1' },
   manual_nudge: { label: 'Manual Nudge', color: '#8B5CF6' },
   unknown: { label: 'Other', color: '#94A3B8' }
 };
