@@ -49,6 +49,7 @@ const Header = ({ isHomePage }) => {
               className="h-10 lg:h-12 w-auto object-contain"
             />
           </a>
+
           {user ? (
             <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
               <button 

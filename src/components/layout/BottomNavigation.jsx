@@ -1,5 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { isUserAdmin } from '../../utils/adminCheck.js';
 
 const HomeIcon = ({ active }) => (
   <svg className={`w-6 h-6 ${active ? 'text-[#2563EB]' : 'text-gray-400'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -43,9 +45,9 @@ const MoreIcon = ({ active }) => (
   </svg>
 );
 
-const ChallengesIcon = ({ active }) => (
-  <svg className={`w-6 h-6 ${active ? 'text-[#2563EB]' : 'text-gray-400'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+const ProIcon = ({ active }) => (
+  <svg className={`w-6 h-6 ${active ? 'text-[#2563EB]' : 'text-amber-500'}`} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z" />
   </svg>
 );
 
@@ -54,11 +56,14 @@ const BottomNavigation = () => {
   const location = useLocation();
   const path = location.pathname;
 
+  const { user } = useAuth();
+  const showProTab = isUserAdmin(user);
+
   const isHome = path === '/home';
   const isLearn = path === '/learn';
   const isExam = path === '/exam';
   const isRanks = path === '/ranks';
-  const isChallenges = path === '/challenges';
+  const isPro = path === '/subscription' || path === '/pricing';
   const isMore = path === '/more';
 
   return (
@@ -99,14 +104,16 @@ const BottomNavigation = () => {
         {isRanks && <div className="absolute top-[-8px] left-1/2 -translate-x-1/2 w-8 h-1 bg-[#2563EB] rounded-full" />}
       </button>
 
-      <button 
-        onClick={() => navigate('/challenges', { replace: true })}
-        className={`flex flex-col items-center justify-center flex-1 pb-2 relative transition-all ${isChallenges ? 'text-[#2563EB]' : 'text-gray-400'}`}
-      >
-        <ChallengesIcon active={isChallenges} />
-        <span className="text-[10px] font-black mt-1">Challenges</span>
-        {isChallenges && <div className="absolute top-[-8px] left-1/2 -translate-x-1/2 w-8 h-1 bg-[#2563EB] rounded-full" />}
-      </button>
+      {showProTab && (
+        <button 
+          onClick={() => navigate('/subscription')}
+          className={`flex flex-col items-center justify-center flex-1 pb-2 relative transition-all ${isPro ? 'text-[#2563EB]' : 'text-amber-500'}`}
+        >
+          <ProIcon active={isPro} />
+          <span className={`text-[10px] font-black mt-1 ${isPro ? 'text-[#2563EB]' : 'text-amber-600'}`}>Pro</span>
+          {isPro && <div className="absolute top-[-8px] left-1/2 -translate-x-1/2 w-8 h-1 bg-[#2563EB] rounded-full" />}
+        </button>
+      )}
 
       <button 
         onClick={() => navigate('/more', { replace: true })}

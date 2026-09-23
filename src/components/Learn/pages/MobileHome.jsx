@@ -1,4 +1,7 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext.jsx';
+import { isUserAdmin } from '../../../utils/adminCheck.js';
 import heroChar from '../../../assets/images/heroChar.png'; // Fallback image
 
 const HexagonRankIcon = ({ rank }) => (
@@ -21,6 +24,10 @@ const HexagonRankIcon = ({ rank }) => (
 );
 
 const MobileHome = ({ user, stars, weeklyStars, leaderboardData, onNavigateToPractice }) => {
+  const navigate = useNavigate();
+  const { user: authUser } = useAuth();
+  const currentUser = user || authUser;
+  const showProBanner = isUserAdmin(currentUser);
   // Find current user rank
   const myRankData = leaderboardData?.find(d => d.userId === user?._id);
   const myRank = myRankData ? myRankData.rank : '-';
@@ -30,6 +37,20 @@ const MobileHome = ({ user, stars, weeklyStars, leaderboardData, onNavigateToPra
     <div className="w-full min-h-screen bg-[#F0F6FF] pb-32 font-sans overflow-y-auto">
       {/* Hero Section */}
       <div className="relative w-full pt-20 pb-16 px-6 overflow-hidden" style={{ background: 'linear-gradient(180deg, #E6F0FF 0%, #F0F6FF 100%)' }}>
+        {/* Top Header Bar for Mobile Home */}
+        <div className="absolute top-4 left-6 right-6 flex items-center justify-between z-30">
+          <div className="text-xs font-black tracking-wider uppercase text-blue-900/60">
+            Hoshiyaar
+          </div>
+          <button
+            onClick={() => navigate('/challenges')}
+            className="flex items-center gap-1.5 bg-white/95 backdrop-blur-sm px-3.5 py-1.5 rounded-full shadow-sm border border-blue-200 text-blue-800 font-extrabold text-xs active:scale-95 transition-transform"
+          >
+            <span>🎯</span>
+            <span>Challenges</span>
+          </button>
+        </div>
+
         {/* Background stars/sparkles */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-10 right-10 text-yellow-400 text-xl animate-pulse">✨</div>
@@ -92,6 +113,35 @@ const MobileHome = ({ user, stars, weeklyStars, leaderboardData, onNavigateToPra
             </div>
           </div>
         </div>
+
+        {/* Hoshiyaar Pro Subscription Banner (Visible to admins only during testing) */}
+        {showProBanner && (
+          <div
+            onClick={() => navigate('/subscription')}
+            className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-3xl p-4 text-white shadow-md flex items-center justify-between cursor-pointer active:scale-98 transition-transform border border-blue-400"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center text-2xl shrink-0 shadow-inner">
+                💳
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-black text-sm">Hoshiyaar Pro Pass</span>
+                  <span className="bg-yellow-400 text-yellow-950 text-[10px] font-black uppercase px-1.5 py-0.5 rounded">
+                    NEW
+                  </span>
+                </div>
+                <p className="text-xs text-blue-100 mt-0.5">
+                  Unlock all chapters &amp; AI features • From ₹19
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 text-xs font-extrabold shrink-0 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-xl">
+              <span>Plans</span>
+              <span>→</span>
+            </div>
+          </div>
+        )}
 
         {/* 2-Column Bento Grid */}
         <div className="grid grid-cols-12 gap-4">

@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import curriculumService from '../../services/curriculumService';
 import { useStars } from '../../context/StarsContext.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { isUserAdmin } from '../../utils/adminCheck.js';
 import WeeklyStreak from '../common/WeeklyStreak.jsx';
 import heroChar from '../../assets/images/heroChar.png'; // Fallback image
 
@@ -30,8 +33,12 @@ const DesktopHomeDashboard = ({
   onNavigateToPractice,
   onNavigateToRanks,
 }) => {
+  const navigate = useNavigate();
   const { stars, refresh } = useStars();
-  const hasSchool = !!user?.school;
+  const { user: authUser } = useAuth();
+  const currentUser = user || authUser;
+  const showProCard = isUserAdmin(currentUser);
+  const hasSchool = !!currentUser?.school;
 
   React.useEffect(() => {
     refresh();
@@ -161,15 +168,34 @@ const DesktopHomeDashboard = ({
 
           {/* Side Stack - middle column */}
           <div className="flex flex-col gap-4 h-full">
-            <div className="bg-[#F9F8FF] rounded-2xl p-4 shadow-sm border border-[#E9D8FF] flex-1 flex flex-col items-center justify-center relative hover:shadow-md transition-shadow">
-              <div className="text-4xl drop-shadow-sm mb-2">📅</div>
-              <p className="text-[#4A5568] font-bold text-center text-xs leading-tight mb-2">
-                Fresh mysteries every
-              </p>
-              <div className="flex items-center gap-1.5 text-[#8B5CF6] font-black text-sm bg-purple-100 px-3 py-1.5 rounded-lg">
-                <span className="opacity-50">≽</span> Tues &amp; Fri <span className="opacity-50">≼</span>
+            {/* Pro Subscription Pass Card (Visible to admins only during testing) */}
+            {showProCard && (
+              <div 
+                onClick={() => navigate('/subscription')}
+                className="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 text-white rounded-2xl p-4 shadow-sm border border-blue-400 flex-1 flex flex-col justify-between cursor-pointer hover:shadow-md hover:scale-[1.02] active:scale-[0.99] transition-all group"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[10px] font-black uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-md text-white">
+                      PRO PASS
+                    </span>
+                    <span className="text-xs">⭐</span>
+                  </div>
+                  <h3 className="font-black text-sm leading-snug">
+                    Unlock All Lessons
+                  </h3>
+                  <p className="text-[11px] text-blue-100 mt-1 line-clamp-2 leading-tight">
+                    Unlimited chapters, AI explanations &amp; revision tests.
+                  </p>
+                </div>
+                <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/20">
+                  <span className="text-xs font-bold text-yellow-300">From ₹19</span>
+                  <span className="text-xs font-extrabold text-white flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                    View Plans →
+                  </span>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="bg-[#EBF5FF] rounded-2xl p-4 shadow-sm border border-[#D6E4FF] flex-1 flex flex-col items-center justify-center hover:shadow-md transition-shadow">
                <h3 className="text-[#2C4A86] font-black text-[10px] uppercase tracking-widest mb-3">Stay Connected</h3>
