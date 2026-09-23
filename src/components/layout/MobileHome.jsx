@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import curriculumService from '../../services/curriculumService';
 import { useStars } from '../../context/StarsContext.jsx';
 import WeeklyStreak from '../common/WeeklyStreak.jsx';
@@ -31,6 +32,7 @@ const MobileHome = ({
   onNavigateToPractice,
   onNavigateToRanks,
 }) => {
+  const navigate = useNavigate();
   const { stars, refresh } = useStars();
   const hasSchool = !!user?.school;
   const [showCelebration, setShowCelebration] = useState(false);
@@ -131,7 +133,13 @@ const MobileHome = ({
               className="h-12 w-auto drop-shadow-sm" 
             />
           </div>
-          <div className="w-10 h-10"></div>
+          <button
+            onClick={() => navigate('/challenges')}
+            className="flex items-center gap-1.5 bg-white/95 backdrop-blur-sm px-3.5 py-1.5 rounded-full shadow-sm border border-amber-300 text-amber-900 font-extrabold text-xs active:scale-95 transition-transform"
+          >
+            <span>🎯</span>
+            <span>Challenges</span>
+          </button>
         </div>
 
         {/* Hero Banner Section */}

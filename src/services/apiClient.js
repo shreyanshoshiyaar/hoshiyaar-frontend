@@ -15,11 +15,11 @@ export const api = axios.create({
 // Request interceptor to attach bearer tokens
 api.interceptors.request.use((config) => {
   let token = null;
-  const isAdminRequest = config.url && (config.url.includes('/api/admin') || config.url.includes('/api/curriculum/import'));
+  const isAdminRequest = config.url && (config.url.includes('/api/admin') || config.url.includes('/admin') || config.url.includes('/api/curriculum/import'));
 
-  // If this is an admin request, prioritize explicit adminToken from session
+  // If this is an admin request, prioritize explicit adminToken from session, then user tokens
   if (isAdminRequest) {
-    token = sessionStorage.getItem('adminToken');
+    token = sessionStorage.getItem('adminToken') || localStorage.getItem('token') || localStorage.getItem('authToken');
   }
 
   // 1. Try to get user token from localStorage 'user'

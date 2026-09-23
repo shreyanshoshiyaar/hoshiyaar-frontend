@@ -12,6 +12,17 @@ import NotificationPrompt from './components/ui/NotificationPrompt.jsx';
 import ExamModePromo from './components/ui/ExamModePromo.jsx';
 import ProtectedRoute from './components/layout/ProtectedRoute.jsx';
 import AdminProtectedRoute from './components/layout/AdminProtectedRoute.jsx';
+import AdminViewSwitcher from './components/admin/AdminViewSwitcher.jsx';
+import { isUserAdmin } from './utils/adminCheck.js';
+
+const SubscriptionRouteGuard = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (!isUserAdmin(user)) {
+    return <Navigate to="/learn" replace />;
+  }
+  return children;
+};
 
 // Lazy load components
 const UnifiedAuth = lazy(() => import('./components/forms/UnifiedAuth.jsx'));
@@ -45,6 +56,7 @@ const AndroidForcedInstall = lazy(() => import('./components/layout/AndroidForce
 const InteractiveStory = lazy(() => import('./components/features/InteractiveStory.jsx'));
 const ExamFlow = lazy(() => import('./components/features/ExamMode/ExamFlow.jsx'));
 const MidLessonStreakModal = lazy(() => import('./components/Learn/modals/MidLessonStreakModal.jsx'));
+const SubscriptionPage = lazy(() => import('./components/features/Subscription/SubscriptionPage.jsx'));
 
 import { CapacitorUpdater } from '@capgo/capacitor-updater';
 import { Capacitor } from '@capacitor/core';
@@ -435,6 +447,26 @@ function App() {
                   } 
                 />
                 <Route 
+                  path="/subscription" 
+                  element={
+                    <ProtectedRoute>
+                      <SubscriptionRouteGuard>
+                        <SubscriptionPage />
+                      </SubscriptionRouteGuard>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/pricing" 
+                  element={
+                    <ProtectedRoute>
+                      <SubscriptionRouteGuard>
+                        <Navigate to="/subscription" replace />
+                      </SubscriptionRouteGuard>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
                   path="/learn/module/:moduleNumber" 
                   element={
                     <ProtectedRoute>
@@ -537,6 +569,7 @@ function App() {
                 {/* Catch-all redirect for broken links like /refund-policy */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
+              <AdminViewSwitcher />
             </Suspense>
           </Router>
         </ReviewProvider>

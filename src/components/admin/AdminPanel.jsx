@@ -9,6 +9,7 @@ import InteractiveStoryManager from './InteractiveStoryManager';
 import ExamManager from './ExamManager';
 import AiExamAnalytics from './AiExamAnalytics';
 import NotificationAnalytics from './NotificationAnalytics';
+import PaymentManager from './PaymentManager';
 
 const UnitEditRow = ({ unit, onUpdateUnit }) => {
   const [title, setTitle] = useState(unit.title || '');
@@ -364,6 +365,17 @@ const AdminPanel = () => {
               <span>System Settings</span>
             </button>
             <button
+              onClick={() => setActiveTab('payments')}
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
+                activeTab === 'payments'
+                  ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
+                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
+              }`}
+            >
+              <span className="text-base">💳</span>
+              <span>Payments &amp; Subscriptions</span>
+            </button>
+            <button
               onClick={() => setActiveTab('stories')}
               className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
                 activeTab === 'stories'
@@ -594,6 +606,13 @@ const AdminPanel = () => {
             </p>
           </div>
           <SystemSettingsManager />
+        </div>
+      )}
+
+      {/* ── Tab Panel: Payments & Subscriptions ── */}
+      {activeTab === 'payments' && (
+        <div className="max-w-7xl mx-auto py-8 px-4">
+          <PaymentManager />
         </div>
       )}
 

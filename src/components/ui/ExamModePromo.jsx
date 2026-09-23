@@ -45,7 +45,7 @@ export default function ExamModePromo() {
   if (!showPromo) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
       <div className="bg-gradient-to-b from-[#1A2C5B] to-[#0F204C] rounded-3xl p-8 max-w-sm w-full border border-cyan-500/30 shadow-[0_0_40px_rgba(0,255,204,0.15)] text-center relative overflow-hidden">
         <button 
           onClick={() => setShowPromo(false)}

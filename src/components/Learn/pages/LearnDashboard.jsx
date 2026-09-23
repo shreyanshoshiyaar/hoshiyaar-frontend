@@ -21,6 +21,10 @@ import DesktopLeaderboard from "../../layout/DesktopLeaderboard.jsx";
 import DesktopMore from "../../layout/DesktopMore.jsx";
 import MobileMore from "../../layout/MobileMore.jsx";
 import ChallengesPage from "./ChallengesPage.jsx";
+import PaywallModal from '../../features/Subscription/PaywallModal.jsx';
+import AllChaptersModal from '../modals/AllChaptersModal.jsx';
+import paymentService from '../../../services/paymentService.js';
+import { isUserAdmin } from '../../../utils/adminCheck.js';
 const DASHBOARD_VERSION = "V5.1-FREQ-3";
 
 // --- SVG Icons for the Dashboard ---
@@ -110,15 +114,21 @@ const ChapterNavIcon = React.memo(() => (
   </svg>
 ));
 
+const LockIcon = React.memo(() => (
+  <svg className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" viewBox="0 0 24 24" fill="currentColor">
+    <path fillRule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 00-7.5 0v3h7.5z" clipRule="evenodd" />
+  </svg>
+));
+
 const NavHomeIcon = React.memo(({ active }) => (
-  <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
     <polyline points="9 22 9 12 15 12 15 22" />
   </svg>
 ));
 
 const NavExamIcon = React.memo(({ active }) => (
-  <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
     <polyline points="14 2 14 8 20 8" />
     <path d="M9 15l2 2 4-4" />
@@ -126,7 +136,7 @@ const NavExamIcon = React.memo(({ active }) => (
 ));
 
 const NavPracticeIcon = React.memo(({ active }) => (
-  <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10" />
     <circle cx="12" cy="12" r="6" />
     <circle cx="12" cy="12" r="2" />
@@ -134,7 +144,7 @@ const NavPracticeIcon = React.memo(({ active }) => (
 ));
 
 const NavRanksIcon = React.memo(({ active }) => (
-  <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
     <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
     <path d="M4 22h16" />
@@ -145,13 +155,19 @@ const NavRanksIcon = React.memo(({ active }) => (
 ));
 
 const NavChallengesIcon = React.memo(({ active }) => (
-  <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
   </svg>
 ));
 
+const NavProIcon = React.memo(({ active }) => (
+  <svg className={`w-6 h-6 ${active ? 'text-white' : 'text-amber-500'}`} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z" />
+  </svg>
+));
+
 const NavMoreIcon = React.memo(({ active }) => (
-  <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <line x1="3" y1="12" x2="21" y2="12" />
     <line x1="3" y1="6" x2="21" y2="6" />
     <line x1="3" y1="18" x2="21" y2="18" />
@@ -172,6 +188,16 @@ export const StartBadge = React.memo(({ color = "#2C6DEF" }) => (
     <div
       className="w-0 h-0 border-l-[8px] border-r-[8px] border-t-[8px] border-l-transparent border-r-transparent border-t-white -mt-0.5"
     />
+  </div>
+));
+
+// Sparkling "💎 UNLOCKED" badge used above purchased / paid nodes
+export const PurchasedBadge = React.memo(() => (
+  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-[100] select-none pointer-events-none flex flex-col items-center animate-bounce">
+    <div className="px-2.5 md:px-3.5 py-1 rounded-xl font-black tracking-wider bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-[0_4px_0_0_#065F46] flex items-center gap-1 border-2 border-white whitespace-nowrap text-[10px] md:text-xs">
+      <span>💎 UNLOCKED</span>
+    </div>
+    <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-emerald-600 -mt-0.5" />
   </div>
 ));
 
@@ -256,7 +282,7 @@ const PathAnimation = React.memo(({ data, offset, top, isMobileLayout }) => {
   );
 });
 
-export const PathNode = React.memo(({ status, onClick, disabled, color = "#2C6DEF", lightenFn, darkenFn, isDifficult = false, isDescriptive = false, offset = 0, children }) => {
+export const PathNode = React.memo(({ status, onClick, disabled, color = "#2C6DEF", lightenFn, darkenFn, isDifficult = false, isDescriptive = false, offset = 0, isPaywallLocked = false, isPurchased = false, children }) => {
   const isCompleted = status === "completed";
   const isActive = status === "active";
   const isLocked = status === "locked";
@@ -270,15 +296,21 @@ export const PathNode = React.memo(({ status, onClick, disabled, color = "#2C6DE
   if (isCompleted) {
     topColor = "#FACC15"; // Bright Yellow
     bottomColor = "#CA8A04"; // Darker Yellow/Gold
+  } else if (isPurchased && !isPaywallLocked) {
+    topColor = "#10B981"; // Emerald Green for Paid Unlocked Lesson
+    bottomColor = "#047857"; // Deep Emerald Green
   } else if (isActive) {
     topColor = "#2C6DEF"; // Bright Blue for Start
     bottomColor = "#1D4ED8"; // Darker Blue
+  } else if (isPaywallLocked) {
+    topColor = "#F8FAFC"; // Clean Slate for Paywall Locked
+    bottomColor = "#CBD5E1"; // Slate depth
   } else {
     topColor = "#E5E7EB"; // Light Gray (locked)
     bottomColor = "#9CA3AF"; // Darker Gray (locked)
   }
 
-  const iconColor = isLocked ? "text-gray-400" : "text-white";
+  const iconColor = isPaywallLocked ? "text-amber-500" : isLocked ? "text-gray-400" : "text-white";
 
   const sizeBase = "w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 lg:w-22 lg:h-22";
 
@@ -310,7 +342,9 @@ export const PathNode = React.memo(({ status, onClick, disabled, color = "#2C6DE
           }}
         >
           <div className={`${iconColor} drop-shadow-md transform transition-transform group-hover:scale-110 w-full h-full flex items-center justify-center`}>
-            {isDifficult ? (
+            {isLocked ? (
+              <LockIcon />
+            ) : isDifficult ? (
               <FireIcon />
             ) : isDescriptive ? (
               <PencilIcon />
@@ -379,6 +413,7 @@ const LearnDashboard = ({ onboardingData }) => {
     if (p === '/challenges') return 'challenges';
     if (p === '/more') return 'more';
     if (p === '/exam') return 'exam';
+    if (p === '/subscription' || p === '/pricing') return 'subscription';
     return 'home'; // /home or anything else
   })();
   const [chapterTitle, setChapterTitle] = useState("");
@@ -409,18 +444,64 @@ const LearnDashboard = ({ onboardingData }) => {
   const [leaderboardScope, setLeaderboardScope] = useState("school"); // "school" or "global"
   const [showMobileLeaderboard, setShowMobileLeaderboard] = useState(false);
 
-  // Fetch Lottie animation data from public folder
-  /*
-  useEffect(() => {
-    fetch('/lottie/Ruhaan2.json')
-      .then(res => res.json())
-      .then(data => {
-        setPathAnimationData(data);
-        console.log('[Dashboard] Ruhaan2 Lottie loaded');
-      })
-      .catch(err => console.error('Failed to load Ruhaan2 Lottie:', err));
+  // Paywall & Subscription State
+  const [userSubStatus, setUserSubStatus] = useState(null);
+  const [showPaywallModal, setShowPaywallModal] = useState(false);
+  const [selectedPaywallModule, setSelectedPaywallModule] = useState(null);
+  const [showPurchasedModal, setShowPurchasedModal] = useState(false);
+
+  const fetchUserSubStatus = useCallback(async () => {
+    try {
+      const status = await paymentService.getUserStatus();
+      setUserSubStatus(status);
+    } catch (e) {
+      console.warn('Failed to load user subscription status:', e);
+    }
   }, []);
-  */
+
+  useEffect(() => {
+    fetchUserSubStatus();
+  }, [fetchUserSubStatus, user?._id]);
+
+  useEffect(() => {
+    const handleStorage = (e) => {
+      if (e.key === 'admin_view_mode') fetchUserSubStatus();
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, [fetchUserSubStatus]);
+
+  const isSubscribed = useMemo(() => {
+    const adminMode = localStorage.getItem('admin_view_mode') || 'admin';
+    const isAdminView = user?.role === 'admin' && adminMode !== 'student';
+    if (isAdminView) return true;
+    return Boolean(
+      userSubStatus &&
+      (userSubStatus.status === 'active_subscription' || userSubStatus.status === 'canceled') &&
+      userSubStatus.currentPeriodEnd &&
+      new Date(userSubStatus.currentPeriodEnd) > new Date()
+    );
+  }, [user?.role, userSubStatus]);
+
+  const hasActivePlan = useMemo(() => {
+    return Boolean(
+      userSubStatus &&
+      (userSubStatus.status === 'active_subscription' || userSubStatus.status === 'canceled') &&
+      userSubStatus.currentPeriodEnd &&
+      new Date(userSubStatus.currentPeriodEnd) > new Date()
+    );
+  }, [userSubStatus]);
+
+  const purchasedModuleSet = useMemo(() => {
+    const set = new Set();
+    if (userSubStatus?.purchasedModules?.length) {
+      userSubStatus.purchasedModules.forEach(m => {
+        if (m.moduleId) set.add(String(m.moduleId));
+        else if (typeof m === 'string') set.add(String(m));
+      });
+    }
+    return set;
+  }, [userSubStatus]);
 
   const rowSpacing = 110;
   const [isMobileLayout, setIsMobileLayout] = useState(window.innerWidth < 768);
@@ -452,6 +533,23 @@ const LearnDashboard = ({ onboardingData }) => {
   const [chapterStats, setChapterStats] = useState({}); // { [chapterId]: { total, completed } }
   const [showSchoolPrompt, setShowSchoolPrompt] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const [adminViewMode, setAdminViewMode] = useState(() => {
+    try {
+      return localStorage.getItem('admin_view_mode') || 'admin';
+    } catch {
+      return 'admin';
+    }
+  });
+
+  useEffect(() => {
+    const handleViewModeChange = () => {
+      const mode = localStorage.getItem('admin_view_mode') || 'admin';
+      setAdminViewMode(mode);
+    };
+    window.addEventListener('adminViewModeChanged', handleViewModeChange);
+    return () => window.removeEventListener('adminViewModeChanged', handleViewModeChange);
+  }, []);
 
   // 3-Day School Prompt Logic
   useEffect(() => {
@@ -615,6 +713,37 @@ const LearnDashboard = ({ onboardingData }) => {
     return onboardingData?.chapter || user?.chapter || null;
   };
   const preferredChapterId = getPreferredChapterId();
+
+  const handleChapterSelect = useCallback(async (ch) => {
+    if (!ch || (ch.title && ch.title.includes('(Coming Soon)'))) return;
+    setShowChapters(false);
+    if (ch?._id) {
+      window.hyTrack?.('click_chapter', { chapter_title: ch.title });
+      navigate(`/learn?chapterId=${encodeURIComponent(ch._id)}`, { replace: false });
+      setChapterId(ch._id);
+      setChapterTitle(ch.title);
+
+      if (user?._id) {
+        try {
+          const response = await authService.updateProfile({
+            userId: user._id,
+            chapter: ch.title,
+          });
+          const updatedUser = response?.data ? { ...user, ...response.data } : { ...user, chapter: ch.title, chapterId: ch._id };
+          try {
+            localStorage.setItem(`last_selected_chapter_${user._id}_${subjectName}`, ch._id);
+            if (updateUser) updateUser(updatedUser);
+            else localStorage.setItem('user', JSON.stringify(updatedUser));
+          } catch (e) { console.warn('Failed to update user state:', e); }
+        } catch (error) {
+          console.error('Failed to save chapter to database:', error);
+          try { localStorage.setItem(`last_selected_chapter_${user._id}_${subjectName}`, ch._id); } catch (_) { }
+        }
+      } else {
+        try { localStorage.setItem(`last_selected_chapter_anon_${subjectName}`, ch._id); } catch (_) { }
+      }
+    }
+  }, [user, subjectName, navigate, updateUser]);
 
   // Helpers: local persistence for lesson completion - NOW USING COMPOSITE KEYS
   const userScopedKey = (base) => `${base}__${user?._id || 'anon'}__${subjectName || 'unknown'}`;
@@ -1907,6 +2036,27 @@ const LearnDashboard = ({ onboardingData }) => {
               <ProfileIcon />
               <span>Profile</span>
             </a>
+            {isUserAdmin(user) && (
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setIsMobileMenuOpen(false);
+                  navigate("/subscription");
+                }}
+                className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors text-amber-600 hover:bg-amber-50`}
+              >
+                <NavProIcon active={false} />
+                <div className="flex items-center justify-between flex-1">
+                  <span>Pro</span>
+                  {hasActivePlan && (
+                    <span className="text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-400 to-yellow-500 text-white px-2 py-0.5 rounded-full shadow-xs">
+                      VIP
+                    </span>
+                  )}
+                </div>
+              </a>
+            )}
             <a
               href="#"
               onClick={(e) => {
@@ -1934,18 +2084,18 @@ const LearnDashboard = ({ onboardingData }) => {
         </nav>
 
         {/* Desktop Sidebar */}
-        <nav className="hidden md:flex md:w-64 p-6 space-y-4 border-r border-blue-200 flex-col justify-start shrink-0 bg-white shadow-lg z-10">
-          <div className="mb-6">
+        <nav className="hidden md:flex md:w-60 p-4 space-y-1.5 border-r border-blue-200 flex-col justify-start shrink-0 bg-white shadow-lg z-10 overflow-y-auto">
+          <div className="mb-3 px-1">
             <img 
               src="https://res.cloudinary.com/w7rytq0k/image/upload/v1785322514/img-to-link/bihseec7aigbmau4amnd.png" 
               alt="HoshiYaar Logo" 
-              className="h-12 w-auto" 
+              className="h-10 w-auto" 
             />
           </div>
           <a
             href="#"
             onClick={(e) => { e.preventDefault(); navigate('/home'); }}
-            className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors ${activeTab === 'home' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
+            className={`flex items-center gap-3 py-2 px-3.5 rounded-xl text-base font-bold transition-colors ${activeTab === 'home' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
           >
             <NavHomeIcon active={activeTab === 'home'} />
             <span>Home</span>
@@ -1953,7 +2103,7 @@ const LearnDashboard = ({ onboardingData }) => {
           <a
             href="#"
             onClick={(e) => { e.preventDefault(); navigate('/learn'); }}
-            className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors ${activeTab === 'learn' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
+            className={`flex items-center gap-3 py-2 px-3.5 rounded-xl text-base font-bold transition-colors ${activeTab === 'learn' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
           >
             <NavPracticeIcon active={activeTab === 'learn'} />
             <span>Learn</span>
@@ -1961,7 +2111,7 @@ const LearnDashboard = ({ onboardingData }) => {
           <a
             href="#"
             onClick={(e) => { e.preventDefault(); navigate('/exam'); }}
-            className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors ${activeTab === 'exam' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
+            className={`flex items-center gap-3 py-2 px-3.5 rounded-xl text-base font-bold transition-colors ${activeTab === 'exam' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
           >
             <NavExamIcon active={activeTab === 'exam'} />
             <span>Exam</span>
@@ -1969,7 +2119,7 @@ const LearnDashboard = ({ onboardingData }) => {
           <a
             href="#"
             onClick={(e) => { e.preventDefault(); navigate('/ranks'); }}
-            className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors ${activeTab === 'ranks' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
+            className={`flex items-center gap-3 py-2 px-3.5 rounded-xl text-base font-bold transition-colors ${activeTab === 'ranks' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
           >
             <NavRanksIcon active={activeTab === 'ranks'} />
             <span>Ranks</span>
@@ -1977,32 +2127,49 @@ const LearnDashboard = ({ onboardingData }) => {
           <a
             href="#"
             onClick={(e) => { e.preventDefault(); navigate('/challenges'); }}
-            className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors ${activeTab === 'challenges' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
+            className={`flex items-center gap-3 py-2 px-3.5 rounded-xl text-base font-bold transition-colors ${activeTab === 'challenges' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
           >
             <NavChallengesIcon active={activeTab === 'challenges'} />
             <span>Challenges</span>
           </a>
+          {isUserAdmin(user) && (
+            <a
+              href="#"
+              onClick={(e) => { e.preventDefault(); navigate('/subscription'); }}
+              className={`flex items-center gap-3 py-2 px-3.5 rounded-xl text-base font-bold transition-colors ${activeTab === 'subscription' ? 'bg-[#2563EB] text-white shadow-md' : 'text-amber-600 hover:bg-amber-50'}`}
+            >
+              <NavProIcon active={activeTab === 'subscription'} />
+              <div className="flex items-center justify-between flex-1">
+                <span>Pro</span>
+                {hasActivePlan && (
+                  <span className={`text-[9.5px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${activeTab === 'subscription' ? 'bg-amber-400 text-blue-900' : 'bg-gradient-to-r from-amber-400 to-yellow-500 text-white shadow-xs'}`}>
+                    VIP
+                  </span>
+                )}
+              </div>
+            </a>
+          )}
           <a
             href="#"
             onClick={(e) => { e.preventDefault(); navigate('/more'); }}
-            className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors ${activeTab === 'more' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
+            className={`flex items-center gap-3 py-2 px-3.5 rounded-xl text-base font-bold transition-colors ${activeTab === 'more' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
           >
             <NavMoreIcon active={activeTab === 'more'} />
             <span>More</span>
           </a>
 
           {/* Welcome + CTA at bottom of sidebar */}
-          <div className="mt-auto pt-4 border-t border-blue-100">
-            <p className="text-xs font-bold text-gray-500 leading-snug mb-3">
+          <div className="mt-auto pt-3 border-t border-blue-100">
+            <p className="text-xs font-bold text-gray-500 leading-tight mb-2 px-1">
               Welcome back,<br />
               <span className="text-blue-700 font-black text-sm">{user?.name?.split(' ')[0] || user?.username || 'Student'}! 👋</span>
             </p>
             <button
               onClick={() => navigate('/learn')}
-              className="w-full py-3 bg-[#FFC107] hover:bg-[#FFD54F] text-gray-900 rounded-xl font-black text-sm shadow-[0_4px_0_0_#F57F17] active:translate-y-1 active:shadow-none flex items-center justify-center gap-2 transition-all group"
+              className="w-full py-2.5 px-3 bg-[#FFC107] hover:bg-[#FFD54F] text-gray-900 rounded-xl font-black text-xs md:text-sm shadow-[0_3px_0_0_#F57F17] active:translate-y-0.5 active:shadow-none flex items-center justify-center gap-2 transition-all group"
             >
-              <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-                <span className="text-[#2563EB] text-[9px] ml-0.5">▶</span>
+              <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                <span className="text-[#2563EB] text-[8px] ml-0.5">▶</span>
               </div>
               Continue Learning
             </button>
@@ -2138,168 +2305,7 @@ const LearnDashboard = ({ onboardingData }) => {
                 id="tree-scroll-container"
                 className="relative w-full mx-auto bg-transparent"
               >
-                {showChapters ? (
-                  <div className="w-full px-4 md:px-8">
-                    <div className="bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 text-white rounded-3xl p-6 md:p-8 shadow-2xl ring-4 ring-white/30 w-full relative overflow-hidden">
-                      {/* Decorative background elements */}
-                      <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-                      <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full -ml-24 -mb-24 blur-3xl"></div>
 
-                      <div className="relative z-10">
-                        <div className="flex items-center justify-between mb-6">
-                          <h2 className="text-2xl md:text-3xl font-extrabold text-white drop-shadow-lg">All Chapters</h2>
-                          <button
-                            onClick={() => setShowChapters(false)}
-                            className="text-white/90 hover:text-white hover:bg-white/20 rounded-full p-2 transition-all duration-200 text-2xl w-10 h-10 flex items-center justify-center"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                        {statsLoading && (
-                          <div className="flex justify-center items-center py-10">
-                            <div className="animate-spin rounded-full h-12 w-12 border-4 border-white/30 border-t-white"></div>
-                            <span className="ml-3 font-extrabold text-lg">Loading chapter stats…</span>
-                          </div>
-                        )}
-                        <div className="grid grid-cols-1 gap-4 md:gap-6 max-h-[65vh] overflow-y-auto custom-scrollbar pr-2">
-                          {chaptersList.map((ch, index) => {
-                            const isAdmin = user?.role === 'admin';
-                            const st = chapterStats[ch._id] || { total: 0, completed: 0 };
-                            const pct = isAdmin ? 100 : (st.total > 0 ? Math.min(100, Math.round((st.completed / st.total) * 100)) : 0);
-                            
-                            const gradients = [
-                              "from-blue-600 to-indigo-700",
-                              "from-emerald-600 to-teal-700",
-                              "from-violet-600 to-purple-700",
-                              "from-rose-600 to-pink-700",
-                              "from-amber-600 to-orange-700"
-                            ];
-                            const cardGradient = gradients[index % gradients.length];
-
-                            const isComingSoon = ch.title && ch.title.includes('(Coming Soon)');
-
-                            const handleChapterClick = async () => {
-                              if (isComingSoon) return;
-                              setShowChapters(false);
-                                if (ch?._id) {
-                                  window.hyTrack?.('click_chapter', { chapter_title: ch.title });
-                                  // Update URL with chapterId to persist selection
-                                  navigate(`/learn?chapterId=${encodeURIComponent(ch._id)}`, { replace: false });
-                                setChapterId(ch._id);
-                                setChapterTitle(ch.title);
-
-                                if (user?._id) {
-                                  try {
-                                    const response = await authService.updateProfile({
-                                      userId: user._id,
-                                      chapter: ch.title,
-                                    });
-                                    const updatedUser = response?.data ? { ...user, ...response.data } : { ...user, chapter: ch.title, chapterId: ch._id };
-                                    try {
-                                      localStorage.setItem(`last_selected_chapter_${user._id}_${subjectName}`, ch._id);
-                                      if (updateUser) updateUser(updatedUser);
-                                      else localStorage.setItem('user', JSON.stringify(updatedUser));
-                                    } catch (e) { console.warn('Failed to update user state:', e); }
-                                  } catch (error) {
-                                    console.error('Failed to save chapter to database:', error);
-                                    try { localStorage.setItem(`last_selected_chapter_${user._id}_${subjectName}`, ch._id); } catch (_) { }
-                                  }
-                                } else {
-                                  try { localStorage.setItem(`last_selected_chapter_anon_${subjectName}`, ch._id); } catch (_) { }
-                                }
-                              }
-                            };
-
-                            return (
-                              <div
-                                key={ch._id}
-                                onClick={handleChapterClick}
-                                className={`group relative w-full ${isComingSoon ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'} transition-all duration-300 active:scale-[0.98]`}
-                                style={{ animationDelay: `${index * 50}ms` }}
-                              >
-                                {/* 3D Shadow/Depth Layer */}
-                                <div className="absolute inset-0 translate-y-2 rounded-[2rem] bg-black/10 blur-sm group-hover:translate-y-3 transition-transform" />
-                                
-                                <div className={`relative overflow-hidden rounded-[2rem] p-6 bg-white border-b-[6px] border-gray-200 hover:border-b-[4px] hover:translate-y-[2px] active:border-b-0 active:translate-y-[6px] transition-all flex items-center gap-6`}>
-                                  
-                                  <div className="flex-1 min-w-0">
-                                    <h3 className="text-xl md:text-2xl font-black text-gray-800 leading-tight mb-4 group-hover:text-blue-600 transition-colors flex items-start gap-2 break-words">
-                                      {ch.title}
-                                      {pct === 100 && (
-                                        <span className="text-yellow-500 text-lg shrink-0">🏆</span>
-                                      )}
-                                    </h3>
-
-                                    {/* Progress Section */}
-                                    <div className="space-y-2 mb-6">
-                                      <div className="flex items-center justify-between">
-                                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                                          Progress
-                                        </span>
-                                        <span className="text-sm font-black text-gray-700">
-                                          {st.completed} <span className="text-gray-300">/</span> {st.total || "?"}
-                                        </span>
-                                      </div>
-                                      
-                                      <div className="h-4 bg-gray-100 rounded-2xl overflow-hidden relative">
-                                        <div
-                                          className={`h-full rounded-2xl transition-all duration-1000 ease-out bg-gradient-to-r ${cardGradient}`}
-                                          style={{ width: `${pct}%` }}
-                                        >
-                                          {/* Animated Shimmer */}
-                                          <div className="absolute inset-0 w-full h-full">
-                                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    {/* Continue Button */}
-                                    <div className={`w-full py-3.5 rounded-2xl ${isComingSoon ? 'bg-gray-400 cursor-not-allowed' : `bg-gradient-to-r ${cardGradient} hover:shadow-xl active:scale-95`} text-white text-center font-black text-sm md:text-base shadow-lg transition-all flex items-center justify-center gap-2`}>
-                                      <span>
-                                        {isComingSoon ? 'COMING SOON' : (st.completed > 0 ? 'CONTINUE LEARNING' : 'START LEARNING')}
-                                      </span>
-                                      {!isComingSoon && (
-                                        <svg className="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                                      )}
-                                    </div>
-                                  </div>
-
-                                  {/* Illustration Container */}
-                                  <div className="hidden sm:flex flex-shrink-0 items-center justify-center w-24 h-24 md:w-32 md:h-32 rounded-3xl bg-gray-50 group-hover:bg-blue-50 transition-colors relative">
-                                    <img
-                                      src="https://res.cloudinary.com/w7rytq0k/image/upload/v1785322539/img-to-link/oqeihtqpvlhxq5cg8t6o.webp"
-                                      alt=""
-                                      className="w-16 h-16 md:w-20 md:h-20 object-contain drop-shadow-lg group-hover:scale-110 transition-transform duration-300"
-                                    />
-                                    {pct === 100 ? (
-                                       <div className="absolute -top-2 -right-2 bg-green-500 text-white p-1 rounded-full shadow-lg">
-                                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                           <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
-                                         </svg>
-                                       </div>
-                                    ) : (
-                                      <div className="absolute -bottom-2 -right-2 bg-white px-2 py-1 rounded-lg shadow-md text-[10px] font-black text-gray-500 border border-gray-100">
-                                        {pct}%
-                                      </div>
-                                    )}
-                                  </div>
-
-                                  {/* Hover Arrow */}
-                                  <div className="hidden md:flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 group-hover:bg-blue-500 group-hover:text-white transition-all">
-                                    <svg className="w-6 h-6 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
-                                    </svg>
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
                   <>
                     {/* Center line (dynamic height) */}
                     {/* Render each unit block one after another */}
@@ -2454,14 +2460,24 @@ const LearnDashboard = ({ onboardingData }) => {
                                   return !completedCompositeKeys.has(key) && !completedIdSet.has(String(id));
                                 });
 
-                                const isAdmin = user?.role === 'admin';
+                                const isAdmin = user?.role === 'admin' && adminViewMode !== 'student';
+                                const isFirstLesson = index === 0;
+                                const isPurchased = mod?._id && purchasedModuleSet.has(String(mod._id));
+                                const isPaywallLocked = isUserAdmin(user) && adminViewMode === 'student' && !isSubscribed && !isFirstLesson && !isPurchased;
+
                                 let status = "locked";
-                                if (isCompleted) {
-                                  status = "completed";
-                                } else if (index === firstIncompleteGlobal) {
-                                  status = "active";
+                                if (isAdmin) {
+                                  status = isCompleted ? "completed" : "active";
+                                } else if (isPaywallLocked) {
+                                  status = "locked";
+                                } else {
+                                  if (isCompleted) {
+                                    status = "completed";
+                                  } else if (isPurchased || index === firstIncompleteGlobal) {
+                                    status = "active";
+                                  }
                                 }
-                                const canClick = (status === 'active' || status === 'completed' || isAdmin);
+                                const canClick = (status === 'active' || status === 'completed' || isAdmin || isPaywallLocked || isPurchased);
                                 const offset = getWaveOffset(index, isMobileLayout);
 
                                 return (
@@ -2485,8 +2501,18 @@ const LearnDashboard = ({ onboardingData }) => {
                                         darkenFn={darken}
                                         isDifficult={mod?.isDifficult || mod?.title?.toLowerCase()?.includes('hot module') || mod?.title?.toLowerCase()?.includes('difficult module')}
                                         isDescriptive={mod?.isDescriptive}
+                                        isPaywallLocked={isPaywallLocked}
+                                        isPurchased={Boolean(isPurchased)}
                                         offset={offset}
                                         onClick={() => {
+                                          if (isPaywallLocked) {
+                                            setSelectedPaywallModule({
+                                              id: mod._id,
+                                              title: mod.title || `Lesson ${index + 1}`
+                                            });
+                                            setShowPaywallModal(true);
+                                            return;
+                                          }
                                           if (!canClick) return;
                                           saveScrollPosition();
                                           const params = new URLSearchParams();
@@ -2501,11 +2527,20 @@ const LearnDashboard = ({ onboardingData }) => {
                                           navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
                                         }}
                                       >
-                                        {status === "active" && <StartBadge color="#2C6DEF" />}
+                                        {status === "active" && isPurchased && !isCompleted && <PurchasedBadge />}
+                                        {status === "active" && !isPurchased && index === firstIncompleteGlobal && <StartBadge color="#2C6DEF" />}
                                       </PathNode>
                                       {/* Always-Visible Label (3D Box Styling) */}
                                       <div 
                                         onClick={() => {
+                                          if (isPaywallLocked) {
+                                            setSelectedPaywallModule({
+                                              id: mod._id,
+                                              title: mod.title || `Lesson ${index + 1}`
+                                            });
+                                            setShowPaywallModal(true);
+                                            return;
+                                          }
                                           if (!canClick) return;
                                           saveScrollPosition();
                                           const params = new URLSearchParams();
@@ -2524,19 +2559,36 @@ const LearnDashboard = ({ onboardingData }) => {
                                         <div className="relative w-[120px] md:w-[150px] h-auto">
                                           {/* Bottom Layer (Depth) */}
                                           <div className={`absolute inset-0 translate-y-[4px] rounded-2xl ${
-                                            status === "completed" ? "bg-[#CA8A04]" : status === "active" ? "bg-[#1D4ED8]" : "bg-[#CBD5E1]"
+                                            status === "completed" ? "bg-[#CA8A04]" : isPurchased ? "bg-[#047857]" : status === "active" ? "bg-[#1D4ED8]" : "bg-[#CBD5E1]"
                                           }`} />
                                           {/* Top Layer (Surface) */}
                                           <div className={`relative h-full rounded-2xl flex items-center justify-between pl-4 pr-3 py-2.5 border shadow-sm transition-transform active:translate-y-[2px] group-hover/label:-translate-y-[1px] ${
-                                            status === "completed" ? "bg-[#FACC15] border-[#EAB308]" : status === "active" ? "bg-[#2C6DEF] border-[#1E40AF]" : "bg-white border-slate-200"
+                                            status === "completed" ? "bg-[#FACC15] border-[#EAB308]" : isPurchased ? "bg-[#10B981] border-[#059669]" : status === "active" ? "bg-[#2C6DEF] border-[#1E40AF]" : "bg-white border-slate-200"
                                           }`}>
-                                            <div className={`text-[11px] md:text-xs font-black leading-tight text-left flex-1 pr-2 break-words ${
-                                              status === "active" ? "text-white" : status === "completed" ? "text-yellow-900" : "text-slate-700"
+                                            <div className={`text-[11px] md:text-xs font-black leading-tight text-left flex-1 pr-2 break-words flex flex-wrap items-center gap-1.5 ${
+                                              status === "completed"
+                                                ? "text-yellow-950"
+                                                : (status === "active" || isPurchased)
+                                                  ? "text-white"
+                                                  : "text-slate-700"
                                             }`}>
-                                              {mod?.title || "—"}
+                                              <span>{mod?.title || "—"}</span>
+                                              {isPurchased && (
+                                                <span className={`text-[8.5px] uppercase font-black px-1.5 py-0.5 rounded-full shadow-2xs ${
+                                                  status === "completed"
+                                                    ? "bg-yellow-950 text-yellow-100"
+                                                    : "bg-white text-emerald-800"
+                                                }`}>
+                                                  💎 Paid
+                                                </span>
+                                              )}
                                             </div>
                                             <svg className={`w-[14px] h-[14px] flex-shrink-0 ${
-                                              status === "active" ? "text-white/80" : status === "completed" ? "text-yellow-900/60" : "text-slate-400"
+                                              status === "completed"
+                                                ? "text-yellow-950/70"
+                                                : status === "active"
+                                                  ? "text-white/80"
+                                                  : "text-slate-400"
                                             }`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
                                               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                                             </svg>
@@ -2745,15 +2797,25 @@ const LearnDashboard = ({ onboardingData }) => {
                                         return !completedCompositeKeys.has(key) && !completedIdSet.has(String(id));
                                       });
 
-                                      const isAdmin = user?.role === 'admin';
-                                      let status = "locked";
-                                      if (isCompleted) {
-                                        status = "completed";
-                                      } else if (index === firstIncompleteForUnit) {
-                                        status = "active";
-                                      }
-                                      const canClick = (status === 'active' || status === 'completed' || isAdmin);
-                                      const offset = getWaveOffset(index, isMobileLayout);
+                                       const isAdmin = user?.role === 'admin' && adminViewMode !== 'student';
+                                       const isFirstLesson = index === 0;
+                                       const isPurchased = mod?._id && purchasedModuleSet.has(String(mod._id));
+                                       const isPaywallLocked = isUserAdmin(user) && adminViewMode === 'student' && !isSubscribed && !isFirstLesson && !isPurchased;
+
+                                       let status = "locked";
+                                       if (isAdmin) {
+                                         status = isCompleted ? "completed" : "active";
+                                       } else if (isPaywallLocked) {
+                                         status = "locked";
+                                       } else {
+                                         if (isCompleted) {
+                                           status = "completed";
+                                         } else if (isPurchased || index === firstIncompleteForUnit) {
+                                           status = "active";
+                                         }
+                                       }
+                                       const canClick = (status === 'active' || status === 'completed' || isAdmin || isPaywallLocked || isPurchased);
+                                       const offset = getWaveOffset(index, isMobileLayout);
 
                                       return (
                                         <div
@@ -2783,8 +2845,18 @@ const LearnDashboard = ({ onboardingData }) => {
                                               darkenFn={darken}
                                               isDifficult={mod?.isDifficult || mod?.title?.toLowerCase()?.includes('hot module') || mod?.title?.toLowerCase()?.includes('difficult module')}
                                               isDescriptive={mod?.isDescriptive}
+                                              isPaywallLocked={isPaywallLocked}
+                                              isPurchased={Boolean(isPurchased)}
                                               offset={offset}
                                               onClick={() => {
+                                                if (isPaywallLocked) {
+                                                  setSelectedPaywallModule({
+                                                    id: mod._id,
+                                                    title: mod.title || `Lesson ${index + 1}`
+                                                  });
+                                                  setShowPaywallModal(true);
+                                                  return;
+                                                }
                                                 if (!canClick) return;
                                                 saveScrollPosition();
                                                 const params = new URLSearchParams();
@@ -2794,11 +2866,20 @@ const LearnDashboard = ({ onboardingData }) => {
                                                 navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
                                               }}
                                             >
-                                              {status === "active" && <StartBadge color={unitPalette[unitIdx % unitPalette.length]} />}
-                                             </PathNode>
+                                               {status === "active" && isPurchased && !isCompleted && <PurchasedBadge />}
+                                               {status === "active" && !isPurchased && index === firstIncompleteForUnit && <StartBadge color={unitPalette[unitIdx % unitPalette.length]} />}
+                                              </PathNode>
                                                                          {/* Always-Visible Label (3D Box Styling - Alternating) */}
                                              <div 
                                                onClick={() => {
+                                                 if (isPaywallLocked) {
+                                                   setSelectedPaywallModule({
+                                                     id: mod._id,
+                                                     title: mod.title || `Lesson ${index + 1}`
+                                                   });
+                                                   setShowPaywallModal(true);
+                                                   return;
+                                                 }
                                                  if (!canClick) return;
                                                  saveScrollPosition();
                                                  const params = new URLSearchParams();
@@ -2813,25 +2894,42 @@ const LearnDashboard = ({ onboardingData }) => {
                                                <div className="relative w-[120px] md:w-[150px] h-auto">
                                                  {/* Bottom Layer (Depth) */}
                                                  <div className={`absolute inset-0 translate-y-[4px] rounded-2xl ${
-                                                   status === "completed" ? "bg-[#CA8A04]" : status === "active" ? "bg-[#1D4ED8]" : "bg-[#CBD5E1]"
+                                                   status === "completed" ? "bg-[#CA8A04]" : isPurchased ? "bg-[#047857]" : status === "active" ? "bg-[#1D4ED8]" : "bg-[#CBD5E1]"
                                                  }`} />
                                                  {/* Top Layer (Surface) */}
                                                  <div className={`relative h-full rounded-2xl flex items-center justify-between pl-4 pr-3 py-2.5 border shadow-sm transition-transform active:translate-y-[2px] group-hover/label:-translate-y-[1px] ${
                                                    unitIdx % 2 !== 0 ? "flex-row-reverse pl-3 pr-4" : ""
                                                  } ${
-                                                   status === "completed" ? "bg-[#FACC15] border-[#EAB308]" : status === "active" ? "bg-[#2C6DEF] border-[#1E40AF]" : "bg-white border-slate-200"
+                                                   status === "completed" ? "bg-[#FACC15] border-[#EAB308]" : isPurchased ? "bg-[#10B981] border-[#059669]" : status === "active" ? "bg-[#2C6DEF] border-[#1E40AF]" : "bg-white border-slate-200"
                                                  }`}>
-                                                   <div className={`text-[11px] md:text-xs font-black leading-tight flex-1 break-words ${
+                                                   <div className={`text-[11px] md:text-xs font-black leading-tight flex-1 break-words flex flex-wrap items-center gap-1.5 ${
                                                      unitIdx % 2 === 0 ? "text-left pr-2" : "text-right pl-2"
                                                    } ${
-                                                     status === "active" ? "text-white" : status === "completed" ? "text-yellow-900" : "text-slate-700"
+                                                     status === "completed"
+                                                       ? "text-yellow-950"
+                                                       : (status === "active" || isPurchased)
+                                                         ? "text-white"
+                                                         : "text-slate-700"
                                                    }`}>
-                                                     {mod?.title || "—"}
+                                                     <span>{mod?.title || "—"}</span>
+                                                     {isPurchased && (
+                                                       <span className={`text-[8.5px] uppercase font-black px-1.5 py-0.5 rounded-full shadow-2xs ${
+                                                         status === "completed"
+                                                           ? "bg-yellow-950 text-yellow-100"
+                                                           : "bg-white text-emerald-800"
+                                                       }`}>
+                                                         💎 Paid
+                                                       </span>
+                                                     )}
                                                    </div>
                                                    <svg className={`w-[14px] h-[14px] flex-shrink-0 ${
                                                      unitIdx % 2 !== 0 ? "rotate-180" : ""
                                                    } ${
-                                                     status === "active" ? "text-white/80" : status === "completed" ? "text-yellow-900/60" : "text-slate-400"
+                                                     status === "completed"
+                                                       ? "text-yellow-950/70"
+                                                       : status === "active"
+                                                         ? "text-white/80"
+                                                         : "text-slate-400"
                                                    }`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
                                                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                                                    </svg>
@@ -2915,7 +3013,6 @@ const LearnDashboard = ({ onboardingData }) => {
                       );
                     })()}
                   </>
-                )}
               </div>
             )}
           </main>
@@ -3347,6 +3444,118 @@ const LearnDashboard = ({ onboardingData }) => {
               </button>
             </div>
           </div>
+        )}
+
+        {/* Modern All Chapters Modal Dialog */}
+        <AllChaptersModal
+          isOpen={showChapters}
+          onClose={() => setShowChapters(false)}
+          chaptersList={chaptersList}
+          currentChapterId={chapterId}
+          chapterStats={chapterStats}
+          statsLoading={statsLoading}
+          subjectName={subjectName}
+          classLevel={user?.classLevel}
+          user={user}
+          adminViewMode={adminViewMode}
+          onSelectChapter={handleChapterSelect}
+        />
+
+        {/* My Unlocked Lessons (Pay As You Go) Modal */}
+        {showPurchasedModal && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in font-sans">
+            <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl relative border border-gray-100 max-h-[85vh] flex flex-col">
+              <button
+                onClick={() => setShowPurchasedModal(false)}
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center font-bold text-sm transition-colors"
+              >
+                ✕
+              </button>
+
+              <div className="flex items-center gap-3 mb-4 pb-3 border-b border-gray-100">
+                <div className="w-11 h-11 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl shrink-0 shadow-inner">
+                  💎
+                </div>
+                <div>
+                  <h3 className="text-xl font-extrabold text-gray-900">
+                    My Unlocked Lessons
+                  </h3>
+                  <p className="text-xs text-emerald-700 font-semibold">
+                    {userSubStatus?.purchasedModules?.length || purchasedModuleSet.size} lesson{(userSubStatus?.purchasedModules?.length || purchasedModuleSet.size) === 1 ? '' : 's'} unlocked with lifetime access
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto space-y-3 pr-1 py-1">
+                {(userSubStatus?.purchasedModules || []).map((m, idx) => (
+                  <div
+                    key={m.moduleId || idx}
+                    className="p-4 rounded-2xl bg-gradient-to-r from-emerald-50/50 to-white border border-emerald-200 flex items-center justify-between gap-3 shadow-xs hover:border-emerald-300 transition-colors"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
+                        <h4 className="font-bold text-sm text-gray-900 truncate">
+                          {m.title || `Lesson ${m.moduleId}`}
+                        </h4>
+                      </div>
+                      <div className="text-[11px] text-gray-500 mt-1 flex items-center gap-2">
+                        {m.chapterTitle && <span>{m.chapterTitle}</span>}
+                        {m.chapterTitle && <span>•</span>}
+                        <span className="text-emerald-700 font-bold">Lifetime Access</span>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setShowPurchasedModal(false);
+                        const params = new URLSearchParams();
+                        if (m.chapterId) params.set('chapterId', m.chapterId);
+                        const q = params.toString();
+                        navigate(`/learn/module/${m.moduleId}${q ? '?' + q : ''}`);
+                      }}
+                      className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs shrink-0 shadow-sm active:scale-95 transition-all flex items-center gap-1.5"
+                    >
+                      <span>Play</span>
+                      <span>🚀</span>
+                    </button>
+                  </div>
+                ))}
+
+                {(!userSubStatus?.purchasedModules || userSubStatus.purchasedModules.length === 0) && (
+                  <div className="text-center py-8 text-gray-500">
+                    <p className="text-sm">You haven't unlocked any single lessons yet.</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-4 mt-3 border-t border-gray-100 flex items-center justify-between gap-3">
+                <button
+                  onClick={() => {
+                    setShowPurchasedModal(false);
+                    navigate('/subscription');
+                  }}
+                  className="w-full py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs transition-colors text-center"
+                >
+                  Manage Subscription &amp; Plans →
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Paywall Subscription Modal */}
+        {showPaywallModal && (
+          <PaywallModal
+            isOpen={showPaywallModal}
+            onClose={() => setShowPaywallModal(false)}
+            onSuccess={() => {
+              setShowPaywallModal(false);
+              fetchUserSubStatus();
+            }}
+            moduleId={selectedPaywallModule?.id}
+            moduleTitle={selectedPaywallModule?.title}
+          />
         )}
       </div>
     </ReviewProvider>

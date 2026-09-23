@@ -6,6 +6,9 @@ import { useAuth } from '../../../context/AuthContext.jsx';
 import SimpleLoading from '../../ui/SimpleLoading.jsx';
 import { getLearningParams } from '../../../utils/analyticsHelpers.js';
 import { trackAppError, trackFirstModuleStatus } from '../../../utils/analytics.js';
+import paymentService from '../../../services/paymentService.js';
+import PaywallModal from '../../features/Subscription/PaywallModal.jsx';
+import { isUserAdmin } from '../../../utils/adminCheck.js';
 
 export default function ModuleEntryRedirect() {
   const navigate = useNavigate();
@@ -19,6 +22,46 @@ export default function ModuleEntryRedirect() {
   const [showPrompt, setShowPrompt] = useState(false);
   const [resumePathState, setResumePathState] = useState(null);
   const [unsupportedType, setUnsupportedType] = useState(false);
+
+  // Billing & Paywall Gatekeeper State
+  const [accessChecking, setAccessChecking] = useState(true);
+  const [accessData, setAccessData] = useState(null);
+  const [showPaywall, setShowPaywall] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    const verifyModuleAccess = async () => {
+      if (!moduleNumber) return;
+
+      // In admin-only mode, regular students have 100% free open access with zero paywalls
+      if (!isUserAdmin(user)) {
+        if (!isMounted) return;
+        setAccessData({ hasAccess: true, reason: 'open_access_for_students' });
+        setShowPaywall(false);
+        setAccessChecking(false);
+        return;
+      }
+
+      try {
+        setAccessChecking(true);
+        const res = await paymentService.checkAccess(moduleNumber);
+        if (!isMounted) return;
+        setAccessData(res);
+        if (res && res.hasAccess === false) {
+          setShowPaywall(true);
+        } else {
+          setShowPaywall(false);
+        }
+      } catch (err) {
+        console.warn('[ModuleEntryRedirect] Access check error, failing open:', err);
+      } finally {
+        if (isMounted) setAccessChecking(false);
+      }
+    };
+
+    verifyModuleAccess();
+    return () => { isMounted = false; };
+  }, [moduleNumber]);
 
   useEffect(() => {
     // GA4 Tracking: Level Start
@@ -58,6 +101,9 @@ export default function ModuleEntryRedirect() {
   }, [moduleNumber, user]);
 
   useEffect(() => {
+    // If paywall is blocking or still verifying access, do not navigate
+    if (accessChecking || showPaywall) return;
+
     // Fresh review queue per lesson
     try { reset(); } catch (_) {}
     if (loading) return;
@@ -67,12 +113,6 @@ export default function ModuleEntryRedirect() {
       return;
     }
     
-    console.log(`[ModuleEntryRedirect] Module ${moduleNumber} content:`, {
-      itemCount: items?.length,
-      firstType: items?.[0]?.type,
-      items: items
-    });
-
     if (!items || items.length === 0) {
       console.warn('[ModuleEntryRedirect] No items found for module:', moduleNumber);
       return;
@@ -96,9 +136,8 @@ export default function ModuleEntryRedirect() {
     if (!showPrompt) {
       const idx = 0;
       const first = items[idx];
-      console.log('[ModuleEntryRedirect] Navigating to first item:', first.type);
       
-      switch (first.type) {
+      switch (first?.type) {
         case 'concept':
         case 'statement':
         case 'comic':
@@ -118,11 +157,11 @@ export default function ModuleEntryRedirect() {
           navigate(`/learn/module/${moduleNumber}/descriptive/${idx}${searchSuffix}`, { replace: true });
           break;
         default:
-          console.warn('[ModuleEntryRedirect] Unknown item type, showing error state:', first.type);
+          console.warn('[ModuleEntryRedirect] Unknown item type, showing error state:', first?.type);
           setUnsupportedType(true);
       }
     }
-  }, [items, loading, error, moduleNumber, navigate, searchSuffix, showPrompt, resumePathState]);
+  }, [items, loading, error, moduleNumber, navigate, searchSuffix, showPrompt, resumePathState, accessChecking, showPaywall]);
 
   const handleResume = () => {
     navigate(resumePathState, { replace: true });
@@ -133,6 +172,30 @@ export default function ModuleEntryRedirect() {
     setShowPrompt(false);
     setResumePathState(null);
   };
+
+  if (accessChecking) return <SimpleLoading text="Checking access..." />;
+
+  if (showPaywall) {
+    const searchParams = new URLSearchParams(window.location.search);
+    const lessonTitle = searchParams.get('title') || 'Lesson';
+
+    return (
+      <PaywallModal
+        isOpen={true}
+        onClose={() => navigate('/learn')}
+        onSuccess={() => {
+          setShowPaywall(false);
+          setAccessChecking(false);
+        }}
+        moduleId={moduleNumber}
+        moduleTitle={lessonTitle}
+        variant={accessData?.variant || 'hybrid'}
+        plans={accessData?.plans || []}
+        mockMode={accessData?.mockMode}
+        razorpayKeyId={accessData?.razorpayKeyId}
+      />
+    );
+  }
 
   if (loading) return <SimpleLoading text="Loading Module Content..." />;
   if (error) {
@@ -208,19 +271,22 @@ export default function ModuleEntryRedirect() {
     );
   }
 
-  // If no items, keep user on learn dashboard gracefully
-  return (
-    <div className="p-10 text-center">
-      <h2 className="text-2xl font-bold text-blue-900 mb-4">No content in this module yet.</h2>
-      <p className="text-blue-700/60 mb-6">Our team is working on bringing this lesson to you soon!</p>
-      <button 
-        onClick={() => navigate('/learn')}
-        className="px-6 py-2 bg-blue-600 text-white rounded-full font-bold"
-      >
-        Go Back to Dashboard
-      </button>
-    </div>
-  );
+  if (!items || items.length === 0) {
+    return (
+      <div className="p-10 text-center">
+        <h2 className="text-2xl font-bold text-blue-900 mb-4">No content in this module yet.</h2>
+        <p className="text-blue-700/60 mb-6">Our team is working on bringing this lesson to you soon!</p>
+        <button 
+          onClick={() => navigate('/learn')}
+          className="px-6 py-2 bg-blue-600 text-white rounded-full font-bold"
+        >
+          Go Back to Dashboard
+        </button>
+      </div>
+    );
+  }
+
+  return <SimpleLoading text="Starting lesson..." />;
 }
 
 
