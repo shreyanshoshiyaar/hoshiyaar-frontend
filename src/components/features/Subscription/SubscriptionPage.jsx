@@ -681,74 +681,7 @@ export default function SubscriptionPage() {
           </div>
         )}
 
-        {/* Unlocked Lessons List (Pay As You Go) */}
-        {userStatus?.purchasedModules && userStatus.purchasedModules.length > 0 && (
-          <div className="bg-white rounded-3xl p-6 sm:p-7 shadow-xs border border-emerald-200 mb-10">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-emerald-100">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl shrink-0">
-                  💎
-                </div>
-                <div>
-                  <h3 className="text-lg font-extrabold text-gray-900">
-                    My Unlocked Lessons ({userStatus.purchasedModules.length})
-                  </h3>
-                  <p className="text-xs text-emerald-700 font-medium">
-                    Permanent lifetime access to these lessons on your account
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowLessonSelector(true)}
-                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm active:scale-95 transition-all self-start sm:self-center flex items-center gap-1.5 cursor-pointer"
-              >
-                <span>+</span>
-                <span>Unlock More Lessons (₹{perLessonPlan?.amount || perChapterPrice})</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-              {(userStatus?.purchasedModules || []).map((item, idx) => {
-                if (!item) return null;
-                const moduleId = item?.moduleId || (typeof item === 'string' ? item : idx);
-                const title = item?.title || (typeof item === 'string' ? item : `Lesson ${moduleId}`);
-                return (
-                  <div
-                    key={moduleId || idx}
-                    className="p-4 rounded-2xl bg-gradient-to-r from-emerald-50/50 via-white to-emerald-50/20 border border-emerald-200/90 flex items-center justify-between gap-3 hover:shadow-xs transition-all"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
-                        <h4 className="font-bold text-sm text-gray-900 truncate">
-                          {title}
-                        </h4>
-                      </div>
-                      <div className="text-[11px] text-gray-500 mt-1 flex flex-wrap items-center gap-2">
-                        {item?.chapterTitle && <span className="text-gray-600 font-medium">{item.chapterTitle}</span>}
-                        {item?.chapterTitle && <span>•</span>}
-                        <span className="text-emerald-700 font-bold">₹{item?.amountPaid || perLessonPrice} Paid</span>
-                        {item?.purchasedAt && (
-                          <>
-                            <span>•</span>
-                            <span className="text-gray-400">{formatDate(item.purchasedAt)}</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => navigate(`/learn/module/${moduleId}`)}
-                      className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shrink-0 shadow-xs active:scale-95 transition-all flex items-center gap-1 cursor-pointer"
-                    >
-                      <span>Open</span>
-                      <span className="text-sm">→</span>
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
+        
 
         {/* Payment History & Receipts */}
         {userStatus?.paymentHistory && userStatus.paymentHistory.length > 0 && (
