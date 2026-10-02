@@ -27,7 +27,7 @@ const MobileHome = ({ user, stars, weeklyStars, leaderboardData, onNavigateToPra
   const navigate = useNavigate();
   const { user: authUser } = useAuth();
   const currentUser = user || authUser;
-  const showProBanner = isUserAdmin(currentUser);
+  const showProBanner = true;
   // Find current user rank
   const myRankData = leaderboardData?.find(d => d.userId === user?._id);
   const myRank = myRankData ? myRankData.rank : '-';

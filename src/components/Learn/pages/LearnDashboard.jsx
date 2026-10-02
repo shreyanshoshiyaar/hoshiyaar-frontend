@@ -2075,8 +2075,7 @@ const LearnDashboard = ({ onboardingData }) => {
               <ProfileIcon />
               <span>Profile</span>
             </a>
-            {isUserAdmin(user) && (
-              <a
+            <a
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
@@ -2095,7 +2094,7 @@ const LearnDashboard = ({ onboardingData }) => {
                   )}
                 </div>
               </a>
-            )}
+
             <a
               href="#"
               onClick={(e) => {
@@ -2171,8 +2170,7 @@ const LearnDashboard = ({ onboardingData }) => {
             <NavRanksIcon active={activeTab === 'ranks'} />
             <span>Ranks</span>
           </a>
-          {isUserAdmin(user) && (
-            <a
+          <a
               href="#"
               onClick={(e) => { e.preventDefault(); navigate('/subscription'); }}
               className={`flex items-center gap-3 py-2 px-3.5 rounded-xl text-base font-bold transition-colors ${activeTab === 'subscription' ? 'bg-[#2563EB] text-white shadow-md' : 'text-amber-600 hover:bg-amber-50'}`}
@@ -2187,7 +2185,7 @@ const LearnDashboard = ({ onboardingData }) => {
                 )}
               </div>
             </a>
-          )}
+
           <a
             href="#"
             onClick={(e) => { e.preventDefault(); navigate('/more'); }}

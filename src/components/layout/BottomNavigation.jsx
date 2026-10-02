@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { isUserAdmin } from '../../utils/adminCheck.js';
+
 
 const HomeIcon = ({ active }) => (
   <svg className={`w-[26px] h-[26px] ${active ? 'text-[#2563EB]' : 'text-gray-400'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -65,7 +65,7 @@ const BottomNavigation = () => {
   const path = location.pathname;
 
   const { user } = useAuth();
-  const showProTab = isUserAdmin(user);
+  const showProTab = true;
 
   const isHome = path === '/home';
   const isLearn = path === '/learn';
