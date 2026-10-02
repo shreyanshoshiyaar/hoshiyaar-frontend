@@ -2548,7 +2548,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                             setShowPaywallModal(true);
                                               return;
                                             }
-                                            if (status === 'locked') {
+                                            if (status === 'locked' && !isAdmin) {
                                               setShowProgressionWarning(true);
                                               return;
                                             }
@@ -2583,7 +2583,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                             setShowPaywallModal(true);
                                               return;
                                             }
-                                            if (status === 'locked') {
+                                            if (status === 'locked' && !isAdmin) {
                                               setShowProgressionWarning(true);
                                               return;
                                             }
@@ -2937,7 +2937,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                                   setShowPaywallModal(true);
                                               return;
                                             }
-                                            if (status === 'locked') {
+                                            if (status === 'locked' && !isAdmin) {
                                               setShowProgressionWarning(true);
                                               return;
                                             }
@@ -2967,7 +2967,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                                    setShowPaywallModal(true);
                                               return;
                                             }
-                                            if (status === 'locked') {
+                                            if (status === 'locked' && !isAdmin) {
                                               setShowProgressionWarning(true);
                                               return;
                                             }

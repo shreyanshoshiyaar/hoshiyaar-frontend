@@ -83,10 +83,8 @@ const MobileWelcomeScreen = () => {
           className="h-11 xs:h-12 sm:h-13 w-auto object-contain drop-shadow-xs" 
         />
 
-        {/* New Text: For CBSE 6-8th Classes */}
-        <div className="bg-amber-100 text-amber-800 text-[10.5px] xs:text-[11.5px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full border border-amber-300 mt-0.5 mb-1.5 shadow-xs z-20 relative">
-          For CBSE 6-8th Classes
-        </div>
+        {/* New Text: For CBSE, RBSE 6-8th Classes */}
+        <div className="bg-amber-100 text-amber-800 text-[11px] xs:text-[12.5px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full border border-amber-400 mt-0.5 mb-1.5 shadow-sm ring-2 ring-amber-300/50 z-20 relative">For CBSE, RBSE 6-8th Classes</div>
 
         {/* Headline with Sunburst Rays */}
         <div className="relative text-center">
@@ -158,8 +156,22 @@ const MobileWelcomeScreen = () => {
           <span className="text-lg leading-none">→</span>
         </button>
 
+          {/* Highlight Arrow for Login Button */}
+          <div className="relative w-full flex justify-center mt-3 mb-1 sm:mb-2 animate-bounce z-10">
+            <div className="flex flex-col items-center">
+              <svg className="w-5 h-5 text-[#2563EB]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M7 11l5-5m0 0l5 5m-5-5v12" />
+              </svg>
+              <span className="text-[#2563EB] font-black text-[12px] uppercase tracking-wider mt-0.5">Tap to play</span>
+            </div>
+          </div>
+        </div>
+
+        {/* BOTTOM FIXED CONTAINER (WhatsApp & Footer) */}
+        <div className="w-full max-w-[375px] mx-auto mt-auto pb-2 z-10 flex flex-col gap-2 shrink-0">
+
         {/* WhatsApp Support Button at Bottom */}
-        <div className="w-full mt-4">
+        <div className="w-full">
           <button
             type="button"
             onClick={handleWhatsAppClick}
