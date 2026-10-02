@@ -311,9 +311,6 @@ export const PathNode = React.memo(({ status, onClick, disabled, color = "#2C6DE
   if (isCompleted) {
     topColor = "#FACC15"; // Bright Yellow
     bottomColor = "#CA8A04"; // Darker Yellow/Gold
-  } else if (isPurchased && !isPaywallLocked) {
-    topColor = "#10B981"; // Emerald Green for Paid Unlocked Lesson
-    bottomColor = "#047857"; // Deep Emerald Green
   } else if (isActive) {
     topColor = "#2C6DEF"; // Bright Blue for Start
     bottomColor = "#1D4ED8"; // Darker Blue
@@ -2608,12 +2605,12 @@ const LearnDashboard = ({ onboardingData }) => {
                                           }`} />
                                           {/* Top Layer (Surface) */}
                                           <div className={`relative h-full rounded-2xl flex items-center justify-between pl-4 pr-3 py-2.5 border shadow-sm transition-transform active:translate-y-[2px] group-hover/label:-translate-y-[1px] ${
-                                            status === "completed" ? "bg-[#FACC15] border-[#EAB308]" : isPurchased ? "bg-[#10B981] border-[#059669]" : status === "active" ? "bg-[#2C6DEF] border-[#1E40AF]" : "bg-white border-slate-200"
+                                            status === "completed" ? "bg-[#FACC15] border-[#EAB308]" : status === "active" ? "bg-[#2C6DEF] border-[#1E40AF]" : "bg-white border-slate-200"
                                           }`}>
                                             <div className={`text-[11px] md:text-xs font-black leading-tight text-left flex-1 pr-2 break-words flex flex-wrap items-center gap-1.5 ${
                                               status === "completed"
                                                 ? "text-yellow-950"
-                                                : (status === "active" || isPurchased)
+                                                : status === "active"
                                                   ? "text-white"
                                                   : "text-slate-700"
                                             }`}>
@@ -2719,9 +2716,16 @@ const LearnDashboard = ({ onboardingData }) => {
                                           )}
 
                                           <div className="relative z-10 flex flex-col gap-3">
-                                            <h2 className="text-[22px] font-extrabold leading-tight text-white drop-shadow-md">
+                                            <h2 className="text-[22px] font-extrabold leading-tight text-white drop-shadow-md flex items-center flex-wrap gap-2">
+  <span>
                                               {(u.title && u.title.toLowerCase() !== 'unit') ? u.title : `Unit ${unitIdx + 1}`}
-                                            </h2>
+                                            </span>
+  {chapterId && purchasedChapterSet.has(String(chapterId)) && (
+    <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-[#10B981] text-white shadow-sm border border-[#059669] flex items-center gap-1">
+      <span>💎</span> PAID
+    </span>
+  )}
+</h2>
                                             
                                             <div className="w-full h-[1px] bg-white/20 border-t border-dashed border-white/20 my-1" />
 
@@ -2770,9 +2774,18 @@ const LearnDashboard = ({ onboardingData }) => {
                                           }}>
                                           {u.headerBgUrl && <div className="absolute inset-0 bg-black/40 pointer-events-none" />}
                                           <div className="relative z-10">
-                                            <p className="font-extrabold text-base md:text-lg">
+                                            <div className="flex items-center gap-2 flex-wrap">
+  <p className="font-extrabold text-base md:text-lg">
+    
                                               {(u.title && u.title.toLowerCase() !== 'unit') ? u.title : `Unit ${unitIdx + 1}`}
-                                            </p>
+                                            
+  </p>
+  {chapterId && purchasedChapterSet.has(String(chapterId)) && (
+    <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-[#10B981] text-white shadow-sm border border-[#059669] flex items-center gap-1">
+      <span>💎</span> PAID
+    </span>
+  )}
+</div>
                                             {chapterTitle && (
                                               <p className="opacity-95 text-base md:text-lg">
                                                 {chapterTitle}
@@ -2949,14 +2962,14 @@ const LearnDashboard = ({ onboardingData }) => {
                                                  <div className={`relative h-full rounded-2xl flex items-center justify-between pl-4 pr-3 py-2.5 border shadow-sm transition-transform active:translate-y-[2px] group-hover/label:-translate-y-[1px] ${
                                                    unitIdx % 2 !== 0 ? "flex-row-reverse pl-3 pr-4" : ""
                                                  } ${
-                                                   status === "completed" ? "bg-[#FACC15] border-[#EAB308]" : isPurchased ? "bg-[#10B981] border-[#059669]" : status === "active" ? "bg-[#2C6DEF] border-[#1E40AF]" : "bg-white border-slate-200"
+                                                   status === "completed" ? "bg-[#FACC15] border-[#EAB308]" : status === "active" ? "bg-[#2C6DEF] border-[#1E40AF]" : "bg-white border-slate-200"
                                                  }`}>
                                                    <div className={`text-[11px] md:text-xs font-black leading-tight flex-1 break-words flex flex-wrap items-center gap-1.5 ${
                                                      unitIdx % 2 === 0 ? "text-left pr-2" : "text-right pl-2"
                                                    } ${
                                                      status === "completed"
                                                        ? "text-yellow-950"
-                                                       : (status === "active" || isPurchased)
+                                                       : status === "active"
                                                          ? "text-white"
                                                          : "text-slate-700"
                                                    }`}>
