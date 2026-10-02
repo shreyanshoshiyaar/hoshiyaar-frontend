@@ -211,15 +211,10 @@ export const StartBadge = React.memo(({ color = "#2C6DEF" }) => (
   </div>
 ));
 
-// Sparkling "💎 UNLOCKED" badge used above purchased / paid nodes
-export const PurchasedBadge = React.memo(() => (
-  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-[100] select-none pointer-events-none flex flex-col items-center animate-bounce">
-    <div className="px-2.5 md:px-3.5 py-1 rounded-xl font-black tracking-wider bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-[0_4px_0_0_#065F46] flex items-center gap-1 border-2 border-white whitespace-nowrap text-[10px] md:text-xs">
-      <span>💎 UNLOCKED</span>
-    </div>
-    <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-emerald-600 -mt-0.5" />
-  </div>
-));
+// PurchasedBadge — removed visible badge to keep the path clean.
+// The green node color already indicates a purchased/unlocked lesson.
+export const PurchasedBadge = React.memo(() => null);
+
 
 // Decorative Lottie animation placed along the path with a 3D Base (like DuoLingo)
 // Decorative Lottie animation placed along the path with a 3D Base (like DuoLingo)
@@ -2623,15 +2618,8 @@ const LearnDashboard = ({ onboardingData }) => {
                                                   : "text-slate-700"
                                             }`}>
                                               <span>{mod?.title || "—"}</span>
-                                              {isPurchased && (
-                                                <span className={`text-[8.5px] uppercase font-black px-1.5 py-0.5 rounded-full shadow-2xs ${
-                                                  status === "completed"
-                                                    ? "bg-yellow-950 text-yellow-100"
-                                                    : "bg-white text-emerald-800"
-                                                }`}>
-                                                  💎 Paid
-                                                </span>
-                                              )}
+
+
                                             </div>
                                             <svg className={`w-[14px] h-[14px] flex-shrink-0 ${
                                               status === "completed"
@@ -2973,15 +2961,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                                          : "text-slate-700"
                                                    }`}>
                                                      <span>{mod?.title || "—"}</span>
-                                                     {isPurchased && (
-                                                       <span className={`text-[8.5px] uppercase font-black px-1.5 py-0.5 rounded-full shadow-2xs ${
-                                                         status === "completed"
-                                                           ? "bg-yellow-950 text-yellow-100"
-                                                           : "bg-white text-emerald-800"
-                                                       }`}>
-                                                         💎 Paid
-                                                       </span>
-                                                     )}
+                                                     
                                                    </div>
                                                    <svg className={`w-[14px] h-[14px] flex-shrink-0 ${
                                                      unitIdx % 2 !== 0 ? "rotate-180" : ""
