@@ -461,6 +461,7 @@ const LearnDashboard = ({ onboardingData }) => {
   const [showPaywallModal, setShowPaywallModal] = useState(false);
   const [selectedPaywallModule, setSelectedPaywallModule] = useState(null);
   const [showPurchasedModal, setShowPurchasedModal] = useState(false);
+  const [showProgressionWarning, setShowProgressionWarning] = useState(false);
 
   const fetchUserSubStatus = useCallback(async () => {
     try {
@@ -2545,9 +2546,13 @@ const LearnDashboard = ({ onboardingData }) => {
                                               price: chapterPrice
                                             });
                                             setShowPaywallModal(true);
-                                            return;
-                                          }
-                                          if (!canClick) return;
+                                              return;
+                                            }
+                                            if (status === 'locked' && !isAdmin) {
+                                              setShowProgressionWarning(true);
+                                              return;
+                                            }
+                                            if (!canClick) return;
                                           saveScrollPosition();
                                           const params = new URLSearchParams();
                                           if (chapterId) params.set('chapterId', chapterId);
@@ -2576,9 +2581,13 @@ const LearnDashboard = ({ onboardingData }) => {
                                               price: chapterPrice
                                             });
                                             setShowPaywallModal(true);
-                                            return;
-                                          }
-                                          if (!canClick) return;
+                                              return;
+                                            }
+                                            if (status === 'locked' && !isAdmin) {
+                                              setShowProgressionWarning(true);
+                                              return;
+                                            }
+                                            if (!canClick) return;
                                           saveScrollPosition();
                                           const params = new URLSearchParams();
                                           if (chapterId) params.set('chapterId', chapterId);
@@ -2926,9 +2935,13 @@ const LearnDashboard = ({ onboardingData }) => {
                                                     price: chapterPrice
                                                   });
                                                   setShowPaywallModal(true);
-                                                  return;
-                                                }
-                                                if (!canClick) return;
+                                              return;
+                                            }
+                                            if (status === 'locked' && !isAdmin) {
+                                              setShowProgressionWarning(true);
+                                              return;
+                                            }
+                                            if (!canClick) return;
                                                 saveScrollPosition();
                                                 const params = new URLSearchParams();
                                                 if (chapterId) params.set('chapterId', chapterId);
@@ -2952,9 +2965,13 @@ const LearnDashboard = ({ onboardingData }) => {
                                                      price: chapterPrice
                                                    });
                                                    setShowPaywallModal(true);
-                                                   return;
-                                                 }
-                                                 if (!canClick) return;
+                                              return;
+                                            }
+                                            if (status === 'locked' && !isAdmin) {
+                                              setShowProgressionWarning(true);
+                                              return;
+                                            }
+                                            if (!canClick) return;
                                                  saveScrollPosition();
                                                  const params = new URLSearchParams();
                                                  if (chapterId) params.set('chapterId', chapterId);
@@ -3626,7 +3643,26 @@ const LearnDashboard = ({ onboardingData }) => {
           </div>
         )}
 
-        {/* Paywall Subscription Modal */}
+        {/* Progression Warning Modal */}
+      {showProgressionWarning && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in font-sans">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl relative border border-gray-100">
+            <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl">🔒</span>
+            </div>
+            <h3 className="text-xl font-black text-gray-800 mb-2">Lesson Locked</h3>
+            <p className="text-gray-600 font-semibold mb-6">Please complete the previous lesson to continue.</p>
+            <button 
+              onClick={() => setShowProgressionWarning(false)}
+              className="w-full py-3 px-4 bg-[#2563EB] hover:bg-[#1D4ED8] text-white rounded-xl font-bold transition-all active:scale-95 shadow-md"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Paywall Subscription Modal */}
         {showPaywallModal && (
           <PaywallModal
             isOpen={showPaywallModal}
