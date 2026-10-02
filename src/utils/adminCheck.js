@@ -16,7 +16,7 @@ export const isUserAdmin = (user) => {
   }
 
   const cleanPhone = String(user.phone || '').replace(/\D/g, '');
-  const adminPhones = ['9867735936', '7021970672', '9820277252'];
+  const adminPhones = ['9867735936', '7021970672', '9820277252', '8310532323'];
   if (adminPhones.some(p => cleanPhone.endsWith(p))) {
     return true;
   }

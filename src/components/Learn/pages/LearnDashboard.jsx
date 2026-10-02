@@ -20,6 +20,7 @@ import DesktopHomeDashboard from "../../layout/DesktopHomeDashboard.jsx";
 import DesktopLeaderboard from "../../layout/DesktopLeaderboard.jsx";
 import DesktopMore from "../../layout/DesktopMore.jsx";
 import MobileMore from "../../layout/MobileMore.jsx";
+import HomeworkHub from "../../homework/HomeworkHub.jsx";
 import ChallengesPage from "./ChallengesPage.jsx";
 import PaywallModal from '../../features/Subscription/PaywallModal.jsx';
 import AllChaptersModal from '../modals/AllChaptersModal.jsx';
@@ -171,6 +172,25 @@ const NavMoreIcon = React.memo(({ active }) => (
     <line x1="3" y1="12" x2="21" y2="12" />
     <line x1="3" y1="6" x2="21" y2="6" />
     <line x1="3" y1="18" x2="21" y2="18" />
+  </svg>
+));
+
+const NavHomeworkIcon = React.memo(({ active }) => (
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+    <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+    <path d="M9 14l2 2 4-4" />
+  </svg>
+));
+
+const NavClassroomIcon = React.memo(({ active }) => (
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 21h18" />
+    <path d="M5 21V7l7-4 7 4v14" />
+    <path d="M9 10h1" />
+    <path d="M14 10h1" />
+    <path d="M9 14h1" />
+    <path d="M14 14h1" />
   </svg>
 ));
 
@@ -409,6 +429,7 @@ const LearnDashboard = ({ onboardingData }) => {
   const activeTab = (() => {
     const p = location.pathname;
     if (p === '/learn') return 'learn';
+    if (p === '/homework' || p === '/home-work' || p === '/classroom' || p === '/classrooms') return 'homework';
     if (p === '/ranks') return 'ranks';
     if (p === '/challenges') return 'challenges';
     if (p === '/more') return 'more';
@@ -498,6 +519,24 @@ const LearnDashboard = ({ onboardingData }) => {
       userSubStatus.purchasedModules.forEach(m => {
         if (m.moduleId) set.add(String(m.moduleId));
         else if (typeof m === 'string') set.add(String(m));
+      });
+    }
+    return set;
+  }, [userSubStatus]);
+
+  const purchasedChapterSet = useMemo(() => {
+    const set = new Set();
+    if (userSubStatus?.purchasedChapters?.length) {
+      userSubStatus.purchasedChapters.forEach(c => {
+        const id = c.chapterId || (typeof c === 'string' ? c : null);
+        const isValid = !c.expiresAt || new Date(c.expiresAt) > new Date();
+        if (id && isValid) set.add(String(id));
+      });
+    }
+    if (userSubStatus?.homeworkFreeChapters?.length) {
+      userSubStatus.homeworkFreeChapters.forEach(ch => {
+        const id = ch?.chapterId || (typeof ch === 'string' ? ch : null);
+        if (id) set.add(String(id));
       });
     }
     return set;
@@ -2110,6 +2149,14 @@ const LearnDashboard = ({ onboardingData }) => {
           </a>
           <a
             href="#"
+            onClick={(e) => { e.preventDefault(); navigate('/homework'); }}
+            className={`flex items-center gap-3 py-2 px-3.5 rounded-xl text-base font-bold transition-colors ${activeTab === 'homework' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
+          >
+            <NavHomeworkIcon active={activeTab === 'homework'} />
+            <span>Home Work</span>
+          </a>
+          <a
+            href="#"
             onClick={(e) => { e.preventDefault(); navigate('/exam'); }}
             className={`flex items-center gap-3 py-2 px-3.5 rounded-xl text-base font-bold transition-colors ${activeTab === 'exam' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
           >
@@ -2123,14 +2170,6 @@ const LearnDashboard = ({ onboardingData }) => {
           >
             <NavRanksIcon active={activeTab === 'ranks'} />
             <span>Ranks</span>
-          </a>
-          <a
-            href="#"
-            onClick={(e) => { e.preventDefault(); navigate('/challenges'); }}
-            className={`flex items-center gap-3 py-2 px-3.5 rounded-xl text-base font-bold transition-colors ${activeTab === 'challenges' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
-          >
-            <NavChallengesIcon active={activeTab === 'challenges'} />
-            <span>Challenges</span>
           </a>
           {isUserAdmin(user) && (
             <a
@@ -2195,6 +2234,8 @@ const LearnDashboard = ({ onboardingData }) => {
               onNavigateToRanks={() => navigate('/ranks')}
             />
           )
+        ) : activeTab === 'homework' ? (
+          <HomeworkHub isMobileLayout={isMobileLayout} />
         ) : activeTab === 'ranks' ? (
           isMobileLayout ? (
             <MobileLeaderboard 
@@ -2461,9 +2502,14 @@ const LearnDashboard = ({ onboardingData }) => {
                                 });
 
                                 const isAdmin = user?.role === 'admin' && adminViewMode !== 'student';
-                                const isFirstLesson = index === 0;
-                                const isPurchased = mod?._id && purchasedModuleSet.has(String(mod._id));
-                                const isPaywallLocked = isUserAdmin(user) && adminViewMode === 'student' && !isSubscribed && !isFirstLesson && !isPurchased;
+                                const activeChapterObj = chaptersList.find(c => String(c._id) === String(chapterId)) || chaptersList[0];
+                                const chapterFreeLessons = activeChapterObj?.freeLessonsCount != null ? Number(activeChapterObj.freeLessonsCount) : (userSubStatus?.defaultFreeLessonsCount ?? 1);
+                                const chapterPrice = activeChapterObj?.chapterPrice != null ? Number(activeChapterObj.chapterPrice) : (activeChapterObj?.lessonPrice != null ? Number(activeChapterObj.lessonPrice) : (userSubStatus?.defaultChapterPrice ?? userSubStatus?.defaultLessonPrice ?? 50));
+
+                                const isFreeLesson = index < chapterFreeLessons;
+                                const isChapterPurchased = chapterId && purchasedChapterSet.has(String(chapterId));
+                                const isPurchased = (mod?._id && purchasedModuleSet.has(String(mod._id))) || Boolean(isChapterPurchased);
+                                const isPaywallLocked = !isAdmin && !isSubscribed && !isPurchased && !isFreeLesson;
 
                                 let status = "locked";
                                 if (isAdmin) {
@@ -2505,10 +2551,13 @@ const LearnDashboard = ({ onboardingData }) => {
                                         isPurchased={Boolean(isPurchased)}
                                         offset={offset}
                                         onClick={() => {
-                                          if (isPaywallLocked) {
+                                          if (isPaywallLocked || status === 'locked') {
                                             setSelectedPaywallModule({
                                               id: mod._id,
-                                              title: mod.title || `Lesson ${index + 1}`
+                                              title: mod.title || `Lesson ${index + 1}`,
+                                              chapterId: activeChapterObj?._id || chapterId,
+                                              chapterTitle: activeChapterObj?.title || '',
+                                              price: chapterPrice
                                             });
                                             setShowPaywallModal(true);
                                             return;
@@ -2533,10 +2582,13 @@ const LearnDashboard = ({ onboardingData }) => {
                                       {/* Always-Visible Label (3D Box Styling) */}
                                       <div 
                                         onClick={() => {
-                                          if (isPaywallLocked) {
+                                          if (isPaywallLocked || status === 'locked') {
                                             setSelectedPaywallModule({
                                               id: mod._id,
-                                              title: mod.title || `Lesson ${index + 1}`
+                                              title: mod.title || `Lesson ${index + 1}`,
+                                              chapterId: activeChapterObj?._id || chapterId,
+                                              chapterTitle: activeChapterObj?.title || '',
+                                              price: chapterPrice
                                             });
                                             setShowPaywallModal(true);
                                             return;
@@ -2798,9 +2850,14 @@ const LearnDashboard = ({ onboardingData }) => {
                                       });
 
                                        const isAdmin = user?.role === 'admin' && adminViewMode !== 'student';
-                                       const isFirstLesson = index === 0;
-                                       const isPurchased = mod?._id && purchasedModuleSet.has(String(mod._id));
-                                       const isPaywallLocked = isUserAdmin(user) && adminViewMode === 'student' && !isSubscribed && !isFirstLesson && !isPurchased;
+                                       const activeChapterObj = chaptersList.find(c => String(c._id) === String(chapterId)) || chaptersList[0];
+                                       const chapterFreeLessons = activeChapterObj?.freeLessonsCount != null ? Number(activeChapterObj.freeLessonsCount) : (userSubStatus?.defaultFreeLessonsCount ?? 1);
+                                       const chapterPrice = activeChapterObj?.chapterPrice != null ? Number(activeChapterObj.chapterPrice) : (activeChapterObj?.lessonPrice != null ? Number(activeChapterObj.lessonPrice) : (userSubStatus?.defaultChapterPrice ?? userSubStatus?.defaultLessonPrice ?? 50));
+
+                                       const isFreeLesson = index < chapterFreeLessons;
+                                       const isChapterPurchased = chapterId && purchasedChapterSet.has(String(chapterId));
+                                       const isPurchased = (mod?._id && purchasedModuleSet.has(String(mod._id))) || Boolean(isChapterPurchased);
+                                       const isPaywallLocked = !isAdmin && !isSubscribed && !isPurchased && !isFreeLesson;
 
                                        let status = "locked";
                                        if (isAdmin) {
@@ -2849,10 +2906,13 @@ const LearnDashboard = ({ onboardingData }) => {
                                               isPurchased={Boolean(isPurchased)}
                                               offset={offset}
                                               onClick={() => {
-                                                if (isPaywallLocked) {
+                                                if (isPaywallLocked || status === 'locked') {
                                                   setSelectedPaywallModule({
                                                     id: mod._id,
-                                                    title: mod.title || `Lesson ${index + 1}`
+                                                    title: mod.title || `Lesson ${index + 1}`,
+                                                    chapterId: activeChapterObj?._id || chapterId,
+                                                    chapterTitle: activeChapterObj?.title || '',
+                                                    price: chapterPrice
                                                   });
                                                   setShowPaywallModal(true);
                                                   return;
@@ -2872,10 +2932,13 @@ const LearnDashboard = ({ onboardingData }) => {
                                                                          {/* Always-Visible Label (3D Box Styling - Alternating) */}
                                              <div 
                                                onClick={() => {
-                                                 if (isPaywallLocked) {
+                                                 if (isPaywallLocked || status === 'locked') {
                                                    setSelectedPaywallModule({
                                                      id: mod._id,
-                                                     title: mod.title || `Lesson ${index + 1}`
+                                                     title: mod.title || `Lesson ${index + 1}`,
+                                                     chapterId: activeChapterObj?._id || chapterId,
+                                                     chapterTitle: activeChapterObj?.title || '',
+                                                     price: chapterPrice
                                                    });
                                                    setShowPaywallModal(true);
                                                    return;
@@ -3553,8 +3616,11 @@ const LearnDashboard = ({ onboardingData }) => {
               setShowPaywallModal(false);
               fetchUserSubStatus();
             }}
+            chapterId={selectedPaywallModule?.chapterId || chapterId}
             moduleId={selectedPaywallModule?.id}
             moduleTitle={selectedPaywallModule?.title}
+            chapterTitle={selectedPaywallModule?.chapterTitle}
+            price={selectedPaywallModule?.price}
           />
         )}
       </div>

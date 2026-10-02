@@ -13,16 +13,8 @@ import ExamModePromo from './components/ui/ExamModePromo.jsx';
 import ProtectedRoute from './components/layout/ProtectedRoute.jsx';
 import AdminProtectedRoute from './components/layout/AdminProtectedRoute.jsx';
 import AdminViewSwitcher from './components/admin/AdminViewSwitcher.jsx';
-import { isUserAdmin } from './utils/adminCheck.js';
+import ErrorBoundary from './components/ui/ErrorBoundary.jsx';
 
-const SubscriptionRouteGuard = ({ children }) => {
-  const { user, loading } = useAuth();
-  if (loading) return null;
-  if (!isUserAdmin(user)) {
-    return <Navigate to="/learn" replace />;
-  }
-  return children;
-};
 
 // Lazy load components
 const UnifiedAuth = lazy(() => import('./components/forms/UnifiedAuth.jsx'));
@@ -46,6 +38,7 @@ const RevisionList = lazy(() => import('./components/Learn/quiz/RevisionList.jsx
 const UploadTest = lazy(() => import('./components/features/UploadTest.jsx'));
 const PrivacyPolicy = lazy(() => import('./components/Legal/PrivacyPolicy.jsx'));
 const TermsConditions = lazy(() => import('./components/Legal/TermsConditions.jsx'));
+const RefundPolicy = lazy(() => import('./components/Legal/RefundPolicy.jsx'));
 const BlogList = lazy(() => import('./components/Learn/blogs/BlogList.jsx'));
 const BlogView = lazy(() => import('./components/Learn/blogs/BlogView.jsx'));
 const About = lazy(() => import('./components/layout/About.jsx'));
@@ -57,6 +50,8 @@ const InteractiveStory = lazy(() => import('./components/features/InteractiveSto
 const ExamFlow = lazy(() => import('./components/features/ExamMode/ExamFlow.jsx'));
 const MidLessonStreakModal = lazy(() => import('./components/Learn/modals/MidLessonStreakModal.jsx'));
 const SubscriptionPage = lazy(() => import('./components/features/Subscription/SubscriptionPage.jsx'));
+const TeacherDashboard = lazy(() => import('./components/teacher/TeacherDashboard.jsx'));
+const ClassroomDetail = lazy(() => import('./components/teacher/ClassroomDetail.jsx'));
 
 import { CapacitorUpdater } from '@capgo/capacitor-updater';
 import { Capacitor } from '@capacitor/core';
@@ -431,6 +426,30 @@ function App() {
                   } 
                 />
                 <Route 
+                  path="/homework" 
+                  element={
+                    <ProtectedRoute>
+                      <Learn />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/home-work" 
+                  element={
+                    <ProtectedRoute>
+                      <Learn />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/classroom" 
+                  element={
+                    <ProtectedRoute>
+                      <Learn />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
                   path="/profile" 
                   element={
                     <ProtectedRoute>
@@ -450,9 +469,9 @@ function App() {
                   path="/subscription" 
                   element={
                     <ProtectedRoute>
-                      <SubscriptionRouteGuard>
+                      <ErrorBoundary>
                         <SubscriptionPage />
-                      </SubscriptionRouteGuard>
+                      </ErrorBoundary>
                     </ProtectedRoute>
                   } 
                 />
@@ -460,9 +479,7 @@ function App() {
                   path="/pricing" 
                   element={
                     <ProtectedRoute>
-                      <SubscriptionRouteGuard>
-                        <Navigate to="/subscription" replace />
-                      </SubscriptionRouteGuard>
+                      <Navigate to="/subscription" replace />
                     </ProtectedRoute>
                   } 
                 />
@@ -555,8 +572,33 @@ function App() {
                     </AdminProtectedRoute>
                   } 
                 />
+                
+                {/* Teacher Mode B2B Offering Routes */}
+                <Route 
+                  path="/teacher" 
+                  element={
+                    <ProtectedRoute>
+                      <TeacherDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/teacher/classrooms/:id" 
+                  element={
+                    <ProtectedRoute>
+                      <ClassroomDetail />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<TermsConditions />} />
                 <Route path="/terms-conditions" element={<TermsConditions />} />
+                <Route path="/terms-of-service" element={<TermsConditions />} />
+                <Route path="/terms-and-conditions" element={<TermsConditions />} />
+                <Route path="/refund" element={<RefundPolicy />} />
+                <Route path="/refund-policy" element={<RefundPolicy />} />
+                <Route path="/refunds" element={<RefundPolicy />} />
                 <Route path="/blogs" element={<BlogList />} />
                 <Route path="/blogs/:category/:slug" element={<BlogView />} />
                 <Route path="/blogs/:id" element={<BlogView />} />

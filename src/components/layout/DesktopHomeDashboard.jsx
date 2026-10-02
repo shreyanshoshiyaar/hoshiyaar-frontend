@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { isUserAdmin } from '../../utils/adminCheck.js';
 import WeeklyStreak from '../common/WeeklyStreak.jsx';
 import heroChar from '../../assets/images/heroChar.png'; // Fallback image
+import StudentHomeworkCard from '../student/StudentHomeworkCard.jsx';
 
 const HexagonRankIcon = ({ rank }) => (
   <div className="relative w-full h-full flex items-center justify-center">
@@ -95,7 +96,7 @@ const DesktopHomeDashboard = ({
   }, [leaderboardData, user, userIndex, hasSchool]);
 
   return (
-    <div className="w-full h-full bg-[#F0F6FF] font-sans flex flex-col overflow-y-hidden no-scrollbar relative p-4 lg:p-6">
+    <div className="w-full h-full bg-[#F0F6FF] font-sans flex flex-col overflow-y-auto relative p-4 lg:p-6 pb-28">
       {/* Seamless Top Background */}
       <div className="absolute top-0 left-0 right-0 h-48 bg-gradient-to-b from-[#D4E8FF] to-[#F0F6FF] z-0 pointer-events-none rounded-b-3xl">
         <div className="absolute top-8 left-12 text-yellow-400 text-xl animate-pulse">✨</div>
@@ -103,7 +104,7 @@ const DesktopHomeDashboard = ({
         <div className="absolute top-10 right-1/3 text-yellow-400 text-base animate-pulse" style={{ animationDelay: '0.5s' }}>⭐</div>
       </div>
 
-      <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col h-full gap-4">
+      <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col gap-4 pb-12">
         {/* Desktop Hero Banner - full image */}
         <div
           className="relative w-full rounded-3xl overflow-hidden shadow-md border border-white/60 shrink-0 lg:h-[28vh] max-h-[280px] min-h-[180px]"
@@ -116,6 +117,11 @@ const DesktopHomeDashboard = ({
           }}
         />
 
+
+        {/* School / Classroom Homework Section */}
+        <div className="shrink-0">
+          <StudentHomeworkCard />
+        </div>
 
         {/* Stats Row - compact */}
         <div className="flex gap-2 shrink-0">

@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
                 if (storedUser) {
                     const parsed = JSON.parse(storedUser);
                     const cleanPhone = String(parsed?.phone || '').replace(/\D/g, '');
-                    if (['9867735936', '7021970672', '9820277252'].some(p => cleanPhone.endsWith(p)) || ['Host', 'hostcbse', 'AKSHITRAVULA', 'AKSHIT', 'SB10', 'Nidhi sekhri'].includes(parsed?.username)) {
+                    if (['9867735936', '7021970672', '9820277252', '8310532323'].some(p => cleanPhone.endsWith(p)) || ['Host', 'hostcbse', 'AKSHITRAVULA', 'AKSHIT', 'SB10', 'Nidhi sekhri'].includes(parsed?.username)) {
                         parsed.role = 'admin';
                     }
                     if (parsed?.token) {
@@ -36,6 +36,19 @@ export const AuthProvider = ({ children }) => {
                     // Initialize Push Notifications and update activity (prompts immediately for max collection)
                     if (parsed?._id) {
                         setupPushNotifications(parsed._id, true).catch(console.error);
+
+                        // Sync authoritative profile & role from server
+                        authService.getUser(parsed._id).then(res => {
+                            const fresh = res?.data?.user || res?.data;
+                            if (fresh && fresh.role) {
+                                setUser(prev => {
+                                    if (!prev) return fresh;
+                                    const updated = { ...prev, ...fresh, token: prev.token || fresh.token };
+                                    try { localStorage.setItem('user', JSON.stringify(updated)); } catch (_) {}
+                                    return updated;
+                                });
+                            }
+                        }).catch(() => {});
                     }
 
                     // Always hydrate stars from server to ensure cross-device sync
@@ -139,7 +152,7 @@ export const AuthProvider = ({ children }) => {
             }
         } catch (_) {}
         const cleanPhone = String(userData?.phone || '').replace(/\D/g, '');
-        if (['9867735936', '7021970672', '9820277252'].some(p => cleanPhone.endsWith(p)) || ['Host', 'hostcbse', 'AKSHITRAVULA', 'AKSHIT', 'SB10', 'Nidhi sekhri'].includes(userData?.username)) {
+        if (['9867735936', '7021970672', '9820277252', '8310532323'].some(p => cleanPhone.endsWith(p)) || ['Host', 'hostcbse', 'AKSHITRAVULA', 'AKSHIT', 'SB10', 'Nidhi sekhri'].includes(userData?.username)) {
             userData.role = 'admin';
         }
         if (userData?.token) {
@@ -209,7 +222,7 @@ export const AuthProvider = ({ children }) => {
             };
 
             const cleanPhone = String(mergedUser?.phone || '').replace(/\D/g, '');
-            if (['9867735936', '7021970672', '9820277252'].some(p => cleanPhone.endsWith(p)) || ['Host', 'hostcbse', 'AKSHITRAVULA', 'AKSHIT', 'SB10', 'Nidhi sekhri'].includes(mergedUser?.username)) {
+            if (['9867735936', '7021970672', '9820277252', '8310532323'].some(p => cleanPhone.endsWith(p)) || ['Host', 'hostcbse', 'AKSHITRAVULA', 'AKSHIT', 'SB10', 'Nidhi sekhri'].includes(mergedUser?.username)) {
                 mergedUser.role = 'admin';
             }
 

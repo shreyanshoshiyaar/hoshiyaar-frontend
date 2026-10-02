@@ -89,7 +89,7 @@ export default function AdminViewSwitcher() {
             : 'Viewing with administrative privileges. All modules and chapters unlocked; paywalls are bypassed.'}
         </p>
 
-        <div className="flex items-center justify-between gap-2 pt-1 border-t border-white/10">
+        <div className="flex flex-col gap-1.5 pt-1 border-t border-white/10">
           <button
             onClick={toggleMode}
             className={`w-full py-1.5 px-3 rounded-xl font-black text-xs transition-transform active:scale-95 shadow-md flex items-center justify-center gap-1.5 ${
@@ -100,6 +100,13 @@ export default function AdminViewSwitcher() {
           >
             <span>{isStudent ? '⚡ Switch to Admin View' : '👁️ Preview as Student'}</span>
           </button>
+          
+          <a
+            href="/teacher"
+            className="w-full py-1.5 px-3 rounded-xl font-black text-xs bg-purple-600 hover:bg-purple-500 text-white flex items-center justify-center gap-1.5 transition-colors shadow-sm"
+          >
+            <span>👩‍🏫 Open Teacher Mode (B2B)</span>
+          </a>
         </div>
       </div>
     </aside>

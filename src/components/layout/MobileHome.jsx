@@ -5,6 +5,7 @@ import { useStars } from '../../context/StarsContext.jsx';
 import WeeklyStreak from '../common/WeeklyStreak.jsx';
 import StreakCelebration from '../common/StreakCelebration.jsx';
 import heroChar from '../../assets/images/heroChar.png'; // Fallback image
+import StudentHomeworkCard from '../student/StudentHomeworkCard.jsx';
 
 const HexagonRankIcon = ({ rank }) => (
   <div className="relative w-12 h-12 flex items-center justify-center">
@@ -133,13 +134,6 @@ const MobileHome = ({
               className="h-12 w-auto drop-shadow-sm" 
             />
           </div>
-          <button
-            onClick={() => navigate('/challenges')}
-            className="flex items-center gap-1.5 bg-white/95 backdrop-blur-sm px-3.5 py-1.5 rounded-full shadow-sm border border-amber-300 text-amber-900 font-extrabold text-xs active:scale-95 transition-transform"
-          >
-            <span>🎯</span>
-            <span>Challenges</span>
-          </button>
         </div>
 
         {/* Hero Banner Section */}
@@ -200,6 +194,9 @@ const MobileHome = ({
             user?.lastStreakDate && new Date(user.lastStreakDate).toDateString() === new Date().toDateString()
           }
         />
+
+        {/* School / Classroom Homework Section */}
+        <StudentHomeworkCard />
 
         {/* Bento Grid (Compact) */}
         <div className="grid grid-cols-12 gap-2 mb-3">

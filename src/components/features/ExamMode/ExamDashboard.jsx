@@ -4,6 +4,8 @@ import curriculumService from '../../../services/curriculumService';
 import SimpleLoading from '../../ui/SimpleLoading';
 import ParticleBackground from './ParticleBackground';
 import { getApiBase } from '../../../utils/apiBase';
+import PaywallModal from '../Subscription/PaywallModal.jsx';
+import paymentService from '../../../services/paymentService';
 
 import { useAuth } from '../../../context/AuthContext';
 import api from '../../../services/apiClient';
@@ -34,9 +36,12 @@ const ExamDashboard = ({
   const [chaptersLoadError, setChaptersLoadError] = useState(false);
   const [showChapterModal, setShowChapterModal] = useState(false);
   const [showOtherClasses, setShowOtherClasses] = useState(false);
+  const [showPaywallModal, setShowPaywallModal] = useState(false);
+  const [paywallChapter, setPaywallChapter] = useState(null);
+
   const cleanPhone = String(user?.phone || '').replace(/\D/g, '');
   const isAdmin = user?.role === 'admin' || 
-                  ['9867735936', '7021970672', '9820277252'].some(p => cleanPhone.endsWith(p)) || 
+                  ['9867735936', '7021970672', '9820277252', '8310532323'].some(p => cleanPhone.endsWith(p)) || 
                   ['Host', 'hostcbse', 'AKSHITRAVULA', 'AKSHIT', 'SB10', 'Nidhi sekhri'].includes(user?.username) ||
                   sessionStorage.getItem('isAdmin') === 'true';
 
@@ -49,8 +54,11 @@ const ExamDashboard = ({
       // 1. First try direct native fetch to avoid header/preflight interceptor issues
       try {
         const apiBase = getApiBase();
+        const token = sessionStorage.getItem('adminToken') || localStorage.getItem('token') || localStorage.getItem('authToken') || (JSON.parse(localStorage.getItem('user') || '{}'))?.token;
+        const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
         const directResp = await fetch(`${apiBase}/api/curriculum/exam-chapters?_t=${Date.now()}`, {
           method: 'GET',
+          headers,
           cache: 'no-store'
         });
         if (directResp.ok) {
@@ -381,6 +389,7 @@ const ExamDashboard = ({
   const normalizeClass = (c) => String(c || '').replace(/^class\s*/i, '').replace(/(?:st|nd|rd|th)$/i, '').trim();
 
   const currentChapterObj = availableChapters.find(c => String(c._id) === String(chapterId));
+  const isExamLocked = !isAdmin && Boolean(currentChapterObj?.isLocked);
   const displaySubjectName = currentChapterObj?.subjectId?.name || subjectName;
 
   const activeClass = normalizeClass(
@@ -453,35 +462,63 @@ const ExamDashboard = ({
   const renderChapterButton = (ch) => {
     const isSelected = String(ch._id) === String(chapterId);
     const chClassName = ch.subjectId?.classId?.name || ch.classLevel || '';
+    const chPrice = ch.chapterPrice || 50;
+    const isLocked = !isAdmin && Boolean(ch.isLocked);
+
     return (
-      <button
+      <div
         key={ch._id}
-        onClick={() => {
-          if (onChangeChapter) onChangeChapter(ch._id, ch.title);
-          setShowChapterModal(false);
-        }}
-        className={`w-full text-left p-3 rounded-xl border transition-all duration-200 flex items-center justify-between gap-2.5 cursor-pointer ${
+        className={`w-full p-2.5 sm:p-3 rounded-xl border transition-all duration-200 flex items-center justify-between gap-2.5 ${
           isSelected
             ? 'bg-gradient-to-r from-cyan-500/25 to-blue-600/25 border-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.25)]'
+            : isLocked
+            ? 'bg-white/[0.04] hover:bg-white/[0.08] border-white/10 hover:border-amber-400/40'
             : 'bg-white/5 hover:bg-white/10 border-white/10 hover:border-cyan-400/40'
         }`}
       >
-        <div className="flex-1 min-w-0">
-          <p className={`font-bold text-xs sm:text-sm leading-snug truncate ${isSelected ? 'text-cyan-200' : 'text-white'}`}>
-            {ch.title}
-          </p>
+        <button
+          type="button"
+          onClick={() => {
+            if (onChangeChapter) onChangeChapter(ch._id, ch.title);
+            setShowChapterModal(false);
+          }}
+          className="flex-1 min-w-0 text-left cursor-pointer"
+        >
+          <div className="flex items-center gap-1.5">
+            {isLocked && <span className="text-amber-400 text-xs shrink-0">🔒</span>}
+            <p className={`font-bold text-xs sm:text-sm leading-snug truncate ${isSelected ? 'text-cyan-200' : 'text-white'}`}>
+              {ch.title}
+            </p>
+          </div>
           <p className="text-[10px] text-gray-400 mt-0.5 uppercase tracking-wider font-semibold">
             {ch.subjectId?.name || subjectName} {chClassName ? `• Class ${chClassName}` : ''}
           </p>
-        </div>
+        </button>
+
         <div className="shrink-0 flex items-center gap-1.5">
-          {isSelected && (
+          {isLocked ? (
+            <button
+              type="button"
+              onClick={() => {
+                setPaywallChapter({
+                  id: ch._id,
+                  title: ch.title,
+                  price: chPrice
+                });
+                setShowPaywallModal(true);
+              }}
+              className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 hover:text-amber-200 border border-amber-400/40 text-[11px] font-black tracking-wide transition-all active:scale-95 cursor-pointer flex items-center gap-1"
+            >
+              <span>Unlock</span>
+              <span>₹{chPrice}</span>
+            </button>
+          ) : isSelected ? (
             <span className="w-5 h-5 rounded-full bg-cyan-400 text-slate-900 flex items-center justify-center text-[10px] font-black">
               ✓
             </span>
-          )}
+          ) : null}
         </div>
-      </button>
+      </div>
     );
   };
 
@@ -528,6 +565,68 @@ const ExamDashboard = ({
             <div className="flex flex-col items-center p-4">
               <div className="w-8 h-8 border-3 border-cyan-400/30 border-t-cyan-400 rounded-full animate-spin mb-3"></div>
               <p className="text-cyan-200/80 text-xs tracking-wide font-medium animate-pulse">Loading exam configuration...</p>
+            </div>
+          </div>
+        ) : isExamLocked ? (
+          <div className="bg-gradient-to-b from-[#1E293B]/90 via-[#0F172A]/95 to-[#1A2C5B]/90 backdrop-blur-xl rounded-2xl p-6 sm:p-8 shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] border border-amber-500/40 w-full text-center flex flex-col items-center relative overflow-hidden animate-fade-in">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div className="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-400/40 text-amber-300 flex items-center justify-center text-2xl mb-3 shadow-[0_0_24px_rgba(245,158,11,0.25)]">
+              🔒
+            </div>
+
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/15 border border-amber-400/30 text-amber-300 text-xs font-black uppercase tracking-wider mb-2.5">
+              <span>Exam Mode Locked</span>
+            </div>
+
+            <h3 className="text-lg sm:text-xl font-black text-white mb-1.5 tracking-wide">
+              Unlock Exam Mode for {chapterTitle || 'this Chapter'}
+            </h3>
+
+            <p className="text-gray-300 text-xs sm:text-sm max-w-md leading-relaxed mb-4">
+              Unlock 1-year unlimited access to this chapter's Exam Mode with AI descriptive evaluation, scoring, deep concept feedback, and all chapter levels!
+            </p>
+
+            {/* Price Pill */}
+            <div className="flex items-center gap-2.5 bg-black/40 px-4 py-2 rounded-2xl border border-white/10 mb-5">
+              <span className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-yellow-400">
+                ₹{currentChapterObj?.chapterPrice || 50}
+              </span>
+              <span className="text-xs text-gray-400 line-through font-semibold">
+                ₹99
+              </span>
+              <span className="text-[11px] font-bold text-cyan-300 bg-cyan-500/20 px-2 py-0.5 rounded-full border border-cyan-400/30">
+                1-Year Pass ⚡
+              </span>
+            </div>
+
+            {/* Actions */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-md">
+              <button
+                type="button"
+                onClick={() => {
+                  setPaywallChapter({
+                    id: currentChapterObj?._id || chapterId,
+                    title: currentChapterObj?.title || chapterTitle,
+                    price: currentChapterObj?.chapterPrice || 50
+                  });
+                  setShowPaywallModal(true);
+                }}
+                className="w-full sm:flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-black text-xs uppercase tracking-wider shadow-[0_4px_20px_rgba(245,158,11,0.4)] active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Pay ₹{currentChapterObj?.chapterPrice || 50} to Unlock Chapter (1 Year) ⚡</span>
+              </button>
+
+              <a
+                href={`https://wa.me/918310532323?text=${encodeURIComponent(`Hi! I would like to inquire about unlocking Exam Mode for "${chapterTitle || 'Chapter'}" (₹${currentChapterObj?.chapterPrice || 50} / 1 Year).`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto py-3 px-4 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 border border-emerald-500/40 text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
+              >
+                <span>💬</span>
+                <span>Discuss on WhatsApp</span>
+              </a>
             </div>
           </div>
         ) : examConfig && ((examConfig.questions && examConfig.questions.length > 0) || (examConfig.flowItems && examConfig.flowItems.length > 0)) ? (
@@ -882,6 +981,21 @@ const ExamDashboard = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Paywall Subscription Modal */}
+      {showPaywallModal && (
+        <PaywallModal
+          isOpen={showPaywallModal}
+          onClose={() => setShowPaywallModal(false)}
+          onSuccess={() => {
+            setShowPaywallModal(false);
+            fetchAvailableExamChapters();
+          }}
+          chapterId={paywallChapter?.id || chapterId}
+          chapterTitle={paywallChapter?.title || chapterTitle}
+          price={paywallChapter?.price || currentChapterObj?.chapterPrice || 50}
+        />
       )}
     </div>
   );

@@ -44,7 +44,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-gray-900">Call Us</h3>
-                  <a href="tel:7021970672" className="text-blue-600 hover:underline">7021970672</a>
+                  <a href="tel:+918310532323" className="text-blue-600 hover:underline">+91 831 053 2323</a>
                 </div>
               </div>
 
@@ -85,7 +85,7 @@ const Contact = () => {
               const email = e.target.email.value;
               const message = e.target.message.value;
               const text = `Hi Hoshiyaar Support,\n\nMy name is ${name} (${email}).\n\nMy Query:\n${message}`;
-              const whatsappUrl = `https://wa.me/917021970672?text=${encodeURIComponent(text)}`;
+              const whatsappUrl = `https://wa.me/918310532323?text=${encodeURIComponent(text)}`;
               window.open(whatsappUrl, '_blank');
             }}>
               <div>

@@ -10,13 +10,14 @@ export const paymentService = {
   },
 
   /**
-   * Central gatekeeper check: verifies if current user can access a specific module
+   * Central gatekeeper check: verifies if current user can access a specific module or exam chapter
    */
-  async checkAccess(moduleId) {
+  async checkAccess(arg) {
     try {
+      const payload = typeof arg === 'string' ? { moduleId: arg } : (arg || {});
       const previewMode = localStorage.getItem('admin_view_mode') || 'admin';
       const headers = previewMode === 'student' ? { 'x-admin-preview-mode': 'student' } : {};
-      const res = await api.post('/api/payments/check-access', { moduleId, previewMode }, { headers });
+      const res = await api.post('/api/payments/check-access', { ...payload, previewMode }, { headers });
       return res.data;
     } catch (err) {
       // If error or unauthenticated, fallback safely
@@ -64,6 +65,7 @@ export const paymentService = {
       signature,
       razorpay_signature: signature,
       planCode: params.planCode,
+      chapterId: params.chapterId,
       moduleId: params.moduleId,
       moduleIds: params.moduleIds
     });
@@ -91,8 +93,8 @@ export const paymentService = {
   /**
    * 1-Click Sandbox Test payment for local testing
    */
-  async mockSuccessPayment({ planCode, moduleId, moduleIds }) {
-    const res = await api.post('/api/payments/mock-success', { planCode, moduleId, moduleIds });
+  async mockSuccessPayment({ planCode, moduleId, moduleIds, chapterId }) {
+    const res = await api.post('/api/payments/mock-success', { planCode, moduleId, moduleIds, chapterId });
     return res.data;
   },
 
@@ -149,6 +151,38 @@ export const paymentService = {
    */
   async getAdminSubscriptions(params = {}) {
     const res = await api.get('/api/payments/admin/subscriptions', { params });
+    return res.data;
+  },
+
+  /**
+   * Admin: Fetch chapter payment settings (free levels & prices)
+   */
+  async getChapterSettings() {
+    const res = await api.get('/api/payments/admin/chapter-settings');
+    return res.data;
+  },
+
+  /**
+   * Admin: Update chapter payment settings (free levels & prices)
+   */
+  async updateChapterSetting(chapterId, data) {
+    const res = await api.put(`/api/payments/admin/chapter-settings/${chapterId}`, data);
+    return res.data;
+  },
+
+  /**
+   * Admin: Search users for A/B testing
+   */
+  async searchAbTestUsers(query = '') {
+    const res = await api.get('/api/payments/admin/abtest/users', { params: { search: query } });
+    return res.data;
+  },
+
+  /**
+   * Admin: Toggle a specific user between Free and Paid
+   */
+  async toggleAbTestUser(userId, variant) {
+    const res = await api.post('/api/payments/admin/abtest/toggle-user', { userId, variant });
     return res.data;
   }
 };

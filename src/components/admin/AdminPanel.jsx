@@ -10,6 +10,7 @@ import ExamManager from './ExamManager';
 import AiExamAnalytics from './AiExamAnalytics';
 import NotificationAnalytics from './NotificationAnalytics';
 import PaymentManager from './PaymentManager';
+import TeacherClassroomAnalytics from './TeacherClassroomAnalytics';
 
 const UnitEditRow = ({ unit, onUpdateUnit }) => {
   const [title, setTitle] = useState(unit.title || '');
@@ -397,6 +398,17 @@ const AdminPanel = () => {
               <span>User Analytics</span>
             </button>
             <button
+              onClick={() => setActiveTab('teachers')}
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
+                activeTab === 'teachers'
+                  ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
+                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
+              }`}
+            >
+              <span className="text-base">👨‍🏫</span>
+              <span>Teacher Classrooms</span>
+            </button>
+            <button
               onClick={() => setActiveTab('ai_analytics')}
               className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
                 activeTab === 'ai_analytics'
@@ -626,6 +638,13 @@ const AdminPanel = () => {
             </p>
           </div>
           <UserAnalytics />
+        </div>
+      )}
+
+      {/* ── Tab Panel: Teacher & Classroom Analytics ── */}
+      {activeTab === 'teachers' && (
+        <div className="max-w-7xl mx-auto py-8 px-4">
+          <TeacherClassroomAnalytics />
         </div>
       )}
 
