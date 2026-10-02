@@ -2536,7 +2536,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                         isPurchased={Boolean(isPurchased)}
                                         offset={offset}
                                         onClick={() => {
-                                          if (isPaywallLocked || status === 'locked') {
+                                          if (isPaywallLocked) {
                                             setSelectedPaywallModule({
                                               id: mod._id,
                                               title: mod.title || `Lesson ${index + 1}`,
@@ -2567,7 +2567,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                       {/* Always-Visible Label (3D Box Styling) */}
                                       <div 
                                         onClick={() => {
-                                          if (isPaywallLocked || status === 'locked') {
+                                          if (isPaywallLocked) {
                                             setSelectedPaywallModule({
                                               id: mod._id,
                                               title: mod.title || `Lesson ${index + 1}`,
@@ -2896,7 +2896,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                               isPurchased={Boolean(isPurchased)}
                                               offset={offset}
                                               onClick={() => {
-                                                if (isPaywallLocked || status === 'locked') {
+                                                if (isPaywallLocked) {
                                                   setSelectedPaywallModule({
                                                     id: mod._id,
                                                     title: mod.title || `Lesson ${index + 1}`,
@@ -2922,7 +2922,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                                                          {/* Always-Visible Label (3D Box Styling - Alternating) */}
                                              <div 
                                                onClick={() => {
-                                                 if (isPaywallLocked || status === 'locked') {
+                                                 if (isPaywallLocked) {
                                                    setSelectedPaywallModule({
                                                      id: mod._id,
                                                      title: mod.title || `Lesson ${index + 1}`,
