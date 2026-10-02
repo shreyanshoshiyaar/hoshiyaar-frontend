@@ -2502,16 +2502,12 @@ const LearnDashboard = ({ onboardingData }) => {
                                 const isPaywallLocked = !isAdmin && !isSubscribed && !isPurchased && !isFreeLesson;
 
                                 let status = "locked";
-                                if (isAdmin) {
-                                  status = isCompleted ? "completed" : "active";
+                                if (isCompleted) {
+                                  status = "completed";
                                 } else if (isPaywallLocked) {
                                   status = "locked";
-                                } else {
-                                  if (isCompleted) {
-                                    status = "completed";
-                                  } else if (isPurchased || index === firstIncompleteGlobal) {
-                                    status = "active";
-                                  }
+                                } else if (index === firstIncompleteGlobal) {
+                                  status = "active";
                                 }
                                 const canClick = (status === 'active' || status === 'completed' || isAdmin || isPaywallLocked || isPurchased);
                                 const offset = getWaveOffset(index, isMobileLayout);
@@ -2859,16 +2855,12 @@ const LearnDashboard = ({ onboardingData }) => {
                                        const isPaywallLocked = !isAdmin && !isSubscribed && !isPurchased && !isFreeLesson;
 
                                        let status = "locked";
-                                       if (isAdmin) {
-                                         status = isCompleted ? "completed" : "active";
+                                       if (isCompleted) {
+                                         status = "completed";
                                        } else if (isPaywallLocked) {
                                          status = "locked";
-                                       } else {
-                                         if (isCompleted) {
-                                           status = "completed";
-                                         } else if (isPurchased || index === firstIncompleteForUnit) {
-                                           status = "active";
-                                         }
+                                       } else if (index === firstIncompleteForUnit) {
+                                         status = "active";
                                        }
                                        const canClick = (status === 'active' || status === 'completed' || isAdmin || isPaywallLocked || isPurchased);
                                        const offset = getWaveOffset(index, isMobileLayout);
