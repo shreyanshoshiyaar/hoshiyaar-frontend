@@ -14,10 +14,10 @@ const Header = ({ isHomePage }) => {
 
   return (
     <header className={`
-      ${isHomePage ? 'absolute md:sticky' : 'sticky'} 
-      top-0 w-full z-50 transition-all duration-300
+      ${isHomePage ? 'hidden md:flex' : 'flex'} 
+      sticky top-0 w-full z-50 transition-all duration-300
       ${isHomePage ? 'bg-transparent md:bg-white md:border-b border-duo-gray h-16 md:h-20' : 'bg-transparent md:bg-white md:border-b border-duo-gray h-16 md:h-20'}
-      flex items-center
+      items-center
     `}>
       <div className="container mx-auto px-3 sm:px-4 flex justify-between items-center">
         
@@ -69,7 +69,7 @@ const Header = ({ isHomePage }) => {
 
           {/* WhatsApp Support Link */}
           <a 
-            href="https://wa.me/917021970672?text=Hey%20I%20need%20help" 
+            href="https://wa.me/918310532323?text=Hey%20I%20need%20help" 
             target="_blank" 
             rel="noopener noreferrer"
             className="flex items-center justify-center text-white bg-[#25D366] hover:bg-[#128C7E] h-[44px] w-[44px] sm:h-[48px] sm:w-[48px] lg:h-[56px] lg:w-[56px] rounded-xl sm:rounded-2xl border-b-4 border-[#1B9B4B] shadow-sm transition-all hover:scale-105 active:scale-95"

@@ -360,18 +360,6 @@ const DesktopMore = ({ stars, weeklyStars }) => {
                  <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-wider">Account Actions</h3>
                </div>
                <div className="p-1 flex flex-col gap-1">
-                 {isUserAdmin(user) && (
-                   <button 
-                    onClick={() => navigate('/subscription')}
-                    className="px-4 py-2.5 text-left font-bold text-xs text-blue-700 bg-blue-50/70 hover:bg-blue-100 rounded-lg transition-colors flex items-center justify-between"
-                  >
-                    <span className="flex items-center gap-2">
-                      <span>💳</span>
-                      <span>Subscription &amp; Plans</span>
-                    </span>
-                    <span className="text-[10px] font-bold bg-blue-600 text-white px-2 py-0.5 rounded-full">PRO</span>
-                  </button>
-                 )}
                  {(user?.role === 'admin' || user?.role === 'master' || ['Host', 'hostcbse', 'AKSHITRAVULA', 'AKSHIT', 'SB10', 'Nidhi sekhri'].includes(user?.username) || ['9867735936', '7021970672', '9820277252'].some(p => String(user?.phone || '').replace(/\D/g, '').endsWith(p))) && (
                    <button 
                     onClick={() => navigate('/admin')}
@@ -422,7 +410,8 @@ const DesktopMore = ({ stars, weeklyStars }) => {
 
         </div>
       </div>
-    </div>
+
+      </div>
   );
 };
 

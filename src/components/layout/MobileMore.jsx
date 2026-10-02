@@ -380,35 +380,6 @@ const MobileMore = ({ stars, weeklyStars }) => {
           </button>
         </div>
 
-        {/* Membership & Plans (Visible to admins only during testing) */}
-        {isUserAdmin(user) && (
-          <div className="mb-4">
-            <h3 className="text-sm font-black text-blue-900/40 uppercase tracking-widest ml-1 mb-3">Membership &amp; Plans</h3>
-            <div className="bg-white rounded-3xl p-2 shadow-sm border border-gray-100">
-              <Link 
-                to="/subscription"
-                className="w-full flex items-center justify-between p-4 hover:bg-blue-50/50 rounded-2xl transition-all group block"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-base shadow-sm">
-                    💳
-                  </div>
-                  <div>
-                    <span className="text-sm font-bold text-blue-900 block">Subscription &amp; Plans</span>
-                    <span className="text-[11px] text-gray-400">View free trial status, passes &amp; receipts</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">PRO</span>
-                  <svg className="w-4 h-4 text-blue-200 group-hover:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
-              </Link>
-            </div>
-          </div>
-        )}
-
         {/* Legal Section */}
         <div className="mb-4">
           <h3 className="text-sm font-black text-blue-900/40 uppercase tracking-widest ml-1 mb-3">Legal & Support</h3>
@@ -495,7 +466,8 @@ const MobileMore = ({ stars, weeklyStars }) => {
           <p className="text-[10px] font-black text-blue-900 uppercase tracking-[0.3em]">Hoshiyaar Academy v5.1</p>
         </div>
       </div>
-    </div>
+
+      </div>
   );
 };
 

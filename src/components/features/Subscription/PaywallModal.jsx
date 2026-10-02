@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import paymentService from '../../../services/paymentService.js';
 
@@ -7,75 +6,64 @@ export default function PaywallModal({
   isOpen,
   onClose,
   onSuccess,
+  chapterId,
+  chapterTitle = '',
   moduleId,
   moduleTitle = 'Lesson',
-  variant = 'hybrid',
+  price = null,
   plans = [],
   mockMode = false,
   razorpayKeyId = ''
 }) {
-  const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [loadingCode, setLoadingCode] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const [billingCycle, setBillingCycle] = useState('annual'); // 'annual' | 'monthly'
   const [fetchedPlans, setFetchedPlans] = useState(plans);
+  const [defaultPrice, setDefaultPrice] = useState(50);
 
   useEffect(() => {
-    if (!plans || plans.length === 0) {
-      paymentService.getPublicConfig().then(cfg => {
-        if (cfg?.plans?.length) setFetchedPlans(cfg.plans);
-      }).catch(() => {});
-    } else {
-      setFetchedPlans(plans);
-    }
-  }, [plans]);
+    paymentService.getPublicConfig().then(cfg => {
+      if (cfg?.plans?.length) setFetchedPlans(cfg.plans);
+      if (cfg?.defaultChapterPrice) setDefaultPrice(cfg.defaultChapterPrice);
+      else if (cfg?.defaultLessonPrice) setDefaultPrice(cfg.defaultLessonPrice);
+    }).catch(() => {});
+  }, []);
 
   if (!isOpen) return null;
 
   const activePlans = fetchedPlans && fetchedPlans.length > 0 ? fetchedPlans : plans;
-
-  const annualPlan = activePlans.find((p) => p.code === 'annual_pass' || p.billingCycle === 'annual') || {
-    code: 'annual_pass',
-    name: 'Annual Unlimited Pass',
-    amount: 1999,
-    discountedFrom: 3588,
-    billingCycle: 'annual'
+  const chapterPlan = activePlans.find((p) => p.type === 'pay_per_chapter' || p.code === 'pay_per_chapter') || {
+    code: 'pay_per_chapter',
+    name: 'Pay Per Chapter (1 Year Pass)',
+    amount: defaultPrice,
+    discountedFrom: 99,
+    type: 'pay_per_chapter'
   };
 
-  const monthlyPlan = activePlans.find((p) => p.code === 'monthly_pass' || (p.type === 'subscription' && p.billingCycle === 'monthly')) || {
-    code: 'monthly_pass',
-    name: 'Monthly Unlimited Pass',
-    amount: 299,
-    discountedFrom: 499,
-    billingCycle: 'monthly'
-  };
+  const finalAmount = price != null && Number(price) > 0 ? Number(price) : (chapterPlan.amount || defaultPrice || 50);
+  const originalAmount = chapterPlan.discountedFrom || (finalAmount * 2);
 
-  const perLessonPlan = activePlans.find((p) => p.type === 'pay_per_lesson') || {
-    code: 'pay_per_lesson',
-    name: 'Unlock This Lesson',
-    amount: 19,
-    discountedFrom: 29,
-    type: 'pay_per_lesson'
-  };
+  const displayTitle = chapterTitle || moduleTitle || 'Chapter';
 
-  const handlePay = async (plan) => {
+  const handlePay = async () => {
     setErrorMsg('');
-    setLoadingCode(plan.code);
+    setLoading(true);
 
     try {
-      // 1. Create order
+      // 1. Create order for chapter
       const orderData = await paymentService.createOrder({
-        planCode: plan.code,
-        moduleId: plan.type === 'pay_per_lesson' ? moduleId : undefined
+        planCode: chapterPlan.code,
+        chapterId: chapterId,
+        moduleId: moduleId
       });
 
       // 2. Mock mode instant checkout
       if (orderData.mockMode) {
         const mockRes = await paymentService.mockSuccessPayment({
-          planCode: plan.code,
-          moduleId: plan.type === 'pay_per_lesson' ? moduleId : undefined
+          planCode: chapterPlan.code,
+          chapterId: chapterId,
+          moduleId: moduleId
         });
 
         if (mockRes.success) {
@@ -84,7 +72,7 @@ export default function PaywallModal({
         } else {
           setErrorMsg(mockRes.message || 'Mock payment simulation failed.');
         }
-        setLoadingCode(null);
+        setLoading(false);
         return;
       }
 
@@ -94,14 +82,14 @@ export default function PaywallModal({
         throw new Error('Could not load payment gateway. Please check your connection.');
       }
 
-      const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID || orderData.keyId;
+      const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID || orderData.keyId || razorpayKeyId;
 
       const options = {
         key: razorpayKey,
         amount: orderData.amountInPaise,
         currency: orderData.currency || 'INR',
         name: 'Hoshiyaar Learning',
-        description: plan.name,
+        description: `Unlock ${displayTitle} (1-Year Pass)`,
         order_id: orderData.order_id || orderData.orderId,
         prefill: {
           name: user?.username || '',
@@ -119,8 +107,9 @@ export default function PaywallModal({
               paymentId: response.razorpay_payment_id,
               payment_id: response.razorpay_payment_id,
               signature: response.razorpay_signature,
-              planCode: plan.code,
-              moduleId: plan.type === 'pay_per_lesson' ? moduleId : undefined
+              planCode: chapterPlan.code,
+              chapterId: chapterId,
+              moduleId: moduleId
             });
 
             if (verifyRes.success) {
@@ -132,12 +121,12 @@ export default function PaywallModal({
           } catch (err) {
             setErrorMsg(err.response?.data?.message || 'Payment verification error.');
           } finally {
-            setLoadingCode(null);
+            setLoading(false);
           }
         },
         modal: {
           ondismiss: () => {
-            setLoadingCode(null);
+            setLoading(false);
           }
         }
       };
@@ -146,208 +135,149 @@ export default function PaywallModal({
       rzp.on('payment.failed', (response) => {
         console.error('[Razorpay] Payment failed:', response?.error);
         setErrorMsg(response?.error?.description || response?.error?.reason || 'Payment failed. Please try again.');
-        setLoadingCode(null);
+        setLoading(false);
       });
       rzp.open();
     } catch (err) {
       console.error('Payment error:', err);
       setErrorMsg(err.response?.data?.message || err.message || 'Payment failed to initiate.');
-      setLoadingCode(null);
+      setLoading(false);
     }
   };
 
-  const showMonthlyOnly = variant === 'monthly_only';
-  const showLessonOnly = variant === 'pay_per_lesson_only';
-  const showBoth = !showMonthlyOnly && !showLessonOnly;
+  const whatsappMessage = encodeURIComponent(
+    `Hi! I would like to discuss unlocking Chapter "${displayTitle}" on Hoshiyaar.`
+  );
+  const whatsappUrl = `https://wa.me/918310532323?text=${whatsappMessage}`;
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in font-sans">
-      <div className="bg-white rounded-3xl max-w-md w-full p-4 sm:p-5 shadow-2xl relative border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl relative border border-gray-100 overflow-hidden transform transition-all">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center font-bold text-sm transition-colors z-10"
+          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center font-bold text-sm transition-colors z-10 active:scale-95 cursor-pointer"
+          aria-label="Close"
         >
           ✕
         </button>
 
-        {/* Header Badge */}
-        <div className="text-center mb-3">
-          <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center mx-auto mb-1.5 text-xl shadow-inner">
+        {/* Header Icon & Tag */}
+        <div className="text-center mb-4">
+          <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-500 border border-amber-200/80 flex items-center justify-center mx-auto mb-2.5 text-2xl shadow-inner">
             🔒
           </div>
-          <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 inline-block mb-1">
-            Lesson Locked
+          <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-amber-100/70 text-amber-800 border border-amber-200 inline-block mb-1.5">
+            Chapter Locked • 1-Year Pass
           </span>
-          <h2 className="text-lg sm:text-xl font-black text-gray-900 leading-snug line-clamp-1 px-4">
-            Unlock {moduleTitle}
+          <h2 className="text-xl sm:text-2xl font-black text-gray-900 leading-snug px-2">
+            Unlock {displayTitle}
           </h2>
-          <p className="text-xs text-gray-500 mt-0.5 leading-tight">
-            First lesson is free! Select an option below to continue learning.
+          <p className="text-xs font-semibold text-blue-600 mt-1">
+            Includes Chapter Exam Mode & all interactive lessons for 1 Year
+          </p>
+          <p className="text-[11px] text-gray-400 mt-0.5">
+            Valid for 365 days from purchase • No automatic renewals
           </p>
         </div>
 
         {/* Mock Sandbox Notice */}
         {mockMode && (
-          <div className="mb-2.5 bg-amber-50 border border-amber-200 text-amber-900 text-[11px] rounded-xl px-2.5 py-1.5 flex items-center justify-between">
+          <div className="mb-3 bg-amber-50 border border-amber-200 text-amber-900 text-xs rounded-xl px-3 py-2 flex items-center justify-between">
             <span>🧪 <strong>Sandbox Active</strong>: 1-click test checkout</span>
-            <span className="bg-amber-200 text-amber-800 text-[9px] font-bold px-1.5 py-0.5 rounded">TEST</span>
+            <span className="bg-amber-200 text-amber-800 text-[9px] font-black px-1.5 py-0.5 rounded">TEST</span>
           </div>
         )}
 
         {/* Error Alert */}
         {errorMsg && (
-          <div className="mb-2.5 bg-red-50 border border-red-200 text-red-700 text-[11px] rounded-xl px-2.5 py-1.5 flex items-center justify-between">
+          <div className="mb-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl px-3 py-2 flex items-center justify-between">
             <span>⚠️ {errorMsg}</span>
             <button onClick={() => setErrorMsg('')} className="font-bold ml-2">✕</button>
           </div>
         )}
 
-        {/* Billing Toggle Switch */}
-        {(showBoth || showMonthlyOnly) && (
-          <div className="flex bg-gray-100 p-1 rounded-xl mb-2.5 border border-gray-200/80">
-            <button
-              type="button"
-              onClick={() => setBillingCycle('annual')}
-              className={`flex-1 py-1 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-                billingCycle === 'annual'
-                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs'
-                  : 'text-gray-500 hover:text-gray-900'
-              }`}
-            >
-              <span>⭐ Annual Pass</span>
-              <span className={`text-[9px] uppercase font-black px-1.5 py-0.5 rounded-full ${
-                billingCycle === 'annual' ? 'bg-amber-400 text-amber-950' : 'bg-green-100 text-green-800'
-              }`}>
-                Save 45%
-              </span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setBillingCycle('monthly')}
-              className={`flex-1 py-1 rounded-lg text-xs font-bold transition-all ${
-                billingCycle === 'monthly'
-                  ? 'bg-white text-blue-700 shadow-xs'
-                  : 'text-gray-500 hover:text-gray-900'
-              }`}
-            >
-              Monthly (₹299)
-            </button>
+        {/* Pricing Card */}
+        <div className="bg-gradient-to-br from-indigo-50/80 via-blue-50/60 to-purple-50/50 rounded-2xl p-4 border-2 border-indigo-100 mb-4 shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-extrabold text-indigo-900 uppercase tracking-wider">
+              1-Year Chapter Pass
+            </span>
+            <span className="text-[10px] font-black uppercase tracking-wider bg-indigo-600 text-white px-2 py-0.5 rounded-full shadow-xs">
+              365 Days Access
+            </span>
           </div>
-        )}
 
-        {/* Option Choices */}
-        <div className="space-y-2 mb-3">
-          {/* Unlimited Pass Choice (Annual or Monthly according to toggle) */}
-          {(showBoth || showMonthlyOnly) && (
-            billingCycle === 'annual' ? (
-              <div className="p-3 rounded-2xl border-2 border-indigo-500 bg-gradient-to-r from-blue-50/90 to-indigo-50/90 relative shadow-xs animate-fade-in">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-extrabold text-gray-900 text-xs sm:text-sm">
-                    Annual Unlimited Pass
-                  </span>
-                  <span className="text-[9px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 py-0.5 rounded-full shadow-xs">
-                    Save 45% • Best Value
-                  </span>
-                </div>
-                <p className="text-[11px] text-gray-600 mb-2 leading-tight">
-                  Full <strong>1 Year</strong> unlimited access to all chapters, AI explanations & revisions.
-                </p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-xl font-black text-gray-900">₹{annualPlan.amount}</span>
-                    <span className="text-[11px] text-gray-500">/ yr</span>
-                    {annualPlan.discountedFrom > annualPlan.amount && (
-                      <span className="text-[11px] text-gray-400 line-through">₹{annualPlan.discountedFrom}</span>
-                    )}
-                  </div>
-                  <button
-                    disabled={loadingCode === annualPlan.code}
-                    onClick={() => handlePay(annualPlan)}
-                    className="px-3.5 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs rounded-xl transition-transform active:scale-95 shadow-sm flex items-center gap-1"
-                  >
-                    {loadingCode === annualPlan.code ? 'Starting...' : 'Get 1-Yr Pass'}
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="p-3 rounded-2xl border-2 border-blue-400 bg-blue-50/50 relative shadow-xs animate-fade-in">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-extrabold text-gray-900 text-xs sm:text-sm">
-                    Monthly Unlimited Pass
-                  </span>
-                  <span className="text-[10px] font-semibold text-blue-700 bg-blue-100 px-1.5 py-0.5 rounded">
-                    30 Days
-                  </span>
-                </div>
-                <p className="text-[11px] text-gray-600 mb-2 leading-tight">
-                  Unlimited access to all chapters & AI feedback for 30 days. Cancel anytime.
-                </p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-lg font-black text-gray-900">₹{monthlyPlan.amount}</span>
-                    <span className="text-[11px] text-gray-500">/ mo</span>
-                    {monthlyPlan.discountedFrom > monthlyPlan.amount && (
-                      <span className="text-[11px] text-gray-400 line-through">₹{monthlyPlan.discountedFrom}</span>
-                    )}
-                  </div>
-                  <button
-                    disabled={loadingCode === monthlyPlan.code}
-                    onClick={() => handlePay(monthlyPlan)}
-                    className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition-transform active:scale-95 shadow-xs"
-                  >
-                    {loadingCode === monthlyPlan.code ? 'Starting...' : 'Get Pass'}
-                  </button>
-                </div>
-              </div>
-            )
-          )}
+          <div className="flex items-baseline gap-2 mb-3">
+            <span className="text-3xl font-black text-gray-900">₹{finalAmount}</span>
+            <span className="text-xs font-bold text-gray-500">/ 1 year</span>
+            {originalAmount > finalAmount && (
+              <span className="text-xs text-gray-400 line-through font-semibold">₹{originalAmount}</span>
+            )}
+          </div>
 
-          {/* Option 2: Single Lesson Pass */}
-          {(showBoth || showLessonOnly) && (
-            <div className="p-2.5 sm:p-3 rounded-2xl border border-gray-200 bg-white hover:border-gray-300 transition-all">
-              <div className="flex items-center justify-between mb-0.5">
-                <span className="font-bold text-gray-800 text-xs sm:text-sm">
-                  Unlock This Lesson Only
-                </span>
-                <span className="text-[10px] font-semibold text-gray-500">
-                  Lifetime
-                </span>
-              </div>
-              <p className="text-[11px] text-gray-500 mb-1.5 leading-tight">
-                Permanent unlock for this specific lesson and quizzes.
-              </p>
-              <div className="flex items-center justify-between">
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-lg font-black text-gray-800">₹{perLessonPlan.amount}</span>
-                  {perLessonPlan.discountedFrom > perLessonPlan.amount && (
-                    <span className="text-[11px] text-gray-400 line-through">₹{perLessonPlan.discountedFrom}</span>
-                  )}
-                </div>
-                <button
-                  disabled={loadingCode === perLessonPlan.code}
-                  onClick={() => handlePay(perLessonPlan)}
-                  className="px-3.5 py-1.5 bg-gray-900 hover:bg-black text-white font-bold text-xs rounded-xl transition-transform active:scale-95 shadow-xs"
-                >
-                  {loadingCode === perLessonPlan.code ? 'Unlocking...' : `Unlock for ₹${perLessonPlan.amount}`}
-                </button>
-              </div>
-            </div>
-          )}
+          {/* Benefit Bullets */}
+          <ul className="space-y-1.5 text-xs text-gray-700">
+            <li className="flex items-center gap-2">
+              <span className="text-green-600 font-bold">✓</span>
+              <span>1 Full Year access to all lessons in this chapter</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-green-600 font-bold">✓</span>
+              <span>Unlocks Chapter Exam Mode with instant AI evaluation</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-green-600 font-bold">✓</span>
+              <span>Interactive quizzes, challenges & revision cards</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-green-600 font-bold">✓</span>
+              <span>Continuous score tracking & detailed review analyses</span>
+            </li>
+          </ul>
         </div>
 
-        {/* Footer Link to Dedicated Subscription Page */}
-        <div className="text-center pt-1.5 border-t border-gray-100">
+        {/* Action Buttons */}
+        <div className="space-y-2.5">
+          {/* Primary: Pay Now */}
           <button
-            onClick={() => {
-              onClose?.();
-              navigate('/subscription');
-            }}
-            className="text-xs text-blue-600 hover:text-blue-800 font-bold inline-flex items-center gap-1 transition-colors"
+            disabled={loading}
+            onClick={handlePay}
+            className="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-sm rounded-2xl transition-all shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
           >
-            <span>Compare all VIP plans & details</span>
-            <span>→</span>
+            {loading ? (
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>Opening Checkout...</span>
+              </div>
+            ) : (
+              <>
+                <span>Pay ₹{finalAmount} to Unlock Chapter (1 Year)</span>
+                <span>⚡</span>
+              </>
+            )}
           </button>
+
+          {/* Secondary: Discuss on WhatsApp */}
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full py-3 px-4 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-xs rounded-2xl transition-all shadow-sm hover:shadow-md active:scale-[0.98] flex items-center justify-center gap-2 text-center cursor-pointer"
+          >
+            {/* WhatsApp SVG Icon */}
+            <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+            </svg>
+            <span>Discuss on WhatsApp (+91 831 053 2323)</span>
+          </a>
+        </div>
+
+        {/* Footer info */}
+        <div className="text-center pt-3 mt-3 border-t border-gray-100">
+          <p className="text-[11px] text-gray-400">
+            100% safe & encrypted payments via Razorpay • UPI, Cards & NetBanking
+          </p>
         </div>
       </div>
     </div>

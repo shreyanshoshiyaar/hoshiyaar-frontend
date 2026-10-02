@@ -4,6 +4,7 @@ import curriculumService from '../../services/curriculumService';
 const SystemSettingsManager = () => {
   const [missionVideoUrl, setMissionVideoUrl] = useState('');
   const [missionVideoDesktopUrl, setMissionVideoDesktopUrl] = useState('');
+  const [onboardingVideoUrl, setOnboardingVideoUrl] = useState('');
   const [homepageSlides, setHomepageSlides] = useState(['', '', '', '', '', '']);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [examModeLive, setExamModeLive] = useState(false);
@@ -26,6 +27,10 @@ const SystemSettingsManager = () => {
       const resDesktopVideo = await curriculumService.getSetting('mission_video_desktop_url');
       if (resDesktopVideo.data) {
         setMissionVideoDesktopUrl(resDesktopVideo.data.value || '');
+      }
+      const resOnboarding = await curriculumService.getSetting('onboarding_video_url');
+      if (resOnboarding.data) {
+        setOnboardingVideoUrl(resOnboarding.data.value || '');
       }
       const resSlides = await curriculumService.getSetting('homepage_slides');
       if (resSlides.data && Array.isArray(resSlides.data.value)) {
@@ -115,6 +120,48 @@ const SystemSettingsManager = () => {
       setTimeout(() => setMessage({ text: '', type: '' }), 3000);
     } catch (err) {
       setMessage({ text: 'Failed to update desktop video.', type: 'error' });
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveOnboardingVideo = async () => {
+    if (!onboardingVideoUrl) return;
+    const normalizedUrl = normalizeYoutubeUrl(onboardingVideoUrl);
+    try {
+      setSaving(true);
+      setMessage({ text: '', type: '' });
+      await curriculumService.updateSetting({
+        key: 'onboarding_video_url',
+        value: normalizedUrl,
+        description: "YouTube link for onboarding video played when clicking the WhatsApp button on Welcome Screen"
+      });
+      setOnboardingVideoUrl(normalizedUrl);
+      setMessage({ text: 'Onboarding video updated successfully! ✨', type: 'success' });
+      setTimeout(() => setMessage({ text: '', type: '' }), 3000);
+    } catch (err) {
+      setMessage({ text: 'Failed to update onboarding video.', type: 'error' });
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleClearOnboardingVideo = async () => {
+    try {
+      setSaving(true);
+      setMessage({ text: '', type: '' });
+      await curriculumService.updateSetting({
+        key: 'onboarding_video_url',
+        value: '',
+        description: "YouTube link for onboarding video played when clicking the WhatsApp button on Welcome Screen"
+      });
+      setOnboardingVideoUrl('');
+      setMessage({ text: 'Onboarding video cleared! WhatsApp button now directly opens chat. ✅', type: 'success' });
+      setTimeout(() => setMessage({ text: '', type: '' }), 3000);
+    } catch (err) {
+      setMessage({ text: 'Failed to clear onboarding video.', type: 'error' });
       console.error(err);
     } finally {
       setSaving(false);
@@ -411,6 +458,92 @@ const SystemSettingsManager = () => {
                 <div className="aspect-video w-full rounded-2xl overflow-hidden border-2 border-gray-100 bg-black">
                   <iframe className="w-full h-full" src={missionVideoDesktopUrl} title="Preview Desktop" frameBorder="0" allowFullScreen></iframe>
                 </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ONBOARDING VIDEO (WHATSAPP MODAL) SECTION */}
+      <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+            <span className="text-xl">🎬</span>
+          </div>
+          <div>
+            <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight">Welcome Screen Onboarding Video</h2>
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+              Plays when a student clicks "Chat with us on WhatsApp" on the Welcome Screen
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-6 flex flex-col md:flex-row gap-6">
+          <div className="flex-1 space-y-4">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-emerald-600 uppercase tracking-wider ml-1">
+                YouTube Video Link (Shorts, Regular, or Embed)
+              </label>
+              <div className="flex flex-col gap-3">
+                <input 
+                  type="text" 
+                  value={onboardingVideoUrl}
+                  onChange={(e) => setOnboardingVideoUrl(e.target.value)}
+                  placeholder="Paste YouTube link (e.g. https://youtu.be/... or https://youtube.com/watch?v=...)"
+                  className="w-full bg-gray-50 border-2 border-gray-50 rounded-2xl p-4 text-sm font-bold text-gray-800 focus:outline-none focus:border-emerald-100 transition-all"
+                  disabled={loading}
+                />
+
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button 
+                    onClick={handleSaveOnboardingVideo}
+                    disabled={saving || loading || !onboardingVideoUrl}
+                    className={`flex-1 py-4 rounded-2xl text-sm font-black uppercase tracking-widest transition-all active:scale-[0.98] ${
+                      saving || loading || !onboardingVideoUrl
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-emerald-600 text-white shadow-lg shadow-emerald-100 hover:bg-emerald-700'
+                    }`}
+                  >
+                    {saving ? 'Saving...' : 'Save Onboarding Video'}
+                  </button>
+
+                  {onboardingVideoUrl && (
+                    <button
+                      onClick={handleClearOnboardingVideo}
+                      disabled={saving || loading}
+                      className="py-4 px-6 rounded-2xl text-xs font-black uppercase tracking-wider text-rose-600 bg-rose-50 hover:bg-rose-100 transition-all border border-rose-200"
+                    >
+                      Remove Video (Direct WhatsApp)
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <p className="text-xs text-gray-500 pt-1">
+                ℹ️ <strong>Behavior:</strong> If a video link is set, clicking "Chat with us on WhatsApp" opens a popup modal playing this onboarding video first, with a button to proceed to WhatsApp if they still have questions. If left blank, it opens WhatsApp directly.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex-1">
+            {onboardingVideoUrl ? (
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-wider ml-1">Live Video Preview</label>
+                <div className="aspect-video w-full rounded-2xl overflow-hidden border-2 border-emerald-100 bg-black shadow-sm">
+                  <iframe 
+                    className="w-full h-full" 
+                    src={onboardingVideoUrl} 
+                    title="Onboarding Video Preview" 
+                    frameBorder="0" 
+                    allowFullScreen
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="h-full min-h-[160px] rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-center p-6 bg-gray-50/50">
+                <span className="text-3xl mb-2">💬</span>
+                <span className="text-xs font-bold text-gray-500">No video currently set</span>
+                <span className="text-[11px] text-gray-400 mt-1 max-w-xs">WhatsApp button currently opens direct WhatsApp chat without playing a video.</span>
               </div>
             )}
           </div>

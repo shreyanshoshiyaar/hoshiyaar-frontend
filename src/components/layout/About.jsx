@@ -11,7 +11,7 @@ const About = () => {
       <div className="bg-gradient-to-b from-blue-50 to-white py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center gap-4 mb-12">
-            <BackButton onClick={() => navigate(-1)} />
+            <BackButton />
             <h1 className="text-4xl md:text-5xl font-black text-blue-700 tracking-tight">About Hoshiyaar</h1>
           </div>
 

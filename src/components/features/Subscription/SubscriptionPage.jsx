@@ -4,10 +4,19 @@ import { useAuth } from '../../../context/AuthContext.jsx';
 import paymentService from '../../../services/paymentService.js';
 import SimpleLoading from '../../ui/SimpleLoading.jsx';
 import LessonUnlockModal from './LessonUnlockModal.jsx';
+import Footer from '../../layout/Footer.jsx';
 
 export default function SubscriptionPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  const handleBack = () => {
+    if (window.history.state && typeof window.history.state.idx === 'number' && window.history.state.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate('/home', { replace: true });
+    }
+  };
 
   const [loading, setLoading] = useState(true);
   const [userStatus, setUserStatus] = useState(null);
@@ -84,8 +93,8 @@ export default function SubscriptionPage() {
   };
 
   const handleCheckout = async (plan) => {
-    // If user clicked Single Lesson Pass, open Chapter & Lesson Selector modal
-    if (plan.type === 'pay_per_lesson' || plan.code === 'pay_per_lesson') {
+    // If user clicked Pay Per Chapter or Single Lesson Pass, open Chapter Selector modal
+    if (plan.type === 'pay_per_chapter' || plan.code === 'pay_per_chapter' || plan.type === 'pay_per_lesson' || plan.code === 'pay_per_lesson') {
       setShowLessonSelector(true);
       return;
     }
@@ -180,19 +189,37 @@ export default function SubscriptionPage() {
     }
   };
 
-  const annualPlan = plans.find((p) => p.code === 'annual_pass' || p.billingCycle === 'annual');
-  const monthlyPlan = plans.find((p) => p.code === 'monthly_pass' || (p.type === 'subscription' && p.billingCycle === 'monthly'));
-  const perLessonPlan = plans.find((p) => p.type === 'pay_per_lesson');
+  const perChapterPrice = config?.defaultChapterPrice || 50;
+  const perLessonPrice = config?.defaultLessonPrice || 50;
+
+  const perChapterPlan = plans.find((p) => p.type === 'pay_per_chapter' || p.code === 'pay_per_chapter') || {
+    code: 'pay_per_chapter',
+    name: 'Pay Per Chapter (1-Year Pass)',
+    description: '1-Year unlimited access to all lessons & Chapter Exam Mode for any selected chapter',
+    amount: perChapterPrice,
+    discountedFrom: 99,
+    type: 'pay_per_chapter',
+    billingCycle: 'per_chapter',
+    badge: 'BEST VALUE',
+    features: [
+      '1 Year full access to all lessons in the chapter',
+      'Chapter Exam Mode with AI descriptive evaluation & scoring',
+      'Detailed question-by-question review & performance analytics',
+      'First level in every chapter free to preview',
+      'Zero recurring charges — pay only ₹50 per chapter'
+    ]
+  };
+
+  const perLessonPlan = plans.find((p) => p.type === 'pay_per_lesson' || p.code === 'pay_per_lesson') || {
+    code: 'pay_per_lesson',
+    name: 'Single Lesson Pass',
+    amount: perLessonPrice,
+    type: 'pay_per_lesson'
+  };
 
   const displayedPlans = React.useMemo(() => {
-    if (billingCycle === 'monthly') {
-      return [monthlyPlan, perLessonPlan].filter(Boolean);
-    }
-    if (billingCycle === 'annual') {
-      return [annualPlan, perLessonPlan].filter(Boolean);
-    }
-    return plans;
-  }, [billingCycle, plans, annualPlan, monthlyPlan, perLessonPlan]);
+    return [perChapterPlan];
+  }, [perChapterPlan]);
 
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
@@ -214,13 +241,14 @@ export default function SubscriptionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-gray-50 font-sans pb-16">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-gray-50 font-sans flex flex-col justify-between">
       {/* Top Header */}
       <div className="bg-white/80 backdrop-blur-md sticky top-0 z-30 border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-gray-700 hover:text-blue-600 font-semibold text-sm transition-colors"
+            type="button"
+            onClick={handleBack}
+            className="flex items-center gap-2 text-gray-700 hover:text-blue-600 font-semibold text-sm transition-colors cursor-pointer"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
@@ -236,7 +264,7 @@ export default function SubscriptionPage() {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 pt-6 sm:pt-10">
+      <div className="max-w-6xl mx-auto px-4 pt-6 sm:pt-10 pb-16 w-full flex-1">
 
         {/* Success / Error Alerts */}
         {successMessage && (
@@ -259,200 +287,151 @@ export default function SubscriptionPage() {
           </div>
         )}
 
+        {/* Desktop 2-Column Hero Section: Left = Heading & Value Props, Right = Plan Card */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center mb-12">
+          {/* Left Column: Text & Value Propositions */}
+          <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-100 text-blue-800 text-xs font-extrabold uppercase tracking-wider mb-4">
+              <span>💎 UPGRADE YOUR LEARNING</span>
+            </div>
 
+            <h1 className="text-3xl sm:text-5xl font-black text-gray-900 tracking-tight leading-tight sm:leading-tight">
+              Simple, Transparent Pricing
+            </h1>
 
-        {/* Heading & Value Proposition (Pricing Section at Top) */}
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-bold uppercase tracking-wider mb-2.5">
-            <span>💎 Upgrade Your Learning</span>
-          </div>
-          <h1 className="text-2xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
-            Simple, Transparent Pricing
-          </h1>
-          <p className="text-gray-600 mt-2 text-sm sm:text-base max-w-xl mx-auto">
-            Choose the pass that best fits your study routine. Instant activation, zero hidden charges, cancel anytime.
-          </p>
-        </div>
+            <p className="text-gray-600 mt-3 text-sm sm:text-base max-w-xl leading-relaxed">
+              Choose the pass that best fits your study routine. Instant activation, zero hidden charges, no recurring auto-debits.
+            </p>
 
-        {/* Billing Cycle Switcher Toggle */}
-        <div className="flex flex-col items-center justify-center mb-8">
-          <div className="inline-flex bg-gray-100 p-1.5 rounded-2xl border border-gray-200/80 shadow-inner">
-            <button
-              onClick={() => setBillingCycle('monthly')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-                billingCycle === 'monthly'
-                  ? 'bg-white text-blue-700 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-800'
-              }`}
-            >
-              📅 Monthly
-            </button>
-            <button
-              onClick={() => setBillingCycle('annual')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 ${
-                billingCycle === 'annual'
-                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-sm'
-                  : 'text-gray-500 hover:text-gray-800'
-              }`}
-            >
-              <span>⭐ Annually</span>
-              <span className={`text-[10px] uppercase font-black px-2 py-0.5 rounded-full ${
-                billingCycle === 'annual' ? 'bg-amber-400 text-amber-950' : 'bg-green-100 text-green-800'
-              }`}>
-                Save 45% 🔥
-              </span>
-            </button>
-            <button
-              onClick={() => setBillingCycle('all')}
-              className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-                billingCycle === 'all'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-400 hover:text-gray-700'
-              }`}
-            >
-              Compare All
-            </button>
-          </div>
-          <p className="text-[11px] text-gray-500 mt-2 font-medium text-center">
-            {billingCycle === 'annual'
-              ? '⚡ Annual Pass: ₹1,999 / year (Just ₹166/month — Save 45% over monthly)'
-              : billingCycle === 'monthly'
-              ? '📅 Monthly Pass: ₹299 / month — Cancel anytime with 1 click'
-              : '👁️ Viewing Monthly, Annual & Single Lesson passes side-by-side'}
-          </p>
-        </div>
+            {/* Pay Per Chapter Banner Pill */}
+            <div className="mt-5 inline-flex items-center gap-2.5 bg-indigo-50 border border-indigo-200/80 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold text-indigo-900 shadow-2xs">
+              <span className="text-lg">⚡</span>
+              <span>Pay Per Chapter • Only <strong>₹{perChapterPlan.amount}</strong> / chapter • Valid for 1 Year</span>
+            </div>
 
-        {/* Plans Grid */}
-        <div className={`grid gap-6 mb-10 items-stretch ${
-          billingCycle === 'all'
-            ? 'grid-cols-1 lg:grid-cols-3'
-            : 'grid-cols-1 md:grid-cols-2 max-w-3xl mx-auto'
-        }`}>
-          {displayedPlans.map((plan) => {
-            const isAnnual = plan.billingCycle === 'annual';
-            const isMonthly = plan.billingCycle === 'monthly';
-            const isPerLesson = plan.type === 'pay_per_lesson';
-            const isCurrentActivePlan = isSubscribed && (
-              userStatus?.activePlan?.code === plan.code ||
-              (!userStatus?.activePlan?.code && plan.code === 'monthly_pass')
-            );
-
-            return (
-              <div
-                key={plan.code}
-                className={`rounded-3xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-200 relative h-full ${
-                  isAnnual
-                    ? 'bg-gradient-to-b from-[#1E293B] via-[#0F172A] to-[#1E1B4B] text-white shadow-xl shadow-indigo-900/30 border-2 border-amber-400/60 z-10'
-                    : isMonthly
-                    ? 'bg-white text-gray-900 border-2 border-blue-200 shadow-sm hover:shadow-md'
-                    : 'bg-white text-gray-900 border-2 border-gray-200 shadow-sm hover:shadow-md'
-                }`}
-              >
-                {/* Badge */}
-                {plan.badge && (
-                  <div className="absolute -top-3 left-6">
-                    <span
-                      className={`text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-sm ${
-                        isAnnual
-                          ? 'bg-gradient-to-r from-amber-400 to-yellow-300 text-amber-950 border border-amber-500/40'
-                          : isMonthly
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-100 text-gray-700'
-                      }`}
-                    >
-                      {plan.badge}
-                    </span>
-                  </div>
-                )}
-
-                <div className="flex-1 flex flex-col">
-                  {/* Plan Name & Desc */}
-                  <h3 className={`text-xl font-bold mt-2 ${isAnnual ? 'text-white' : 'text-gray-900'}`}>
-                    {plan.name}
-                  </h3>
-                  <p className={`text-xs mt-1 mb-5 min-h-[32px] ${isAnnual ? 'text-blue-200' : 'text-gray-500'}`}>
-                    {plan.description}
-                  </p>
-
-                  {/* Price in plain Rupees */}
-                  <div className="flex items-baseline gap-2 mb-1">
-                    <span className="text-4xl sm:text-5xl font-black">
-                      ₹{plan.amount}
-                    </span>
-                    <span className={`text-xs font-semibold ${isAnnual ? 'text-blue-200' : 'text-gray-500'}`}>
-                      {isAnnual ? '/ year' : isMonthly ? '/ month' : '/ lesson'}
-                    </span>
-                    {plan.discountedFrom > plan.amount && (
-                      <span className={`text-xs line-through ml-2 ${isAnnual ? 'text-blue-300/80' : 'text-gray-400'}`}>
-                        ₹{plan.discountedFrom}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Sub-price callout */}
-                  <p className={`text-[11px] font-bold mb-6 ${isAnnual ? 'text-amber-300' : 'text-gray-400'}`}>
-                    {isAnnual ? '⚡ Equivalent to ₹166 / month • Save 45%' : isMonthly ? 'Flexible 30-day pass' : 'Pay once, keep forever'}
-                  </p>
-
-                  {/* Feature Checklist */}
-                  <div className="space-y-3 mb-8 flex-1">
-                    {(plan.features || []).map((feat, idx) => (
-                      <div key={idx} className="flex items-start gap-2.5">
-                        <div
-                          className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-xs font-black ${
-                            isAnnual
-                              ? 'bg-amber-400/20 text-amber-300'
-                              : isMonthly
-                              ? 'bg-blue-100 text-blue-700'
-                              : 'bg-green-100 text-green-700'
-                          }`}
-                        >
-                          ✓
-                        </div>
-                        <span className={`text-xs ${isAnnual ? 'text-blue-100' : 'text-gray-600'}`}>
-                          {feat}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+            {/* Value Pillars List */}
+            <div className="mt-6 space-y-3.5 w-full max-w-lg text-left">
+              <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-white border border-gray-200/80 shadow-2xs">
+                <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 text-base font-bold">
+                  ⚡
                 </div>
-
-                {/* Action CTA */}
-                <div className="mt-auto pt-2">
-                  <button
-                    data-testid={isPerLesson ? "single-lesson-unlock-btn" : isAnnual ? "annual-pass-btn" : "monthly-pass-btn"}
-                    disabled={isCurrentActivePlan || processingPlanCode === plan.code}
-                    onClick={() => handleCheckout(plan)}
-                    className={`w-full py-3 px-5 rounded-2xl font-bold text-sm transition-all active:scale-95 shadow-md flex items-center justify-center gap-2 ${
-                      isCurrentActivePlan
-                        ? 'bg-green-500 text-white cursor-default'
-                        : isAnnual
-                        ? 'bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 shadow-amber-500/20'
-                        : isMonthly
-                        ? 'bg-blue-600 text-white hover:bg-blue-700'
-                        : 'bg-gray-900 text-white hover:bg-black'
-                    }`}
-                  >
-                    {processingPlanCode === plan.code ? (
-                      <span>Processing...</span>
-                    ) : isCurrentActivePlan ? (
-                      <span>✓ Current Active Plan</span>
-                    ) : isAnnual ? (
-                      <span>Get Annual Pass (Save 45%)</span>
-                    ) : isMonthly ? (
-                      <span>Get Monthly Pass</span>
-                    ) : (
-                      <span>Unlock When Needed</span>
-                    )}
-                  </button>
-
-                  <p className={`text-center text-[11px] mt-2.5 ${isAnnual ? 'text-blue-300' : 'text-gray-400'}`}>
-                    {isAnnual ? '1 Full Year Unlimited Access' : isMonthly ? 'Cancel anytime with 1 click' : 'Pay only for lessons you want'}
-                  </p>
+                <div>
+                  <h4 className="text-xs sm:text-sm font-bold text-gray-900">Pay Only For What You Study</h4>
+                  <p className="text-[11px] sm:text-xs text-gray-500 mt-0.5">₹{perChapterPlan.amount} per chapter with 1 full year of unlimited access. No monthly auto-debits.</p>
                 </div>
               </div>
-            );
-          })}
+
+              <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-white border border-gray-200/80 shadow-2xs">
+                <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 text-base font-bold">
+                  📝
+                </div>
+                <div>
+                  <h4 className="text-xs sm:text-sm font-bold text-gray-900">Includes Chapter Exam Mode</h4>
+                  <p className="text-[11px] sm:text-xs text-gray-500 mt-0.5">Full access to unit exams with AI descriptive scoring and instant answer feedback.</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-white border border-gray-200/80 shadow-2xs">
+                <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 text-base font-bold">
+                  ✨
+                </div>
+                <div>
+                  <h4 className="text-xs sm:text-sm font-bold text-gray-900">First Level Free in Every Chapter</h4>
+                  <p className="text-[11px] sm:text-xs text-gray-500 mt-0.5">Preview lessons and quizzes completely free before unlocking the full chapter.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Normal Light Themed Plan Card */}
+          <div className="lg:col-span-5 flex justify-center w-full">
+            {displayedPlans.map((plan) => {
+              return (
+                <div
+                  key={plan.code}
+                  className="w-full max-w-md rounded-3xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-200 relative bg-white text-gray-900 shadow-xl shadow-indigo-100/50 border-2 border-indigo-200 hover:border-indigo-300 z-10"
+                >
+                  {/* Badge */}
+                  {plan.badge && (
+                    <div className="absolute -top-3.5 left-6">
+                      <span className="text-[11px] font-black uppercase tracking-wider px-3.5 py-1 rounded-full shadow-sm bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 border border-amber-300">
+                        {plan.badge}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex-1 flex flex-col">
+                    {/* Plan Name & Desc */}
+                    <h3 className="text-xl sm:text-2xl font-black mt-1 text-gray-900">
+                      {plan.name}
+                    </h3>
+                    <p className="text-xs mt-1.5 mb-5 min-h-[32px] text-gray-500 leading-relaxed">
+                      {plan.description}
+                    </p>
+
+                    {/* Price in plain Rupees */}
+                    <div className="flex items-baseline gap-2 mb-1">
+                      <span className="text-4xl sm:text-5xl font-black text-gray-900 tracking-tight">
+                        ₹{plan.amount}
+                      </span>
+                      <span className="text-xs font-semibold text-gray-500">
+                        / chapter (1-Year Pass)
+                      </span>
+                      {plan.discountedFrom > plan.amount && (
+                        <span className="text-xs line-through ml-2 text-gray-400">
+                          ₹{plan.discountedFrom}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Sub-price callout */}
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200/80 text-[11px] font-bold text-amber-900 mb-6">
+                      <span>⚡</span>
+                      <span>1-Year Access to Lessons + Chapter Exam Mode</span>
+                    </div>
+
+                    {/* Feature Checklist */}
+                    <div className="space-y-3 mb-8 flex-1">
+                      {(plan.features || []).map((feat, idx) => (
+                        <div key={idx} className="flex items-start gap-2.5">
+                          <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-xs font-black bg-emerald-100 text-emerald-700">
+                            ✓
+                          </div>
+                          <span className="text-xs font-semibold text-gray-700 leading-relaxed">
+                            {feat}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Action CTA */}
+                  <div className="mt-auto pt-2 space-y-2.5">
+                    <button
+                      data-testid="unlock-chapter-btn"
+                      disabled={processingPlanCode === plan.code}
+                      onClick={() => handleCheckout(plan)}
+                      className="w-full py-3.5 px-5 rounded-2xl font-bold text-sm transition-all active:scale-95 shadow-md flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-blue-500/20 cursor-pointer"
+                    >
+                      <span>Unlock a Chapter (₹{plan.amount} / 1 Year) ⚡</span>
+                    </button>
+
+                    <a
+                      href={`https://wa.me/918310532323?text=${encodeURIComponent('Hi! I would like to inquire about unlocking chapters for ₹50 on Hoshiyaar.')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full py-2.5 px-4 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <span>💬 Discuss on WhatsApp (+91 831 053 2323)</span>
+                    </a>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <p className="text-[11px] text-gray-500 font-medium text-center mt-3">
+            * All subscription and chapter pass prices are subject to change without prior notice.
+          </p>
         </div>
 
         {/* Trust, Security & Payment Assurance Section */}
@@ -621,6 +600,86 @@ export default function SubscriptionPage() {
           </div>
         </div>
 
+        {/* Unlocked Chapters List (1-Year Pass) */}
+        {userStatus?.purchasedChapters && userStatus.purchasedChapters.length > 0 && (
+          <div className="bg-white rounded-3xl p-6 sm:p-7 shadow-xs border border-indigo-200 mb-10">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-indigo-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-xl shrink-0">
+                  📚
+                </div>
+                <div>
+                  <h3 className="text-lg font-extrabold text-gray-900">
+                    My Unlocked Chapters ({userStatus.purchasedChapters.length})
+                  </h3>
+                  <p className="text-xs text-indigo-700 font-medium">
+                    1-Year unlimited access to all lessons &amp; Chapter Exam Mode
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowLessonSelector(true)}
+                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-sm active:scale-95 transition-all self-start sm:self-center flex items-center gap-1.5 cursor-pointer"
+              >
+                <span>+</span>
+                <span>Unlock More Chapters (₹{config?.defaultChapterPrice || 50})</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+              {(userStatus?.purchasedChapters || []).map((item, idx) => {
+                if (!item) return null;
+                const chapterId = item?.chapterId || (typeof item === 'string' ? item : idx);
+                const title = item?.title || (typeof item === 'string' ? item : `Chapter ${chapterId}`);
+                const isValid = item?.isValid ?? true;
+                const amountPaid = item?.amountPaid || perChapterPrice;
+                return (
+                  <div
+                    key={chapterId || idx}
+                    className="p-4 rounded-2xl bg-gradient-to-r from-indigo-50/50 via-white to-indigo-50/20 border border-indigo-200/90 flex items-center justify-between gap-3 hover:shadow-xs transition-all"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className={`w-2.5 h-2.5 rounded-full ${isValid ? 'bg-indigo-500' : 'bg-gray-400'} shrink-0`}></span>
+                        <h4 className="font-bold text-sm text-gray-900 truncate">
+                          {title}
+                        </h4>
+                      </div>
+                      <div className="text-[11px] text-gray-500 mt-1 flex flex-wrap items-center gap-2">
+                        {item?.subjectName && <span className="text-gray-600 font-medium">{item.subjectName}</span>}
+                        {item?.subjectName && <span>•</span>}
+                        <span className="text-indigo-700 font-bold">₹{amountPaid} Paid</span>
+                        {item?.expiresAt && (
+                          <>
+                            <span>•</span>
+                            <span className={isValid ? 'text-emerald-700 font-bold' : 'text-rose-600 font-semibold'}>
+                              {isValid ? `Valid till ${formatDate(item.expiresAt)}` : 'Expired'}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => navigate(`/learn?chapterId=${chapterId}`)}
+                        className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shrink-0 shadow-xs active:scale-95 transition-all cursor-pointer"
+                      >
+                        Learn
+                      </button>
+                      <button
+                        onClick={() => navigate(`/exam?chapterId=${chapterId}`)}
+                        className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shrink-0 shadow-xs active:scale-95 transition-all cursor-pointer"
+                      >
+                        Exam
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Unlocked Lessons List (Pay As You Go) */}
         {userStatus?.purchasedModules && userStatus.purchasedModules.length > 0 && (
           <div className="bg-white rounded-3xl p-6 sm:p-7 shadow-xs border border-emerald-200 mb-10">
@@ -640,47 +699,52 @@ export default function SubscriptionPage() {
               </div>
               <button
                 onClick={() => setShowLessonSelector(true)}
-                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm active:scale-95 transition-all self-start sm:self-center flex items-center gap-1.5"
+                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm active:scale-95 transition-all self-start sm:self-center flex items-center gap-1.5 cursor-pointer"
               >
                 <span>+</span>
-                <span>Unlock More Lessons (₹19)</span>
+                <span>Unlock More Lessons (₹{perLessonPlan?.amount || perChapterPrice})</span>
               </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-              {userStatus.purchasedModules.map((item, idx) => (
-                <div
-                  key={item.moduleId || idx}
-                  className="p-4 rounded-2xl bg-gradient-to-r from-emerald-50/50 via-white to-emerald-50/20 border border-emerald-200/90 flex items-center justify-between gap-3 hover:shadow-xs transition-all"
-                >
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
-                      <h4 className="font-bold text-sm text-gray-900 truncate">
-                        {item.title || `Lesson ${item.moduleId}`}
-                      </h4>
-                    </div>
-                    <div className="text-[11px] text-gray-500 mt-1 flex flex-wrap items-center gap-2">
-                      {item.chapterTitle && <span className="text-gray-600 font-medium">{item.chapterTitle}</span>}
-                      {item.chapterTitle && <span>•</span>}
-                      <span className="text-emerald-700 font-bold">₹{item.amountPaid || 19} Paid</span>
-                      {item.purchasedAt && (
-                        <>
-                          <span>•</span>
-                          <span className="text-gray-400">{formatDate(item.purchasedAt)}</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => navigate(`/learn/module/${item.moduleId}`)}
-                    className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shrink-0 shadow-xs active:scale-95 transition-all flex items-center gap-1"
+              {(userStatus?.purchasedModules || []).map((item, idx) => {
+                if (!item) return null;
+                const moduleId = item?.moduleId || (typeof item === 'string' ? item : idx);
+                const title = item?.title || (typeof item === 'string' ? item : `Lesson ${moduleId}`);
+                return (
+                  <div
+                    key={moduleId || idx}
+                    className="p-4 rounded-2xl bg-gradient-to-r from-emerald-50/50 via-white to-emerald-50/20 border border-emerald-200/90 flex items-center justify-between gap-3 hover:shadow-xs transition-all"
                   >
-                    <span>Open</span>
-                    <span className="text-sm">→</span>
-                  </button>
-                </div>
-              ))}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
+                        <h4 className="font-bold text-sm text-gray-900 truncate">
+                          {title}
+                        </h4>
+                      </div>
+                      <div className="text-[11px] text-gray-500 mt-1 flex flex-wrap items-center gap-2">
+                        {item?.chapterTitle && <span className="text-gray-600 font-medium">{item.chapterTitle}</span>}
+                        {item?.chapterTitle && <span>•</span>}
+                        <span className="text-emerald-700 font-bold">₹{item?.amountPaid || perLessonPrice} Paid</span>
+                        {item?.purchasedAt && (
+                          <>
+                            <span>•</span>
+                            <span className="text-gray-400">{formatDate(item.purchasedAt)}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => navigate(`/learn/module/${moduleId}`)}
+                      className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shrink-0 shadow-xs active:scale-95 transition-all flex items-center gap-1 cursor-pointer"
+                    >
+                      <span>Open</span>
+                      <span className="text-sm">→</span>
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -714,29 +778,34 @@ export default function SubscriptionPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
-                  {userStatus.paymentHistory.map((tx) => (
-                    <tr key={tx._id || tx.orderId} className="hover:bg-gray-50/60 transition-colors">
-                      <td className="py-3.5 px-3 whitespace-nowrap text-gray-500">
-                        {formatDate(tx.createdAt)}
-                      </td>
-                      <td className="py-3.5 px-3 font-bold text-gray-900">
-                        {tx.paymentType === 'subscription' 
-                          ? (tx.planCode === 'annual_pass' ? 'Annual Unlimited Pass' : 'Monthly Unlimited Pass')
-                          : (tx.itemDetails?.count ? `Pay As You Go (${tx.itemDetails.count} Lessons)` : (tx.itemDetails?.moduleTitle || 'Single Lesson Unlock'))}
-                      </td>
-                      <td className="py-3.5 px-3 font-extrabold text-gray-900">
-                        ₹{tx.amount}
-                      </td>
-                      <td className="py-3.5 px-3 font-mono text-[11px] text-gray-500">
-                        {tx.paymentId || tx.orderId || '—'}
-                      </td>
-                      <td className="py-3.5 px-3 text-right">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800">
-                          ✓ Successful
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
+                  {(userStatus?.paymentHistory || []).map((tx, idx) => {
+                    if (!tx) return null;
+                    return (
+                      <tr key={tx._id || tx.orderId || idx} className="hover:bg-gray-50/60 transition-colors">
+                        <td className="py-3.5 px-3 whitespace-nowrap text-gray-500">
+                          {formatDate(tx.createdAt)}
+                        </td>
+                        <td className="py-3.5 px-3 font-bold text-gray-900">
+                          {tx.paymentType === 'subscription' 
+                            ? (tx.planCode === 'annual_pass' ? 'Annual Unlimited Pass' : 'Monthly Unlimited Pass')
+                            : tx.paymentType === 'pay_per_chapter'
+                            ? (tx.itemDetails?.chapterTitle ? `Chapter Pass (${tx.itemDetails.chapterTitle})` : 'Pay Per Chapter (1-Year Pass)')
+                            : (tx.itemDetails?.count ? `Pay As You Go (${tx.itemDetails.count} Lessons)` : (tx.itemDetails?.moduleTitle || 'Single Lesson Unlock'))}
+                        </td>
+                        <td className="py-3.5 px-3 font-extrabold text-gray-900">
+                          ₹{tx.amount || 50}
+                        </td>
+                        <td className="py-3.5 px-3 font-mono text-[11px] text-gray-500">
+                          {tx.paymentId || tx.orderId || '—'}
+                        </td>
+                        <td className="py-3.5 px-3 text-right">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800">
+                            ✓ Successful
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -781,7 +850,7 @@ export default function SubscriptionPage() {
                   ★★★★★
                 </div>
                 <p className="text-xs text-gray-700 italic leading-relaxed">
-                  "Revision mode right before unit tests was a lifesaver. Being able to unlock single lessons for quick revision at ₹19 is super affordable and convenient!"
+                  "Revision mode right before unit tests was a lifesaver. Being able to unlock single lessons for quick revision at ₹50 is super affordable and convenient!"
                 </p>
               </div>
               <div className="mt-4 pt-3 border-t border-gray-100 flex items-center gap-2.5">
@@ -836,42 +905,115 @@ export default function SubscriptionPage() {
           </div>
         </div>
 
-        {/* Parent & Student FAQ */}
-        <div className="max-w-2xl mx-auto">
-          <h3 className="text-xl font-bold text-gray-900 text-center mb-6">
-            Frequently Asked Questions
-          </h3>
-          <div className="space-y-4">
-            <div className="bg-white rounded-2xl p-5 border border-gray-200">
-              <h4 className="font-bold text-gray-900 text-sm sm:text-base">How does the 30-day free trial work?</h4>
-              <p className="text-gray-600 text-xs sm:text-sm mt-1.5 leading-relaxed">
-                Every new student receives 30 days of full, unrestricted access to all chapters and interactive exercises. After 30 days, you can choose to subscribe to our annual or monthly pass, or pay only for individual lessons as you study.
+        {/* Parent & Student FAQ (2 Columns on Desktop) */}
+        <div className="mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+            {/* Left Column: Heading, Context & WhatsApp Support Card */}
+            <div className="lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-100 text-blue-800 text-xs font-extrabold uppercase tracking-wider mb-3 self-center lg:self-start">
+                <span>❓ FAQ &amp; HELP</span>
+              </div>
+              <h3 className="text-2xl sm:text-4xl font-black text-gray-900 tracking-tight leading-tight">
+                Frequently Asked Questions
+              </h3>
+              <p className="text-gray-600 text-sm sm:text-base mt-2.5 leading-relaxed">
+                Everything you need to know about unlocking chapters, exam mode, pricing, and payment security.
               </p>
+
+              {/* Direct Support Contact Card */}
+              <div className="mt-6 w-full p-5 sm:p-6 rounded-3xl bg-white border border-indigo-100 shadow-sm text-left">
+                <div className="flex items-center gap-3 mb-2.5">
+                  <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl shrink-0">
+                    💬
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-gray-900">Still have questions?</h4>
+                    <p className="text-xs text-gray-500">We are happy to assist parents &amp; students.</p>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-600 mt-2 leading-relaxed">
+                  Connect with our parent support and counseling team directly on WhatsApp for instant guidance on any question.
+                </p>
+                <a
+                  href={`https://wa.me/918310532323?text=${encodeURIComponent('Hi! I have a question about Hoshiyaar subscription and chapter unlocking.')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-4 w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <span>Chat on WhatsApp (+91 831 053 2323)</span>
+                  <span>→</span>
+                </a>
+              </div>
             </div>
 
-            <div className="bg-white rounded-2xl p-5 border border-gray-200">
-              <h4 className="font-bold text-gray-900 text-sm sm:text-base">What payment methods are supported?</h4>
-              <p className="text-gray-600 text-xs sm:text-sm mt-1.5 leading-relaxed">
-                We accept all standard Indian payment methods: UPI (Google Pay, PhonePe, Paytm, BHIM), all Debit & Credit Cards (Visa, MasterCard, RuPay), and NetBanking across 50+ banks via Razorpay's secure 256-bit encrypted gateway.
-              </p>
-            </div>
+            {/* Right Column: FAQ Items */}
+            <div className="lg:col-span-7 space-y-4">
+              <div className="bg-white rounded-3xl p-5 sm:p-6 border border-gray-200/90 shadow-2xs hover:border-indigo-200 transition-all">
+                <h4 className="font-extrabold text-gray-900 text-sm sm:text-base flex items-start gap-2.5">
+                  <span className="text-indigo-600 font-black">Q.</span>
+                  <span>How does Pay Per Chapter (₹50) work?</span>
+                </h4>
+                <p className="text-gray-600 text-xs sm:text-sm mt-2 pl-6 leading-relaxed">
+                  You only pay ₹50 for the specific chapter you need to study (subscription prices are subject to change). Once unlocked, you receive 1 full year of unlimited access to all lessons, interactive quizzes, revision exercises, and Chapter Exam Mode. There are no recurring auto-debits or lock-ins.
+                </p>
+              </div>
 
-            <div className="bg-white rounded-2xl p-5 border border-gray-200">
-              <h4 className="font-bold text-gray-900 text-sm sm:text-base">Can I cancel my subscription anytime?</h4>
-              <p className="text-gray-600 text-xs sm:text-sm mt-1.5 leading-relaxed">
-                Yes, absolutely! There are no lock-ins or cancellation fees. You can cancel your subscription at any time with 1 click directly from the "Your Account Status" card on this page. You will continue to retain full unlimited access until the end of your billing period, and no further payments will be deducted.
-              </p>
-            </div>
+              <div className="bg-white rounded-3xl p-5 sm:p-6 border border-gray-200/90 shadow-2xs hover:border-indigo-200 transition-all">
+                <h4 className="font-extrabold text-gray-900 text-sm sm:text-base flex items-start gap-2.5">
+                  <span className="text-indigo-600 font-black">Q.</span>
+                  <span>What is included in Chapter Exam Mode?</span>
+                </h4>
+                <p className="text-gray-600 text-xs sm:text-sm mt-2 pl-6 leading-relaxed">
+                  Chapter Exam Mode allows students to take unit assessments formatted to CBSE &amp; NCERT standards. It features descriptive and subjective questions with instant AI scoring, model answers, and question-by-question review.
+                </p>
+              </div>
 
-            <div className="bg-white rounded-2xl p-5 border border-gray-200">
-              <h4 className="font-bold text-gray-900 text-sm sm:text-base">Is my payment information safe?</h4>
-              <p className="text-gray-600 text-xs sm:text-sm mt-1.5 leading-relaxed">
-                Yes, 100%. We partner with Razorpay, India's leading payment gateway compliant with PCI-DSS Level 1. We never store or have access to your card numbers, PINs, or UPI credentials.
-              </p>
+              <div className="bg-white rounded-3xl p-5 sm:p-6 border border-gray-200/90 shadow-2xs hover:border-indigo-200 transition-all">
+                <h4 className="font-extrabold text-gray-900 text-sm sm:text-base flex items-start gap-2.5">
+                  <span className="text-indigo-600 font-black">Q.</span>
+                  <span>Can I preview a chapter before unlocking it?</span>
+                </h4>
+                <p className="text-gray-600 text-xs sm:text-sm mt-2 pl-6 leading-relaxed">
+                  Yes, absolutely! The first level of every single chapter in Class 6, 7, and 8 is completely free to preview. You and your child can experience the story and concepts before deciding to unlock the full chapter.
+                </p>
+              </div>
+
+              <div className="bg-white rounded-3xl p-5 sm:p-6 border border-gray-200/90 shadow-2xs hover:border-indigo-200 transition-all">
+                <h4 className="font-extrabold text-gray-900 text-sm sm:text-base flex items-start gap-2.5">
+                  <span className="text-indigo-600 font-black">Q.</span>
+                  <span>What payment methods are supported?</span>
+                </h4>
+                <p className="text-gray-600 text-xs sm:text-sm mt-2 pl-6 leading-relaxed">
+                  We accept all Indian payment methods via Razorpay: UPI (Google Pay, PhonePe, Paytm, BHIM), all Debit and Credit Cards (Visa, MasterCard, RuPay), and NetBanking across 50+ banks.
+                </p>
+              </div>
+
+              <div className="bg-white rounded-3xl p-5 sm:p-6 border border-gray-200/90 shadow-2xs hover:border-indigo-200 transition-all">
+                <h4 className="font-extrabold text-gray-900 text-sm sm:text-base flex items-start gap-2.5">
+                  <span className="text-indigo-600 font-black">Q.</span>
+                  <span>Will any money be automatically deducted next month?</span>
+                </h4>
+                <p className="text-gray-600 text-xs sm:text-sm mt-2 pl-6 leading-relaxed">
+                  No. Pay Per Chapter is a single one-time payment. We never store payment credentials, and there are zero recurring auto-debit charges. You only pay when you choose to unlock a chapter.
+                </p>
+              </div>
+
+              <div className="bg-white rounded-3xl p-5 sm:p-6 border border-gray-200/90 shadow-2xs hover:border-indigo-200 transition-all">
+                <h4 className="font-extrabold text-gray-900 text-sm sm:text-base flex items-start gap-2.5">
+                  <span className="text-indigo-600 font-black">Q.</span>
+                  <span>Is my payment transaction secure?</span>
+                </h4>
+                <p className="text-gray-600 text-xs sm:text-sm mt-2 pl-6 leading-relaxed">
+                  Yes, 100%. All transactions are processed through Razorpay's 256-bit encrypted, PCI-DSS Level 1 compliant gateway. Your account access is activated immediately upon successful payment.
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Platform Global Footer */}
+      <Footer />
 
       {/* Cancellation Confirmation Modal */}
       {showCancelModal && (

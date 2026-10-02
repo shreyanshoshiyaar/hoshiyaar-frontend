@@ -42,13 +42,6 @@ const MobileHome = ({ user, stars, weeklyStars, leaderboardData, onNavigateToPra
           <div className="text-xs font-black tracking-wider uppercase text-blue-900/60">
             Hoshiyaar
           </div>
-          <button
-            onClick={() => navigate('/challenges')}
-            className="flex items-center gap-1.5 bg-white/95 backdrop-blur-sm px-3.5 py-1.5 rounded-full shadow-sm border border-blue-200 text-blue-800 font-extrabold text-xs active:scale-95 transition-transform"
-          >
-            <span>🎯</span>
-            <span>Challenges</span>
-          </button>
         </div>
 
         {/* Background stars/sparkles */}
