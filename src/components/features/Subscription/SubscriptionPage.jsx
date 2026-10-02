@@ -128,7 +128,8 @@ export default function SubscriptionPage() {
         throw new Error('Could not load Razorpay gateway. Please check your internet connection.');
       }
 
-      const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID || orderData.keyId;
+      const razorpayKey = orderData.keyId;
+
 
       const options = {
         key: razorpayKey,
