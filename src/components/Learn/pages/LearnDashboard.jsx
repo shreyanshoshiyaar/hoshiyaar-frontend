@@ -2612,6 +2612,27 @@ const LearnDashboard = ({ onboardingData }) => {
                                               <span>{mod?.title || "—"}</span>
 
 
+
+                                              {!isAdmin && (
+
+
+
+                                                <span className="text-[9.5px] md:text-[10.5px] font-extrabold tracking-wider uppercase opacity-80 border border-current rounded px-1.5 py-[1px] ml-1 flex-shrink-0">
+
+
+
+                                                  {isPurchased ? 'Unlocked' : isFreeLesson ? 'Free' : 'Paid'}
+
+
+
+                                                </span>
+
+
+
+                                              )}
+
+
+
                                             </div>
                                             <svg className={`w-[14px] h-[14px] flex-shrink-0 ${
                                               status === "completed"
@@ -2965,6 +2986,22 @@ const LearnDashboard = ({ onboardingData }) => {
                                                          : "text-slate-700"
                                                    }`}>
                                                      <span>{mod?.title || "—"}</span>
+
+                                                     
+                                                     {!isAdmin && (
+
+                                                     
+                                                       <span className="text-[9.5px] md:text-[10.5px] font-extrabold tracking-wider uppercase opacity-80 border border-current rounded px-1.5 py-[1px] ml-1 flex-shrink-0">
+
+                                                     
+                                                         {isPurchased ? 'Unlocked' : isFreeLesson ? 'Free' : 'Paid'}
+
+                                                     
+                                                       </span>
+
+                                                     
+                                                     )}
+
                                                      
                                                    </div>
                                                    <svg className={`w-[14px] h-[14px] flex-shrink-0 ${
