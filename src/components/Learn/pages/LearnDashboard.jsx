@@ -354,7 +354,7 @@ export const PathNode = React.memo(({ status, onClick, disabled, color = "#2C6DE
           }}
         >
           <div className={`${iconColor} drop-shadow-md transform transition-transform group-hover:scale-110 w-full h-full flex items-center justify-center`}>
-            {isLocked ? (
+            {isPaywallLocked ? (
               <LockIcon />
             ) : isDifficult ? (
               <FireIcon />
