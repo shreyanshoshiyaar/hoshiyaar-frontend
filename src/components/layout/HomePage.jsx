@@ -83,6 +83,11 @@ const MobileWelcomeScreen = () => {
           className="h-11 xs:h-12 sm:h-13 w-auto object-contain drop-shadow-xs" 
         />
 
+        {/* New Text: For CBSE 6-8th Classes */}
+        <div className="bg-amber-100 text-amber-800 text-[10.5px] xs:text-[11.5px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full border border-amber-300 mt-0.5 mb-1.5 shadow-xs z-20 relative">
+          For CBSE 6-8th Classes
+        </div>
+
         {/* Headline with Sunburst Rays */}
         <div className="relative text-center">
           <span className="absolute -left-3 top-1 text-amber-400 text-xs font-bold">˗ˏˋ</span>
@@ -134,7 +139,7 @@ const MobileWelcomeScreen = () => {
             <img 
               src="https://res.cloudinary.com/fhscvc7p/image/upload/v1790922377/img-to-link/yiua95vucvhqg1zlfb5d.webp" 
               alt="Hoshi Mascot" 
-              className="w-[125px] xs:w-[138px] sm:w-[145px] h-[148px] xs:h-[162px] sm:h-[172px] object-contain drop-shadow-[0_12px_24px_rgba(30,58,138,0.18)] pointer-events-none" 
+              className="w-[160px] xs:w-[175px] sm:w-[190px] h-[190px] xs:h-[210px] sm:h-[230px] object-contain drop-shadow-[0_12px_24px_rgba(30,58,138,0.18)] pointer-events-none" 
             />
           </div>
         </div>
@@ -153,62 +158,8 @@ const MobileWelcomeScreen = () => {
           <span className="text-lg leading-none">→</span>
         </button>
 
-        {/* "Why kids love HoshiYaar?" Feature Card Container */}
-        <div className="w-full bg-gradient-to-b from-white/95 via-white/90 to-[#EAF4FE]/90 rounded-3xl shadow-[0_6px_25px_rgba(37,99,235,0.08)] border border-white p-3 xs:p-3.5 flex flex-col items-center gap-2.5 z-10">
-          
-          {/* Section Title with Accents */}
-          <div className="flex items-center justify-center gap-1.5 text-center">
-            <span className="text-amber-500 font-bold text-xs select-none">˗ˏˋ</span>
-            <h2 className="text-[13px] xs:text-[14px] font-black text-[#102A43] tracking-tight">
-              Why kids love HoshiYaar?
-            </h2>
-            <span className="text-amber-500 font-bold text-xs select-none">ˎˊ˗</span>
-          </div>
-
-          {/* 4 Feature Cards */}
-          <div className="grid grid-cols-4 gap-1.5 xs:gap-2 w-full">
-            {/* Card 1: Comics & Stories */}
-            <div className="bg-amber-50/90 border border-amber-200/70 rounded-2xl p-1.5 xs:p-2 flex flex-col items-center justify-center text-center shadow-2xs">
-              <div className="w-7 h-7 xs:w-8 xs:h-8 rounded-xl bg-amber-100/90 flex items-center justify-center mb-1 shadow-2xs">
-                <span className="text-base xs:text-lg">📚</span>
-              </div>
-              <span className="text-[10px] xs:text-[11px] font-black text-slate-800 leading-tight">
-                Comics &amp; Stories
-              </span>
-            </div>
-
-            {/* Card 2: Engaging Videos */}
-            <div className="bg-rose-50/90 border border-rose-200/70 rounded-2xl p-1.5 xs:p-2 flex flex-col items-center justify-center text-center shadow-2xs">
-              <div className="w-7 h-7 xs:w-8 xs:h-8 rounded-xl bg-rose-100/90 flex items-center justify-center mb-1 shadow-2xs">
-                <span className="text-base xs:text-lg">▶️</span>
-              </div>
-              <span className="text-[10px] xs:text-[11px] font-black text-slate-800 leading-tight">
-                Engaging Videos
-              </span>
-            </div>
-
-            {/* Card 3: Fun Quizzes */}
-            <div className="bg-purple-50/90 border border-purple-200/70 rounded-2xl p-1.5 xs:p-2 flex flex-col items-center justify-center text-center shadow-2xs">
-              <div className="w-7 h-7 xs:w-8 xs:h-8 rounded-xl bg-purple-100/90 flex items-center justify-center mb-1 shadow-2xs">
-                <span className="text-base xs:text-lg">🎮</span>
-              </div>
-              <span className="text-[10px] xs:text-[11px] font-black text-slate-800 leading-tight">
-                Fun Quizzes
-              </span>
-            </div>
-
-            {/* Card 4: Earn Rewards */}
-            <div className="bg-sky-50/90 border border-sky-200/70 rounded-2xl p-1.5 xs:p-2 flex flex-col items-center justify-center text-center shadow-2xs">
-              <div className="w-7 h-7 xs:w-8 xs:h-8 rounded-xl bg-sky-100/90 flex items-center justify-center mb-1 shadow-2xs">
-                <span className="text-base xs:text-lg">⭐</span>
-              </div>
-              <span className="text-[10px] xs:text-[11px] font-black text-slate-800 leading-tight">
-                Earn Rewards
-              </span>
-            </div>
-          </div>
-
-          {/* WhatsApp Support Button Framed Cleanly & Properly */}
+        {/* WhatsApp Support Button at Bottom */}
+        <div className="w-full mt-4">
           <button
             type="button"
             onClick={handleWhatsAppClick}
