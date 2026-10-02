@@ -233,7 +233,8 @@ export default function LessonUnlockModal({ isOpen, onClose, onSuccess, userSubS
       }
 
       const lessonCount = selectedLessons.length;
-      const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID || orderData.keyId;
+      const razorpayKey = orderData.keyId;
+
 
       const options = {
         key: razorpayKey,
@@ -332,7 +333,8 @@ export default function LessonUnlockModal({ isOpen, onClose, onSuccess, userSubS
         throw new Error('Razorpay SDK could not be loaded. Please check your connection.');
       }
 
-      const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID || orderData.keyId;
+      const razorpayKey = orderData.keyId;
+
 
       const options = {
         key: razorpayKey,

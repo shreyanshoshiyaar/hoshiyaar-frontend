@@ -82,7 +82,8 @@ export default function PaywallModal({
         throw new Error('Could not load payment gateway. Please check your connection.');
       }
 
-      const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID || orderData.keyId || razorpayKeyId;
+      const razorpayKey = orderData.keyId || razorpayKeyId;
+
 
       const options = {
         key: razorpayKey,
