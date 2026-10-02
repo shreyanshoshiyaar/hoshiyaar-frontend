@@ -2617,7 +2617,7 @@ const LearnDashboard = ({ onboardingData }) => {
 
 
 
-                                                <span className="text-[9.5px] md:text-[10.5px] font-extrabold tracking-wider uppercase opacity-80 border border-current rounded px-1.5 py-[1px] ml-1 flex-shrink-0">
+                                                <span className="text-[9.5px] md:text-[10.5px] font-extrabold tracking-wider uppercase opacity-90 border border-current rounded px-1.5 py-[1px] ml-1 flex-shrink-0 shadow-[0_0_8px_currentColor]">
 
 
 
@@ -2738,7 +2738,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                             </span>
   {chapterId && purchasedChapterSet.has(String(chapterId)) && (
     <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-[#10B981] text-white shadow-sm border border-[#059669] flex items-center gap-1">
-      <span>💎</span> PAID
+      <span>💎</span> UNLOCKED
     </span>
   )}
 </h2>
@@ -2798,7 +2798,7 @@ const LearnDashboard = ({ onboardingData }) => {
   </p>
   {chapterId && purchasedChapterSet.has(String(chapterId)) && (
     <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-md bg-[#10B981] text-white shadow-sm border border-[#059669] flex items-center gap-1">
-      <span>💎</span> PAID
+      <span>💎</span> UNLOCKED
     </span>
   )}
 </div>
@@ -2991,7 +2991,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                                      {!isAdmin && (
 
                                                      
-                                                       <span className="text-[9.5px] md:text-[10.5px] font-extrabold tracking-wider uppercase opacity-80 border border-current rounded px-1.5 py-[1px] ml-1 flex-shrink-0">
+                                                       <span className="text-[9.5px] md:text-[10.5px] font-extrabold tracking-wider uppercase opacity-90 border border-current rounded px-1.5 py-[1px] ml-1 flex-shrink-0 shadow-[0_0_8px_currentColor]">
 
                                                      
                                                          {isPurchased ? 'Unlocked' : isFreeLesson ? 'Free' : 'Paid'}
