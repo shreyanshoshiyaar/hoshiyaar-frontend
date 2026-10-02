@@ -430,7 +430,7 @@ export default function SubscriptionPage() {
               );
             })}
           </div>
-          <p className="text-[11px] text-gray-500 font-medium text-center mt-3">
+          <p className="col-span-full text-[11px] text-gray-500 font-medium text-center mt-3">
             * All subscription and chapter pass prices are subject to change without prior notice.
           </p>
         </div>
