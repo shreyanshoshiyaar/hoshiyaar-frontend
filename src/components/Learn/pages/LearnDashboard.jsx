@@ -345,7 +345,7 @@ export const PathNode = React.memo(({ status, onClick, disabled, color = "#2C6DE
 
         {/* TOP LAYER (BUTTON FACE) */}
         <div
-          onClick={disabled ? undefined : onClick}
+          onClick={onClick}
           className={`absolute inset-0 rounded-full flex items-center justify-center transform transition-all duration-75 shadow-[inset_0_2px_4px_rgba(255,255,255,0.3)] ${disabled ? "cursor-not-allowed" : "cursor-pointer hover:-translate-y-[2px]"
             } active:translate-y-[3px]`}
           style={{
@@ -2548,7 +2548,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                             setShowPaywallModal(true);
                                               return;
                                             }
-                                            if (status === 'locked' && !isAdmin) {
+                                            if (status === 'locked') {
                                               setShowProgressionWarning(true);
                                               return;
                                             }
@@ -2583,7 +2583,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                             setShowPaywallModal(true);
                                               return;
                                             }
-                                            if (status === 'locked' && !isAdmin) {
+                                            if (status === 'locked') {
                                               setShowProgressionWarning(true);
                                               return;
                                             }
@@ -2937,7 +2937,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                                   setShowPaywallModal(true);
                                               return;
                                             }
-                                            if (status === 'locked' && !isAdmin) {
+                                            if (status === 'locked') {
                                               setShowProgressionWarning(true);
                                               return;
                                             }
@@ -2967,7 +2967,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                                    setShowPaywallModal(true);
                                               return;
                                             }
-                                            if (status === 'locked' && !isAdmin) {
+                                            if (status === 'locked') {
                                               setShowProgressionWarning(true);
                                               return;
                                             }
