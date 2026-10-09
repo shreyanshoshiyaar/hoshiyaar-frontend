@@ -29,6 +29,15 @@ export const trackFirstModuleStatus = (status) => {
     if (!localStorage.getItem(key)) {
         localStorage.setItem(key, 'true');
         setUserProperties({ first_module_status: status });
+    
+        // Meta Android App Events for Retargeting Cohort (Capacitor/WebView)
+        if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
+            if (status === 'started') {
+                window.fbq('trackCustom', 'FirstMissionStarted');
+            } else if (status === 'completed') {
+                window.fbq('trackCustom', 'FirstMissionCompleted');
+            }
+        }
     }
 };
 
