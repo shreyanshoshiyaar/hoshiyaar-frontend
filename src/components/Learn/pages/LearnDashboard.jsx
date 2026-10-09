@@ -2074,7 +2074,7 @@ const LearnDashboard = ({ onboardingData }) => {
                   setIsMobileMenuOpen(false);
                   navigate("/subscription");
                 }}
-                className={`flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors text-amber-600 hover:bg-amber-50`}
+                className="hidden"
               >
                 <NavProIcon active={false} />
                 <div className="flex items-center justify-between flex-1">
@@ -2165,7 +2165,7 @@ const LearnDashboard = ({ onboardingData }) => {
           <a
               href="#"
               onClick={(e) => { e.preventDefault(); navigate('/subscription'); }}
-              className={`flex items-center gap-3 py-2 px-3.5 rounded-xl text-base font-bold transition-colors ${activeTab === 'subscription' ? 'bg-[#2563EB] text-white shadow-md' : 'text-amber-600 hover:bg-amber-50'}`}
+              className="hidden"
             >
               <NavProIcon active={activeTab === 'subscription'} />
               <div className="flex items-center justify-between flex-1">
