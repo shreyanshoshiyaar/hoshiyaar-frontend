@@ -49,7 +49,7 @@ const AndroidForcedInstall = () => {
           
           {/* Logo */}
           <img 
-            src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1785322514/img-to-link/bihseec7aigbmau4amnd.png" 
+            src="https://res.cloudinary.com/imq5966f/image/upload/v1791543780/img-to-link/bihseec7aigbmau4amnd.png" 
             alt="HoshiYaar Logo" 
             style={{ width: '105px', marginBottom: '8px' }} // Scaled down
           />

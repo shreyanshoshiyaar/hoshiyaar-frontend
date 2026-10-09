@@ -41,7 +41,7 @@ const DesktopLeaderboard = ({
         <div
           className="relative w-full rounded-3xl overflow-hidden shadow-md border border-white/60 shrink-0 lg:h-[24vh] max-h-[240px] min-h-[160px]"
           style={{
-            backgroundImage: 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1785322525/img-to-link/sefmi9byh6dln0bcmonm.jpg")',
+            backgroundImage: 'url("https://res.cloudinary.com/imq5966f/image/upload/v1791543793/img-to-link/sefmi9byh6dln0bcmonm.jpg")',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
