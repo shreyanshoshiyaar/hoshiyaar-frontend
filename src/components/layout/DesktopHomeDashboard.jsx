@@ -109,7 +109,7 @@ const DesktopHomeDashboard = ({
         <div
           className="relative w-full rounded-3xl overflow-hidden shadow-md border border-white/60 shrink-0 lg:h-[28vh] max-h-[280px] min-h-[180px]"
           style={{
-            backgroundImage: 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1785322523/img-to-link/zqipv0kb0thnwni1knrm.jpg")',
+            backgroundImage: 'url("https://res.cloudinary.com/imq5966f/image/upload/v1791543791/img-to-link/zqipv0kb0thnwni1knrm.jpg")',
             backgroundSize: 'contain',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',

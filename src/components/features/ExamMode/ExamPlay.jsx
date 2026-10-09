@@ -410,7 +410,7 @@ const ExamPlay = () => {
   const currentAnswer = answers[currentIdx];
 
   useEffect(() => {
-    audioRef.current = new Audio('https://res.cloudinary.com/dcxlzfyfp/video/upload/v1785322512/SoundHelix-Song-1_disokr.mp3');
+    audioRef.current = new Audio('https://res.cloudinary.com/imq5966f/video/upload/v1791543757/SoundHelix-Song-1_disokr.mp3');
     audioRef.current.loop = true;
     audioRef.current.volume = 0.3;
     return () => {

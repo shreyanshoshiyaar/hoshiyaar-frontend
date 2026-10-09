@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import curriculumService from '../../services/curriculumService';
 import DesktopHome from './DesktopHome';
 
-const HoshiyaarLogo = "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1785322514/img-to-link/bihseec7aigbmau4amnd.png";
+const HoshiyaarLogo = "https://res.cloudinary.com/imq5966f/image/upload/v1791543780/img-to-link/bihseec7aigbmau4amnd.png";
 
 const MobileWelcomeScreen = () => {
   const navigate = useNavigate();

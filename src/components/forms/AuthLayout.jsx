@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const HoshiyaarLogo = "https://res.cloudinary.com/dcxlzfyfp/image/upload/v1785322514/img-to-link/bihseec7aigbmau4amnd.png";
+const HoshiyaarLogo = "https://res.cloudinary.com/imq5966f/image/upload/v1791543780/img-to-link/bihseec7aigbmau4amnd.png";
 
 const AuthLayout = ({ children, title, linkTo, linkText }) => (
   <div className="min-h-[100dvh] text-slate-900 font-sans flex flex-col relative bg-slate-50 overflow-hidden">

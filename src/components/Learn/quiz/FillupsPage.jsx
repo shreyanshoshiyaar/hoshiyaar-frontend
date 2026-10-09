@@ -889,7 +889,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
     <div 
       style={{ 
         height: viewportHeight,
-        backgroundImage: 'url("https://res.cloudinary.com/dcxlzfyfp/image/upload/v1785322541/img-to-link/uyinmhu24f36fdmj6ejz.webp")',
+        backgroundImage: 'url("https://res.cloudinary.com/imq5966f/image/upload/v1791543809/img-to-link/uyinmhu24f36fdmj6ejz.webp")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
@@ -1030,7 +1030,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
         {!showResult ? (
           <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative z-10">
             <img 
-              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1785322545/img-to-link/j6qbsf6b9y4zdkeymjag.png" 
+              src="https://res.cloudinary.com/imq5966f/image/upload/v1791543810/img-to-link/j6qbsf6b9y4zdkeymjag.png" 
               alt="Myra" 
               className="hidden md:block absolute bottom-0 right-4 lg:right-8 w-[100px] lg:w-[130px] object-contain -z-10 pointer-events-none" 
             />
@@ -1058,7 +1058,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
         }`}>
           <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto px-6 py-4 flex flex-col gap-3 relative z-10">
             <img 
-              src="https://res.cloudinary.com/dcxlzfyfp/image/upload/v1785322545/img-to-link/j6qbsf6b9y4zdkeymjag.png" 
+              src="https://res.cloudinary.com/imq5966f/image/upload/v1791543810/img-to-link/j6qbsf6b9y4zdkeymjag.png" 
               alt="Myra" 
               className="hidden md:block absolute bottom-0 right-4 lg:right-8 w-[100px] lg:w-[130px] object-contain -z-10 pointer-events-none" 
             />
