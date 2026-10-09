@@ -443,9 +443,9 @@ export default function ConceptPage() {
       const timer = setTimeout(async () => {
         try {
           if (user?._id) {
-            await authService.updateProgress({
+            authService.updateProgress({
               userId: user._id,
-              moduleId: String(moduleNumber),
+              moduleId: String(moduleNumber).catch(e => console.warn(e)),
               subject: user.subject || 'Science',
               conceptCompleted: true
             });
@@ -476,7 +476,7 @@ export default function ConceptPage() {
         trackLevelStart(moduleNumber, title.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase() || `level_${moduleNumber}`);
 
         if (user?._id) {
-          await authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: title, isCorrect: true, deltaScore: 0, resetLesson: index === 0 });
+          authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber).catch(e => console.warn(e)), subject: user.subject || 'Science', lessonTitle: title, isCorrect: true, deltaScore: 0, resetLesson: index === 0 });
         }
       } catch (_) {}
     })();
@@ -608,9 +608,9 @@ export default function ConceptPage() {
       try {
         if (user?._id) {
           console.log('[ConceptPage] Saving module completion to database:', moduleNumber);
-          await authService.updateProgress({
+          authService.updateProgress({
             userId: user._id,
-            moduleId: String(moduleNumber),
+            moduleId: String(moduleNumber).catch(e => console.warn(e)),
             subject: user.subject || 'Science', // CRITICAL: Include subject and use moduleId
             conceptCompleted: true
           });
@@ -643,9 +643,9 @@ export default function ConceptPage() {
   const handleMasterSkip = async () => {
     try {
       if (user?._id) {
-        await authService.updateProgress({
+        authService.updateProgress({
           userId: user._id, 
-          moduleId: String(moduleNumber), 
+          moduleId: String(moduleNumber).catch(e => console.warn(e)), 
           subject: user.subject || 'Science', 
           conceptCompleted: true 
         });
