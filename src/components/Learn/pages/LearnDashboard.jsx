@@ -2499,7 +2499,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                 const isFreeLesson = index < chapterFreeLessons;
                                 const isChapterPurchased = chapterId && purchasedChapterSet.has(String(chapterId));
                                 const isPurchased = (mod?._id && purchasedModuleSet.has(String(mod._id))) || Boolean(isChapterPurchased);
-                                const isPaywallLocked = !isAdmin && !isSubscribed && !isPurchased && !isFreeLesson;
+                                const isPaywallLocked = false; // !isAdmin && !isSubscribed && !isPurchased && !isFreeLesson;
 
                                 let status = isCompleted ? "completed" : "active";
                                 const canClick = (status === 'active' || status === 'completed' || isAdmin || isPaywallLocked || isPurchased);
@@ -2538,7 +2538,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                               chapterTitle: activeChapterObj?.title || '',
                                               price: chapterPrice
                                             });
-                                            setShowPaywallModal(true);
+                                            /* setShowPaywallModal(true) bypassed */;
                                               return;
                                             }
                                             if (status === 'locked' && !isAdmin) {
@@ -2573,7 +2573,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                               chapterTitle: activeChapterObj?.title || '',
                                               price: chapterPrice
                                             });
-                                            setShowPaywallModal(true);
+                                            /* setShowPaywallModal(true) bypassed */;
                                               return;
                                             }
                                             if (status === 'locked' && !isAdmin) {
@@ -2874,7 +2874,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                        const isFreeLesson = index < chapterFreeLessons;
                                        const isChapterPurchased = chapterId && purchasedChapterSet.has(String(chapterId));
                                        const isPurchased = (mod?._id && purchasedModuleSet.has(String(mod._id))) || Boolean(isChapterPurchased);
-                                       const isPaywallLocked = !isAdmin && !isSubscribed && !isPurchased && !isFreeLesson;
+                                       const isPaywallLocked = false; // !isAdmin && !isSubscribed && !isPurchased && !isFreeLesson;
 
                                        let status = isCompleted ? "completed" : "active";
                                        const canClick = (status === 'active' || status === 'completed' || isAdmin || isPaywallLocked || isPurchased);
@@ -2920,7 +2920,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                                     chapterTitle: activeChapterObj?.title || '',
                                                     price: chapterPrice
                                                   });
-                                                  setShowPaywallModal(true);
+                                                  /* setShowPaywallModal(true) bypassed */;
                                               return;
                                             }
                                             if (status === 'locked' && !isAdmin) {
@@ -2950,7 +2950,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                                      chapterTitle: activeChapterObj?.title || '',
                                                      price: chapterPrice
                                                    });
-                                                   setShowPaywallModal(true);
+                                                   /* setShowPaywallModal(true) bypassed */;
                                               return;
                                             }
                                             if (status === 'locked' && !isAdmin) {

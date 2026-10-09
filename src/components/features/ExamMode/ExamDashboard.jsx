@@ -505,7 +505,7 @@ const ExamDashboard = ({
                   title: ch.title,
                   price: chPrice
                 });
-                setShowPaywallModal(true);
+                /* setShowPaywallModal(true) bypassed */;
               }}
               className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 hover:text-amber-200 border border-amber-400/40 text-[11px] font-black tracking-wide transition-all active:scale-95 cursor-pointer flex items-center gap-1"
             >
@@ -611,7 +611,7 @@ const ExamDashboard = ({
                     title: currentChapterObj?.title || chapterTitle,
                     price: currentChapterObj?.chapterPrice || 50
                   });
-                  setShowPaywallModal(true);
+                  /* setShowPaywallModal(true) bypassed */;
                 }}
                 className="w-full sm:flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-black text-xs uppercase tracking-wider shadow-[0_4px_20px_rgba(245,158,11,0.4)] active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
