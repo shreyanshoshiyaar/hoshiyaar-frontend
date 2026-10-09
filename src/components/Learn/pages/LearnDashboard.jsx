@@ -2499,9 +2499,16 @@ const LearnDashboard = ({ onboardingData }) => {
                                 const isFreeLesson = index < chapterFreeLessons;
                                 const isChapterPurchased = chapterId && purchasedChapterSet.has(String(chapterId));
                                 const isPurchased = (mod?._id && purchasedModuleSet.has(String(mod._id))) || Boolean(isChapterPurchased);
-                                const isPaywallLocked = false; // !isAdmin && !isSubscribed && !isPurchased && !isFreeLesson;
+                                const isPaywallLocked = false;
 
-                                let status = isCompleted ? "completed" : "active";
+                                let status = "locked";
+                                if (isCompleted) {
+                                  status = "completed";
+                                } else if (isPaywallLocked) {
+                                  status = "locked";
+                                } else if (index === firstIncompleteGlobal) {
+                                  status = "active";
+                                }
                                 const canClick = (status === 'active' || status === 'completed' || isAdmin || isPaywallLocked || isPurchased);
                                 const offset = getWaveOffset(index, isMobileLayout);
 
@@ -2538,11 +2545,14 @@ const LearnDashboard = ({ onboardingData }) => {
                                               chapterTitle: activeChapterObj?.title || '',
                                               price: chapterPrice
                                             });
-                                            /* setShowPaywallModal(true) bypassed */;
+                                            /* setShowPaywallModal(true); bypassed */
                                               return;
                                             }
-                                            /* progression lock removed */
-                                            /* canClick bypass */
+                                            if (status === 'locked' && !isAdmin) {
+                                              setShowProgressionWarning(true);
+                                              return;
+                                            }
+                                            if (!canClick) return;
                                           saveScrollPosition();
                                           const params = new URLSearchParams();
                                           if (chapterId) params.set('chapterId', chapterId);
@@ -2570,11 +2580,14 @@ const LearnDashboard = ({ onboardingData }) => {
                                               chapterTitle: activeChapterObj?.title || '',
                                               price: chapterPrice
                                             });
-                                            /* setShowPaywallModal(true) bypassed */;
+                                            /* setShowPaywallModal(true); bypassed */
                                               return;
                                             }
-                                            /* progression lock removed */
-                                            /* canClick bypass */
+                                            if (status === 'locked' && !isAdmin) {
+                                              setShowProgressionWarning(true);
+                                              return;
+                                            }
+                                            if (!canClick) return;
                                           saveScrollPosition();
                                           const params = new URLSearchParams();
                                           if (chapterId) params.set('chapterId', chapterId);
@@ -2868,9 +2881,16 @@ const LearnDashboard = ({ onboardingData }) => {
                                        const isFreeLesson = index < chapterFreeLessons;
                                        const isChapterPurchased = chapterId && purchasedChapterSet.has(String(chapterId));
                                        const isPurchased = (mod?._id && purchasedModuleSet.has(String(mod._id))) || Boolean(isChapterPurchased);
-                                       const isPaywallLocked = false; // !isAdmin && !isSubscribed && !isPurchased && !isFreeLesson;
+                                       const isPaywallLocked = false;
 
-                                       let status = isCompleted ? "completed" : "active";
+                                       let status = "locked";
+                                       if (isCompleted) {
+                                         status = "completed";
+                                       } else if (isPaywallLocked) {
+                                         status = "locked";
+                                       } else if (index === firstIncompleteForUnit) {
+                                         status = "active";
+                                       }
                                        const canClick = (status === 'active' || status === 'completed' || isAdmin || isPaywallLocked || isPurchased);
                                        const offset = getWaveOffset(index, isMobileLayout);
 
@@ -2914,11 +2934,14 @@ const LearnDashboard = ({ onboardingData }) => {
                                                     chapterTitle: activeChapterObj?.title || '',
                                                     price: chapterPrice
                                                   });
-                                                  /* setShowPaywallModal(true) bypassed */;
+                                                  /* setShowPaywallModal(true); bypassed */
                                               return;
                                             }
-                                            /* progression lock removed */
-                                            /* canClick bypass */
+                                            if (status === 'locked' && !isAdmin) {
+                                              setShowProgressionWarning(true);
+                                              return;
+                                            }
+                                            if (!canClick) return;
                                                 saveScrollPosition();
                                                 const params = new URLSearchParams();
                                                 if (chapterId) params.set('chapterId', chapterId);
@@ -2941,11 +2964,14 @@ const LearnDashboard = ({ onboardingData }) => {
                                                      chapterTitle: activeChapterObj?.title || '',
                                                      price: chapterPrice
                                                    });
-                                                   /* setShowPaywallModal(true) bypassed */;
+                                                   /* setShowPaywallModal(true); bypassed */
                                               return;
                                             }
-                                            /* progression lock removed */
-                                            /* canClick bypass */
+                                            if (status === 'locked' && !isAdmin) {
+                                              setShowProgressionWarning(true);
+                                              return;
+                                            }
+                                            if (!canClick) return;
                                                  saveScrollPosition();
                                                  const params = new URLSearchParams();
                                                  if (chapterId) params.set('chapterId', chapterId);

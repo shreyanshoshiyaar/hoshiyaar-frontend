@@ -34,7 +34,13 @@ export default function ModuleEntryRedirect() {
       if (!moduleNumber) return;
 
       // In admin-only mode, regular students have 100% free open access with zero paywalls
-      if (true) { if (!isMounted) return; setAccessData({ hasAccess: true }); setShowPaywall(false); setAccessChecking(false); return; }
+      if (!isUserAdmin(user)) {
+        if (!isMounted) return;
+        setAccessData({ hasAccess: true, reason: 'open_access_for_students' });
+        setShowPaywall(false);
+        setAccessChecking(false);
+        return;
+      }
 
       try {
         setAccessChecking(true);
