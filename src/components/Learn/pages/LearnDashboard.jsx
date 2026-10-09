@@ -2541,11 +2541,8 @@ const LearnDashboard = ({ onboardingData }) => {
                                             /* setShowPaywallModal(true) bypassed */;
                                               return;
                                             }
-                                            if (status === 'locked' && !isAdmin) {
-                                              setShowProgressionWarning(true);
-                                              return;
-                                            }
-                                            if (!canClick) return;
+                                            /* progression lock removed */
+                                            /* canClick bypass */
                                           saveScrollPosition();
                                           const params = new URLSearchParams();
                                           if (chapterId) params.set('chapterId', chapterId);
@@ -2576,11 +2573,8 @@ const LearnDashboard = ({ onboardingData }) => {
                                             /* setShowPaywallModal(true) bypassed */;
                                               return;
                                             }
-                                            if (status === 'locked' && !isAdmin) {
-                                              setShowProgressionWarning(true);
-                                              return;
-                                            }
-                                            if (!canClick) return;
+                                            /* progression lock removed */
+                                            /* canClick bypass */
                                           saveScrollPosition();
                                           const params = new URLSearchParams();
                                           if (chapterId) params.set('chapterId', chapterId);
@@ -2923,11 +2917,8 @@ const LearnDashboard = ({ onboardingData }) => {
                                                   /* setShowPaywallModal(true) bypassed */;
                                               return;
                                             }
-                                            if (status === 'locked' && !isAdmin) {
-                                              setShowProgressionWarning(true);
-                                              return;
-                                            }
-                                            if (!canClick) return;
+                                            /* progression lock removed */
+                                            /* canClick bypass */
                                                 saveScrollPosition();
                                                 const params = new URLSearchParams();
                                                 if (chapterId) params.set('chapterId', chapterId);
@@ -2953,11 +2944,8 @@ const LearnDashboard = ({ onboardingData }) => {
                                                    /* setShowPaywallModal(true) bypassed */;
                                               return;
                                             }
-                                            if (status === 'locked' && !isAdmin) {
-                                              setShowProgressionWarning(true);
-                                              return;
-                                            }
-                                            if (!canClick) return;
+                                            /* progression lock removed */
+                                            /* canClick bypass */
                                                  saveScrollPosition();
                                                  const params = new URLSearchParams();
                                                  if (chapterId) params.set('chapterId', chapterId);
