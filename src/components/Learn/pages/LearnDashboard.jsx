@@ -2630,7 +2630,7 @@ const LearnDashboard = ({ onboardingData }) => {
 
 
 
-                                                  {isPurchased ? 'Unlocked' : isFreeLesson ? 'Free' : 'Paid'}
+                                                  {/* Hidden for play store */}
 
 
 
@@ -3011,7 +3011,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                                        <span className="text-[9.5px] md:text-[10.5px] font-extrabold tracking-wider uppercase opacity-90 border border-current rounded px-1.5 py-[1px] ml-1 flex-shrink-0 shadow-[0_0_8px_currentColor]">
 
                                                      
-                                                         {isPurchased ? 'Unlocked' : isFreeLesson ? 'Free' : 'Paid'}
+                                                         {/* Hidden for play store */}
 
                                                      
                                                        </span>

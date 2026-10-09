@@ -65,7 +65,7 @@ const BottomNavigation = () => {
   const path = location.pathname;
 
   const { user } = useAuth();
-  const showProTab = true;
+  const showProTab = false; // Hidden for play store
 
   const isHome = path === '/home';
   const isLearn = path === '/learn';

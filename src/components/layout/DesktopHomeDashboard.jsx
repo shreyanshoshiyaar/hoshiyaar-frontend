@@ -38,7 +38,7 @@ const DesktopHomeDashboard = ({
   const { stars, refresh } = useStars();
   const { user: authUser } = useAuth();
   const currentUser = user || authUser;
-  const showProCard = true;
+  const showProCard = false; // Hidden for play store
   const hasSchool = !!currentUser?.school;
 
   React.useEffect(() => {
