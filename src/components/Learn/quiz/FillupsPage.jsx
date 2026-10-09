@@ -370,7 +370,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
         if (user?._id) {
           const params = new URLSearchParams(window.location.search);
           const title = params.get('title') || item?.title || `Module ${moduleNumber}`;
-          authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber).catch(e => console.warn(e)), subject: user.subject || 'Science', lessonTitle: title, isCorrect: true, deltaScore: 0, resetLesson: index === 0 });
+          authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: title, isCorrect: true, deltaScore: 0, resetLesson: index === 0 });
         }
       } catch (_) {}
     })();
@@ -530,7 +530,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
         addToSession(qid);
         try {
           if (user?._id) {
-            authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber).catch(e => console.warn(e)), subject: user?.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: pts });
+            authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user?.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: pts });
           }
         } catch (_) {}
       }
@@ -554,7 +554,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
         addToSession(qid);
         try {
           if (user?._id) {
-            authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber).catch(e => console.warn(e)), subject: user?.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: false, deltaScore: -3 });
+            authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user?.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: false, deltaScore: -3 });
           }
         } catch (_) {}
       }
@@ -567,7 +567,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
       try {
         if (user?._id) {
           const reviewSvc = (await import('../../../services/reviewService.js')).default;
-          reviewSvc.saveIncorrect({ userId: user._id, questionId, moduleId: String(moduleNumber).catch(e => console.warn(e)) });
+          reviewSvc.saveIncorrect({ userId: user._id, questionId, moduleId: String(moduleNumber) });
         }
       } catch (_) {}
     }
@@ -642,7 +642,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
       
       // Count progress only when module completes
       try { 
-        if (user?._id) authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber).catch(e => console.warn(e)), subject: user.subject || 'Science', conceptCompleted: true }); 
+        if (user?._id) authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', conceptCompleted: true }); 
       } catch (_) {}
       // Update local caches so dashboard updates without refresh
       try {
@@ -738,7 +738,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
     addToSession(qid);
     try {
       if (user?._id) {
-        authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber).catch(e => console.warn(e)), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: 3 });
+        authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: 3 });
       }
     } catch (_) {}
     handleNext(true);
