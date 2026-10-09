@@ -84,7 +84,7 @@ export default function DescriptivePage() {
         if (user?._id) {
           const params = new URLSearchParams(window.location.search);
           const title = params.get('title') || item?.title || `Module ${moduleNumber}`;
-          authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber).catch(e => console.warn(e)), subject: user.subject || 'Science', lessonTitle: title, isCorrect: true, deltaScore: 0, resetLesson: index === 0 });
+          authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: title, isCorrect: true, deltaScore: 0, resetLesson: index === 0 });
         }
       } catch (_) {}
     })();
@@ -272,7 +272,7 @@ export default function DescriptivePage() {
           if (user?._id) {
             authService.updateProgress({ 
               userId: user._id, 
-              moduleId: String(moduleNumber).catch(e => console.warn(e)), 
+              moduleId: String(moduleNumber), 
               subject: user.subject || 'Science', 
               lessonTitle: item?.title || `Module ${moduleNumber}`, 
               isCorrect: true, 
@@ -288,7 +288,7 @@ export default function DescriptivePage() {
             if (user?._id) {
               authService.updateProgress({ 
                 userId: user._id, 
-                moduleId: String(moduleNumber).catch(e => console.warn(e)), 
+                moduleId: String(moduleNumber), 
                 subject: user.subject || 'Science', 
                 lessonTitle: item?.title || `Module ${moduleNumber}`, 
                 isCorrect: false, 
@@ -319,7 +319,7 @@ export default function DescriptivePage() {
         if (user?._id) {
           authService.updateProgress({ 
             userId: user._id, 
-            moduleId: String(moduleNumber).catch(e => console.warn(e)), 
+            moduleId: String(moduleNumber), 
             subject: user.subject || 'Science', 
             conceptCompleted: true 
           });
@@ -466,7 +466,7 @@ export default function DescriptivePage() {
     addToSession(qid);
     try {
       if (user?._id) {
-        authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber).catch(e => console.warn(e)), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: 3 });
+        authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: 3 });
       }
     } catch (_) {}
     handleNext(true);

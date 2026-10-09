@@ -445,7 +445,7 @@ export default function ConceptPage() {
           if (user?._id) {
             authService.updateProgress({
               userId: user._id,
-              moduleId: String(moduleNumber).catch(e => console.warn(e)),
+              moduleId: String(moduleNumber),
               subject: user.subject || 'Science',
               conceptCompleted: true
             });
@@ -476,7 +476,7 @@ export default function ConceptPage() {
         trackLevelStart(moduleNumber, title.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase() || `level_${moduleNumber}`);
 
         if (user?._id) {
-          authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber).catch(e => console.warn(e)), subject: user.subject || 'Science', lessonTitle: title, isCorrect: true, deltaScore: 0, resetLesson: index === 0 });
+          authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: title, isCorrect: true, deltaScore: 0, resetLesson: index === 0 });
         }
       } catch (_) {}
     })();
@@ -610,7 +610,7 @@ export default function ConceptPage() {
           console.log('[ConceptPage] Saving module completion to database:', moduleNumber);
           authService.updateProgress({
             userId: user._id,
-            moduleId: String(moduleNumber).catch(e => console.warn(e)),
+            moduleId: String(moduleNumber),
             subject: user.subject || 'Science', // CRITICAL: Include subject and use moduleId
             conceptCompleted: true
           });
@@ -645,7 +645,7 @@ export default function ConceptPage() {
       if (user?._id) {
         authService.updateProgress({
           userId: user._id, 
-          moduleId: String(moduleNumber).catch(e => console.warn(e)), 
+          moduleId: String(moduleNumber), 
           subject: user.subject || 'Science', 
           conceptCompleted: true 
         });

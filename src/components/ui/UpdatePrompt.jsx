@@ -72,7 +72,7 @@ const UpdatePrompt = () => {
                 </a>
 
                 <p className="mt-4 text-xs text-gray-500 uppercase tracking-widest">
-                    v4.0.0 (Build {appVersion})
+                    v4.0.1 (Build {appVersion})
                 </p>
             </div>
         </div>
