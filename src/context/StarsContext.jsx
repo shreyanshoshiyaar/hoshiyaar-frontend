@@ -310,10 +310,10 @@ export const StarsProvider = ({ children }) => {
 };
 
 
-export const StarCounter = () => {
+export const StarCounter = ({ className = '' }) => {
   const { stars, delta } = useStars();
   return (
-    <div className="relative flex items-center gap-1 sm:gap-2 text-gray-800 select-none">
+    <div className={`relative flex items-center gap-1 sm:gap-2 select-none ${className || 'text-gray-800'}`}>
       <svg
         width="18"
         height="18"

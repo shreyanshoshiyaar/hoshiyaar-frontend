@@ -1,12 +1,16 @@
-const fs = require('fs');
-const file = 'src/components/Learn/pages/LearnDashboard.jsx';
-let code = fs.readFileSync(file, 'utf8');
+﻿const fs = require('fs');
+let content = fs.readFileSync('src/components/Learn/pages/LearnDashboard.jsx', 'utf8');
 
-// Remove the !isAdmin bypass for progression
-code = code.replace(/if \(status === 'locked' && !isAdmin\) \{/g, "if (status === 'locked') {");
+content = content.replace(
+  /let status = isCompleted \? "completed" : "active";/g,
+  (match, offset, str) => {
+    if (offset < str.length / 2) {
+      return let status = "locked";\nif (isCompleted) {\n  status = "completed";\n} else if (isPaywallLocked) {\n  status = "locked";\n} else if (index === firstIncompleteGlobal) {\n  status = "active";\n};
+    } else {
+      return let status = "locked";\nif (isCompleted) {\n  status = "completed";\n} else if (isPaywallLocked) {\n  status = "locked";\n} else if (index === firstIncompleteForUnit) {\n  status = "active";\n};
+    }
+  }
+);
 
-// Allow PathNode to always capture clicks so it triggers the warning even when visually 'disabled'
-code = code.replace(/onClick=\{disabled \? undefined : onClick\}/g, "onClick={onClick}");
-
-fs.writeFileSync(file, code);
-console.log('Fixed!');
+fs.writeFileSync('src/components/Learn/pages/LearnDashboard.jsx', content, 'utf8');
+console.log('LearnDashboard progression restored.');

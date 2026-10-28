@@ -9,6 +9,8 @@ import { trackAppError, trackFirstModuleStatus } from '../../../utils/analytics.
 import paymentService from '../../../services/paymentService.js';
 import PaywallModal from '../../features/Subscription/PaywallModal.jsx';
 import { isUserAdmin } from '../../../utils/adminCheck.js';
+import { isNewStyleStory } from '../../../utils/comicStyleHelper.js';
+import { requestAudioPermissions } from '../../../utils/audioPreloadService.js';
 
 export default function ModuleEntryRedirect() {
   const navigate = useNavigate();
@@ -27,6 +29,11 @@ export default function ModuleEntryRedirect() {
   const [accessChecking, setAccessChecking] = useState(true);
   const [accessData, setAccessData] = useState(null);
   const [showPaywall, setShowPaywall] = useState(false);
+
+  useEffect(() => {
+    // Request audio permissions & unlock audio pipeline early
+    requestAudioPermissions().catch(() => {});
+  }, [moduleNumber]);
 
   useEffect(() => {
     let isMounted = true;
@@ -138,11 +145,11 @@ export default function ModuleEntryRedirect() {
       const first = items[idx];
       
       switch (first?.type) {
-        case 'concept':
-        case 'statement':
-        case 'comic':
-        case 'video':
-          navigate(`/learn/module/${moduleNumber}/concept/${idx}${searchSuffix}`, { replace: true });
+        case 'engagement':
+        case 'engagement-audio':
+        case 'engagement-mcq':
+        case 'engagement-rearrange':
+          navigate(`/learn/module/${moduleNumber}/engagement/${idx}${searchSuffix}`, { replace: true });
           break;
         case 'multiple-choice':
           navigate(`/learn/module/${moduleNumber}/mcq/${idx}${searchSuffix}`, { replace: true });
@@ -156,9 +163,41 @@ export default function ModuleEntryRedirect() {
         case 'descriptive':
           navigate(`/learn/module/${moduleNumber}/descriptive/${idx}${searchSuffix}`, { replace: true });
           break;
+        case 'didyouknow':
+        case 'did_you_know':
+        case 'did-you-know':
+        case 'remember':
+          navigate(`/learn/module/${moduleNumber}/didyouknow/${idx}${searchSuffix}`, { replace: true });
+          break;
+        case 'comic': {
+          const searchParams = new URLSearchParams(window.location.search);
+          const isNew = isNewStyleStory({
+            item: first,
+            items,
+            chapterId: searchParams.get('chapterId'),
+            chapterTitle: searchParams.get('title')
+          });
+          if (isNew) {
+            navigate(`/learn/module/${moduleNumber}/story/${idx}${searchSuffix}`, { replace: true });
+          } else {
+            navigate(`/learn/module/${moduleNumber}/concept/${idx}${searchSuffix}`, { replace: true });
+          }
+          break;
+        }
+        case 'story':
+          navigate(`/learn/module/${moduleNumber}/story/${idx}${searchSuffix}`, { replace: true });
+          break;
+        case 'blackboard':
+        case 'blackboard-step':
+        case 'board':
+          navigate(`/learn/module/${moduleNumber}/blackboard/${idx}${searchSuffix}`, { replace: true });
+          break;
+        case 'concept':
+        case 'statement':
+        case 'video':
         default:
-          console.warn('[ModuleEntryRedirect] Unknown item type, showing error state:', first?.type);
-          setUnsupportedType(true);
+          navigate(`/learn/module/${moduleNumber}/concept/${idx}${searchSuffix}`, { replace: true });
+          break;
       }
     }
   }, [items, loading, error, moduleNumber, navigate, searchSuffix, showPrompt, resumePathState, accessChecking, showPaywall]);
@@ -271,16 +310,28 @@ export default function ModuleEntryRedirect() {
     );
   }
 
+  const searchParams = new URLSearchParams(location.search || '');
+  const chapterIdParam = searchParams.get('chapterId');
+  const unitIdParam = searchParams.get('unitId');
+  const backUrl = chapterIdParam 
+    ? `/learn?chapterId=${encodeURIComponent(chapterIdParam)}${unitIdParam ? `&unitId=${encodeURIComponent(unitIdParam)}` : ''}`
+    : '/learn';
+
   if (!items || items.length === 0) {
     return (
-      <div className="p-10 text-center">
-        <h2 className="text-2xl font-bold text-blue-900 mb-4">No content in this module yet.</h2>
-        <p className="text-blue-700/60 mb-6">Our team is working on bringing this lesson to you soon!</p>
+      <div className="min-h-screen bg-[#F0F6FF] flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-3xl mb-4 shadow-sm">
+          ⚠️
+        </div>
+        <h2 className="text-xl font-black text-slate-800 mb-2">Lesson Not Found</h2>
+        <p className="text-sm font-semibold text-slate-500 max-w-sm mb-6">
+          This lesson ID is outdated or was updated during a recent curriculum upload. Please return to the chapter map to open the latest lesson.
+        </p>
         <button 
-          onClick={() => navigate('/learn')}
-          className="px-6 py-2 bg-blue-600 text-white rounded-full font-bold"
+          onClick={() => navigate(backUrl)}
+          className="px-6 py-3 rounded-2xl bg-[#2563EB] hover:bg-blue-700 text-white font-black text-sm uppercase tracking-wider shadow-md transition-all active:scale-95 cursor-pointer"
         >
-          Go Back to Dashboard
+          Back to Chapter Lessons
         </button>
       </div>
     );

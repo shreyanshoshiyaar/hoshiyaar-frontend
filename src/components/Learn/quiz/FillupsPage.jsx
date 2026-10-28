@@ -1,3 +1,5 @@
+import { isNewStyleStory } from '../../../utils/comicStyleHelper.js';
+import { isMissionCompleteItem } from '../../../utils/missionCompleteHelper.js';
 import { Haptics } from '@capacitor/haptics';
 import ProgressBar from '../../ui/ProgressBar.jsx';
 import SimpleLoading from '../../ui/SimpleLoading.jsx';
@@ -11,6 +13,7 @@ import pointsService from '../../../services/pointsService.js';
 import curriculumService from '../../../services/curriculumService.js';
 // Inline feedback bar instead of modal
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
+import QuizFeedbackCards from './QuizFeedbackCards.jsx';
 import { useNavigate, useParams } from 'react-router-dom';
 import { trackLevelStart } from '../../../utils/analytics.js';
 import { getLearningParams } from '../../../utils/analyticsHelpers.js';
@@ -20,6 +23,12 @@ import ConceptExitConfirm from '../../modals/ConceptExitConfirm.jsx';
 import NoSkipsModal from '../../modals/NoSkipsModal.jsx';
 import correctSfx from '../../../assets/sounds/correct-choice-43861.mp3';
 import errorSfx from '../../../assets/sounds/error-010-206498.mp3';
+import LessonHeader from '../LessonHeader.jsx';
+import PlayfulBackground from './PlayfulBackground.jsx';
+import { getStageInfoForIndex } from '../../../utils/moduleStages.js';
+import ReportFlagButton from '../../common/ReportFlagButton.jsx';
+import { vibrateLight, vibrateSuccess, vibrateError } from '../../../utils/vibrationService.js';
+import { preloadAudio, playTtsAudio } from '../../../utils/audioPreloadService.js';
 
 export default function FillupsPage({ onQuestionComplete, isReviewMode = false }) {
   const navigate = useNavigate();
@@ -34,6 +43,19 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
   const unitIdParam = urlParams.get('unitId');
   const actualReviewMode = isReviewMode || isReviewModeFromUrl || isRevisionModeFromUrl;
   const { user } = useAuth();
+  
+  const stageInfo = useMemo(() => {
+    if (!items || items.length === 0 || actualReviewMode) return null;
+    return getStageInfoForIndex(items, index);
+  }, [items, index, actualReviewMode]);
+
+  // Audio preloading for 0-latency playback on question transitions
+  useEffect(() => {
+    if (items && items[index + 1]) {
+      const nextItem = items[index + 1];
+      if (nextItem.audioUrl) preloadAudio(nextItem.audioUrl);
+    }
+  }, [items, index]);
   
   useEffect(() => {
     const title = urlParams.get('title') || `Module ${moduleNumber}`;
@@ -81,12 +103,63 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
         type: String(revisionItem.type || ''), // Preserve revision type exactly
         question: revisionQuestion || curriculumItem?.question || '',
         text: revisionItem.text || revisionItem.question || curriculumItem?.text || '',
+        options: Array.isArray(revisionItem.options) ? revisionItem.options : (curriculumItem?.options || []),
         answer: revisionItem.answer || curriculumItem?.answer || '',
-        images: Array.isArray(revisionItem.images) ? revisionItem.images : (curriculumItem?.images || [])
+        images: Array.isArray(revisionItem.images) ? revisionItem.images : (curriculumItem?.images || []),
+        explanation: revisionItem.explanation || curriculumItem?.explanation || '',
+        onWrong: revisionItem.onWrong || curriculumItem?.onWrong || '',
+        hint: revisionItem.hint || curriculumItem?.hint || ''
       };
     }
     return curriculumItem;
   }, [isRevisionModeFromUrl, revisionItem, curriculumItem]);
+
+  const isHotZone = useMemo(() => {
+    const q = String(item?.question || item?.text || '').toLowerCase();
+    const ct = String(item?.cardTitle || item?.batchTitle || '').toLowerCase();
+    const type = String(item?.type || '').toLowerCase();
+    return q.includes('hot zone') || q.includes('hotzone') || ct.includes('hot zone') || type.includes('hotzone');
+  }, [item]);
+
+  const [eliminatedOptions, setEliminatedOptions] = useState([]);
+  const [showTextHint, setShowTextHint] = useState(false);
+  const [hintUsed, setHintUsed] = useState(false);
+
+  useEffect(() => {
+    setEliminatedOptions([]);
+    setShowTextHint(false);
+    setHintUsed(false);
+  }, [index, moduleNumber]);
+
+  const handleUseHint = () => {
+    if (hintUsed || showResult) return;
+    setHintUsed(true);
+
+    if (Array.isArray(item?.options) && item.options.length > 2) {
+      // Strike off one incorrect option
+      const correctAnswer = Array.isArray(item.answer) ? item.answer[0] : item.answer;
+      const incorrectIndices = item.options
+        .map((opt, idx) => ({ opt, idx }))
+        .filter(({ opt }) => String(opt).trim().toLowerCase() !== String(correctAnswer || '').trim().toLowerCase())
+        .map(({ idx }) => idx);
+
+      if (incorrectIndices.length > 0) {
+        const randomIncorrectIdx = incorrectIndices[Math.floor(Math.random() * incorrectIndices.length)];
+        setEliminatedOptions(prev => [...prev, randomIncorrectIdx]);
+      }
+    } else {
+      setShowTextHint(true);
+    }
+  };
+
+    const playPromptAudio = () => {
+    const textToSpeak = item?.targetWord || item?.question || item?.text || '';
+    if (!textToSpeak) return;
+    playTtsAudio(textToSpeak, item?.speaker || 'Arpit Sir');
+  };
+
+  // The question is read aloud only when the student taps the speaker button (no auto-play)
+
   // Local cache writers so dashboard star updates immediately on completion
   const LS_KEY = 'lesson_progress_v1';
   const markCompletedLocal = (chapterZeroIdx) => {
@@ -111,11 +184,6 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
     } catch (_) {}
   };
   const { stars: totalStars, awardCorrect, awardWrong, addToSession, clearSession } = useStars();
-
-
-
-
-
 
   const [feedback, setFeedback] = useState({ open: false, correct: false, expected: '' });
   const [userAnswer, setUserAnswer] = useState('');
@@ -403,17 +471,37 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
   }, [showResult]);
 
   function routeForType(type, idx) {
-    switch (type) {
-      case 'comic':
-      case 'concept':
-      case 'statement':
-      case 'video':
-        return `/learn/module/${moduleNumber}/concept/${idx}`;
+    const t = String(type || '').toLowerCase();
+    if (t.startsWith('engagement')) return `/learn/module/${moduleNumber}/engagement/${idx}`;
+    switch (t) {
       case 'multiple-choice': return `/learn/module/${moduleNumber}/mcq/${idx}`;
       case 'fill-in-the-blank': return `/learn/module/${moduleNumber}/fillups/${idx}`;
       case 'rearrange': return `/learn/module/${moduleNumber}/rearrange/${idx}`;
       case 'descriptive': return `/learn/module/${moduleNumber}/descriptive/${idx}`;
-      default: return `/learn`;
+      case 'didyouknow':
+      case 'did_you_know':
+      case 'did-you-know':
+      case 'remember':
+        return `/learn/module/${moduleNumber}/didyouknow/${idx}`;
+      case 'story':
+        return `/learn/module/${moduleNumber}/story/${idx}`;
+      case 'comic': {
+        const nextIt = items?.[idx];
+        const chId = typeof chapterIdParam !== 'undefined' ? chapterIdParam : (typeof chapterId !== 'undefined' ? chapterId : '');
+        const isNew = isNewStyleStory({ item: nextIt, items, chapterId: chId });
+        return isNew
+          ? `/learn/module/${moduleNumber}/story/${idx}`
+          : `/learn/module/${moduleNumber}/concept/${idx}`;
+      }
+      case 'blackboard':
+      case 'blackboard-step':
+      case 'board':
+        return `/learn/module/${moduleNumber}/blackboard/${idx}`;
+      case 'concept':
+      case 'statement':
+      case 'video':
+      default:
+        return `/learn/module/${moduleNumber}/concept/${idx}`;
     }
   }
 
@@ -491,7 +579,14 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
     const isFirstAttempt = !hasAttempted;
     if (!hasAttempted) setHasAttempted(true);
 
-    try { (correct ? correctAudio : errorAudio)?.current?.play?.(); } catch (_) {}
+    try { 
+      (correct ? correctAudio : errorAudio)?.current?.play?.(); 
+      if (correct) {
+        vibrateSuccess();
+      } else {
+        vibrateError();
+      }
+    } catch (_) {}
 
     // GA4 Tracking: First Question Answered
     const answeredKey = `first_question_answered_${moduleNumber}`;
@@ -635,7 +730,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
     });
     const suffix = persistent.toString() ? `?${persistent.toString()}` : '';
     
-    if (nextIndex >= items.length) {
+    if (nextIndex >= items.length || isMissionCompleteItem(items[nextIndex])) {
       // Declare variables outside try block so they're accessible throughout the function
       let chapterIdForStorage = chapterIdParam || null;
       let unitIdForStorage = unitIdParam || null;
@@ -720,6 +815,27 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
       clearSession();
       return navigate(`/lesson-complete?${completionParams.toString()}`);
     }
+
+    if (nextItem) {
+      const q = String(nextItem.question || nextItem.text || '').toLowerCase();
+      const ct = String(nextItem.cardTitle || nextItem.batchTitle || '').toLowerCase();
+      const type = String(nextItem.type || '').toLowerCase();
+      const isNextHotZone = q.includes('hot zone') || q.includes('hotzone') || ct.includes('hot zone') || type.includes('hotzone');
+      const isNextExam = q.includes('exam moment') || q.includes('exam mode') || ct.includes('exam') || type === 'descriptive';
+
+      const hotzoneKey = `hotzone_intro_shown_${moduleNumber}`;
+      if (isNextHotZone && !sessionStorage.getItem(hotzoneKey) && !actualReviewMode) {
+        sessionStorage.setItem(hotzoneKey, 'true');
+        return navigate(`/learn/module/${moduleNumber}/hotzone-intro${suffix}`);
+      }
+
+      const examKey = `exam_intro_shown_${moduleNumber}`;
+      if (isNextExam && !sessionStorage.getItem(examKey) && !actualReviewMode) {
+        sessionStorage.setItem(examKey, 'true');
+        return navigate(`/learn/module/${moduleNumber}/exam-intro${suffix}`);
+      }
+    }
+
     navigate(`${routeForType(nextItem?.type || 'concept', nextIndex)}${suffix}`);
   }
 
@@ -828,7 +944,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
             {actualReviewMode ? (
               <ProgressBar currentIndex={initialQueueCount - queue.length} total={Math.max(1, initialQueueCount)} />
             ) : (
-              <ProgressBar currentIndex={index} total={items.length} />
+              <ProgressBar currentIndex={index} total={items?.filter(it => !isMissionCompleteItem(it)).length || items.length} />
             )}
           </div>
           <StarCounter />
@@ -885,64 +1001,59 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
 
 
   return (
-
-    <div 
-      style={{ 
-        height: viewportHeight,
-        backgroundImage: 'url("https://res.cloudinary.com/imq5966f/image/upload/v1791543809/img-to-link/uyinmhu24f36fdmj6ejz.webp")',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }} 
-      className="fixed inset-0 flex flex-col overflow-hidden md:!bg-none md:!bg-[#ffffd7]"
-    >
-      {/* Header - reduced padding for mobile */}
-      <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
-        <button 
-          onClick={handleBack}
-          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-600"
-          title="Back"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-          </svg>
-        </button>
-        <div className="flex-1 mx-1 sm:mx-2 md:mx-4 flex flex-col items-center">
-          <span className="text-[10px] sm:text-xs font-black text-blue-600/80 uppercase tracking-widest mb-0.5">
-            {actualReviewMode ? 'REVISE PROGRESS' : 'LEARN PROGRESS'}: {actualReviewMode ? `${initialQueueCount - queue.length + 1} / ${initialQueueCount}` : `${index + 1} / ${items.length}`}
-          </span>
-          {actualReviewMode ? (
-            <ProgressBar currentIndex={initialQueueCount - queue.length} total={Math.max(1, initialQueueCount)} />
-          ) : (
-            <ProgressBar currentIndex={index} total={items.length} />
-          )}
-        </div>
-        <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
-          {(user?.role === 'admin' || user?.role === 'master' || ['Host', 'hostcbse', 'AKSHITRAVULA', 'AKSHIT', 'SB10', 'Nidhi sekhri'].includes(user?.username) || ['9867735936', '7021970672', '9820277252'].some(p => String(user?.phone || '').replace(/\D/g, '').endsWith(p))) ? (
-            <button
-              onClick={handleMasterSkip}
-              className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-black rounded-lg shadow-sm border-b-4 border-yellow-700 active:border-b-0 active:translate-y-1 transition-all mr-2 uppercase"
-            >
-              Skip ⚡️
-            </button>
-          ) : (
-            <button
-              onClick={handlePlayerSkip}
-              className={`px-3 py-1 text-white text-xs font-black rounded-lg shadow-sm border-b-4 transition-all mr-2 uppercase ${skipsLeft > 0 ? 'bg-yellow-500 hover:bg-yellow-600 border-yellow-700 active:border-b-0 active:translate-y-1' : 'bg-gray-300 border-gray-400 opacity-80 cursor-not-allowed'}`}
-            >
-              Skip ({skipsLeft})
-            </button>
-          )}
-          <StarCounter />
-        </div>
-      </div>
+    <div className="fixed inset-0 select-none overflow-hidden">
+      <PlayfulBackground isHotZone={isHotZone} cardIndex={index}>
+      {/* Unified Lesson Header */}
+      <LessonHeader
+        onBack={handleBack}
+        title={isHotZone ? 'HOT ZONE' : (actualReviewMode ? 'REVISE PROGRESS' : 'PRACTICE')}
+        currentIndex={actualReviewMode ? (initialQueueCount - queue.length) : index}
+        total={actualReviewMode ? Math.max(1, initialQueueCount) : (items?.filter(it => !isMissionCompleteItem(it)).length || items.length)}
+        stageInfo={stageInfo}
+        theme={isHotZone ? 'hotzone' : 'light'}
+        onSkip={handleMasterSkip}
+      />
 
       {/* Main Content - optimized for mobile with reduced spacing */}
-      <div className="flex-1 flex flex-col items-center px-2 sm:px-3 md:px-6 overflow-y-auto md:overflow-y-auto md:justify-start pb-40 sm:pb-32 md:pb-0 mt-2 md:mt-4">
-        <div className="w-full max-w-4xl px-2 mt-2 sm:mt-4 md:mt-4 mb-4 sm:mb-6">
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 text-center leading-tight">
+      <div className="flex-1 flex flex-col items-center px-2 sm:px-3 md:px-6 overflow-y-auto md:overflow-y-auto md:justify-start pb-40 sm:pb-32 md:pb-0 mt-2 md:mt-4 lg:mt-10 lgshort:mt-3">
+        {/* Type Badge & Counter */}
+        <div className="w-full max-w-sm sm:max-w-md md:max-w-xl lg:max-w-3xl flex items-center justify-between px-2 mb-1">
+          <span className={`px-3.5 py-1 rounded-full font-black text-xs sm:text-sm tracking-wide ${
+            isHotZone 
+              ? 'bg-[#FF6B00] text-white shadow-xs' 
+              : 'bg-[#E6F8F0] text-[#027A48]'
+          }`}>
+            {isHotZone ? "Hot zone" : (item?.badge || "Fill Ups")}
+          </span>
+          <div className="flex items-center gap-2.5">
+            <span className="text-slate-500 font-black text-sm sm:text-base">
+              {actualReviewMode ? `${initialQueueCount - queue.length + 1} / ${initialQueueCount}` : `${index + 1} / ${items.length}`}
+            </span>
+            <ReportFlagButton
+              itemId={item?.itemId || item?._id || `fillups-${index}`}
+              moduleId={moduleNumber}
+              chapterId={chapterIdParam}
+              questionText={item?.question}
+              screenName={`Fillups Q${index + 1}`}
+            />
+          </div>
+        </div>
+
+        <div className="w-full max-w-2xl lg:max-w-3xl px-2 mt-2 sm:mt-4 mb-4 sm:mb-6 lg:mb-8 lgshort:mb-4 flex items-center justify-center gap-2 lg:gap-3">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-gray-900 text-center leading-tight">
             {item.question}
           </h2>
+          <button
+            type="button"
+            onClick={playPromptAudio}
+            className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-300 flex items-center justify-center text-slate-700 transition-colors flex-shrink-0 cursor-pointer shadow-sm active:scale-95"
+            title="Listen to question"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+              <path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.5A2.25 2.25 0 002.25 9.75v4.5A2.25 2.25 0 004.5 16.5h1.94l4.5 4.5c.944.945 2.56.276 2.56-1.06V4.06zM18.584 5.106a.75.75 0 011.06 0c3.808 3.807 3.808 9.98 0 13.788a.75.75 0 11-1.06-1.06 8.25 8.25 0 000-11.668.75.75 0 010-1.06z" />
+              <path d="M15.932 7.757a.75.75 0 011.061 0 6 6 0 010 8.486.75.75 0 01-1.06-1.061 4.5 4.5 0 000-6.364.75.75 0 010-1.06z" />
+            </svg>
+          </button>
         </div>
 
         {/* Image block */}
@@ -952,7 +1063,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
           const list = imgs.length > 0 ? imgs : primary;
           if (list.length === 0) {
             return (
-              <div className="w-full max-w-xl sm:max-w-2xl md:max-w-3xl h-32 sm:h-40 md:h-60 rounded-2xl sm:rounded-3xl border-2 border-gray-200 bg-gray-50 flex items-center justify-center mb-1 sm:mb-3 md:mb-4">
+              <div className="w-full max-w-xl sm:max-w-2xl md:max-w-3xl h-32 sm:h-40 md:h-60 rounded-2xl sm:rounded-3xl border-2 border-gray-200 bg-gray-50 flex lg:hidden items-center justify-center mb-1 sm:mb-3 md:mb-4">
                 <span className="text-gray-400 text-sm sm:text-base">Image</span>
               </div>
             );
@@ -1021,74 +1132,122 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
           </div>
         </div>
 
-        {/* Bottom padding - mobile only for fixed button */}
+        {/* Options list if available (e.g. choice-based fillup) */}
+        {Array.isArray(item.options) && item.options.length > 0 && (
+          <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl flex flex-wrap gap-2 lg:gap-3 mb-3 lg:mt-2">
+            {item.options.map((opt, oIdx) => {
+              const isEliminated = eliminatedOptions.includes(oIdx);
+              const isSelected = userAnswer === opt;
+              return (
+                <button
+                  key={oIdx}
+                  type="button"
+                  disabled={isEliminated || showResult}
+                  onClick={() => setUserAnswer(opt)}
+                  className={`flex-1 min-w-[120px] py-2.5 lg:py-3.5 px-3 rounded-xl font-bold text-sm sm:text-base lg:text-lg border-2 transition-all cursor-pointer ${
+                    isEliminated
+                      ? 'line-through opacity-45 pointer-events-none bg-stone-200 text-stone-400 border-stone-300'
+                      : isSelected
+                        ? 'bg-blue-500 text-white border-blue-600 shadow-md'
+                        : 'bg-white text-slate-700 border-slate-200 hover:border-blue-300 shadow-sm'
+                  }`}
+                >
+                  {opt}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
+        {/* Text-based Hint Box if triggered */}
+        {showTextHint && (item.hint || item.onWrong) && (
+          <div className="w-full max-w-sm sm:max-w-md lg:max-w-3xl bg-amber-50 border border-amber-300 rounded-2xl p-3 text-amber-900 text-sm font-semibold flex items-center gap-2 mb-3 animate-fadeIn">
+            <span className="text-lg">💡</span>
+            <span>{item.hint || item.onWrong}</span>
+          </div>
+        )}
+
+        {/* Hot Zone Use a Hint Button */}
+        {isHotZone && !showResult && (
+          <div className="w-full max-w-sm sm:max-w-md lg:max-w-3xl mb-3">
+            <button
+              type="button"
+              onClick={handleUseHint}
+              disabled={hintUsed}
+              className={`w-full py-3 rounded-2xl font-black text-sm tracking-wider uppercase transition-all ${
+                hintUsed
+                  ? 'bg-stone-700/60 text-stone-400 cursor-not-allowed'
+                  : 'bg-[#2A170F] text-amber-100 hover:bg-[#3D2216] border border-[#FF6B00]/40 shadow-md active:scale-95 cursor-pointer'
+              }`}
+            >
+              {hintUsed ? 'Hint Used' : 'Use a hint'}
+            </button>
+          </div>
+        )}
+
+        {/* Universal Feedback Cards (Card 1 & Card 2) when incorrect */}
+        <div className="w-full max-w-sm sm:max-w-md lg:max-w-3xl">
+          <QuizFeedbackCards item={item} showResult={showResult} isCorrect={isCorrect} />
+        </div>
+
+        {/* Bottom in-card Try Again / Continue for incorrect result */}
+        {showResult && !isCorrect && (
+          <div className="w-full max-w-sm sm:max-w-md lg:max-w-3xl flex items-center gap-3 pt-2 pb-6">
+            <button
+              type="button"
+              onClick={handleTryAgain}
+              className="flex-1 h-13 sm:h-14 rounded-2xl font-black text-base bg-[#ff4b4b] hover:bg-[#ff5f5f] text-white shadow-md active:translate-y-[2px] transition-all cursor-pointer flex items-center justify-center gap-1.5"
+            >
+              🔄 Try again
+            </button>
+            <button
+              type="button"
+              onClick={() => handleNext(true)}
+              className="flex-1 h-13 sm:h-14 rounded-2xl font-black text-base bg-slate-100 hover:bg-slate-200 border-2 border-slate-300 text-slate-700 shadow-sm active:translate-y-[2px] transition-all cursor-pointer flex items-center justify-center"
+            >
+              Continue
+            </button>
+          </div>
+        )}
+
+        {/* Bottom padding - mobile only for fixed button */}
       </div>
 
       {/* Bottom Action Bar - Unified for stability */}
-      <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white/40 backdrop-blur-sm border-t-2 border-white/20 sm:border-t-0 shadow-lg sm:shadow-none px-2 sm:px-3 md:px-6 py-2 sm:py-3 z-50 sm:z-auto">
-        {!showResult ? (
-          <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative z-10">
-            <img 
-              src="https://res.cloudinary.com/imq5966f/image/upload/v1791543810/img-to-link/j6qbsf6b9y4zdkeymjag.png" 
-              alt="Myra" 
-              className="hidden md:block absolute bottom-0 right-4 lg:right-8 w-[100px] lg:w-[130px] object-contain -z-10 pointer-events-none" 
-            />
-            <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  inputRef.current?.blur();
-                  handleSubmit();
-                }}
-                className="flex-1 py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-blue-600 text-white font-extrabold text-lg sm:text-lg transition-colors shadow-lg sm:shadow-none"
-              >
-                Check
-              </button>
-            </div>
+      {!showResult && (
+        <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white/80 lg:bg-transparent backdrop-blur-sm lg:backdrop-blur-none border-t border-slate-200 sm:border-t-0 shadow-lg sm:shadow-none px-4 py-3 lg:pb-8 z-50 sm:z-auto lg:w-full">
+          <div className="w-full max-w-sm sm:max-w-md lg:max-w-3xl mx-auto relative z-10 flex gap-2">
+            <button
+              onClick={() => {
+                inputRef.current?.blur();
+                handleSubmit();
+              }}
+              className="flex-1 h-14 sm:h-16 rounded-[22px] bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xl transition-all shadow-md active:scale-[0.99] cursor-pointer"
+            >
+              Check
+            </button>
           </div>
-        ) : (
-          <div className="h-[60px] sm:h-0"></div> // Spacer to keep layout stable on desktop when feedback appears
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* Inline feedback bar - Duolingo Style (Refined Classy Theme) */}
-      {showResult && (
-        <div className={`fixed left-0 right-0 bottom-0 z-[100] pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.2)] ${
-          isCorrect ? 'bg-[#d7ffb8]' : 'bg-[#1a2b3c]'
-        }`}>
-          <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto px-6 py-4 flex flex-col gap-3 relative z-10">
-            <img 
-              src="https://res.cloudinary.com/imq5966f/image/upload/v1791543810/img-to-link/j6qbsf6b9y4zdkeymjag.png" 
-              alt="Myra" 
-              className="hidden md:block absolute bottom-0 right-4 lg:right-8 w-[100px] lg:w-[130px] object-contain -z-10 pointer-events-none" 
-            />
+      {/* Inline feedback bar (only on correct submission) */}
+      {showResult && isCorrect && (
+        <div className="fixed left-0 right-0 bottom-0 z-[100] pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.2)] bg-[#d7ffb8]">
+          <div className="w-full max-w-sm sm:max-w-md mx-auto px-6 py-4 flex flex-col gap-3 relative z-10">
             <div className="flex items-center gap-4">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-inner ${
-                isCorrect ? 'bg-white text-[#58a700]' : 'bg-[#ff4b4b] text-white'
-              }`}>
-                <span className="text-xl">{isCorrect ? '✓' : '✕'}</span>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-inner bg-white text-[#58a700]">
+                <span className="text-xl">✓</span>
               </div>
               <div className="flex flex-col">
-                <p className={`text-[18px] font-black tracking-tight leading-tight ${
-                  isCorrect ? 'text-[#58a700]' : 'text-[#ff4b4b]'
-                }`}>
-                  {isCorrect ? 'You are correct!' : 'Correct solution:'}
+                <p className="text-[18px] font-black tracking-tight leading-tight text-[#58a700]">
+                  You are correct!
                 </p>
-                {!isCorrect && (
-                  <p className="text-[15px] font-bold text-white mt-0.5 opacity-90">
-                    {Array.isArray(item?.answer) ? item?.answer[0] : item?.answer}
-                  </p>
-                )}
               </div>
             </div>
             
             <button
-              onClick={isCorrect ? handleNext : handleTryAgain}
-              className={`w-full py-3 rounded-[16px] text-[16px] font-black tracking-widest shadow-[0_4px_0_rgba(0,0,0,0.2)] transform active:translate-y-1 active:shadow-none transition-all uppercase ${
-                isCorrect 
-                  ? 'bg-[#58cc02] text-white hover:bg-[#61e002]' 
-                  : 'bg-[#ff4b4b] text-white hover:bg-[#ff5f5f]'
-              }`}
+              onClick={handleNext}
+              className="w-full py-3.5 rounded-[16px] text-[16px] font-black tracking-widest shadow-[0_4px_0_rgba(0,0,0,0.2)] transform active:translate-y-1 active:shadow-none transition-all uppercase bg-[#58cc02] text-white hover:bg-[#61e002] cursor-pointer"
             >
               CONTINUE
             </button>
@@ -1133,6 +1292,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
         </div>
       )}
       <NoSkipsModal isOpen={showNoSkipsModal} onClose={() => setShowNoSkipsModal(false)} />
+      </PlayfulBackground>
     </div>
   );
 }

@@ -1,7 +1,10 @@
+import { isNewStyleStory } from '../../../utils/comicStyleHelper.js';
+import { isMissionCompleteItem } from '../../../utils/missionCompleteHelper.js';
 import ProgressBar from '../../ui/ProgressBar.jsx';
 import SimpleLoading from '../../ui/SimpleLoading.jsx';
 import IncorrectAnswerModal from '../../modals/IncorrectAnswerModal.jsx';
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
+import QuizFeedbackCards from './QuizFeedbackCards.jsx';
 import { trackLevelStart, trackFirstQuestionAnswered } from '../../../utils/analytics.js';
 import { getLearningParams } from '../../../utils/analyticsHelpers.js';
 import ConceptExitConfirm from '../../modals/ConceptExitConfirm.jsx';
@@ -17,6 +20,12 @@ import { progressKey } from '../../../utils/progressKey.js';
 import correctSfx from '../../../assets/sounds/correct-choice-43861.mp3';
 import errorSfx from '../../../assets/sounds/error-010-206498.mp3';
 import { Haptics } from '@capacitor/haptics';
+import LessonHeader from '../LessonHeader.jsx';
+import PlayfulBackground from './PlayfulBackground.jsx';
+import { getStageInfoForIndex } from '../../../utils/moduleStages.js';
+import ReportFlagButton from '../../common/ReportFlagButton.jsx';
+import { vibrateLight, vibrateSuccess, vibrateError } from '../../../utils/vibrationService.js';
+import { preloadAudio, playTtsAudio } from '../../../utils/audioPreloadService.js';
 
 export default function DescriptivePage() {
   const navigate = useNavigate();
@@ -30,6 +39,19 @@ export default function DescriptivePage() {
   const unitIdParam = searchParams.get('unitId');
   const actualReviewMode = isReviewModeFromUrl || isRevisionModeFromUrl;
   const { user } = useAuth();
+  
+  const stageInfo = useMemo(() => {
+    if (!items || items.length === 0 || actualReviewMode) return null;
+    return getStageInfoForIndex(items, index);
+  }, [items, index, actualReviewMode]);
+
+  // Audio preloading for 0-latency playback on question transitions
+  useEffect(() => {
+    if (items && items[index + 1]) {
+      const nextItem = items[index + 1];
+      if (nextItem.audioUrl) preloadAudio(nextItem.audioUrl);
+    }
+  }, [items, index]);
   
   useEffect(() => {
     const title = searchParams.get('title') || `Module ${moduleNumber}`;
@@ -49,6 +71,9 @@ export default function DescriptivePage() {
   const [showNoSkipsModal, setShowNoSkipsModal] = useState(false);
   const [hasAttempted, setHasAttempted] = useState(false);
   const [forceShowExpert, setForceShowExpert] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef(null);
+  const baseTextRef = useRef('');
   const [skipsLeft, setSkipsLeft] = useState(() => {
     const stored = sessionStorage.getItem(`skips_${moduleNumber}`);
     return stored !== null ? parseInt(stored, 10) : 5;
@@ -57,7 +82,116 @@ export default function DescriptivePage() {
   const correctAudio = useRef(null);
   const errorAudio = useRef(null);
 
-  const item = useMemo(() => items[index] || null, [items, index]);
+  const revisionItem = useMemo(() => {
+    if (isRevisionModeFromUrl) {
+      if (activeReviewItem && 
+          String(activeReviewItem.moduleNumber) === String(moduleNumber) &&
+          String(activeReviewItem.index) === String(index) &&
+          activeReviewItem._revisionData) {
+        return activeReviewItem._revisionData;
+      }
+      if (queue && queue.length > 0) {
+        const matchingItem = queue.find(q => 
+          String(q.moduleNumber) === String(moduleNumber) &&
+          String(q.index) === String(index) &&
+          q._revisionData
+        );
+        if (matchingItem && matchingItem._revisionData) {
+          return matchingItem._revisionData;
+        }
+      }
+    }
+    return null;
+  }, [isRevisionModeFromUrl, activeReviewItem, queue, moduleNumber, index]);
+
+  const curriculumItem = useMemo(() => items[index] || null, [items, index]);
+
+  const item = useMemo(() => {
+    if (isRevisionModeFromUrl && revisionItem) {
+      const revisionQuestion = revisionItem.question || revisionItem.text || '';
+      return {
+        ...(curriculumItem || {}),
+        ...revisionItem,
+        type: String(revisionItem.type || ''),
+        question: revisionQuestion || curriculumItem?.question || '',
+        text: revisionItem.text || revisionItem.question || curriculumItem?.text || '',
+        answer: revisionItem.answer || curriculumItem?.answer || '',
+        images: Array.isArray(revisionItem.images) ? revisionItem.images : (curriculumItem?.images || []),
+        explanation: revisionItem.explanation || curriculumItem?.explanation || '',
+        onWrong: revisionItem.onWrong || curriculumItem?.onWrong || '',
+        hint: revisionItem.hint || curriculumItem?.hint || ''
+      };
+    }
+    return curriculumItem;
+  }, [isRevisionModeFromUrl, revisionItem, curriculumItem]);
+
+  const toggleSpeechRecognition = () => {
+    if (isListening) {
+      try {
+        recognitionRef.current?.stop();
+      } catch (_) {}
+      setIsListening(false);
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Speech recognition is not supported in this browser. Please type your answer.');
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-IN';
+
+      // Capture base text so incremental spoken words append without stuttering
+      const currentText = userInput.trim();
+      baseTextRef.current = currentText ? currentText + ' ' : '';
+
+      recognition.onstart = () => setIsListening(true);
+      recognition.onend = () => {
+        setIsListening(false);
+        recognitionRef.current = null;
+      };
+      recognition.onerror = (e) => {
+        console.warn('Speech error:', e);
+        setIsListening(false);
+        recognitionRef.current = null;
+      };
+
+      recognition.onresult = (e) => {
+        let finalChunk = '';
+        let interimChunk = '';
+        for (let i = 0; i < e.results.length; i++) {
+          const res = e.results[i];
+          if (res.isFinal) {
+            finalChunk += (res[0]?.transcript || '') + ' ';
+          } else {
+            interimChunk += (res[0]?.transcript || '');
+          }
+        }
+        const spoken = (finalChunk + interimChunk).trim();
+        if (spoken) {
+          setUserInput(baseTextRef.current + spoken);
+        }
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (err) {
+      console.error('Speech recognition failed to start:', err);
+      setIsListening(false);
+      recognitionRef.current = null;
+    }
+  };
+
+  const playPromptAudio = () => {
+    const textToSpeak = item?.question || item?.text || '';
+    if (!textToSpeak) return;
+    playTtsAudio(textToSpeak, item?.speaker || 'Arpit Sir');
+  };
 
   useEffect(() => {
     try {
@@ -75,6 +209,12 @@ export default function DescriptivePage() {
     setShowIncorrectModal(false);
     setHasAttempted(false);
     setForceShowExpert(false);
+    setIsListening(false);
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (_) {}
+    }
   }, [moduleNumber, index]);
 
   // Reset server-side lesson score at entry
@@ -230,8 +370,10 @@ export default function DescriptivePage() {
         src.currentTime = 0;
         src.play().catch(() => {});
       }
-      if (!isCorrectStatus) {
-        Haptics.vibrate();
+      if (isCorrectStatus) {
+        vibrateSuccess();
+      } else {
+        vibrateError();
       }
     } catch (_) {}
 
@@ -313,7 +455,7 @@ export default function DescriptivePage() {
 
   const handleNext = async () => {
     const nextIndex = index + 1;
-    if (nextIndex >= items.length) {
+    if (nextIndex >= items.length || isMissionCompleteItem(items[nextIndex])) {
       // 1. Mark as completed in database
       try {
         if (user?._id) {
@@ -379,21 +521,61 @@ export default function DescriptivePage() {
     const params = new URLSearchParams(window.location.search);
     const suffix = params.toString() ? `?${params.toString()}` : '';
 
+    if (nextItem) {
+      const q = String(nextItem.question || nextItem.text || '').toLowerCase();
+      const ct = String(nextItem.cardTitle || nextItem.batchTitle || '').toLowerCase();
+      const type = String(nextItem.type || '').toLowerCase();
+      const isNextHotZone = q.includes('hot zone') || q.includes('hotzone') || ct.includes('hot zone') || type.includes('hotzone');
+      const isNextExam = q.includes('exam moment') || q.includes('exam mode') || ct.includes('exam') || type === 'descriptive';
+
+      const hotzoneKey = `hotzone_intro_shown_${moduleNumber}`;
+      if (isNextHotZone && !sessionStorage.getItem(hotzoneKey) && !actualReviewMode) {
+        sessionStorage.setItem(hotzoneKey, 'true');
+        return navigate(`/learn/module/${moduleNumber}/hotzone-intro${suffix}`);
+      }
+
+      const examKey = `exam_intro_shown_${moduleNumber}`;
+      if (isNextExam && !sessionStorage.getItem(examKey) && !actualReviewMode) {
+        sessionStorage.setItem(examKey, 'true');
+        return navigate(`/learn/module/${moduleNumber}/exam-intro${suffix}`);
+      }
+    }
+
     navigate(`${routeForType(nextItem?.type || 'concept', nextIndex)}${suffix}`);
   };
 
   function routeForType(type, idx) {
-    switch (type) {
-      case 'comic':
-      case 'concept':
-      case 'statement':
-      case 'video':
-        return `/learn/module/${moduleNumber}/concept/${idx}`;
+    const t = String(type || '').toLowerCase();
+    if (t.startsWith('engagement')) return `/learn/module/${moduleNumber}/engagement/${idx}`;
+    switch (t) {
       case 'multiple-choice': return `/learn/module/${moduleNumber}/mcq/${idx}`;
       case 'fill-in-the-blank': return `/learn/module/${moduleNumber}/fillups/${idx}`;
       case 'rearrange': return `/learn/module/${moduleNumber}/rearrange/${idx}`;
       case 'descriptive': return `/learn/module/${moduleNumber}/descriptive/${idx}`;
-      default: return `/learn`;
+      case 'didyouknow':
+      case 'did_you_know':
+      case 'did-you-know':
+      case 'remember':
+        return `/learn/module/${moduleNumber}/didyouknow/${idx}`;
+      case 'story':
+        return `/learn/module/${moduleNumber}/story/${idx}`;
+      case 'comic': {
+        const nextIt = items?.[idx];
+        const chId = typeof chapterIdParam !== 'undefined' ? chapterIdParam : (typeof chapterId !== 'undefined' ? chapterId : '');
+        const isNew = isNewStyleStory({ item: nextIt, items, chapterId: chId });
+        return isNew
+          ? `/learn/module/${moduleNumber}/story/${idx}`
+          : `/learn/module/${moduleNumber}/concept/${idx}`;
+      }
+      case 'blackboard':
+      case 'blackboard-step':
+      case 'board':
+        return `/learn/module/${moduleNumber}/blackboard/${idx}`;
+      case 'concept':
+      case 'statement':
+      case 'video':
+      default:
+        return `/learn/module/${moduleNumber}/concept/${idx}`;
     }
   }
 
@@ -500,216 +682,208 @@ export default function DescriptivePage() {
   }
 
   return (
-    <div className="fixed inset-0 bg-white flex flex-col overflow-hidden">
-      <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
-        <button
-          onClick={handleBack}
-          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-600"
-          title="Back"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-          </svg>
-        </button>
-        <div className="flex-1 mx-1 sm:mx-2 md:mx-4 flex flex-col items-center">
-          <span className="text-[10px] sm:text-xs font-black text-blue-600/80 uppercase tracking-widest mb-0.5">
-            {actualReviewMode ? 'REVISE PROGRESS' : 'LEARN PROGRESS'}: {actualReviewMode ? `${initialQueueCount - queue.length + 1} / ${initialQueueCount}` : `${index + 1} / ${items.length}`}
-          </span>
-          {actualReviewMode ? (
-            <ProgressBar currentIndex={initialQueueCount - queue.length} total={Math.max(1, initialQueueCount)} />
-          ) : (
-            <ProgressBar currentIndex={index} total={items.length} />
-          )}
-        </div>
-        <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
-          {(user?.role === 'admin' || user?.role === 'master' || ['Host', 'hostcbse', 'AKSHITRAVULA', 'AKSHIT', 'SB10', 'Nidhi sekhri'].includes(user?.username) || ['9867735936', '7021970672', '9820277252'].some(p => String(user?.phone || '').replace(/\D/g, '').endsWith(p))) ? (
-            <button
-              onClick={handleMasterSkip}
-              className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-black rounded-lg shadow-sm border-b-4 border-yellow-700 active:border-b-0 active:translate-y-1 transition-all mr-2 uppercase"
-            >
-              Skip ⚡️
-            </button>
-          ) : (
-            <button
-              onClick={handlePlayerSkip}
-              className={`px-3 py-1 text-white text-xs font-black rounded-lg shadow-sm border-b-4 transition-all mr-2 uppercase ${skipsLeft > 0 ? 'bg-yellow-500 hover:bg-yellow-600 border-yellow-700 active:border-b-0 active:translate-y-1' : 'bg-gray-300 border-gray-400 opacity-80 cursor-not-allowed'}`}
-            >
-              Skip ({skipsLeft})
-            </button>
-          )}
-          <StarCounter />
-        </div>
-      </div>
+    <div className="fixed inset-0 select-none overflow-hidden">
+      <PlayfulBackground cardIndex={index}>
+      {/* Top Header (Unified Lesson Header) */}
+      <LessonHeader
+        onBack={handleBack}
+        title="EXAM MOMENT"
+        currentIndex={actualReviewMode ? (initialQueueCount - queue.length) : index}
+        total={actualReviewMode ? Math.max(1, initialQueueCount) : (items?.filter(it => !isMissionCompleteItem(it)).length || items.length)}
+        stageInfo={stageInfo}
+        theme="light"
+        showCount={false}
+        onSkip={handleMasterSkip}
+      />
 
-      <div className="flex-1 flex flex-col items-center px-4 sm:px-6 md:px-8 overflow-y-auto pb-20">
-        <div className="w-full max-w-3xl mt-6 sm:mt-10">
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-gray-900 text-center mb-6">
-            {item.question}
-          </h2>
-          {(() => {
-            const imgs = (Array.isArray(item.images) ? item.images : (item.images ? [item.images] : [])).filter(Boolean);
-            if (imgs.length === 0 && item.imageUrl) imgs.push(item.imageUrl);
-            return imgs.length > 0 ? (
-              <div className="w-full max-w-xl sm:max-w-2xl md:max-w-3xl mb-4 sm:mb-6 flex justify-center mx-auto">
-                <div className="flex flex-wrap md:flex-nowrap items-center justify-center gap-1 sm:gap-3 md:gap-5">
-                  {imgs.slice(0,5).map((src, i) => (
-                    <div key={i} className="border border-blue-300 rounded-lg sm:rounded-2xl p-1 sm:p-3 bg-white shadow-sm">
-                      <img src={src} alt={'desc-'+i} className="h-40 w-36 sm:h-32 sm:w-24 md:h-24 md:w-20 lg:h-32 lg:w-24 xl:h-40 xl:w-32 object-contain rounded-md sm:rounded-xl" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : null;
-          })()}
-          <div className="w-full space-y-4">
+      {/* Main Content Area - Top Aligned */}
+      <div className={`flex-1 w-full max-w-md ${showResult ? 'lg:max-w-6xl' : 'lg:max-w-4xl'} px-4 lg:px-6 py-2 overflow-y-auto flex flex-col justify-start items-center`}>
+        {/* White Exam Card */}
+        <div className="w-full bg-white text-slate-900 rounded-[28px] sm:rounded-[32px] p-5 sm:p-6 lg:p-7 lgshort:p-5 border-2 border-[#D1FADF] shadow-[0_8px_30px_rgba(0,0,0,0.08)] mt-1 sm:mt-2 lg:mt-4 lgshort:mt-1 mb-3">
+          {/* Card Top Row */}
+          <div className="flex items-center justify-between mb-4">
+            <span className="bg-[#101F33] text-white font-black text-xs px-3.5 py-1 rounded-full uppercase tracking-wider">
+              {item?.badge && item.badge !== 'Exam moment' ? item.badge : 'Descriptive'}
+            </span>
+            <div className="flex items-center gap-2.5">
+              <span className="text-slate-400 font-black text-sm">
+                {actualReviewMode ? `${initialQueueCount - queue.length + 1} / ${initialQueueCount}` : `${index + 1} / ${items.length}`}
+              </span>
+              <ReportFlagButton
+                itemId={item?.itemId || item?._id || `descriptive-${index}`}
+                moduleId={moduleNumber}
+                chapterId={chapterIdParam}
+                questionText={item?.question}
+                screenName={`Descriptive Q${index + 1}`}
+              />
+            </div>
+          </div>
+
+          {/* Question Title & TTS Speaker Button */}
+          <div className="mb-4">
+            <div className="flex items-start justify-between gap-3">
+              <h2 className="text-base sm:text-lg lg:text-2xl lgshort:text-lg font-black text-slate-900 leading-snug">
+                {item.question}
+              </h2>
+              <button
+                type="button"
+                onClick={playPromptAudio}
+                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-300 flex items-center justify-center text-slate-700 transition-colors flex-shrink-0 cursor-pointer shadow-sm active:scale-95"
+                title="Listen to question"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                  <path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.5A2.25 2.25 0 002.25 9.75v4.5A2.25 2.25 0 004.5 16.5h1.94l4.5 4.5c.944.945 2.56.276 2.56-1.06V4.06zM18.584 5.106a.75.75 0 011.06 0c3.808 3.807 3.808 9.98 0 13.788a.75.75 0 11-1.06-1.06 8.25 8.25 0 000-11.668.75.75 0 010-1.06z" />
+                  <path d="M15.932 7.757a.75.75 0 011.061 0 6 6 0 010 8.486.75.75 0 01-1.06-1.061 4.5 4.5 0 000-6.364.75.75 0 010-1.06z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* Desktop: answer on the left and, once checked, feedback and score on the right.
+              Below lg this wrapper is display:contents, so the phone layout is unchanged. */}
+          <div className={showResult ? 'contents lg:grid lg:grid-cols-2 lg:gap-6 lg:items-start' : 'contents'}>
+          {/* Textarea Input */}
+          <div className="w-full mb-3">
+            <label className="text-xs font-black text-slate-400 uppercase tracking-wider mb-1.5 block">
+              Your answer
+            </label>
             <textarea
               value={userInput}
               onChange={handleTextChange}
               disabled={showResult}
-              placeholder="Type your answer here..."
+              placeholder="Write it in your own words..."
               autoComplete="off"
               autoCorrect="off"
               autoCapitalize="none"
               spellCheck="false"
               inputMode="text"
-              data-gramm="false"
-              data-form-type="other"
-              data-lpignore="true"
-              data-1p-ignore="true"
-              name="descriptive-answer"
-              className={`w-full h-40 p-4 border-2 rounded-xl text-lg font-medium focus:outline-none transition-colors ${
-                showResult 
-                  ? (isCorrect ? 'border-green-400 bg-green-50' : 'border-red-400 bg-red-50') 
-                  : 'border-blue-200 focus:border-blue-500'
-              }`}
+              className="w-full min-h-[120px] sm:min-h-[140px] lg:min-h-[150px] lgshort:min-h-[100px] p-3.5 lg:p-4 border-2 rounded-2xl text-base lg:text-lg font-semibold text-slate-800 bg-[#FBFBFA] focus:bg-white border-slate-200 focus:border-blue-500 focus:outline-none transition-colors resize-none"
             />
 
-            {showResult && (
-              <div className="space-y-6 animate-fade-in mt-6">
-                <div className={`p-6 rounded-2xl border-2 shadow-sm ${
-                  scoreData?.status === 'perfect' ? 'bg-green-50 border-green-300' :
-                  scoreData?.status.startsWith('partial') ? 'bg-yellow-50 border-yellow-300' :
-                  'bg-red-50 border-red-300'
-                }`}>
-                  <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
-                    
-                    {/* Score Circle */}
-                    <div className="flex-shrink-0 flex flex-col items-center justify-center">
-                      <div className={`w-24 h-24 rounded-full border-4 flex flex-col items-center justify-center bg-white shadow-inner ${
-                        scoreData?.status === 'perfect' ? 'border-green-400 text-green-600' :
-                        scoreData?.status.startsWith('partial') ? 'border-yellow-400 text-yellow-600' :
-                        'border-red-400 text-red-600'
-                      }`}>
-                        <span className="text-3xl font-black">{scoreData?.percent}%</span>
-                        <span className="text-[10px] font-bold opacity-80 uppercase tracking-wider">Match</span>
-                      </div>
-                      
-                      {/* Stars */}
-                      <div className="flex gap-1 mt-3">
-                        {[...Array(3)].map((_, i) => (
-                          <svg key={i} className={`w-6 h-6 ${i < scoreData?.stars ? 'text-yellow-400 fill-current drop-shadow-sm' : 'text-gray-300 fill-current'}`} viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                          </svg>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Details */}
-                    <div className="flex-1 space-y-4 text-center md:text-left">
-                      <div>
-                        <h3 className={`text-2xl font-extrabold mb-1 ${
-                          scoreData?.status === 'perfect' ? 'text-green-800' :
-                          scoreData?.status.startsWith('partial') ? 'text-yellow-800' :
-                          'text-red-800'
-                        }`}>
-                          {scoreData?.status === 'perfect' ? '🎉 Brilliant!' :
-                           scoreData?.status.startsWith('partial') ? '⭐️ Good Attempt!' :
-                           '💡 Needs a bit more detail'}
-                        </h3>
-                        <p className="text-sm font-medium text-gray-600 opacity-80">
-                          {scoreData?.status === 'perfect' ? 'You matched all the key concepts perfectly.' :
-                           scoreData?.status.startsWith('partial') ? 'You got some of it right, but missed a few key words.' :
-                           'Try to include more of the required concepts next time.'}
-                        </p>
-                      </div>
-
-                      {/* Keywords */}
-                      {(foundKeywords.length > 0 || missedKeywords.length > 0) && (
-                        <div className="pt-2">
-                           <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Keyword Evaluation</p>
-                           <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
-                             {foundKeywords.map((kw, i) => (
-                               <span key={`f-${i}`} className="px-3 py-1.5 bg-green-100 border border-green-200 text-green-800 rounded-full text-xs font-bold flex items-center gap-1 shadow-sm"><span className="text-green-600">✓</span> {kw}</span>
-                             ))}
-                             {missedKeywords.map((kw, i) => (
-                               <span key={`m-${i}`} className="px-3 py-1.5 bg-gray-100 border border-gray-200 text-gray-600 rounded-full text-xs font-medium flex items-center gap-1"><span className="text-red-400 font-bold">×</span> {kw}</span>
-                             ))}
-                           </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Expert Answer */}
-                {(isCorrect || forceShowExpert) && ((item.modelAnswers && item.modelAnswers.length > 0) || item.text) && (
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-100 shadow-sm">
-                    <h4 className="text-base font-bold text-indigo-900 mb-3 flex items-center gap-2">
-                      <span className="text-xl">💡</span> Expert Answer
-                    </h4>
-                    <div className="bg-white/80 p-4 rounded-xl border border-white shadow-sm flex gap-3 items-start">
-                       <p className="text-gray-800 font-medium leading-relaxed">
-                         {(item.modelAnswers && item.modelAnswers.length > 0) ? item.modelAnswers[0] : item.text}
-                       </p>
-                    </div>
-                  </div>
-                )}
-
-              </div>
+            {/* Speak Button */}
+            {!showResult && (
+              <button
+                type="button"
+                onClick={toggleSpeechRecognition}
+                className={`mt-2.5 px-4 py-2 rounded-2xl font-black text-sm border-2 transition-all flex items-center gap-2 cursor-pointer shadow-sm active:scale-95 ${
+                  isListening
+                    ? 'bg-red-50 text-red-600 border-red-400 animate-pulse'
+                    : 'bg-white hover:bg-slate-50 text-slate-800 border-slate-200'
+                }`}
+              >
+                <span>{isListening ? '🔴' : '🎤'}</span>
+                <span>{isListening ? 'Listening... (tap to stop)' : 'Speak'}</span>
+              </button>
             )}
+          </div>
+
+          <div className="contents lg:block lg:-mt-2">
+          {/* Universal Feedback Cards when incorrect */}
+          <QuizFeedbackCards item={item} showResult={showResult} isCorrect={isCorrect} />
+
+          {/* Keyword Feedback & Result Details */}
+          {showResult && (
+            <div className="mt-3 pt-3 lgshort:mt-2 lgshort:pt-2 border-t border-slate-100">
+              <div className="flex items-center justify-between mb-2">
+                <span className={`text-sm font-black ${isCorrect ? 'text-green-600' : 'text-red-500'}`}>
+                  {isCorrect ? '🎉 Great answer!' : '💡 Needs more details'}
+                </span>
+                <span className="text-xs font-bold text-slate-400">
+                  {scoreData?.percent}% Match
+                </span>
+              </div>
+
+              {/* Keywords */}
+              {(foundKeywords.length > 0 || missedKeywords.length > 0) && (
+                <div className="flex flex-wrap gap-1.5 mb-3 lgshort:mb-2">
+                  {foundKeywords.map((kw, i) => (
+                    <span key={`f-${i}`} className="px-2.5 py-1 bg-green-50 border border-green-200 text-green-700 rounded-xl text-xs font-bold flex items-center gap-1">
+                      <span>✓</span> {kw}
+                    </span>
+                  ))}
+                  {missedKeywords.map((kw, i) => (
+                    <span key={`m-${i}`} className="px-2.5 py-1 bg-slate-100 border border-slate-200 text-slate-500 rounded-xl text-xs font-medium flex items-center gap-1">
+                      <span>×</span> {kw}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* In-card Retry / Continue for incorrect result */}
+              {!isCorrect && (
+                <div className="flex items-center gap-2.5 mt-2">
+                  <button
+                    type="button"
+                    onClick={() => { setShowResult(false); setForceShowExpert(false); }}
+                    className="flex-1 py-3 rounded-2xl font-black text-sm bg-[#ff4b4b] hover:bg-[#ff5f5f] text-white shadow-md active:translate-y-[2px] transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    🔄 Try again
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleNext(true)}
+                    className="flex-1 py-3 rounded-2xl font-black text-sm bg-slate-100 hover:bg-slate-200 border-2 border-slate-300 text-slate-700 shadow-sm active:translate-y-[2px] transition-all cursor-pointer flex items-center justify-center"
+                  >
+                    Continue
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+          </div>
           </div>
         </div>
-        
-        {/* Bottom padding - mobile only for fixed button */}
-        <div className="h-24 sm:h-0"></div>
       </div>
 
-      {/* Bottom Action Bar */}
-      <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white/40 backdrop-blur-sm border-t-2 border-white/20 sm:border-t-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] sm:shadow-none px-4 sm:px-3 md:px-6 py-3 sm:py-3 z-50 sm:z-auto">
-        {!showResult ? (
-          <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative z-10 flex gap-2">
+      {/* Bottom Actions Outside Card - Anchored to bottom */}
+      {!showResult && (
+        <div className="w-full max-w-md lg:max-w-4xl px-4 lg:px-6 py-3 lg:pb-6 flex-shrink-0 bg-transparent flex flex-col items-center">
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={!userInput.trim()}
+            className={`w-full py-4 rounded-2xl font-black text-lg uppercase tracking-wider transition-all select-none shadow-lg ${
+              userInput.trim()
+                ? 'bg-[#1E74FD] hover:bg-blue-600 active:scale-[0.98] text-white shadow-blue-500/20 cursor-pointer'
+                : 'bg-[#DCE5EF] text-[#8295AA] cursor-not-allowed shadow-none'
+            }`}
+          >
+            Check
+          </button>
+          <button
+            type="button"
+            onClick={handlePlayerSkip}
+            className="mt-2 text-slate-500 hover:text-slate-800 font-bold text-sm tracking-wide uppercase transition-colors cursor-pointer py-1"
+          >
+            Skip
+          </button>
+        </div>
+      )}
+
+      {/* Inline feedback bar (only on correct submission) */}
+      {showResult && isCorrect && (
+        <div className="fixed left-0 right-0 bottom-0 z-[100] pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.2)] bg-[#d7ffb8]">
+          <div className="w-full max-w-sm sm:max-w-md mx-auto px-6 py-4 flex flex-col gap-3 relative z-10">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-inner bg-white text-[#58a700]">
+                <span className="text-xl">✓</span>
+              </div>
+              <div className="flex flex-col">
+                <p className="text-[18px] font-black tracking-tight leading-tight text-[#58a700]">
+                  You are correct!
+                </p>
+              </div>
+            </div>
+            
             <button
-              onClick={handleSubmit}
-              disabled={!userInput.trim()}
-              className={`flex-1 py-3.5 rounded-xl text-white font-extrabold text-xl shadow-lg transition-all uppercase tracking-wide ${
-                userInput.trim() ? 'bg-blue-600 hover:bg-blue-700 active:scale-[0.98] cursor-pointer' : 'bg-gray-400 cursor-not-allowed opacity-80'
-              }`}
+              onClick={handleNext}
+              className="w-full py-3.5 rounded-[16px] text-[16px] font-black tracking-widest shadow-[0_4px_0_rgba(0,0,0,0.2)] transform active:translate-y-1 active:shadow-none transition-all uppercase bg-[#58cc02] text-white hover:bg-[#61e002] cursor-pointer"
             >
-              Submit Answer
+              CONTINUE
             </button>
           </div>
-        ) : (
-          <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative z-10">
-            {isCorrect ? (
-              <button
-                onClick={handleNext}
-                className="w-full py-3.5 rounded-xl text-white font-extrabold text-xl shadow-lg transition-all uppercase tracking-wide bg-[#58cc02] hover:bg-[#61e002] active:scale-[0.98] cursor-pointer"
-              >
-                Continue
-              </button>
-            ) : !showIncorrectModal ? (
-              <button
-                onClick={() => { setShowResult(false); setForceShowExpert(false); }}
-                className="w-full py-3.5 rounded-xl text-white font-extrabold text-xl shadow-lg transition-all uppercase tracking-wide bg-[#ff4b4b] hover:bg-[#ff5f5f] active:scale-[0.98] cursor-pointer"
-              >
-                Try Again
-              </button>
-            ) : (
-              <div className="h-[60px] sm:h-0"></div>
-            )}
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {showIncorrectModal && (
         <IncorrectAnswerModal
@@ -741,6 +915,7 @@ export default function DescriptivePage() {
         </div>
       )}
       <NoSkipsModal isOpen={showNoSkipsModal} onClose={() => setShowNoSkipsModal(false)} />
+      </PlayfulBackground>
     </div>
   );
 }

@@ -7,7 +7,7 @@ import { setUserProperties } from '../../../utils/analytics.js';
 export default function OnboardingFlow() {
   const navigate = useNavigate();
   const { user, login } = useAuth();
-  const [data, setData] = useState({ board: '', subject: '' });
+  const [data, setData] = useState({ board: user?.board || 'CBSE', subject: '' });
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {

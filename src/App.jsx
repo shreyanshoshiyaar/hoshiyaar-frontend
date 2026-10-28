@@ -14,6 +14,7 @@ import ProtectedRoute from './components/layout/ProtectedRoute.jsx';
 import AdminProtectedRoute from './components/layout/AdminProtectedRoute.jsx';
 import AdminViewSwitcher from './components/admin/AdminViewSwitcher.jsx';
 import ErrorBoundary from './components/ui/ErrorBoundary.jsx';
+import { stopAllAudio } from './utils/audioPreloadService.js';
 
 
 // Lazy load components
@@ -32,6 +33,13 @@ const McqPage = lazy(() => import('./components/Learn/quiz/McqPage.jsx'));
 const FillupsPage = lazy(() => import('./components/Learn/quiz/FillupsPage.jsx'));
 const RearrangePage = lazy(() => import('./components/Learn/quiz/RearrangePage.jsx'));
 const DescriptivePage = lazy(() => import('./components/Learn/quiz/DescriptivePage.jsx'));
+const StoryMode = lazy(() => import('./components/Learn/story/StoryMode.jsx'));
+const BlackboardMode = lazy(() => import('./components/Learn/blackboard/BlackboardMode.jsx'));
+const EngagementPage = lazy(() => import('./components/Learn/pages/EngagementPage.jsx'));
+const PracticeTransitionPage = lazy(() => import('./components/Learn/pages/PracticeTransitionPage.jsx'));
+const HotZoneTransitionPage = lazy(() => import('./components/Learn/pages/HotZoneTransitionPage.jsx'));
+const ExamTransitionPage = lazy(() => import('./components/Learn/pages/ExamTransitionPage.jsx'));
+const DidYouKnowPage = lazy(() => import('./components/Learn/quiz/DidYouKnowPage.jsx'));
 const LessonComplete = lazy(() => import('./components/Learn/pages/LessonComplete.jsx'));
 const ReviewRound = lazy(() => import('./components/Learn/quiz/ReviewRound.jsx'));
 const RevisionList = lazy(() => import('./components/Learn/quiz/RevisionList.jsx'));
@@ -74,6 +82,11 @@ const NavigationController = () => {
   useEffect(() => {
     locationRef.current = location;
   }, [location]);
+
+  // Kill any running audio on route changes to prevent overlaps across pages/completion
+  useEffect(() => {
+    stopAllAudio();
+  }, [location.pathname]);
 
   // Handle Startup (Restore Path & Capgo)
   useEffect(() => {
@@ -132,14 +145,20 @@ const NavigationController = () => {
             }
           } else {
             // Check if user is inside a lesson
-            const isLesson = currentPath.includes('/learn/module/') && (
-              currentPath.includes('/concept') || 
-              currentPath.includes('/mcq') || 
-              currentPath.includes('/fillups') || 
-              currentPath.includes('/rearrange') || 
-              currentPath.includes('/descriptive') ||
-              currentPath.includes('/review-round')
-            );
+            const isLesson = 
+              currentPath.includes('/learn/blackboard') ||
+              currentPath.includes('/learn/board') ||
+              (currentPath.includes('/learn/module/') && (
+                currentPath.includes('/concept') || 
+                currentPath.includes('/story') ||
+                currentPath.includes('/blackboard') ||
+                currentPath.includes('/mcq') || 
+                currentPath.includes('/fillups') || 
+                currentPath.includes('/rearrange') || 
+                currentPath.includes('/descriptive') ||
+                currentPath.includes('/engagement') ||
+                currentPath.includes('/review-round')
+              ));
 
             if (isLesson) {
               if (window.confirm('Are you sure you want to leave this lesson? Your progress is saved.')) {
@@ -205,7 +224,7 @@ const NavigationController = () => {
     }
 
     // 4. Save lesson module resume path
-    const match = location.pathname.match(/^\/learn\/module\/([^/]+)\/(concept|mcq|fillups|rearrange|descriptive)\/([0-9]+)\/?$/);
+    const match = location.pathname.match(/^\/learn\/module\/([^/]+)\/(concept|mcq|fillups|rearrange|descriptive|engagement)\/([0-9]+)\/?$/);
     if (match) {
       try {
         const moduleNumber = match[1];
@@ -333,7 +352,8 @@ function App() {
             <MaintenancePrompt />
             <UpdatePrompt />
             <NotificationPrompt />
-            <ExamModePromo />
+            {/* Exam Mode Promo hidden per user request */}
+            {/* <ExamModePromo /> */}
             <NavigationController />
             <Suspense fallback={<LoadingPage />}>
               <MidLessonStreakModal />
@@ -344,11 +364,7 @@ function App() {
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/loading" element={<LoadingPage />} />
                 <Route path="/story-demo" element={<InteractiveStory />} />
-                <Route path="/exam/flow" element={
-                  <ProtectedRoute>
-                    <ExamFlow />
-                  </ProtectedRoute>
-                } />
+                <Route path="/exam/flow" element={<Navigate to="/learn" replace />} />
                 {/* Home Page Route */}
                 <Route path="/" element={
                   <MainLayout>
@@ -419,35 +435,19 @@ function App() {
                 />
                 <Route 
                   path="/exam" 
-                  element={
-                    <ProtectedRoute>
-                      <Learn />
-                    </ProtectedRoute>
-                  } 
+                  element={<Navigate to="/learn" replace />} 
                 />
                 <Route 
                   path="/homework" 
-                  element={
-                    <ProtectedRoute>
-                      <Learn />
-                    </ProtectedRoute>
-                  } 
+                  element={<Navigate to="/learn" replace />} 
                 />
                 <Route 
                   path="/home-work" 
-                  element={
-                    <ProtectedRoute>
-                      <Learn />
-                    </ProtectedRoute>
-                  } 
+                  element={<Navigate to="/learn" replace />} 
                 />
                 <Route 
                   path="/classroom" 
-                  element={
-                    <ProtectedRoute>
-                      <Learn />
-                    </ProtectedRoute>
-                  } 
+                  element={<Navigate to="/learn" replace />} 
                 />
                 <Route 
                   path="/profile" 
@@ -492,10 +492,90 @@ function App() {
                   } 
                 />
                 <Route 
+                  path="/learn/module/:moduleNumber/redirect" 
+                  element={
+                    <ProtectedRoute>
+                      <ModuleEntryRedirect />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
                   path="/learn/module/:moduleNumber/concept/:index" 
                   element={
                     <ProtectedRoute>
                       <ConceptPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/learn/module/:moduleNumber/engagement/:index" 
+                  element={
+                    <ProtectedRoute>
+                      <EngagementPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/learn/story/:moduleId" 
+                  element={
+                    <ProtectedRoute>
+                      <StoryMode />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/learn/module/:moduleNumber/story" 
+                  element={
+                    <ProtectedRoute>
+                      <StoryMode />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/learn/module/:moduleNumber/story/:index" 
+                  element={
+                    <ProtectedRoute>
+                      <StoryMode />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/learn/blackboard/:moduleId" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <BlackboardMode />
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/learn/module/:moduleNumber/blackboard" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <BlackboardMode />
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/learn/module/:moduleNumber/blackboard/:index" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <BlackboardMode />
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/learn/board/:moduleId" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <BlackboardMode />
+                      </ErrorBoundary>
                     </ProtectedRoute>
                   } 
                 />
@@ -536,6 +616,46 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <DescriptivePage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/learn/module/:moduleNumber/didyouknow/:index" 
+                  element={
+                    <ProtectedRoute>
+                      <DidYouKnowPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/learn/module/:moduleNumber/practice-intro" 
+                  element={
+                    <ProtectedRoute>
+                      <PracticeTransitionPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/learn/module/:moduleNumber/hotzone-intro" 
+                  element={
+                    <ProtectedRoute>
+                      <HotZoneTransitionPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/learn/module/:moduleNumber/exam-intro" 
+                  element={
+                    <ProtectedRoute>
+                      <ExamTransitionPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/learn/practice-demo" 
+                  element={
+                    <ProtectedRoute>
+                      <PracticeTransitionPage />
                     </ProtectedRoute>
                   } 
                 />
@@ -611,7 +731,6 @@ function App() {
                 {/* Catch-all redirect for broken links like /refund-policy */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
-              <AdminViewSwitcher />
             </Suspense>
           </Router>
         </ReviewProvider>
