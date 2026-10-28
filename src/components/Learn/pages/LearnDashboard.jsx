@@ -24,6 +24,7 @@ import HomeworkHub from "../../homework/HomeworkHub.jsx";
 import ChallengesPage from "./ChallengesPage.jsx";
 import PaywallModal from '../../features/Subscription/PaywallModal.jsx';
 import AllChaptersModal from '../modals/AllChaptersModal.jsx';
+import DuolingoChapterView from "./DuolingoChapterView.jsx";
 import paymentService from '../../../services/paymentService.js';
 import { isUserAdmin } from '../../../utils/adminCheck.js';
 const DASHBOARD_VERSION = "V5.1-FREQ-3";
@@ -106,6 +107,12 @@ const FireIcon = React.memo(() => (
 const PencilIcon = React.memo(() => (
   <svg viewBox="0 0 24 24" className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10" fill="currentColor">
     <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+  </svg>
+));
+
+const ComicDocIcon = React.memo(() => (
+  <svg viewBox="0 0 24 24" className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10" fill="currentColor">
+    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 14H7v-2h10v2zm0-4H7v-2h10v2zm0-4H7V7h10v2z" />
   </svg>
 ));
 
@@ -296,7 +303,7 @@ const PathAnimation = React.memo(({ data, offset, top, isMobileLayout }) => {
   );
 });
 
-export const PathNode = React.memo(({ status, onClick, disabled, color = "#2C6DEF", lightenFn, darkenFn, isDifficult = false, isDescriptive = false, offset = 0, isPaywallLocked = false, isPurchased = false, children }) => {
+export const PathNode = React.memo(({ status, onClick, disabled, color = "#2C6DEF", lightenFn, darkenFn, isDifficult = false, isDescriptive = false, isStory = false, offset = 0, isPaywallLocked = false, isPurchased = false, children }) => {
   const isCompleted = status === "completed";
   const isActive = status === "active";
   const isLocked = status === "locked";
@@ -311,7 +318,7 @@ export const PathNode = React.memo(({ status, onClick, disabled, color = "#2C6DE
     topColor = "#FACC15"; // Bright Yellow
     bottomColor = "#CA8A04"; // Darker Yellow/Gold
   } else if (isActive) {
-    topColor = "#2C6DEF"; // Bright Blue for Start
+    topColor = "#2563EB"; // Blue for next module to start
     bottomColor = "#1D4ED8"; // Darker Blue
   } else if (isPaywallLocked) {
     topColor = "#F8FAFC"; // Clean Slate for Paywall Locked
@@ -359,6 +366,8 @@ export const PathNode = React.memo(({ status, onClick, disabled, color = "#2C6DE
               <FireIcon />
             ) : isDescriptive ? (
               <PencilIcon />
+            ) : isStory ? (
+              <ComicDocIcon />
             ) : (
               <StarIcon />
             )}
@@ -408,6 +417,20 @@ export const OrganicPathSvg = ({ nodesCount, color, rowSpacing, isMobile }) => {
   return null; // Dotted lines removed per request
 };
 
+// Looks up a chapter (by id or title) in the board's other classes, for chapters opened from
+// "Explore other classes" in the All Chapters panel. Uses the same cached curriculum calls.
+async function findChapterInOtherClasses(cur, board, subject, ownClass, wanted) {
+  const own = String(ownClass ?? '').replace(/\D/g, '');
+  const classes = (await cur.listClasses(board))?.data || [];
+  for (const cls of classes) {
+    if (!cls?.name || String(cls.name).replace(/\D/g, '') === own) continue;
+    const list = (await cur.listChapters(board, subject, { classTitle: cls.name }))?.data || [];
+    const hit = list.find((c) => c && (String(c._id) === String(wanted) || String(c.title) === String(wanted)));
+    if (hit) return { ...hit, _id: String(hit._id), classLevel: String(cls.name) };
+  }
+  return null;
+}
+
 const LearnDashboard = ({ onboardingData }) => {
   const { logout, user, loading: authLoading, updateUser } = useAuth();
   const { resetModuleLedger, stars, syncFromServer, setTotal } = useStars();
@@ -431,6 +454,12 @@ const LearnDashboard = ({ onboardingData }) => {
   const [chapterTitle, setChapterTitle] = useState("");
   const [chapterId, setChapterId] = useState("");
   const [chaptersList, setChaptersList] = useState([]);
+  // A chapter opened from another class via "Explore other classes" (not in chaptersList)
+  const [otherClassChapter, setOtherClassChapter] = useState(null);
+  const findActiveChapter = () =>
+    chaptersList.find((c) => String(c._id) === String(chapterId)) ||
+    (otherClassChapter && String(otherClassChapter._id) === String(chapterId) ? otherClassChapter : null) ||
+    chaptersList[0];
   const [moduleTitle, setModuleTitle] = useState("");
   const [modulesList, setModulesList] = useState([]); // fetched modules for this chapter
   const [unitTitle, setUnitTitle] = useState("");
@@ -1103,14 +1132,25 @@ const LearnDashboard = ({ onboardingData }) => {
             setAvailableBoards(boards);
             setAvailableSubjects(subjects);
 
-            // Use first available board and subject if defaults don't exist
-            if (boards.length > 0 && subjects.length > 0) {
+            // Default to CBSE for new users
+            const cbseBoard = boards.find(b => (b.name || b.title || '').toUpperCase() === 'CBSE');
+            if (cbseBoard) {
+              finalBoard = cbseBoard.name || cbseBoard.title || 'CBSE';
+            } else if (boards.length > 0) {
               finalBoard = boards[0].name;
-              finalSubject = subjects[0].name;
-              console.log('Dashboard: Using first available options', { finalBoard, finalSubject });
             } else {
-              console.warn('Dashboard: No available boards or subjects found');
+              finalBoard = 'CBSE';
             }
+
+            const scienceSubj = subjects.find(s => (s.name || s.title || '').toLowerCase().includes('science'));
+            if (scienceSubj) {
+              finalSubject = scienceSubj.name || scienceSubj.title || 'Science';
+            } else if (subjects.length > 0) {
+              finalSubject = subjects[0].name;
+            } else {
+              finalSubject = 'Science';
+            }
+            console.log('Dashboard: Assigned default options for user', { finalBoard, finalSubject });
           } catch (e) {
             console.warn('Dashboard: Failed to fetch available options, using defaults', e);
           }
@@ -1256,9 +1296,18 @@ const LearnDashboard = ({ onboardingData }) => {
         listCh = normalizedChapters;
         setChaptersList(listCh);
         let ch;
+        let crossClassChapter = null;
         if (preferId) {
           ch = listCh.find((c) => c && (c._id === preferId || String(c.title) === String(preferId)));
+          // Not in the student's own class: it may be a chapter they opened from another class
+          if (!ch) {
+            try {
+              crossClassChapter = await findChapterInOtherClasses(cur, finalBoard, finalSubject, user?.classLevel || user?.classTitle, preferId);
+            } catch (_) { }
+            if (crossClassChapter) ch = crossClassChapter;
+          }
         }
+        setOtherClassChapter(crossClassChapter);
         if (!ch) ch = listCh[0];
         if (!ch || !ch._id) {
           console.warn('Dashboard: No valid chapter found after normalization');
@@ -1503,10 +1552,10 @@ const LearnDashboard = ({ onboardingData }) => {
     }
   }, [location.search, isLoading, unitsList]);
 
-  // When opening chapters grid, load per-chapter module counts and compute simple completion
+  // When opening chapters grid OR when on Home tab, load per-chapter module counts and compute simple completion
   // Debounced and not tied to rapid progress changes to avoid flicker
   useEffect(() => {
-    if (!showChapters || chaptersList.length === 0) return;
+    if ((!showChapters && activeTab !== 'home') || chaptersList.length === 0) return;
     let cancelled = false;
     setStatsLoading(true);
     const timer = setTimeout(async () => {
@@ -1538,7 +1587,7 @@ const LearnDashboard = ({ onboardingData }) => {
       setStatsLoading(false);
       clearTimeout(timer);
     };
-  }, [showChapters, chaptersList]);
+  }, [showChapters, activeTab, chaptersList, progressUpdateTrigger]);
 
   // Rotate tips every 5 seconds
   useEffect(() => {
@@ -1889,8 +1938,9 @@ const LearnDashboard = ({ onboardingData }) => {
   // Listen for storage events to update progress when other tabs/pages update localStorage
   useEffect(() => {
     const handleStorageChange = (e) => {
-      if (e.key && (e.key.includes('lesson_progress_v2') || e.key.includes('lesson_completed_ids_v1'))) {
-        console.log('[Dashboard] Storage changed, refreshing progress:', e.key);
+      const changedKey = e?.key || e?.detail?.key || '';
+      if (!e?.key || changedKey.includes('lesson_progress_v2') || changedKey.includes('lesson_completed_ids_v1')) {
+        console.log('[Dashboard] Progress updated, refreshing progress:', changedKey || 'custom-event');
         setProgressUpdateTrigger(prev => prev + 1);
       }
     };
@@ -1898,10 +1948,12 @@ const LearnDashboard = ({ onboardingData }) => {
     window.addEventListener('storage', handleStorageChange);
     // Also listen for custom events from same-tab updates
     window.addEventListener('progressUpdated', handleStorageChange);
+    window.addEventListener('moduleCompleted', handleStorageChange);
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('progressUpdated', handleStorageChange);
+      window.removeEventListener('moduleCompleted', handleStorageChange);
     };
   }, []);
 
@@ -2140,22 +2192,6 @@ const LearnDashboard = ({ onboardingData }) => {
           </a>
           <a
             href="#"
-            onClick={(e) => { e.preventDefault(); navigate('/homework'); }}
-            className={`flex items-center gap-3 py-2 px-3.5 rounded-xl text-base font-bold transition-colors ${activeTab === 'homework' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
-          >
-            <NavHomeworkIcon active={activeTab === 'homework'} />
-            <span>Home Work</span>
-          </a>
-          <a
-            href="#"
-            onClick={(e) => { e.preventDefault(); navigate('/exam'); }}
-            className={`flex items-center gap-3 py-2 px-3.5 rounded-xl text-base font-bold transition-colors ${activeTab === 'exam' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
-          >
-            <NavExamIcon active={activeTab === 'exam'} />
-            <span>Exam</span>
-          </a>
-          <a
-            href="#"
             onClick={(e) => { e.preventDefault(); navigate('/ranks'); }}
             className={`flex items-center gap-3 py-2 px-3.5 rounded-xl text-base font-bold transition-colors ${activeTab === 'ranks' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
           >
@@ -2212,16 +2248,33 @@ const LearnDashboard = ({ onboardingData }) => {
               stars={stars} 
               weeklyStars={weeklyStars} 
               leaderboardData={weeklyLeaderboardData} 
+              chaptersList={chaptersList} 
+              chapterStats={chapterStats} 
+              currentChapterId={chapterId} 
+              onSelectChapter={(ch) => { 
+                setChapterId(ch._id); 
+                setChapterTitle(ch.title); 
+                navigate(`/learn?chapterId=${encodeURIComponent(ch._id)}`); 
+              }} 
               onNavigateToPractice={() => navigate('/learn')} 
-              onNavigateToRanks={() => navigate('/ranks')}
+              onNavigateToRanks={() => navigate('/ranks')} 
             />
           ) : (
             <DesktopHomeDashboard 
               user={user} 
+              stars={stars} 
               weeklyStars={weeklyStars} 
               leaderboardData={weeklyLeaderboardData} 
+              chaptersList={chaptersList} 
+              chapterStats={chapterStats} 
+              currentChapterId={chapterId} 
+              onSelectChapter={(ch) => { 
+                setChapterId(ch._id); 
+                setChapterTitle(ch.title); 
+                navigate(`/learn?chapterId=${encodeURIComponent(ch._id)}`); 
+              }} 
               onNavigateToPractice={() => navigate('/learn')} 
-              onNavigateToRanks={() => navigate('/ranks')}
+              onNavigateToRanks={() => navigate('/ranks')} 
             />
           )
         ) : activeTab === 'homework' ? (
@@ -2492,7 +2545,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                 });
 
                                 const isAdmin = user?.role === 'admin' && adminViewMode !== 'student';
-                                const activeChapterObj = chaptersList.find(c => String(c._id) === String(chapterId)) || chaptersList[0];
+                                const activeChapterObj = findActiveChapter();
                                 const chapterFreeLessons = activeChapterObj?.freeLessonsCount != null ? Number(activeChapterObj.freeLessonsCount) : (userSubStatus?.defaultFreeLessonsCount ?? 1);
                                 const chapterPrice = activeChapterObj?.chapterPrice != null ? Number(activeChapterObj.chapterPrice) : (activeChapterObj?.lessonPrice != null ? Number(activeChapterObj.lessonPrice) : (userSubStatus?.defaultChapterPrice ?? userSubStatus?.defaultLessonPrice ?? 50));
 
@@ -2533,6 +2586,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                         darkenFn={darken}
                                         isDifficult={mod?.isDifficult || mod?.title?.toLowerCase()?.includes('hot module') || mod?.title?.toLowerCase()?.includes('difficult module')}
                                         isDescriptive={mod?.isDescriptive}
+                                          isStory={mod?.isStory || mod?.type === "story" || mod?.title?.toLowerCase()?.includes("comic") || mod?.title?.toLowerCase()?.includes("story")}
                                         isPaywallLocked={isPaywallLocked}
                                         isPurchased={Boolean(isPurchased)}
                                         offset={offset}
@@ -2563,6 +2617,8 @@ const LearnDashboard = ({ onboardingData }) => {
                                             chapter_id: chapterId,
                                             "class": user?.classLevel || "unknown_class"
                                           });
+                                          // Older chapters maintain classic comic style via ModuleEntryRedirect
+
                                           navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
                                         }}
                                       >
@@ -2598,6 +2654,8 @@ const LearnDashboard = ({ onboardingData }) => {
                                             chapter_id: chapterId,
                                             "class": user?.classLevel || "unknown_class"
                                           });
+                                          // Older chapters maintain classic comic style via ModuleEntryRedirect
+
                                           navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
                                         }}
                                         className={`absolute top-1/2 -translate-y-1/2 left-full flex items-center ml-[6px] md:ml-[24px] cursor-pointer group/label ${!canClick ? 'opacity-50 grayscale' : ''}`}
@@ -2703,6 +2761,52 @@ const LearnDashboard = ({ onboardingData }) => {
                                 Switch Chapter
                               </button>
                             </div>
+                          );
+                        }
+
+                        // Duolingo-style path layout for Chapter 9 (v12 Test) requested by user
+                        const isDuolingoChapter =
+                          String(chapterId) === '6ad8be61e323d9a75e28c0d5' ||
+                          chapterTitle?.toLowerCase()?.includes('v12 test') ||
+                          chapterTitle?.toLowerCase()?.includes('life processes in animals (v12 test)');
+
+                        if (isDuolingoChapter) {
+                          const activeChapterObj = findActiveChapter();
+
+                          return (
+                            <DuolingoChapterView
+                              chapterId={chapterId}
+                              chapterTitle={chapterTitle}
+                              chapterBg={activeChapterObj?.backgroundImage || activeChapterObj?.bgImage || null}
+                              subjectName={subjectName}
+                              visibleUnits={visibleUnits}
+                              unitModulesMap={unitModulesMap}
+                              completedCompositeKeys={completedCompositeKeys}
+                              completedIdSet={completedIdSet}
+                              isAdmin={user?.role === 'admin' && adminViewMode !== 'student'}
+                              isMobileLayout={isMobileLayout}
+                              onModuleClick={(mod, u, status) => {
+                                if (status === 'locked' && !(user?.role === 'admin' && adminViewMode !== 'student')) {
+                                  setShowProgressionWarning(true);
+                                  return;
+                                }
+                                saveScrollPosition();
+                                const params = new URLSearchParams();
+                                if (chapterId) params.set('chapterId', chapterId);
+                                if (u?._id) params.set('unitId', u._id);
+                                const query = params.toString();
+                                if (mod?.isStory || mod?.type === 'story' || mod?.title?.toLowerCase()?.includes('comic') || mod?.title?.toLowerCase()?.includes('story')) {
+                                  navigate(`/learn/story/${mod._id}${query ? '?' + query : ''}`);
+                                } else {
+                                  navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
+                                }
+                              }}
+                              onOpenSubjectModal={handleOpenSubjectModal}
+                              onOpenChapters={() => setShowChapters(true)}
+                              availableSubjects={availableSubjects}
+                              isLoading={isLoading}
+                              subjectChanging={subjectChanging}
+                            />
                           );
                         }
 
@@ -2874,7 +2978,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                       });
 
                                        const isAdmin = user?.role === 'admin' && adminViewMode !== 'student';
-                                       const activeChapterObj = chaptersList.find(c => String(c._id) === String(chapterId)) || chaptersList[0];
+                                       const activeChapterObj = findActiveChapter();
                                        const chapterFreeLessons = activeChapterObj?.freeLessonsCount != null ? Number(activeChapterObj.freeLessonsCount) : (userSubStatus?.defaultFreeLessonsCount ?? 1);
                                        const chapterPrice = activeChapterObj?.chapterPrice != null ? Number(activeChapterObj.chapterPrice) : (activeChapterObj?.lessonPrice != null ? Number(activeChapterObj.lessonPrice) : (userSubStatus?.defaultChapterPrice ?? userSubStatus?.defaultLessonPrice ?? 50));
 
@@ -2922,6 +3026,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                               darkenFn={darken}
                                               isDifficult={mod?.isDifficult || mod?.title?.toLowerCase()?.includes('hot module') || mod?.title?.toLowerCase()?.includes('difficult module')}
                                               isDescriptive={mod?.isDescriptive}
+                                          isStory={mod?.isStory || mod?.type === "story" || mod?.title?.toLowerCase()?.includes("comic") || mod?.title?.toLowerCase()?.includes("story")}
                                               isPaywallLocked={isPaywallLocked}
                                               isPurchased={Boolean(isPurchased)}
                                               offset={offset}
@@ -2947,6 +3052,8 @@ const LearnDashboard = ({ onboardingData }) => {
                                                 if (chapterId) params.set('chapterId', chapterId);
                                                 if (u?._id) params.set('unitId', u._id);
                                                 const query = params.toString();
+                                                // Older chapters maintain classic comic style via ModuleEntryRedirect
+
                                                 navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
                                               }}
                                             >
@@ -2977,6 +3084,8 @@ const LearnDashboard = ({ onboardingData }) => {
                                                  if (chapterId) params.set('chapterId', chapterId);
                                                  if (u?._id) params.set('unitId', u._id);
                                                  const query = params.toString();
+                                                 // Older chapters maintain classic comic style via ModuleEntryRedirect
+
                                                  navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
                                                }}
                                                className={`absolute top-1/2 -translate-y-1/2 flex items-center cursor-pointer group/label ${
@@ -3555,6 +3664,7 @@ const LearnDashboard = ({ onboardingData }) => {
           statsLoading={statsLoading}
           subjectName={subjectName}
           classLevel={user?.classLevel}
+          board={selectedBoard}
           user={user}
           adminViewMode={adminViewMode}
           onSelectChapter={handleChapterSelect}

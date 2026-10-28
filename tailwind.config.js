@@ -12,6 +12,8 @@ module.exports = {
         'lg': '1024px',
         'xl': '1280px',
         '2xl': '1536px',
+        // Desktop width but a short window (e.g. 1366x768 laptops): compact lesson screens so nothing scrolls
+        'lgshort': { raw: '(min-width: 1024px) and (max-height: 720px)' },
       },
       colors: {
         'duo-blue': '#1E65FA',
@@ -24,7 +26,11 @@ module.exports = {
         'duo-footer-blue': '#1a237e', // Custom color for the dark blue footer
       },
       fontFamily: {
-        sans: ['"Nunito"', 'Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        sans: ['"Nunito"', 'system-ui', '-apple-system', 'sans-serif'],
+        ui: ['"Nunito"', 'system-ui', 'sans-serif'],
+        heading: ['"Barlow Condensed"', 'Impact', 'Arial Narrow', 'sans-serif'],
+        dialogue: ['"Fredoka"', 'Trebuchet MS', 'sans-serif'],
+        comic: ['"Fredoka"', 'Trebuchet MS', 'sans-serif'],
       },
       fontSize: {
         'responsive-xs': ['0.75rem', { lineHeight: '1rem' }],

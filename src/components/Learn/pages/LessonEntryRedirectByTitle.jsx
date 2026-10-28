@@ -45,6 +45,15 @@ export default function LessonEntryRedirectByTitle() {
       case 'rearrange':
         navigate(`/learn/module/${moduleNumber}/rearrange/${targetIndex}${querySuffix}`, { replace: true });
         break;
+      case 'descriptive':
+        navigate(`/learn/module/${moduleNumber}/descriptive/${targetIndex}${querySuffix}`, { replace: true });
+        break;
+      case 'didyouknow':
+      case 'did_you_know':
+      case 'did-you-know':
+      case 'remember':
+        navigate(`/learn/module/${moduleNumber}/didyouknow/${targetIndex}${querySuffix}`, { replace: true });
+        break;
       default:
         navigate('/learn', { replace: true });
     }

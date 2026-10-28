@@ -11,6 +11,10 @@ import AiExamAnalytics from './AiExamAnalytics';
 import NotificationAnalytics from './NotificationAnalytics';
 import PaymentManager from './PaymentManager';
 import TeacherClassroomAnalytics from './TeacherClassroomAnalytics';
+import GlyphManager from './GlyphManager';
+import ReportManager from './ReportManager';
+import AudioVoiceManager from './AudioVoiceManager';
+import CharacterImageManager from './CharacterImageManager';
 
 const UnitEditRow = ({ unit, onUpdateUnit }) => {
   const [title, setTitle] = useState(unit.title || '');
@@ -334,6 +338,17 @@ const AdminPanel = () => {
               <span>Content</span>
             </button>
             <button
+              onClick={() => setActiveTab('glyphs')}
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
+                activeTab === 'glyphs'
+                  ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
+                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50 hover:border-slate-300'
+              }`}
+            >
+              <span className="text-base">🎨</span>
+              <span>Glyph Library</span>
+            </button>
+            <button
               onClick={() => setActiveTab('exams')}
               className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
                 activeTab === 'exams'
@@ -353,6 +368,39 @@ const AdminPanel = () => {
             >
               <span className="text-base">✍️</span>
               <span>Blog Manager</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('reports')}
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
+                activeTab === 'reports'
+                  ? 'border-rose-600 text-rose-700 bg-rose-50/40'
+                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
+              }`}
+            >
+              <span className="text-base">🚩</span>
+              <span>Reported Issues</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('audio_voice')}
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
+                activeTab === 'audio_voice'
+                  ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
+                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
+              }`}
+            >
+              <span className="text-base">🎙️</span>
+              <span>Audio & Voice Studio</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('character_images')}
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
+                activeTab === 'character_images'
+                  ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
+                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
+              }`}
+            >
+              <span className="text-base">🧑‍🎨</span>
+              <span>Character Images</span>
             </button>
             <button
               onClick={() => setActiveTab('settings')}
@@ -672,6 +720,34 @@ const AdminPanel = () => {
             </p>
           </div>
           <InteractiveStoryManager />
+        </div>
+      )}
+
+      {/* ── Tab Panel: Reported Issues ── */}
+      {activeTab === 'reports' && (
+        <div className="max-w-7xl mx-auto py-8 px-4">
+          <ReportManager />
+        </div>
+      )}
+
+      {/* ── Tab Panel: Audio & Voice Studio ── */}
+      {activeTab === 'audio_voice' && (
+        <div className="max-w-7xl mx-auto py-8 px-4">
+          <AudioVoiceManager />
+        </div>
+      )}
+
+      {/* ── Tab Panel: Character Images ── */}
+      {activeTab === 'character_images' && (
+        <div className="max-w-7xl mx-auto py-8 px-4">
+          <CharacterImageManager />
+        </div>
+      )}
+
+      {/* ── Tab Panel: Glyph Library ── */}
+      {activeTab === 'glyphs' && (
+        <div className="max-w-7xl mx-auto py-8 px-4">
+          <GlyphManager />
         </div>
       )}
     </div>

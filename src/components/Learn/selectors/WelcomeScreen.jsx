@@ -29,13 +29,7 @@ export default function WelcomeScreen({ onContinue }) {
     if (onContinue) {
       onContinue();
     } else {
-      if (sessionStorage.getItem('entryType') === 'signup') {
-        window.hyTrack?.('click_story_demo');
-        navigate('/story-demo', { replace: true });
-      } else {
-        window.hyTrack?.('skip_story_demo');
-        navigate('/learn', { replace: true });
-      }
+      navigate('/learn', { replace: true });
     }
   };
 

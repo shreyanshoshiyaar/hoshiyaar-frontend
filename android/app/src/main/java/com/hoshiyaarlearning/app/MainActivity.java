@@ -25,6 +25,7 @@ public class MainActivity extends BridgeActivity {
         super.onCreate(savedInstanceState);
 
         FacebookSdk.sdkInitialize(getApplicationContext());
+        try { this.getBridge().getWebView().getSettings().setMediaPlaybackRequiresUserGesture(false); } catch (Exception e) {}
         AppEventsLogger.activateApp(this.getApplication());
 
         // Initialize Install Referrer

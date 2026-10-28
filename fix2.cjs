@@ -1,8 +1,15 @@
-const fs = require('fs');
-const path = 'src/components/Learn/pages/LearnDashboard.jsx';
-let content = fs.readFileSync(path, 'utf8');
+﻿const fs = require('fs');
+let content = fs.readFileSync('src/components/Learn/pages/LessonComplete.jsx', 'utf8');
 
-// Use string literals to avoid escape issues
-content = content.replace("className={`hidden`}}", 'className="hidden"');
+const oldStr = `            for (const qid of unique) {
+              if (!userId) break;
+              await reviewSvc.saveIncorrect({ userId, questionId: qid, moduleId: String(moduleNumber) });
+            }`;
 
-fs.writeFileSync(path, content, 'utf8');
+const newStr = `            if (userId) {
+              await Promise.all(unique.map(qid => reviewSvc.saveIncorrect({ userId, questionId: qid, moduleId: String(moduleNumber) }).catch(err => console.warn(err))));
+            }`;
+
+content = content.replace(oldStr, newStr);
+fs.writeFileSync('src/components/Learn/pages/LessonComplete.jsx', content, 'utf8');
+console.log('Fixed LessonComplete.jsx');

@@ -1,9 +1,12 @@
+import { isNewStyleStory } from '../../../utils/comicStyleHelper.js';
+import { isMissionCompleteItem } from '../../../utils/missionCompleteHelper.js';
 import { Haptics } from '@capacitor/haptics';
 import ProgressBar from '../../ui/ProgressBar.jsx';
 import SimpleLoading from '../../ui/SimpleLoading.jsx';
 import TryAgainModal from '../../modals/TryAgainModal.jsx';
 import IncorrectAnswerModal from '../../modals/IncorrectAnswerModal.jsx';
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
+import QuizFeedbackCards, { hasQuizFeedback } from './QuizFeedbackCards.jsx';
 import networkHelper from '../../../utils/apiBase.js';
 import NetworkError from '../../ui/NetworkError.jsx';
 import { trackLevelStart } from '../../../utils/analytics.js';
@@ -23,6 +26,12 @@ import pointsService from '../../../services/pointsService.js';
 import curriculumService from '../../../services/curriculumService.js';
 import { progressKey } from '../../../utils/progressKey.js';
 import Lottie from 'lottie-react';
+import LessonHeader from '../LessonHeader.jsx';
+import PlayfulBackground from './PlayfulBackground.jsx';
+import { getStageInfoForIndex } from '../../../utils/moduleStages.js';
+import ReportFlagButton from '../../common/ReportFlagButton.jsx';
+import { vibrateLight, vibrateSuccess, vibrateError } from '../../../utils/vibrationService.js';
+import { preloadAudio, playTtsAudio } from '../../../utils/audioPreloadService.js';
 
 export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
   const navigate = useNavigate();
@@ -37,6 +46,19 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
   const unitIdParam = urlParams.get('unitId');
   const actualReviewMode = isReviewMode || isReviewModeFromUrl || isRevisionModeFromUrl;
   const { user } = useAuth();
+  
+  const stageInfo = useMemo(() => {
+    if (!items || items.length === 0 || actualReviewMode) return null;
+    return getStageInfoForIndex(items, index);
+  }, [items, index, actualReviewMode]);
+
+  // Audio preloading for 0-latency playback on question transitions
+  useEffect(() => {
+    if (items && items[index + 1]) {
+      const nextItem = items[index + 1];
+      if (nextItem.audioUrl) preloadAudio(nextItem.audioUrl);
+    }
+  }, [items, index]);
   
   // Local storage helpers for dashboard progress sync - NOW USING COMPOSITE KEYS
   // Moved after useAuth() to ensure user is available
@@ -125,11 +147,60 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         text: revisionItem.text || revisionItem.question || curriculumItem?.text || '',
         options: Array.isArray(revisionItem.options) ? revisionItem.options : (curriculumItem?.options || []),
         answer: revisionItem.answer || curriculumItem?.answer || '',
-        images: Array.isArray(revisionItem.images) ? revisionItem.images : (curriculumItem?.images || [])
+        images: Array.isArray(revisionItem.images) ? revisionItem.images : (curriculumItem?.images || []),
+        explanation: revisionItem.explanation || curriculumItem?.explanation || '',
+        onWrong: revisionItem.onWrong || curriculumItem?.onWrong || '',
+        hint: revisionItem.hint || curriculumItem?.hint || ''
       };
     }
     return curriculumItem;
   }, [isRevisionModeFromUrl, revisionItem, curriculumItem]);
+
+  const isHotZone = useMemo(() => {
+    const q = String(item?.question || item?.text || '').toLowerCase();
+    const ct = String(item?.cardTitle || item?.batchTitle || '').toLowerCase();
+    const type = String(item?.type || '').toLowerCase();
+    return q.includes('hot zone') || q.includes('hotzone') || ct.includes('hot zone') || type.includes('hotzone');
+  }, [item]);
+
+  const [eliminatedOptions, setEliminatedOptions] = useState([]);
+  const [showTextHint, setShowTextHint] = useState(false);
+  const [hintUsed, setHintUsed] = useState(false);
+
+  useEffect(() => {
+    setEliminatedOptions([]);
+    setShowTextHint(false);
+    setHintUsed(false);
+  }, [index, moduleNumber]);
+
+  const handleUseHint = () => {
+    if (hintUsed || showResult) return;
+    setHintUsed(true);
+
+    if (Array.isArray(item?.options) && item.options.length > 2) {
+      // Strike off one incorrect option
+      const correctAnswer = Array.isArray(item.answer) ? item.answer[0] : item.answer;
+      const incorrectIndices = item.options
+        .map((opt, idx) => ({ opt, idx }))
+        .filter(({ opt }) => String(opt).trim().toLowerCase() !== String(correctAnswer || '').trim().toLowerCase())
+        .map(({ idx }) => idx);
+
+      if (incorrectIndices.length > 0) {
+        const randomIncorrectIdx = incorrectIndices[Math.floor(Math.random() * incorrectIndices.length)];
+        setEliminatedOptions(prev => [...prev, randomIncorrectIdx]);
+      }
+    } else {
+      setShowTextHint(true);
+    }
+  };
+
+    const playPromptAudio = () => {
+    const textToSpeak = item?.targetWord || item?.question || item?.text || '';
+    if (!textToSpeak) return;
+    playTtsAudio(textToSpeak, item?.speaker || 'Arpit Sir');
+  };
+
+  // The question is read aloud only when the student taps the speaker button (no auto-play)
   const { stars: totalStars, awardCorrect, awardWrong, addToSession, clearSession } = useStars();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [hoshiAnim, setHoshiAnim] = useState(null);
@@ -476,7 +547,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       
       if (!showResult) {
         if (selectedIndex !== null) {
-          handleCheck();
+          handleSubmit(selectedIndex);
         }
       } else {
         if (isCorrect) {
@@ -492,17 +563,37 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
   }, [showResult, selectedIndex, isCorrect]);
 
   function routeForType(type, idx) {
-    switch (type) {
-      case 'comic':
-      case 'concept':
-      case 'statement':
-      case 'video':
-        return `/learn/module/${moduleNumber}/concept/${idx}`;
+    const t = String(type || '').toLowerCase();
+    if (t.startsWith('engagement')) return `/learn/module/${moduleNumber}/engagement/${idx}`;
+    switch (t) {
       case 'multiple-choice': return `/learn/module/${moduleNumber}/mcq/${idx}`;
       case 'fill-in-the-blank': return `/learn/module/${moduleNumber}/fillups/${idx}`;
       case 'rearrange': return `/learn/module/${moduleNumber}/rearrange/${idx}`;
       case 'descriptive': return `/learn/module/${moduleNumber}/descriptive/${idx}`;
-      default: return `/learn`;
+      case 'didyouknow':
+      case 'did_you_know':
+      case 'did-you-know':
+      case 'remember':
+        return `/learn/module/${moduleNumber}/didyouknow/${idx}`;
+      case 'story':
+        return `/learn/module/${moduleNumber}/story/${idx}`;
+      case 'comic': {
+        const nextIt = items?.[idx];
+        const chId = typeof chapterIdParam !== 'undefined' ? chapterIdParam : (typeof chapterId !== 'undefined' ? chapterId : '');
+        const isNew = isNewStyleStory({ item: nextIt, items, chapterId: chId });
+        return isNew
+          ? `/learn/module/${moduleNumber}/story/${idx}`
+          : `/learn/module/${moduleNumber}/concept/${idx}`;
+      }
+      case 'blackboard':
+      case 'blackboard-step':
+      case 'board':
+        return `/learn/module/${moduleNumber}/blackboard/${idx}`;
+      case 'concept':
+      case 'statement':
+      case 'video':
+      default:
+        return `/learn/module/${moduleNumber}/concept/${idx}`;
     }
   }
 
@@ -548,27 +639,36 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
 
   function handleOptionClick(optionIndex) {
     if (showResult) return;
+    vibrateLight();
     setSelectedIndex(optionIndex);
+    // Instant validation on option click
+    handleSubmit(optionIndex);
   }
 
-  async function handleSubmit() {
-    if (selectedIndex === null || showResult) return;
+  async function handleSubmit(chosenIdx = selectedIndex) {
+    if (chosenIdx === null || chosenIdx === undefined || showResult) return;
+    setSelectedIndex(chosenIdx);
     
     const isImagesOnlyMCQ = (!item.options || item.options.length === 0) && (Array.isArray(item.images) && item.images.length > 0);
-    const selectedOption = isImagesOnlyMCQ ? item.images[selectedIndex] : item?.options?.[selectedIndex];
+    const selectedOption = isImagesOnlyMCQ ? item.images[chosenIdx] : item?.options?.[chosenIdx];
     const correct = String(selectedOption || '').trim().toLowerCase() === String(item?.answer || '').trim().toLowerCase();
     setIsCorrect(correct);
     setShowResult(true);
     const isFirstAttempt = !hasAttempted;
     if (!hasAttempted) setHasAttempted(true);
 
-    // Play feedback sound
+    // Play feedback sound & haptic vibration
     try {
       const src = correct ? correctAudio.current : errorAudio.current;
       if (src) {
         src.currentTime = 0;
         const p = src.play();
         if (p && typeof p.catch === 'function') p.catch(() => {});
+      }
+      if (correct) {
+        vibrateSuccess();
+      } else {
+        vibrateError();
       }
     } catch (_) {}
 
@@ -712,7 +812,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
     });
     const suffix = persistent.toString() ? `?${persistent.toString()}` : '';
     
-    if (nextIndex >= items.length) {
+    if (nextIndex >= items.length || isMissionCompleteItem(items[nextIndex])) {
       // Check if there's an end-of-lesson video for this module (card 22 case)
       const endVideoKey = `${moduleNumber}:${index}`;
       const endVideo = midLessonVideos[endVideoKey];
@@ -819,6 +919,27 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
       if (unitIdForStorage) completionParams.set('unitId', unitIdForStorage);
       return navigate(`/lesson-complete?${completionParams.toString()}`);
     }
+
+    if (nextItem) {
+      const q = String(nextItem.question || nextItem.text || '').toLowerCase();
+      const ct = String(nextItem.cardTitle || nextItem.batchTitle || '').toLowerCase();
+      const type = String(nextItem.type || '').toLowerCase();
+      const isNextHotZone = q.includes('hot zone') || q.includes('hotzone') || ct.includes('hot zone') || type.includes('hotzone');
+      const isNextExam = q.includes('exam moment') || q.includes('exam mode') || ct.includes('exam') || type === 'descriptive';
+
+      const hotzoneKey = `hotzone_intro_shown_${moduleNumber}`;
+      if (isNextHotZone && !sessionStorage.getItem(hotzoneKey) && !actualReviewMode) {
+        sessionStorage.setItem(hotzoneKey, 'true');
+        return navigate(`/learn/module/${moduleNumber}/hotzone-intro${suffix}`);
+      }
+
+      const examKey = `exam_intro_shown_${moduleNumber}`;
+      if (isNextExam && !sessionStorage.getItem(examKey) && !actualReviewMode) {
+        sessionStorage.setItem(examKey, 'true');
+        return navigate(`/learn/module/${moduleNumber}/exam-intro${suffix}`);
+      }
+    }
+
     navigate(`${routeForType(nextItem?.type || 'concept', nextIndex)}${suffix}`);
   }
 
@@ -918,25 +1039,14 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
   if (shouldShowVideo) {
     return (
       <div className="h-screen bg-white flex flex-col overflow-hidden">
-        <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
-          <button
-            onClick={handleBack}
-            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-600"
-            title="Back"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-            </svg>
-          </button>
-          <div className="flex-1 mx-1 sm:mx-2 md:mx-4">
-            {actualReviewMode ? (
-              <ProgressBar currentIndex={initialQueueCount - queue.length} total={Math.max(1, initialQueueCount)} />
-            ) : (
-              <ProgressBar currentIndex={index} total={items.length} />
-            )}
-          </div>
-          <StarCounter />
-        </div>
+        <LessonHeader
+          onBack={handleBack}
+          title={actualReviewMode ? 'REVISE PROGRESS' : 'LEARN PROGRESS'}
+          currentIndex={actualReviewMode ? (initialQueueCount - queue.length) : index}
+          total={actualReviewMode ? Math.max(1, initialQueueCount) : (items?.filter(it => !isMissionCompleteItem(it)).length || items.length)}
+          stageInfo={stageInfo}
+          theme="light"
+        />
 
         <div className="flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 80px)' }}>
           <div className="w-full max-w-3xl sm:max-w-4xl mt-4 sm:mt-6 md:mt-8">
@@ -987,274 +1097,251 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
     );
   }
 
-
-
-
+  // Desktop only: lay options out in two columns when there is an even number of short ones
+  // (an odd count or long answers would leave a lone or cramped option)
+  const mcqOptions = Array.isArray(item?.options) ? item.options : [];
+  const desktopTwoColumns = mcqOptions.length >= 2 && mcqOptions.length % 2 === 0 &&
+    mcqOptions.every((opt) => typeof opt === 'string' && opt.length <= 48 && !opt.startsWith('http'));
+  // Desktop only (no scrolling): a question picture sits left of the options, with feedback under the
+  // options; without a picture, feedback after a wrong answer sits beside the options instead
+  const questionImages = (Array.isArray(item?.images) ? item.images : (item?.images ? [item.images] : [])).filter(Boolean);
+  if (questionImages.length === 0 && item?.imageUrl) questionImages.push(item.imageUrl);
+  const hasQuestionImage = questionImages.length > 0 &&
+    !mcqOptions.some((opt) => typeof opt === 'string' && opt.startsWith('http'));
+  const desktopSideFeedback = !hasQuestionImage && showResult && !isCorrect && hasQuizFeedback(item);
+  const desktopWidth = (hasQuestionImage || desktopSideFeedback) ? 'lg:max-w-6xl' : 'lg:max-w-3xl';
 
   return (
-    <div 
-      style={{ 
-        backgroundImage: 'url("https://res.cloudinary.com/imq5966f/image/upload/v1791543811/img-to-link/rja5gjrge66m1grxi284.webp")',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}
-      className="fixed inset-0 flex flex-col overflow-hidden md:!bg-none md:!bg-[#d7efff]"
-    >
-      {/* Header - reduced padding for mobile */}
-      <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
-        <button
-          onClick={handleBack}
-          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-600 mb-2 sm:mb-0"
-          title="Back"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-          </svg>
-        </button><div className="flex-1 mx-1 sm:mx-2 md:mx-4 flex flex-col items-center">
-          <span className="text-[10px] sm:text-xs font-black text-blue-600/80 uppercase tracking-widest mb-0.5">
-            {actualReviewMode ? 'REVISE PROGRESS' : 'LEARN PROGRESS'}: {actualReviewMode ? `${initialQueueCount - queue.length + 1} / ${initialQueueCount}` : `${index + 1} / ${items.length}`}
-          </span>
-          {actualReviewMode ? (
-            <ProgressBar currentIndex={initialQueueCount - queue.length} total={Math.max(1, initialQueueCount)} />
-          ) : (
-            <ProgressBar currentIndex={index} total={items.length} />
-          )}
-        </div>
-        <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
-          {(user?.role === 'admin' || user?.role === 'master' || ['Host', 'hostcbse', 'AKSHITRAVULA', 'AKSHIT', 'SB10', 'Nidhi sekhri'].includes(user?.username) || ['9867735936', '7021970672', '9820277252'].some(p => String(user?.phone || '').replace(/\D/g, '').endsWith(p))) ? (
-            <button
-              onClick={handleMasterSkip}
-              className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-black rounded-lg shadow-sm border-b-4 border-yellow-700 active:border-b-0 active:translate-y-1 transition-all mr-2 uppercase"
-            >
-              Skip ⚡️
-            </button>
-          ) : (
-            <button
-              onClick={handlePlayerSkip}
-              className={`px-3 py-1 text-white text-xs font-black rounded-lg shadow-sm border-b-4 transition-all mr-2 uppercase ${skipsLeft > 0 ? 'bg-yellow-500 hover:bg-yellow-600 border-yellow-700 active:border-b-0 active:translate-y-1' : 'bg-gray-300 border-gray-400 opacity-80 cursor-not-allowed'}`}
-            >
-              Skip ({skipsLeft})
-            </button>
-          )}
-          <StarCounter />
-        </div>
-      </div>
+    <div className="fixed inset-0 select-none overflow-hidden">
+      <PlayfulBackground isHotZone={isHotZone} cardIndex={index}>
+      {/* Header bar (Unified Lesson Header) */}
+      <LessonHeader
+        onBack={handleBack}
+        title={isHotZone ? 'HOT ZONE' : (actualReviewMode ? 'REVISE PROGRESS' : 'PRACTICE')}
+        currentIndex={actualReviewMode ? (initialQueueCount - queue.length) : index}
+        total={actualReviewMode ? Math.max(1, initialQueueCount) : (items?.filter(it => !isMissionCompleteItem(it)).length || items.length)}
+        stageInfo={stageInfo}
+        theme={isHotZone ? 'hotzone' : 'light'}
+        onSkip={handleMasterSkip}
+      />
 
-      {/* Main Content - mobile optimized, desktop unchanged */}
-      <div className="flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 overflow-y-auto md:overflow-y-auto pb-24 md:pb-0 md:justify-start mt-2 md:mt-4">
-        <h2 className="text-xl sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-extrabold text-gray-900 text-center mt-2 sm:mt-4 md:mt-4 mb-2 sm:mb-3 md:mb-4 text-overflow-fix px-1 sm:px-2">
-          {item.question}
-        </h2>
-
-        {(() => { 
-          const isImagesOnlyMCQ = (!item.options || item.options.length === 0) && (Array.isArray(item.images) && item.images.length > 0);
-          
-          // Check if options are image URLs - if so, don't show question images
-          const hasImageOptions = item.options?.some(opt => typeof opt === 'string' && (opt.startsWith('http') || opt.startsWith('https')));
-          if (hasImageOptions && !isImagesOnlyMCQ) return null;
-          
-          const imgs = (Array.isArray(item.images) ? item.images : (item.images ? [item.images] : [])).filter(Boolean); 
-          if (imgs.length === 0 && item.imageUrl) imgs.push(item.imageUrl); 
-          return imgs.length > 0 ? (
-            <div className="w-full max-w-xl sm:max-w-2xl md:max-w-3xl mb-1 sm:mb-3 flex justify-center">
-              <div className="flex flex-wrap md:flex-nowrap items-center justify-center gap-1 sm:gap-3 md:gap-5">
-                {imgs.slice(0,5).map((src, idx) => {
-                  if (isImagesOnlyMCQ) {
-                    const isSelected = selectedIndex === idx;
-                    const isCorrectOption = String(src).trim().toLowerCase() === String(item.answer || '').trim().toLowerCase();
-                    
-                    let buttonClass = "border-2 rounded-lg sm:rounded-2xl p-1 sm:p-3 shadow-sm transition-all duration-200 overflow-hidden relative cursor-pointer focus:outline-none ";
-                    
-                    if (showResult) {
-                      if (isSelected) {
-                        buttonClass += isCorrect ? "bg-green-100 border-green-500 ring-4 ring-green-200 " : "bg-red-100 border-red-500 ring-4 ring-red-200 ";
-                      } else if (isCorrectOption) {
-                        buttonClass += "bg-green-50 border-green-400 ring-4 ring-green-100 ";
-                      } else {
-                        buttonClass += "bg-gray-50 border-gray-200 opacity-50 ";
-                      }
-                    } else {
-                      if (isSelected) {
-                        buttonClass += "bg-blue-50 border-blue-500 ring-4 ring-blue-200 scale-105 ";
-                      } else {
-                        buttonClass += "bg-white border-blue-200 hover:border-blue-400 hover:shadow-md ";
-                      }
-                    }
-
-                    return (
-                      <button 
-                        key={idx} 
-                        className={buttonClass}
-                        onClick={() => handleOptionClick(idx)}
-                        disabled={showResult}
-                      >
-                        <img src={src} alt={'mcq-'+idx} className="h-40 w-36 sm:h-32 sm:w-24 md:h-24 md:w-20 lg:h-32 lg:w-24 xl:h-40 xl:w-32 object-contain rounded-md sm:rounded-xl" />
-                        {showResult && (
-                          <div className={`absolute top-2 right-2 flex-shrink-0 font-black text-lg sm:text-xl rounded-full w-8 h-8 flex items-center justify-center shadow-sm ${isSelected ? (isCorrect ? 'bg-green-500 text-white' : 'bg-red-500 text-white') : (isCorrectOption ? 'bg-green-500 text-white' : 'bg-white/80')}`}>
-                            {isSelected ? (isCorrect ? '✓' : '✕') : (isCorrectOption ? '✓' : '')}
-                          </div>
-                        )}
-                      </button>
-                    );
-                  } else {
-                    return (
-                      <div key={idx} className="border border-blue-300 rounded-lg sm:rounded-2xl p-1 sm:p-3 bg-white shadow-sm">
-                        <img src={src} alt={'mcq-'+idx} className="h-40 w-36 sm:h-32 sm:w-24 md:h-24 md:w-20 lg:h-32 lg:w-24 xl:h-40 xl:w-32 object-contain rounded-md sm:rounded-xl" />
-                      </div>
-                    );
-                  }
-                })}
-              </div>
+      {/* Main Content Area - Top Aligned */}
+      <div className={`flex-1 w-full max-w-md ${desktopWidth} px-3 sm:px-4 lg:px-6 py-1 lg:py-4 lgshort:py-2 overflow-y-auto flex flex-col justify-start items-center`}>
+        {/* Main Question Card (Matching Screenshot 1 & 4) */}
+        <div className={`w-full bg-white rounded-[28px] sm:rounded-[32px] p-5 sm:p-6 lg:p-7 lgshort:p-5 shadow-[0_8px_30px_rgba(0,0,0,0.08)] flex flex-col border-2 mt-1 sm:mt-2 lg:mt-4 lgshort:mt-1 animate-fade-in ${
+          isHotZone ? 'border-[#FF6B00] shadow-[0_12px_40px_rgba(255,107,0,0.18)]' : 'border-[#D1FADF]'
+        }`}>
+          {/* Top badges inside card */}
+          <div className="w-full flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <span className={`px-3.5 py-1 rounded-full font-black text-xs sm:text-sm tracking-wide ${
+                isHotZone 
+                  ? 'bg-[#FF6B00] text-white shadow-xs' 
+                  : 'bg-[#E6F8F0] text-[#027A48]'
+              }`}>
+                {isHotZone ? "Hot zone" : (item?.badge && item.badge !== "Lock it in" ? item.badge : "MCQ")}
+              </span>
             </div>
-          ) : null 
+
+            <div className="flex items-center gap-2.5">
+              <span className="text-slate-500 font-black text-sm sm:text-base">
+                {actualReviewMode ? `${initialQueueCount - queue.length + 1} / ${initialQueueCount}` : `${index + 1} / ${items.length}`}
+              </span>
+              <ReportFlagButton
+                itemId={item?.itemId || item?._id || `mcq-${index}`}
+                moduleId={moduleNumber}
+                chapterId={chapterIdParam}
+                questionText={item?.question}
+                screenName={`MCQ Q${index + 1}`}
+              />
+            </div>
+        </div>
+
+        {/* Question Title + TTS Audio Button */}
+        <div className="flex items-start justify-between gap-3 my-3 text-left">
+          <h2 
+            style={{ fontFamily: "var(--f-display, 'Fredoka', sans-serif)" }}
+            className="text-xl sm:text-2xl lg:text-[26px] lgshort:text-[22px] font-black text-[#101F33] tracking-tight leading-snug"
+          >
+            {item.question}
+          </h2>
+          <button
+            type="button"
+            onClick={playPromptAudio}
+            title="Listen to question"
+            className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 flex items-center justify-center flex-shrink-0 transition-all cursor-pointer shadow-xs"
+          >
+            <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+            </svg>
+          </button>
+        </div>
+
+        {/* Desktop with a picture: picture on the left, options (and feedback) on the right */}
+        <div className={hasQuestionImage ? 'contents lg:grid lg:grid-cols-2 lg:gap-7 lg:items-center lg:mt-1' : 'contents'}>
+        {/* Question Images if any */}
+        {(() => {
+          const imgs = (Array.isArray(item.images) ? item.images : (item.images ? [item.images] : [])).filter(Boolean);
+          if (imgs.length === 0 && item.imageUrl) imgs.push(item.imageUrl);
+          const hasImageOptions = item.options?.some(opt => typeof opt === 'string' && (opt.startsWith('http') || opt.startsWith('https')));
+          if (hasImageOptions || imgs.length === 0) return null;
+
+          return (
+            <div className="w-full flex justify-center my-2 lg:my-0">
+              <img 
+                src={imgs[0]} 
+                alt="Question visual" 
+                className="max-h-40 lg:max-h-[340px] lgshort:max-h-[200px] lg:max-w-full rounded-2xl border-2 border-slate-100 object-contain shadow-xs"
+              />
+            </div>
+          );
         })()}
 
-        <div className="w-full max-w-2xl sm:max-w-3xl md:max-w-4xl mb-2 sm:mb-4">
-          {(() => {
-            if (!item.options || item.options.length === 0) return null;
-            
-            const hasImageOptions = item.options.some(opt => typeof opt === 'string' && (opt.startsWith('http') || opt.startsWith('https')));
-            const containerClass = hasImageOptions 
-              ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4 md:gap-6" 
-              : "flex flex-col sm:flex-row gap-2 sm:gap-4 w-full";
-            
+        <div className={hasQuestionImage ? 'contents lg:block' : 'contents'}>
+        {/* Desktop: options on the left and, after a wrong answer, feedback on the right.
+            Below lg these wrappers are display:contents, so the phone layout is unchanged. */}
+        <div className={desktopSideFeedback ? 'contents lg:grid lg:grid-cols-2 lg:gap-6 lg:items-start lg:mt-2' : 'contents'}>
+        <div className="contents lg:block">
+        {/* Options List (desktop: two columns when the options are an even number of short answers) */}
+        <div className={`flex flex-col gap-2.5 sm:gap-3 w-full my-2 lg:my-3 ${desktopTwoColumns && !desktopSideFeedback ? 'lg:grid lg:grid-cols-2 lg:gap-3.5' : 'lg:gap-3.5'} lgshort:gap-2 lgshort:my-2`}>
+          {(item.options || []).map((opt, idx) => {
+            const isSelected = selectedIndex === idx;
+            const isEliminated = eliminatedOptions.includes(idx);
+            const isCorrectOption = String(opt).trim().toLowerCase() === String(item.answer || '').trim().toLowerCase();
+
+            let cardClass = "w-full text-left p-4 lg:px-6 lg:py-3.5 lgshort:py-2 rounded-[20px] font-bold text-base sm:text-lg lg:text-xl lgshort:text-base transition-all shadow-xs cursor-pointer select-none ";
+
+            if (isEliminated) {
+              cardClass += "bg-gray-100 border-2 border-gray-200 text-gray-400 line-through opacity-45 pointer-events-none cursor-not-allowed";
+            } else if (showResult) {
+              if (isSelected) {
+                cardClass += isCorrect 
+                  ? "bg-green-100 border-2 border-green-500 text-green-900 ring-2 ring-green-200" 
+                  : "bg-red-100 border-2 border-red-500 text-red-900 ring-2 ring-red-200";
+              } else if (isCorrectOption) {
+                cardClass += "bg-green-50 border-2 border-green-400 text-green-800";
+              } else {
+                cardClass += "bg-gray-50 border-2 border-gray-200 text-gray-400 opacity-60";
+              }
+            } else {
+              if (isSelected) {
+                cardClass += "bg-[#F0F7FF] border-2 border-[#1E74FD] text-[#101F33] ring-2 ring-blue-100 shadow-sm";
+              } else {
+                cardClass += "bg-white border-2 border-[#CBDCEE] hover:border-[#1E74FD] hover:bg-[#F0F7FF] text-[#101F33] active:scale-[0.99]";
+              }
+            }
+
             return (
-              <div className={containerClass}>
-                {item.options.map((opt, idx) => {
-                  const isSelected = selectedIndex === idx;
-                  const isCorrectOption = String(opt).trim().toLowerCase() === String(item.answer || '').trim().toLowerCase();
-                  const isImageUrl = typeof opt === 'string' && (opt.startsWith('http') || opt.startsWith('https'));
-                  
-                  let buttonClass = hasImageOptions 
-                    ? "p-2 sm:p-3 md:p-4 rounded-xl sm:rounded-2xl border-2 text-left transition-all duration-200 " 
-                    : "p-2 sm:p-3 md:p-4 rounded-xl sm:rounded-2xl border-2 text-left transition-all duration-200 flex-1 ";
-            
-                  if (showResult) {
-                    if (isSelected) {
-                      buttonClass += isCorrect ? "bg-green-100 border-green-500 text-green-800" : "bg-red-100 border-red-500 text-red-800";
-                    } else if (isCorrectOption) {
-                      buttonClass += "bg-green-50 border-green-300 text-green-600";
-                    } else {
-                      buttonClass += "bg-gray-50 border-gray-100 text-gray-400";
-                    }
-                  } else {
-                    if (isSelected) {
-                      buttonClass += "bg-blue-50 border-blue-400 ring-2 ring-blue-100 shadow-sm";
-                    } else {
-                      buttonClass += "bg-white border-gray-200 hover:border-blue-400 text-gray-700 active:scale-[0.98]";
-                    }
-                  }
-
-                  return (
-                    <button
-                      key={idx}
-                      onClick={() => handleOptionClick(idx)}
-                      className={buttonClass}
-                      disabled={showResult}
-                    >
-                      {isImageUrl ? (
-                        <div className="flex flex-col items-center">
-                          <img 
-                            src={opt} 
-                            alt={`Option ${idx + 1}`}
-                            className="w-full h-20 sm:h-20 md:h-12 lg:h-16 object-contain rounded-lg mb-1 sm:mb-2"
-                          />
-                          <div className="text-xs sm:text-xs md:text-sm font-semibold text-gray-700 flex items-center justify-center gap-2">
-                            <span>Option {idx + 1}</span>
-                            {showResult && (
-                              <span>
-                                {isSelected ? (isCorrect ? '✓' : '✕') : (isCorrectOption ? '✓' : '')}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-between gap-2 px-2">
-                          <div className="text-base sm:text-base md:text-lg lg:text-xl font-bold text-overflow-fix">{opt}</div>
-                          {showResult && (
-                            <div className="flex-shrink-0 font-black text-lg">
-                              {isSelected ? (isCorrect ? '✓' : '✕') : (isCorrectOption ? '✓' : '')}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            );
-          })()}
-        </div>
-        
-        {/* Bottom padding - mobile only for fixed button */}
-        <div className="h-4 sm:h-0 md:h-0"></div>
-      </div>
-
-      {/* Bottom Action Bar - Unified for stability */}
-      <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white/40 backdrop-blur-sm border-t-2 border-white/20 shadow-lg sm:shadow-none px-2 sm:px-3 md:px-6 py-2 sm:py-3 z-50 sm:z-auto">
-        {!showResult ? (
-          <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative z-10">
-            <img 
-              src="https://res.cloudinary.com/imq5966f/image/upload/v1791543812/img-to-link/uqj3uwzpd9sbb2z9mhxv.png" 
-              alt="Ruhaan" 
-              className="hidden md:block absolute bottom-0 right-4 lg:-right-4 w-[110px] lg:w-[140px] object-contain -z-10 pointer-events-none" 
-            />
-            <div className="flex gap-2">
               <button
-                onClick={handleSubmit}
-                disabled={selectedIndex === null}
-                className={`flex-1 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-white font-extrabold text-lg sm:text-base transition-colors shadow-lg sm:shadow-none ${
-                  selectedIndex === null ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+                key={idx}
+                type="button"
+                disabled={showResult || isEliminated}
+                onClick={() => handleOptionClick(idx)}
+                className={cardClass}
+              >
+                {opt}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Hot Zone Hint Button / Text Hint */}
+        {isHotZone && (
+          <div className="w-full flex flex-col gap-2 my-1">
+            {!showResult && (
+              <button
+                type="button"
+                onClick={handleUseHint}
+                disabled={hintUsed || eliminatedOptions.length > 0}
+                className={`w-full py-3.5 rounded-[18px] font-bold text-base transition-all select-none cursor-pointer ${
+                  hintUsed || eliminatedOptions.length > 0
+                    ? 'bg-[#2A0E0A] border border-[#5A1C14] text-slate-500 cursor-not-allowed'
+                    : 'bg-[#3B120D] hover:bg-[#4E1812] border border-[#5A1C14] text-[#E0B0A8] active:scale-[0.99]'
                 }`}
               >
-                Check
+                {hintUsed || eliminatedOptions.length > 0 ? "Hint used (1 answer struck off)" : "Use a hint"}
               </button>
-            </div>
+            )}
+
+            {showTextHint && (
+              <div className="w-full p-3.5 rounded-[18px] bg-amber-50 border border-amber-200 text-amber-900 font-bold text-sm text-left animate-fade-in">
+                💡 Hint: {item.hint || item.onWrong || "Think carefully about what you learned in this unit!"}
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="h-[60px] sm:h-0"></div> // Spacer to keep layout stable on desktop when feedback appears
         )}
+
+        </div>
+
+        {/* Feedback Cards (strictly only when present in Excel) */}
+        <div className="contents lg:block lg:-mt-2">
+        <QuizFeedbackCards item={item} showResult={showResult} isCorrect={isCorrect} />
+        </div>
+        </div>
+        </div>
+        </div>
+
+        </div>
       </div>
 
-      {/* Inline feedback bar - Duolingo Style (Refined Classy Theme) */}
-      {showResult && (
-        <div className={`fixed left-0 right-0 bottom-0 z-[100] animate-in slide-in-from-bottom duration-300 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.2)] ${
-          isCorrect ? 'bg-[#d7ffb8]' : 'bg-[#1a2b3c]'
-        }`}>
-          <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto px-6 py-4 flex flex-col gap-3 relative z-10">
-            <img 
-              src="https://res.cloudinary.com/imq5966f/image/upload/v1791543812/img-to-link/uqj3uwzpd9sbb2z9mhxv.png" 
-              alt="Ruhaan" 
-              className="hidden md:block absolute bottom-0 right-4 lg:-right-4 w-[110px] lg:w-[140px] object-contain -z-10 pointer-events-none" 
-            />
+      {/* Bottom Action Bar: Check button removed per user request (tapping option directly shows result) */}
+      {!showResult ? (
+        isHotZone ? (
+          <div className="w-full max-w-md px-4 py-3 flex-shrink-0 bg-transparent flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={handleUseHint}
+              disabled={hintUsed || eliminatedOptions.length > 0}
+              className={`w-full py-3 rounded-2xl font-black text-sm tracking-wider uppercase transition-all select-none cursor-pointer ${
+                hintUsed || eliminatedOptions.length > 0
+                  ? 'bg-stone-800 text-stone-500 cursor-not-allowed border border-stone-700'
+                  : 'bg-[#2A100B] hover:bg-[#3D1812] border border-[#FF6B00]/40 text-[#FF8A48] shadow-md active:scale-95'
+              }`}
+            >
+              {hintUsed || eliminatedOptions.length > 0 ? "Hint used (1 answer struck off)" : "Use a hint"}
+            </button>
+          </div>
+        ) : null
+      ) : !isCorrect ? (
+        <div className={`w-full max-w-md ${desktopWidth} px-4 lg:px-6 py-3 flex-shrink-0 bg-transparent flex items-center gap-2.5 sm:gap-3`}>
+          <button
+            type="button"
+            onClick={handleTryAgain}
+            style={{ fontFamily: "var(--f-display, 'Fredoka', sans-serif)" }}
+            className="flex-1 h-14 sm:h-15 rounded-[22px] font-black text-lg bg-[#FACC15] hover:bg-[#EAB308] border-b-4 border-[#CA8A04] text-slate-950 shadow-md active:translate-y-[2px] transition-all cursor-pointer flex items-center justify-center gap-1.5"
+          >
+            <span>🔄</span>
+            <span>Try again</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleNext(true)}
+            style={{ fontFamily: "var(--f-display, 'Fredoka', sans-serif)" }}
+            className="flex-1 h-14 sm:h-15 rounded-[22px] font-black text-lg bg-slate-100 hover:bg-slate-200 border-2 border-slate-300 text-slate-700 shadow-sm active:translate-y-[2px] transition-all cursor-pointer flex items-center justify-center"
+          >
+            Continue
+          </button>
+        </div>
+      ) : null}
+
+      {/* Inline feedback bar (only on correct submission, no character images) */}
+      {showResult && isCorrect && (
+        <div className="fixed left-0 right-0 bottom-0 z-[100] animate-in slide-in-from-bottom duration-300 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.2)] bg-[#d7ffb8]">
+          <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl mx-auto px-6 py-4 flex flex-col gap-3 relative z-10">
             <div className="flex items-center gap-4">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-inner ${
-                isCorrect ? 'bg-white text-[#58a700]' : 'bg-[#ff4b4b] text-white'
-              }`}>
-                <span className="text-xl">{isCorrect ? '✓' : '✕'}</span>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-inner bg-white text-[#58a700]">
+                <span className="text-xl">✓</span>
               </div>
               <div className="flex flex-col">
-                <p className={`text-[18px] font-black tracking-tight leading-tight ${
-                  isCorrect ? 'text-[#58a700]' : 'text-[#ff4b4b]'
-                }`}>
-                  {isCorrect ? 'You are correct!' : 'Correct solution:'}
+                <p className="text-[18px] font-black tracking-tight leading-tight text-[#58a700]">
+                  You are correct!
                 </p>
-                {!isCorrect && (
-                  <p className="text-[15px] font-bold text-white mt-0.5 opacity-90">
-                    {item?.answer ? (Array.isArray(item.answer) ? String(item.answer[0] || '') : String(item.answer)) : 'Not available'}
-                  </p>
-                )}
               </div>
             </div>
             
             <button
-              onClick={isCorrect ? handleNext : handleTryAgain}
-              className={`w-full py-3 rounded-[16px] text-[16px] font-black tracking-widest shadow-[0_4px_0_rgba(0,0,0,0.2)] transform active:translate-y-1 active:shadow-none transition-all uppercase ${
-                isCorrect 
-                  ? 'bg-[#58cc02] text-white hover:bg-[#61e002]' 
-                  : 'bg-[#ff4b4b] text-white hover:bg-[#ff5f5f]'
-              }`}
+              onClick={handleNext}
+              className="w-full py-3.5 rounded-[16px] text-[16px] font-black tracking-widest shadow-[0_4px_0_rgba(0,0,0,0.2)] transform active:translate-y-1 active:shadow-none transition-all uppercase bg-[#58cc02] text-white hover:bg-[#61e002] cursor-pointer"
             >
               CONTINUE
             </button>
@@ -1300,6 +1387,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
         </div>
       )}
       <NoSkipsModal isOpen={showNoSkipsModal} onClose={() => setShowNoSkipsModal(false)} />
+      </PlayfulBackground>
     </div>
   );
 }

@@ -1,4 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import curriculumService from '../../../services/curriculumService.js';
+
+const classNumber = (value) => String(value ?? '').replace(/\D/g, '');
 
 /**
  * Modern, robust, and space-efficient All Chapters modal.
@@ -13,12 +16,48 @@ const AllChaptersModal = ({
   statsLoading = false,
   subjectName = 'Science',
   classLevel = '',
+  board = 'CBSE',
   user,
   adminViewMode,
   onSelectChapter
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterTab, setFilterTab] = useState('all'); // 'all' | 'in_progress' | 'completed'
+  // 'mine' = the student's own class; 'other' = every other class's chapters, grouped by class,
+  // so students can keep playing beyond their own class
+  const [view, setView] = useState('mine');
+  const [other, setOther] = useState({ loading: false, failed: false, groups: null }); // groups: [{ name, chapters }]
+  const ownClass = classNumber(classLevel);
+
+  const loadOtherChapters = async () => {
+    setOther({ loading: true, failed: false, groups: null });
+    try {
+      const classes = ((await curriculumService.listClasses(board))?.data || [])
+        .filter((c) => c?.name && classNumber(c.name) !== ownClass)
+        .sort((a, b) => (Number(classNumber(a.name)) || 0) - (Number(classNumber(b.name)) || 0));
+      const groups = await Promise.all(classes.map(async (cls) => {
+        const resp = await curriculumService.listChapters(board, subjectName, { classTitle: cls.name });
+        return { name: classNumber(cls.name) || String(cls.name), chapters: (resp?.data || []).filter((c) => c && (c._id || c.id)) };
+      }));
+      setOther({ loading: false, failed: false, groups: groups.filter((g) => g.chapters.length) });
+    } catch (_) {
+      setOther({ loading: false, failed: true, groups: null });
+    }
+  };
+
+  const openOtherChapters = () => {
+    setView('other');
+    if (!other.groups && !other.loading) loadOtherChapters();
+  };
+
+  // Open on the tab holding the chapter the student is in: their own class, or Other Chapters
+  useEffect(() => {
+    if (!isOpen) return;
+    const inOwnClass = !currentChapterId || chaptersList.some((c) => String(c._id) === String(currentChapterId));
+    if (inOwnClass) setView('mine');
+    else openOtherChapters();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   // Close on Escape key
   useEffect(() => {
@@ -138,6 +177,28 @@ const AllChaptersModal = ({
           </button>
         </div>
 
+        {/* My class / Other chapters tabs */}
+        <div className="px-5 sm:px-6 pt-3 bg-white flex gap-1 border-b border-slate-100" role="tablist">
+          {[
+            { id: 'mine', label: ownClass ? `Class ${ownClass} Chapters` : 'My Chapters' },
+            { id: 'other', label: 'Other Chapters' }
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              role="tab"
+              aria-selected={view === tab.id}
+              onClick={() => (tab.id === 'other' ? openOtherChapters() : setView('mine'))}
+              className={`px-3.5 py-2 text-xs sm:text-sm font-extrabold border-b-2 -mb-px transition-colors ${
+                view === tab.id
+                  ? 'border-blue-600 text-blue-700'
+                  : 'border-transparent text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
         {/* Search & Filter Controls */}
         <div className="px-5 sm:px-6 py-3 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between">
           {/* Quick Search */}
@@ -163,7 +224,7 @@ const AllChaptersModal = ({
           </div>
 
           {/* Filter Tabs */}
-          <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200/80 shrink-0 text-xs">
+          <div className={`flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200/80 shrink-0 text-xs ${view === 'other' ? 'hidden' : ''}`}>
             <button
               onClick={() => setFilterTab('all')}
               className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
@@ -199,6 +260,7 @@ const AllChaptersModal = ({
 
         {/* Scrollable Chapter List */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-2.5 divide-y divide-transparent">
+          {view === 'mine' && (<>
           {statsLoading && totalChapters === 0 && (
             <div className="flex flex-col items-center justify-center py-12 text-slate-400">
               <div className="animate-spin rounded-full h-8 w-8 border-3 border-blue-500 border-t-transparent mb-3"></div>
@@ -310,6 +372,19 @@ const AllChaptersModal = ({
             );
           })}
 
+          {filterTab === 'all' && !searchQuery && (
+            <button
+              onClick={openOtherChapters}
+              className="w-full mt-2 rounded-2xl p-3.5 sm:p-4 border border-dashed border-indigo-300 bg-indigo-50/40 hover:bg-indigo-50 text-left flex items-center justify-between gap-3 transition-colors active:scale-[0.995]"
+            >
+              <div className="min-w-0">
+                <p className="text-sm font-black text-indigo-900">Other Chapters</p>
+                <p className="text-[11px] font-medium text-indigo-700/80 mt-0.5">Revise earlier classes or get ahead with chapters from other classes</p>
+              </div>
+              <span className="shrink-0 px-2.5 py-1 rounded-xl bg-indigo-600 text-white text-[11px] font-extrabold">Explore →</span>
+            </button>
+          )}
+
           {filteredChapters.length === 0 && !statsLoading && (
             <div className="text-center py-10 px-4">
               <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-xl mx-auto mb-2">
@@ -329,6 +404,93 @@ const AllChaptersModal = ({
               )}
             </div>
           )}
+          </>)}
+
+          {view === 'other' && (() => {
+            if (other.loading) {
+              return (
+                <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+                  <div className="animate-spin rounded-full h-8 w-8 border-3 border-indigo-500 border-t-transparent mb-3"></div>
+                  <span className="text-xs font-bold">Loading other chapters...</span>
+                </div>
+              );
+            }
+            if (other.failed) {
+              return (
+                <div className="text-center py-10">
+                  <p className="text-sm font-bold text-slate-700">Couldn't load other chapters</p>
+                  <button onClick={loadOtherChapters} className="mt-3 px-3 py-1 text-xs font-bold text-blue-600 bg-blue-50 rounded-lg">Try again</button>
+                </div>
+              );
+            }
+            const q = searchQuery.toLowerCase().trim();
+            const groups = (other.groups || [])
+              .map((g) => ({ ...g, chapters: g.chapters.filter((c) => !q || String(c.title || '').toLowerCase().includes(q)) }))
+              .filter((g) => g.chapters.length);
+            if (!groups.length) {
+              return (
+                <div className="text-center py-10 px-4">
+                  <p className="text-sm font-bold text-slate-700">No chapters found</p>
+                  <p className="text-xs text-slate-400 mt-0.5">{q ? `No results matching "${searchQuery}"` : 'No other chapters yet'}</p>
+                </div>
+              );
+            }
+            return groups.map((g) => (
+              <div key={g.name} className="space-y-2.5">
+                <h4 className="text-[11px] uppercase tracking-wider font-black text-slate-500 pt-2">Class {g.name}</h4>
+                {g.chapters.map((ch, i) => {
+                  const id = String(ch._id || ch.id);
+                  const comingSoon = Boolean(ch.title && ch.title.includes('(Coming Soon)'));
+                  const isCurrentOther = id === String(currentChapterId);
+                  return (
+                    <div
+                      key={id}
+                      onClick={() => !comingSoon && onSelectChapter({ ...ch, _id: id, classLevel: g.name })}
+                      className={`group rounded-2xl p-3.5 sm:p-4 border transition-all duration-150 flex items-center justify-between gap-3 ${
+                        comingSoon
+                          ? 'opacity-60 cursor-not-allowed bg-slate-50 border-slate-200'
+                          : isCurrentOther
+                            ? 'cursor-pointer bg-indigo-50/60 border-indigo-300 ring-2 ring-indigo-500/20'
+                            : 'cursor-pointer bg-white hover:bg-slate-50/70 border-slate-200/80 hover:border-indigo-300 active:scale-[0.995]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center font-black text-xs sm:text-sm shrink-0 bg-indigo-50 text-indigo-700">
+                          {String(i + 1).padStart(2, '0')}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h4 className="text-xs sm:text-sm font-extrabold truncate text-slate-800 group-hover:text-indigo-700" title={ch.title}>
+                            {ch.title}
+                          </h4>
+                          <div className="flex items-center gap-1.5 mt-1">
+                            <span className="text-[9px] uppercase tracking-wider font-black px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
+                              Class {g.name}
+                            </span>
+                            {comingSoon && (
+                              <span className="text-[9px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-800">
+                                Coming Soon
+                              </span>
+                            )}
+                            {isCurrentOther && (
+                              <span className="text-[9px] uppercase tracking-wider font-black px-1.5 py-0.5 rounded-full bg-indigo-600 text-white">
+                                Current
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      {!comingSoon && (
+                        <span className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-100 text-slate-600 group-hover:bg-indigo-600 group-hover:text-white text-[11px] font-bold transition-colors">
+                          <span>{isCurrentOther ? 'Continue' : 'Start'}</span>
+                          <span>→</span>
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ));
+          })()}
         </div>
 
         {/* Footer */}
