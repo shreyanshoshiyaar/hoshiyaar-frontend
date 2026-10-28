@@ -14,11 +14,11 @@ const Learn = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [step, setStep] = useState(1);
-  // Add state here to store all the user's choices
+  // Add state here to store all the user's choices (CBSE by default for new users)
   const [onboardingData, setOnboardingData] = useState({
-    board: null,
-    subject: null,
-    chapter: null, // Add chapter to state
+    board: 'CBSE',
+    subject: 'Science',
+    chapter: '1',
   });
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState(null);
@@ -33,18 +33,22 @@ const Learn = () => {
   const saveOnboardingData = async () => {
     if (isSaving) return;
     
-    if (user?._id && onboardingData.board && onboardingData.subject && onboardingData.chapter) {
+    const boardToSave = onboardingData.board || user?.board || 'CBSE';
+    const subjectToSave = onboardingData.subject || user?.subject || 'Science';
+    const chapterToSave = onboardingData.chapter || user?.chapter || '1';
+
+    if (user?._id) {
       setIsSaving(true);
       setError(null);
       try {
         const response = await authService.updateProfile({
           userId: user._id,
-          board: onboardingData.board,
-          subject: onboardingData.subject,
-          chapter: onboardingData.chapter,
+          board: boardToSave,
+          subject: subjectToSave,
+          chapter: chapterToSave,
         });
         // Update local user state to reflect completion
-        login?.({ ...user, ...onboardingData, onboardingCompleted: true });
+        login?.({ ...user, board: boardToSave, subject: subjectToSave, chapter: chapterToSave, onboardingCompleted: true });
         console.log('Onboarding data saved successfully:', response.data);
         
         // Clean up saved progress since onboarding is complete
@@ -65,7 +69,7 @@ const Learn = () => {
         return false;
       }
     } else {
-      console.warn('Cannot save onboarding data: missing user ID or required selections (board, subject, chapter)');
+      console.warn('Cannot save onboarding data: missing user ID');
       return false;
     }
   };
@@ -139,8 +143,11 @@ const Learn = () => {
           ['9867735936', '7021970672', '9820277252'].some(p => cleanPhone.endsWith(p)) ||
           ['Host', 'hostcbse', 'AKSHITRAVULA', 'AKSHIT', 'SB10', 'Nidhi sekhri'].includes(user.username);
         if (!hasSession && (!user.onboardingCompleted || missingSelections || isAdmin)) {
-          setOnboardingData({ board: null, subject: null, chapter: null });
-          setStep(2); // Start from BoardSelect directly, skip Welcome
+          const defaultBoard = user.board || 'CBSE';
+          const defaultSubject = user.subject || 'Science';
+          const defaultChapter = user.chapter || '1';
+          setOnboardingData({ board: defaultBoard, subject: defaultSubject, chapter: defaultChapter });
+          setStep(4); // Skip BoardSelect directly — default to CBSE, show WelcomeScreen
           return;
         }
 
@@ -164,31 +171,10 @@ const Learn = () => {
   const renderStep = () => {
     switch (step) {
       case 1:
-        return null; // Skipped
       case 2:
-        return (
-          <BoardSelect 
-            onContinue={() => {
-              // Default to chapter 1 since we are skipping ChapterSelect
-              updateOnboardingData({ subject: 'Science', chapter: '1' });
-              setStep(4); // Skip step 3 (ChapterSelect) and go directly to WelcomeScreen
-            }} 
-            onBack={prevStep} 
-            updateData={updateOnboardingData} 
-            autoAdvance={false} 
-          />
-        );
       case 3:
-        return (
-          <ChapterSelect
-            onContinue={nextStep}
-            onBack={prevStep}
-            updateData={updateOnboardingData}
-            autoAdvance={false}
-            board={onboardingData.board}
-            subject="Science"
-          />
-        );
+        // Board & Chapter selection skipped for new users — default to CBSE & Science Chapter 1
+        return null;
       case 4:
         return (
           <WelcomeScreen 
@@ -199,7 +185,10 @@ const Learn = () => {
                 try { localStorage.setItem(keys.local, 'true'); } catch (_) {}
               }
               await saveOnboardingData();
-              navigate('/story-demo');
+              setStep(5);
+              if (location.pathname !== '/learn') {
+                navigate('/learn', { replace: true });
+              }
             }} 
           />
         );

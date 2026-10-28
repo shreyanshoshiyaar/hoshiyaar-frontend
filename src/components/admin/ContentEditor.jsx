@@ -140,10 +140,13 @@ const ContentEditor = ({
     // Build new item with only fields relevant to the new type
     const baseItem = {
       _id: oldItem._id,
+      itemId: oldItem.itemId || '',
       type: newType,
       order: oldItem.order || index + 1,
       imageUrl: oldItem.imageUrl,
       images: oldItem.images || [],
+      explanation: oldItem.explanation || '',
+      onWrong: oldItem.onWrong || '',
     };
 
     let newItem;
@@ -158,7 +161,40 @@ const ContentEditor = ({
     } else if (newType === 'comic') {
       newItem = {
         ...baseItem,
+        speaker: oldItem.speaker || 'Narration',
+        text: oldItem.text || '',
         images: oldItem.images || (oldItem.imageUrl ? [oldItem.imageUrl] : []),
+      };
+    } else if (newType === 'story') {
+      newItem = {
+        ...baseItem,
+        speaker: oldItem.speaker || 'Dr. Sharma',
+        text: oldItem.text || oldItem.question || '',
+        mood: oldItem.mood || 'neutral',
+      };
+    } else if (newType === 'blackboard') {
+      newItem = {
+        ...baseItem,
+        cardTitle: oldItem.cardTitle || oldItem.question || '',
+        speaker: oldItem.speaker || 'Dr. Sharma',
+        text: oldItem.text || '',
+        glyphCode: oldItem.glyphCode || oldItem.answer || '',
+        lineIndex: oldItem.lineIndex || 1,
+        inputJson: oldItem.inputJson || null,
+      };
+    } else if (newType === 'engagement-audio') {
+      newItem = {
+        ...baseItem,
+        question: oldItem.question || oldItem.text || '',
+        targetWord: oldItem.targetWord || '',
+        pronunciation: oldItem.pronunciation || '',
+        speaker: oldItem.speaker || 'Dr. Sharma',
+      };
+    } else if (newType === 'didyouknow') {
+      newItem = {
+        ...baseItem,
+        cardTitle: oldItem.cardTitle || 'Did you know?',
+        text: oldItem.text || oldItem.question || '',
       };
     } else if (newType === 'multiple-choice') {
       newItem = {
@@ -476,14 +512,17 @@ const ContentEditor = ({
         };
 
         // Include _id if it exists and is not a temporary new item ID
-        // Handle both string and ObjectId formats
-        const itemId = item._id ? String(item._id) : null;
-        if (itemId && !itemId.startsWith('new-')) {
-          concept._id = itemId;
-          console.log('[ContentEditor] Including _id in payload:', itemId, 'for item type:', item.type);
-        } else {
-          console.log('[ContentEditor] No _id or temporary ID for item:', item.type, itemId);
+        const mongoId = item._id ? String(item._id) : null;
+        if (mongoId && !mongoId.startsWith('new-')) {
+          concept._id = mongoId;
         }
+
+        if (item.itemId) concept.itemId = item.itemId;
+        if (item.explanation) concept.explanation = item.explanation;
+        if (item.onWrong) concept.onWrong = item.onWrong;
+        if (item.hint) concept.hint = item.hint;
+        if (item.speaker) concept.speaker = item.speaker;
+        if (item.mood) concept.mood = item.mood;
 
         if (['statement', 'concept', 'video'].includes(item.type)) {
           concept.text = item.text || '';
@@ -494,6 +533,39 @@ const ContentEditor = ({
           } else {
             if (item.question) concept.question = item.question;
           }
+        } else if (item.type === 'comic') {
+          concept.speaker = item.speaker || 'Narration';
+          concept.text = item.text || '';
+          concept.images = item.images || [];
+          concept.imageUrl = item.imageUrl || '';
+        } else if (item.type === 'story') {
+          concept.speaker = item.speaker || 'Dr. Sharma';
+          concept.text = item.text || '';
+          concept.mood = item.mood || 'neutral';
+          concept.images = item.images || [];
+          concept.imageUrl = item.imageUrl || '';
+        } else if (item.type === 'blackboard') {
+          concept.cardTitle = item.cardTitle || item.question || '';
+          concept.glyphCode = item.glyphCode || item.answer || '';
+          concept.speaker = item.speaker || 'Dr. Sharma';
+          concept.text = item.text || '';
+          concept.question = item.cardTitle || item.question || '';
+          concept.answer = item.glyphCode || item.answer || '';
+          concept.lineIndex = item.lineIndex || 1;
+          if (item.inputJson) {
+            concept.inputJson = typeof item.inputJson === 'string' ? (() => { try { return JSON.parse(item.inputJson); } catch { return item.inputJson; } })() : item.inputJson;
+          }
+        } else if (item.type === 'engagement-audio') {
+          concept.question = item.question || item.text || '';
+          concept.text = item.text || item.question || '';
+          concept.targetWord = item.targetWord || item.answer || '';
+          concept.pronunciation = item.pronunciation || '';
+          concept.speaker = item.speaker || 'Dr. Sharma';
+        } else if (item.type === 'didyouknow') {
+          concept.cardTitle = item.cardTitle || 'Did you know?';
+          concept.text = item.text || item.question || '';
+          concept.question = item.cardTitle || 'Did you know?';
+          concept.imageUrl = item.imageUrl || '';
         } else if (item.type === 'multiple-choice') {
           concept.question = item.question || '';
           concept.options = (item.options || []).filter(Boolean);
@@ -653,22 +725,26 @@ const ContentEditor = ({
 
             return (
               <div key={item._id || actualIndex} className="border border-gray-300 rounded-lg p-4">
-                <div className="flex justify-between items-start mb-3">
-                  <div className="flex items-center gap-3">
+                <div className="flex justify-between items-start mb-3 flex-wrap gap-2">
+                  <div className="flex items-center gap-3 flex-wrap">
                     <label className="text-sm font-medium text-gray-700">Type:</label>
                     <select
                       value={item.type || 'concept'}
                       onChange={(e) => changeItemType(actualIndex, e.target.value)}
-                      className="px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
                     >
                       <option value="concept">Concept</option>
                       <option value="statement">Statement</option>
-                      <option value="video">Video</option>
-                      <option value="comic">Comic Slides</option>
+                      <option value="story">Story / Dialogue</option>
+                      <option value="comic">Comic Scene</option>
+                      <option value="blackboard">Blackboard (Board Time)</option>
+                      <option value="engagement-audio">Voice Engagement (Say Aloud)</option>
+                      <option value="didyouknow">Did You Know (Flip Card)</option>
                       <option value="multiple-choice">MCQ</option>
                       <option value="fill-in-the-blank">Fill in the Blank</option>
                       <option value="rearrange">Rearrange</option>
                       <option value="descriptive">Descriptive Question</option>
+                      <option value="video">Video</option>
                     </select>
 
                     {/* Order Controls */}
@@ -696,6 +772,19 @@ const ContentEditor = ({
                         </button>
                       </div>
                       <span className="text-xs text-gray-500">({items.length} total)</span>
+                    </div>
+
+                    {/* Item ID / Tag Input */}
+                    <div className="flex items-center gap-1.5 ml-1">
+                      <label className="text-xs font-semibold text-gray-500 uppercase">Tag / ID:</label>
+                      <input
+                        type="text"
+                        value={item.itemId || ''}
+                        onChange={(e) => updateItem(actualIndex, 'itemId', e.target.value)}
+                        placeholder="e.g. C1_S1, Q1"
+                        className="px-2 py-0.5 text-xs font-mono bg-gray-50 border border-gray-300 rounded text-gray-700 w-28 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        title="Curriculum ID linking to Excel/CSV sheet"
+                      />
                     </div>
                   </div>
                   <button
@@ -816,6 +905,33 @@ const ContentEditor = ({
                       </button>
                     </div>
 
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-gray-100">
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1">
+                          💡 Explanation (shown after student answers)
+                        </label>
+                        <textarea
+                          value={item.explanation || ''}
+                          onChange={(e) => updateItem(actualIndex, 'explanation', e.target.value)}
+                          rows={2}
+                          placeholder="e.g. Peristalsis is the wave-like contraction of muscles..."
+                          className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1">
+                          🛡️ Hint / On Wrong Guidance
+                        </label>
+                        <textarea
+                          value={item.onWrong || ''}
+                          onChange={(e) => updateItem(actualIndex, 'onWrong', e.target.value)}
+                          rows={2}
+                          placeholder="e.g. Think about how food moves smoothly down the esophagus!"
+                          className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                      </div>
+                    </div>
+
                     <ImageEditor
                       item={item}
                       index={actualIndex}
@@ -853,6 +969,33 @@ const ContentEditor = ({
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         placeholder="Enter correct answer..."
                       />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-gray-100">
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1">
+                          💡 Explanation (shown after student answers)
+                        </label>
+                        <textarea
+                          value={item.explanation || ''}
+                          onChange={(e) => updateItem(actualIndex, 'explanation', e.target.value)}
+                          rows={2}
+                          placeholder="e.g. Explanation of why this answer is correct..."
+                          className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1">
+                          🛡️ Hint / On Wrong Guidance
+                        </label>
+                        <textarea
+                          value={item.onWrong || ''}
+                          onChange={(e) => updateItem(actualIndex, 'onWrong', e.target.value)}
+                          rows={2}
+                          placeholder="e.g. Look closely at the clue in the question..."
+                          className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                      </div>
                     </div>
 
                     <ImageEditor
@@ -936,6 +1079,33 @@ const ContentEditor = ({
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         placeholder="Enter correct answer sequence..."
                       />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-gray-100">
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1">
+                          💡 Explanation (shown after student answers)
+                        </label>
+                        <textarea
+                          value={item.explanation || ''}
+                          onChange={(e) => updateItem(actualIndex, 'explanation', e.target.value)}
+                          rows={2}
+                          placeholder="e.g. The correct sequence follows the order of organs in digestion..."
+                          className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1">
+                          🛡️ Hint / On Wrong Guidance
+                        </label>
+                        <textarea
+                          value={item.onWrong || ''}
+                          onChange={(e) => updateItem(actualIndex, 'onWrong', e.target.value)}
+                          rows={2}
+                          placeholder="e.g. Start from what happens first when you chew!"
+                          className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                      </div>
                     </div>
 
                     <ImageEditor
@@ -1077,6 +1247,33 @@ const ContentEditor = ({
                       </div>
                     </div>
 
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-gray-100">
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1">
+                          💡 Explanation (shown after student answers)
+                        </label>
+                        <textarea
+                          value={item.explanation || ''}
+                          onChange={(e) => updateItem(actualIndex, 'explanation', e.target.value)}
+                          rows={2}
+                          placeholder="e.g. A comprehensive explanation covering all key concepts..."
+                          className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1">
+                          🛡️ Hint / On Wrong Guidance
+                        </label>
+                        <textarea
+                          value={item.onWrong || ''}
+                          onChange={(e) => updateItem(actualIndex, 'onWrong', e.target.value)}
+                          rows={2}
+                          placeholder="e.g. Make sure to mention all the required keywords above!"
+                          className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                      </div>
+                    </div>
+
                     <ImageEditor
                       item={item}
                       index={actualIndex}
@@ -1090,9 +1287,35 @@ const ContentEditor = ({
 
                 {/* Comic Slides Type */}
                 {item.type === 'comic' && (
-                  <div className="space-y-3">
-                    <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-md border border-blue-100">
-                      Upload your comic slides below using the Multiple Images tool. They will be displayed perfectly in the comic viewer.
+                  <div className="space-y-3 p-4 bg-amber-50/40 rounded-xl border border-amber-200">
+                    <div className="flex gap-4 flex-wrap">
+                      <div className="w-full md:w-1/4">
+                        <label className="block text-xs font-bold text-amber-900 uppercase mb-1">
+                          Speaker / Character
+                        </label>
+                        <input
+                          type="text"
+                          value={item.speaker || 'Narration'}
+                          onChange={(e) => updateItem(actualIndex, 'speaker', e.target.value)}
+                          placeholder="e.g. Narration, Dr. Sharma, Hoshi"
+                          className="w-full px-3 py-2 bg-white border border-amber-300 rounded-md text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-[240px]">
+                        <label className="block text-xs font-bold text-amber-900 uppercase mb-1">
+                          Scene Narration / Caption
+                        </label>
+                        <input
+                          type="text"
+                          value={item.text || ''}
+                          onChange={(e) => updateItem(actualIndex, 'text', e.target.value)}
+                          placeholder="e.g. Dr. Sharma gathers the students at the camp entrance..."
+                          className="w-full px-3 py-2 bg-white border border-amber-300 rounded-md text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        />
+                      </div>
+                    </div>
+                    <div className="text-xs text-amber-800 bg-amber-100/70 p-2.5 rounded-md border border-amber-200">
+                      💡 <strong>Comic Slide:</strong> Upload or paste comic artwork below. Caption text is spoken by the narrator/character.
                     </div>
                     <ImageEditor
                       item={item}
@@ -1102,6 +1325,280 @@ const ContentEditor = ({
                       removeImage={removeImage}
                       uploading={uploadingImages[actualIndex]}
                     />
+                  </div>
+                )}
+
+                {/* Story / Character Dialogue Type */}
+                {item.type === 'story' && (
+                  <div className="space-y-3 p-4 bg-purple-50/50 rounded-xl border border-purple-200">
+                    <div className="flex gap-4 flex-wrap">
+                      <div className="w-full md:w-1/3">
+                        <label className="block text-xs font-bold text-purple-900 uppercase mb-1">
+                          Speaker
+                        </label>
+                        <input
+                          type="text"
+                          value={item.speaker || 'Dr. Sharma'}
+                          onChange={(e) => updateItem(actualIndex, 'speaker', e.target.value)}
+                          placeholder="e.g. Dr. Sharma, Hoshi, Myra"
+                          className="w-full px-3 py-2 bg-white border border-purple-300 rounded-md text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        />
+                      </div>
+                      <div className="w-full md:w-1/3">
+                        <label className="block text-xs font-bold text-purple-900 uppercase mb-1">
+                          Character Mood / Expression
+                        </label>
+                        <select
+                          value={item.mood || 'neutral'}
+                          onChange={(e) => updateItem(actualIndex, 'mood', e.target.value)}
+                          className="w-full px-3 py-2 bg-white border border-purple-300 rounded-md text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        >
+                          <option value="neutral">Neutral / Normal</option>
+                          <option value="happy">Happy / Smiling 😊</option>
+                          <option value="curious">Curious / Inquiring 🤔</option>
+                          <option value="thinking">Thinking / Pondering 💭</option>
+                          <option value="excited">Excited / Amazed 😃</option>
+                          <option value="explaining">Explaining / Teaching 🧑‍🏫</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-purple-900 uppercase mb-1">
+                        Dialogue Line
+                      </label>
+                      <textarea
+                        value={item.text || ''}
+                        onChange={(e) => updateItem(actualIndex, 'text', e.target.value)}
+                        rows={2}
+                        placeholder="e.g. Look at that! The nutrients are entering the blood vessels..."
+                        className="w-full px-3 py-2 bg-white border border-purple-300 rounded-md text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    <ImageEditor
+                      item={item}
+                      index={actualIndex}
+                      handleImageUpload={handleImageUpload}
+                      handleImageUrlInput={handleImageUrlInput}
+                      removeImage={removeImage}
+                      uploading={uploadingImages[actualIndex]}
+                    />
+                  </div>
+                )}
+
+                {/* Blackboard (Board Time) Type */}
+                {item.type === 'blackboard' && (
+                  <div className="space-y-3 p-4 bg-slate-900 text-white rounded-xl border border-slate-700">
+                    <div className="flex gap-4 flex-wrap">
+                      <div className="flex-1 min-w-[240px]">
+                        <label className="block text-xs font-bold text-slate-300 uppercase mb-1">
+                          Card / Batch Title
+                        </label>
+                        <input
+                          type="text"
+                          value={item.cardTitle || item.question || ''}
+                          onChange={(e) => {
+                            updateItem(actualIndex, 'cardTitle', e.target.value);
+                            updateItem(actualIndex, 'question', e.target.value);
+                          }}
+                          placeholder="e.g. Teeth crush and chew food"
+                          className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-md text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div className="w-full md:w-1/4">
+                        <label className="block text-xs font-bold text-slate-300 uppercase mb-1">
+                          Speaker / Voice
+                        </label>
+                        <input
+                          type="text"
+                          value={item.speaker || 'Dr. Sharma'}
+                          onChange={(e) => updateItem(actualIndex, 'speaker', e.target.value)}
+                          placeholder="e.g. Dr. Sharma"
+                          className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-md text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div className="w-full md:w-24">
+                        <label className="block text-xs font-bold text-slate-300 uppercase mb-1">
+                          Line #
+                        </label>
+                        <input
+                          type="number"
+                          value={item.lineIndex || 1}
+                          onChange={(e) => updateItem(actualIndex, 'lineIndex', parseInt(e.target.value) || 1)}
+                          className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-md text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-300 uppercase mb-1">
+                        Spoken Narration Text
+                      </label>
+                      <textarea
+                        value={item.text || ''}
+                        onChange={(e) => updateItem(actualIndex, 'text', e.target.value)}
+                        rows={2}
+                        placeholder="e.g. Teeth CRUSH and chew food into small pieces."
+                        className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-md text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-300 uppercase mb-1">
+                        Blackboard Glyph Code
+                      </label>
+                      <input
+                        type="text"
+                        value={item.glyphCode || item.answer || ''}
+                        onChange={(e) => {
+                          updateItem(actualIndex, 'glyphCode', e.target.value);
+                          updateItem(actualIndex, 'answer', e.target.value);
+                        }}
+                        placeholder="e.g. chapati -> teeth -> tiny pieces"
+                        className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-md font-mono text-cyan-300 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      />
+                      <p className="text-[11px] text-slate-400 mt-1">
+                        Tokens: chapati, teeth, saliva, stomach, tiny pieces (use -&gt; for arrows).
+                      </p>
+                    </div>
+
+                    {/* Collapsible Vector Diagram Actions JSON */}
+                    <details className="mt-2 text-xs">
+                      <summary className="cursor-pointer font-semibold text-slate-400 hover:text-cyan-300 transition-colors py-1">
+                        ⚙️ Advanced: Vector Diagram Actions (inputJson drawing commands)
+                      </summary>
+                      <div className="mt-2">
+                        <textarea
+                          value={typeof item.inputJson === 'object' && item.inputJson !== null ? JSON.stringify(item.inputJson, null, 2) : (item.inputJson || '')}
+                          onChange={(e) => {
+                            try {
+                              const parsed = JSON.parse(e.target.value);
+                              updateItem(actualIndex, 'inputJson', parsed);
+                            } catch {
+                              updateItem(actualIndex, 'inputJson', e.target.value);
+                            }
+                          }}
+                          rows={4}
+                          placeholder='[{"action": "drawGlyph", "code": "teeth", "x": 100, "y": 80}]'
+                          className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded font-mono text-cyan-200 text-xs focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                        />
+                        <p className="text-[10px] text-slate-400 mt-0.5">
+                          Paste valid JSON array of drawing actions. If empty, glyph code will be used automatically.
+                        </p>
+                      </div>
+                    </details>
+                  </div>
+                )}
+
+                {/* Voice Engagement (Say Aloud) Type */}
+                {item.type === 'engagement-audio' && (
+                  <div className="space-y-3 p-4 bg-emerald-50/50 rounded-xl border border-emerald-200">
+                    <div className="flex gap-4 flex-wrap">
+                      <div className="w-full md:w-1/4">
+                        <label className="block text-xs font-bold text-emerald-900 uppercase mb-1">
+                          Speaker / Voice
+                        </label>
+                        <input
+                          type="text"
+                          value={item.speaker || 'Dr. Sharma'}
+                          onChange={(e) => updateItem(actualIndex, 'speaker', e.target.value)}
+                          placeholder="e.g. Dr. Sharma"
+                          className="w-full px-3 py-2 bg-white border border-emerald-300 rounded-md text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        />
+                      </div>
+                      <div className="w-full md:w-1/3">
+                        <label className="block text-xs font-bold text-emerald-900 uppercase mb-1">
+                          Target Word to Speak
+                        </label>
+                        <input
+                          type="text"
+                          value={item.targetWord || item.answer || ''}
+                          onChange={(e) => {
+                            updateItem(actualIndex, 'targetWord', e.target.value);
+                            updateItem(actualIndex, 'answer', e.target.value);
+                          }}
+                          placeholder="e.g. PERISTALSIS"
+                          className="w-full px-3 py-2 bg-white border border-emerald-300 rounded-md font-bold text-emerald-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        />
+                      </div>
+                      <div className="w-full md:w-1/3">
+                        <label className="block text-xs font-bold text-emerald-900 uppercase mb-1">
+                          Pronunciation Guide
+                        </label>
+                        <input
+                          type="text"
+                          value={item.pronunciation || ''}
+                          onChange={(e) => updateItem(actualIndex, 'pronunciation', e.target.value)}
+                          placeholder="e.g. peh-rih-STALL-sis"
+                          className="w-full px-3 py-2 bg-white border border-emerald-300 rounded-md text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-emerald-900 uppercase mb-1">
+                        Spoken Instruction / Prompt
+                      </label>
+                      <textarea
+                        value={item.question || item.text || ''}
+                        onChange={(e) => {
+                          updateItem(actualIndex, 'question', e.target.value);
+                          updateItem(actualIndex, 'text', e.target.value);
+                        }}
+                        rows={2}
+                        placeholder="e.g. Say aloud with me: PERISTALSIS!"
+                        className="w-full px-3 py-2 bg-white border border-emerald-300 rounded-md text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      />
+                    </div>
+                    <ImageEditor
+                      item={item}
+                      index={actualIndex}
+                      handleImageUpload={handleImageUpload}
+                      handleImageUrlInput={handleImageUrlInput}
+                      removeImage={removeImage}
+                      uploading={uploadingImages[actualIndex]}
+                    />
+                  </div>
+                )}
+
+                {/* Did You Know Type */}
+                {item.type === 'didyouknow' && (
+                  <div className="space-y-3 bg-blue-50 border border-blue-200 p-4 rounded-lg mt-3">
+                    <div>
+                      <label className="block text-xs font-bold text-blue-900 uppercase mb-1">
+                        Front Card Title
+                      </label>
+                      <input
+                        type="text"
+                        value={item.cardTitle || 'Did you know?'}
+                        onChange={(e) => updateItem(actualIndex, 'cardTitle', e.target.value)}
+                        placeholder="e.g. Did you know?"
+                        className="w-full px-3 py-2 bg-white border border-blue-300 rounded-md text-gray-900 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-blue-900 uppercase mb-1">
+                        Back Card Fact Content
+                      </label>
+                      <textarea
+                        value={item.text || item.question || ''}
+                        onChange={(e) => {
+                          updateItem(actualIndex, 'text', e.target.value);
+                          updateItem(actualIndex, 'question', e.target.value);
+                        }}
+                        rows={3}
+                        placeholder="e.g. The Charaka Samhita is a very old Ayurvedic book..."
+                        className="w-full px-3 py-2 bg-white border border-blue-300 rounded-md text-gray-900 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-blue-900 uppercase mb-1">
+                        Fact Illustration Image URL
+                      </label>
+                      <input
+                        type="text"
+                        value={item.imageUrl || ''}
+                        onChange={(e) => updateItem(actualIndex, 'imageUrl', e.target.value)}
+                        placeholder="https://res.cloudinary.com/... or image URL"
+                        className="w-full px-3 py-2 bg-white border border-blue-300 rounded-md text-gray-900 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      />
+                    </div>
                   </div>
                 )}
               </div>

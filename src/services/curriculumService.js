@@ -75,8 +75,23 @@ const curriculumService = {
   listModulesByUnit(unitId, opts) {
     return cachedGet(`/api/curriculum/modules`, { params: { unitId }, ...passOpts(opts) });
   },
-  listItems(moduleId, opts) {
-    return cachedGet(`/api/curriculum/items`, { params: { moduleId }, ...passOpts(opts) });
+  async listItems(moduleId, opts) {
+    const res = await cachedGet(`/api/curriculum/items`, { params: { moduleId }, ...passOpts(opts) });
+    if (res?.data && Array.isArray(res.data)) {
+      return {
+        ...res,
+        data: res.data.filter(it => {
+          const id = String(it.itemId || '');
+          const txt = String(it.text || it.question || '');
+          if (id.includes('.JM') || id.endsWith('.JM1') || txt.startsWith('You are here:')) return false;
+          return true;
+        })
+      };
+    }
+    return res;
+  },
+  listCurriculumItems(moduleId, opts) {
+    return this.listItems(moduleId, opts);
   },
   getModule(moduleId, opts) {
     return cachedGet(`/api/curriculum/module`, { params: { moduleId }, ...passOpts(opts) }).catch(() => {

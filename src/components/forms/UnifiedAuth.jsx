@@ -438,6 +438,7 @@ const UnifiedAuth = () => {
         username: formData.username.trim(),
         name: formData.name,
         classLevel: formData.classLevel || null,
+        board: 'CBSE',
         phone: formData.phone || null,
         email: formData.email.trim() || null,
         password: formData.password,

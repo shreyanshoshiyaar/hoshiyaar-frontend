@@ -83,8 +83,8 @@ const MobileWelcomeScreen = () => {
           className="h-11 xs:h-12 sm:h-13 w-auto object-contain drop-shadow-xs" 
         />
 
-        {/* New Text: For CBSE, RBSE 6-8th Classes */}
-        <div className="bg-amber-100 text-amber-800 text-[11px] xs:text-[12.5px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full border border-amber-400 mt-0.5 mb-1.5 shadow-sm ring-2 ring-amber-300/50 z-20 relative">For CBSE, RBSE 6-8th Classes</div>
+        {/* New Text: Science for Classes 6-8 */}
+        <div className="bg-amber-100 text-amber-800 text-[11px] xs:text-[12.5px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full border border-amber-400 mt-0.5 mb-1.5 shadow-sm ring-2 ring-amber-300/50 z-20 relative">Science for Classes 6–8</div>
 
         {/* Headline with Sunburst Rays */}
         <div className="relative text-center">

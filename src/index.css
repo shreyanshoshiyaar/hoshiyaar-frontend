@@ -14,6 +14,24 @@ html, body, #root {
   /* Better font rendering */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-family: 'Nunito', system-ui, sans-serif;
+}
+
+/* App Standard Typography Classes */
+.font-mission-heading {
+  font-family: 'Barlow Condensed', Impact, Arial Narrow, sans-serif;
+  font-style: italic;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.font-character-dialogue {
+  font-family: 'Fredoka', Trebuchet MS, sans-serif;
+}
+
+.font-app-ui {
+  font-family: 'Nunito', system-ui, sans-serif;
 }
 
 /* Utility to hide scrollbars while keeping scroll behavior */

@@ -96,24 +96,6 @@ const BottomNavigation = () => {
       </button>
 
       <button 
-        onClick={() => navigate('/homework', { replace: true })}
-        className={`flex flex-col items-center justify-center flex-1 pb-1.5 relative transition-all active:scale-95 ${isHomework ? 'text-[#2563EB]' : 'text-gray-400'}`}
-      >
-        <HomeworkIcon active={isHomework} />
-        <span className="text-[11px] font-black mt-0.5 tracking-tight">Homework</span>
-        {isHomework && <div className="absolute top-[-10px] left-1/2 -translate-x-1/2 w-9 h-1.5 bg-[#2563EB] rounded-full" />}
-      </button>
-
-      <button 
-        onClick={() => navigate('/exam', { replace: true })}
-        className={`flex flex-col items-center justify-center flex-1 pb-1.5 relative transition-all active:scale-95 ${isExam ? 'text-[#2563EB]' : 'text-gray-400'}`}
-      >
-        <ExamIcon active={isExam} />
-        <span className="text-[11px] font-black mt-0.5 tracking-tight">Exam</span>
-        {isExam && <div className="absolute top-[-10px] left-1/2 -translate-x-1/2 w-9 h-1.5 bg-[#2563EB] rounded-full" />}
-      </button>
-
-      <button 
         onClick={() => navigate('/ranks', { replace: true })}
         className={`flex flex-col items-center justify-center flex-1 pb-1.5 relative transition-all active:scale-95 ${isRanks ? 'text-[#2563EB]' : 'text-gray-400'}`}
       >

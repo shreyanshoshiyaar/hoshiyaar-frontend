@@ -13,6 +13,13 @@ import NoSkipsModal from '../../modals/NoSkipsModal.jsx';
 import Lottie from 'lottie-react';
 import NetworkError from '../../ui/NetworkError.jsx';
 import { trackLevelStart } from '../../../utils/analytics.js';
+import GlyphBoard from '../blackboard/GlyphBoard.jsx';
+import LessonHeader from '../LessonHeader.jsx';
+import ReportFlagButton from '../../common/ReportFlagButton.jsx';
+import PlayfulBackground from '../quiz/PlayfulBackground.jsx';
+import { getStageInfoForIndex } from '../../../utils/moduleStages.js';
+import { isNewStyleStory } from '../../../utils/comicStyleHelper.js';
+import { isMissionCompleteItem } from '../../../utils/missionCompleteHelper.js';
 // Large Lottie files are now fetched from the public folder to avoid build issues
 
 const ComicLightbox = ({ src, alt, onClose }) => {
@@ -129,7 +136,23 @@ export default function ConceptPage() {
   const chapterIdParam = searchParams.get('chapterId');
   const unitIdParam = searchParams.get('unitId');
   const isInReviewOrRevision = isReviewModeFromUrl || isRevisionModeFromUrl;
+  const stageInfo = useMemo(() => {
+    if (isInReviewOrRevision || !items || items.length === 0) return null;
+    return getStageInfoForIndex(items, index);
+  }, [isInReviewOrRevision, items, index]);
+  const isAdminUser = Boolean(
+    user?.role === 'admin' || 
+    user?.role === 'master' || 
+    ['Host', 'hostcbse', 'AKSHITRAVULA', 'AKSHIT', 'SB10', 'Nidhi sekhri'].includes(user?.username) || 
+    ['9867735936', '7021970672', '9820277252', '8310532323'].some(p => String(user?.phone || '').replace(/\D/g, '').endsWith(p))
+  );
   const { add: addToReview, removeActive, requeueActive, undoActive, stageIncorrect, clearStagedForModule, active: activeReviewItem, queue, initialQueueCount } = useReview();
+  // Declared after useReview(): reading initialQueueCount earlier throws and blanks the page
+  const effectiveTotal = useMemo(() => {
+    if (isInReviewOrRevision) return Math.max(1, initialQueueCount);
+    if (!items || !items.length) return 1;
+    return items.filter(it => !isMissionCompleteItem(it)).length;
+  }, [isInReviewOrRevision, initialQueueCount, items]);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [showNoSkipsModal, setShowNoSkipsModal] = useState(false);
   const [videoAcknowledged, setVideoAcknowledged] = useState(false);
@@ -436,6 +459,51 @@ export default function ConceptPage() {
     setShowEndVideo(false);
   }, [moduleNumber]);
 
+  // Seamlessly redirect blackboard/board items to dedicated BlackboardMode player
+  useEffect(() => {
+    if (actualType === 'blackboard' || actualType === 'board') {
+      const searchSuffix = window.location.search || '';
+      navigate(`/learn/module/${moduleNumber}/blackboard/${index}${searchSuffix}`, { replace: true });
+    }
+  }, [actualType, moduleNumber, index, navigate]);
+
+  // Seamlessly redirect comic/story items to dedicated StoryMode player ONLY for new-style stories / new chapters
+  useEffect(() => {
+    const isNew = isNewStyleStory({
+      item,
+      items,
+      chapterId: chapterIdParam,
+      chapterTitle: new URLSearchParams(window.location.search).get('title') || new URLSearchParams(window.location.search).get('chapterTitle')
+    });
+
+    if (actualType === 'story' || (actualType === 'comic' && isNew)) {
+      const searchSuffix = window.location.search || '';
+      navigate(`/learn/module/${moduleNumber}/story/${index}${searchSuffix}`, { replace: true });
+    }
+  }, [actualType, moduleNumber, index, navigate, item, items, chapterIdParam]);
+
+  // Seamlessly redirect MissionComplete / Case Closed items to LessonComplete
+  useEffect(() => {
+    if (isMissionCompleteItem(item)) {
+      try {
+        if (user?._id) {
+          authService.updateProgress({
+            userId: user._id,
+            moduleId: String(moduleNumber),
+            subject: user.subject || 'Science',
+            conceptCompleted: true
+          });
+        }
+      } catch (_) {}
+      const completionParams = new URLSearchParams();
+      completionParams.set('moduleId', String(moduleNumber));
+      completionParams.set('chapter', String(moduleNumber));
+      if (chapterIdParam) completionParams.set('chapterId', chapterIdParam);
+      if (unitIdParam) completionParams.set('unitId', unitIdParam);
+      navigate(`/lesson-complete?${completionParams.toString()}`, { replace: true });
+    }
+  }, [item, moduleNumber, chapterIdParam, unitIdParam, user, navigate]);
+
   // Auto-navigate to lesson complete after acknowledging end video
   useEffect(() => {
     if (showEndVideo && videoAcknowledged) {
@@ -519,17 +587,30 @@ export default function ConceptPage() {
   }, [isInReviewOrRevision]);
 
   function routeForType(type, idx) {
-    switch (type) {
-      case 'comic':
-      case 'concept':
-      case 'statement':
-      case 'video':
-        return `/learn/module/${moduleNumber}/concept/${idx}`;
+    const t = String(type || '').toLowerCase();
+    if (t.startsWith('engagement')) return `/learn/module/${moduleNumber}/engagement/${idx}`;
+    switch (t) {
       case 'multiple-choice': return `/learn/module/${moduleNumber}/mcq/${idx}`;
       case 'fill-in-the-blank': return `/learn/module/${moduleNumber}/fillups/${idx}`;
       case 'rearrange': return `/learn/module/${moduleNumber}/rearrange/${idx}`;
       case 'descriptive': return `/learn/module/${moduleNumber}/descriptive/${idx}`;
-      default: return `/learn`;
+      case 'didyouknow':
+      case 'did_you_know':
+      case 'did-you-know':
+      case 'remember':
+        return `/learn/module/${moduleNumber}/didyouknow/${idx}`;
+      case 'story':
+      case 'comic':
+        return `/learn/module/${moduleNumber}/story/${idx}`;
+      case 'blackboard':
+      case 'blackboard-step':
+      case 'board':
+        return `/learn/module/${moduleNumber}/blackboard/${idx}`;
+      case 'concept':
+      case 'statement':
+      case 'video':
+      default:
+        return `/learn/module/${moduleNumber}/concept/${idx}`;
     }
   }
 
@@ -580,7 +661,7 @@ export default function ConceptPage() {
     }
 
     const nextIndex = index + 1;
-    if (nextIndex >= items.length) {
+    if (nextIndex >= items.length || isMissionCompleteItem(items[nextIndex])) {
       // Check if there's an end-of-lesson video for this module (card 22 case)
       const endVideoKey = `${moduleNumber}:${index}`;
       const endVideo = midLessonVideos[endVideoKey];
@@ -628,6 +709,9 @@ export default function ConceptPage() {
       return navigate(`/lesson-complete?${completionParams.toString()}`);
     }
     const nextItem = items[nextIndex];
+    const nextType = String(nextItem?.type || '').toLowerCase();
+    const isNextPractice = ['multiple-choice', 'fill-in-the-blank', 'rearrange', 'descriptive'].includes(nextType);
+
     const params = new URLSearchParams(window.location.search);
     const persistent = new URLSearchParams();
     ['title', 'chapterId', 'unitId', 'review', 'revision'].forEach((key) => {
@@ -637,6 +721,7 @@ export default function ConceptPage() {
       }
     });
     const suffix = persistent.toString() ? `?${persistent.toString()}` : '';
+
     navigate(`${routeForType(nextItem?.type || 'concept', nextIndex)}${suffix}`);
   }, [index, items, user, moduleNumber, navigate, isInReviewOrRevision, removeActive, midLessonVideos, showEndVideo, videoAcknowledged, chapterIdParam, unitIdParam]);
 
@@ -734,7 +819,7 @@ export default function ConceptPage() {
     return <SimpleLoading text="Redirecting to dashboard..." />;
   }
 
-  const isConceptOrStatement = actualType === 'concept' || actualType === 'statement' || actualType === 'comic' || actualType === 'video';
+  const isConceptOrStatement = actualType === 'concept' || actualType === 'statement' || actualType === 'comic' || actualType === 'video' || actualType === 'story' || actualType === 'blackboard' || actualType === 'blackboard-step' || actualType === 'board';
   if (!isConceptOrStatement) {
     return <div className="p-6">No concept at this step.</div>;
   }
@@ -755,51 +840,30 @@ export default function ConceptPage() {
 
   if ((shouldShowVideo || shouldShowComic) && !isMobile) {
     return (
-      <div 
-        style={{ 
-          backgroundColor: '#FFFBEB'
-        }}
-        className="h-screen flex flex-col overflow-hidden md:!bg-none md:!bg-[#f1eafc]"
-      >
-        <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
-        <button
-          onClick={handleBack}
-          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-600"
-          title="Back"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-          </svg>
-        </button>
-          <div className="flex-1 mx-1 sm:mx-2 md:mx-4 flex flex-col items-center">
-            <span className="text-[10px] sm:text-xs font-black text-blue-600/80 uppercase tracking-widest mb-0.5 text-center">
-              {isInReviewOrRevision ? 'REVISE PROGRESS' : 'LEARN PROGRESS'}: {isInReviewOrRevision ? `${initialQueueCount - queue.length + 1} / ${initialQueueCount}` : `${index + 1} / ${items.length}`}
-            </span>
-            {isInReviewOrRevision ? (
-              <ProgressBar currentIndex={initialQueueCount - queue.length} total={Math.max(1, initialQueueCount)} />
-            ) : (
-              <ProgressBar currentIndex={index} total={items.length} />
-            )}
-          </div>
-        <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
-            {(user?.role === 'admin' || user?.role === 'master' || ['Host', 'hostcbse', 'AKSHITRAVULA', 'AKSHIT', 'SB10', 'Nidhi sekhri'].includes(user?.username) || ['9867735936', '7021970672', '9820277252'].some(p => String(user?.phone || '').replace(/\D/g, '').endsWith(p))) ? (
-              <button
-                onClick={handleMasterSkip}
-                className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-black rounded-lg shadow-sm border-b-4 border-yellow-700 active:border-b-0 active:translate-y-1 transition-all mr-2 uppercase"
-              >
-                Skip ⚡️
-              </button>
-            ) : (
-              <button
-                onClick={handlePlayerSkip}
-                className={`px-3 py-1 text-white text-xs font-black rounded-lg shadow-sm border-b-4 transition-all mr-2 uppercase ${skipsLeft > 0 ? 'bg-yellow-500 hover:bg-yellow-600 border-yellow-700 active:border-b-0 active:translate-y-1' : 'bg-gray-300 border-gray-400 opacity-80 cursor-not-allowed'}`}
-              >
-                Skip ({skipsLeft})
-              </button>
-            )}
-            <StarCounter />
-          </div>
-        </div>
+      <div className="fixed inset-0 select-none overflow-hidden">
+        <PlayfulBackground cardIndex={index}>
+        {/* Unified Lesson Header */}
+        <LessonHeader
+          onBack={handleBack}
+          title={isInReviewOrRevision ? 'REVISE PROGRESS' : (actualType === 'comic' ? 'COMIC' : (stageInfo?.stageTitle || 'LEARN PROGRESS'))}
+          currentIndex={isInReviewOrRevision ? (initialQueueCount - queue.length) : index}
+          total={effectiveTotal}
+          stageInfo={stageInfo}
+          theme="light"
+          onSkip={isAdminUser ? handleMasterSkip : handlePlayerSkip}
+          skipsLeft={skipsLeft}
+          canMasterSkip={isAdminUser}
+          rightExtra={
+            <ReportFlagButton
+              itemId={item?.itemId || item?._id || `item-${index}`}
+              moduleId={moduleNumber}
+              chapterId={chapterIdParam}
+              questionText={actualType === 'comic' ? `Comic Slide ${comicSlideIndex + 1}` : (item?.text || item?.title || 'Concept Screen')}
+              screenName={actualType === 'comic' ? `Comic Slide ${comicSlideIndex + 1}` : `Screen ${index + 1}`}
+              className="w-8 h-8 sm:w-9 sm:h-9"
+            />
+          }
+        />
 
         <div className="flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 overflow-hidden md:justify-start mt-2 md:mt-4" style={{ maxHeight: 'calc(100vh - 80px)' }}>
           <div className="w-full max-w-3xl sm:max-w-4xl mt-2 md:mt-4">
@@ -897,6 +961,7 @@ export default function ConceptPage() {
             onClose={() => setIsZoomed(false)} 
           />
         )}
+        </PlayfulBackground>
       </div>
     );
   }
@@ -904,56 +969,30 @@ export default function ConceptPage() {
 
 
   return (
-    <div 
-      style={{ 
-        backgroundImage: isVideoShowing ? 'none' : `url("${bgImage}")`,
-        backgroundColor: isVideoShowing ? '#f1eafc' : 'transparent',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}
-      className="fixed inset-0 flex flex-col overflow-hidden md:!bg-none md:!bg-[#f1eafc]"
-    >
-      {/* Header - reduced padding for mobile */}
-      <div className="flex items-center justify-between p-2 sm:p-3 md:p-4 flex-shrink-0">
-        <button
-          onClick={handleBack}
-          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-600"
-          title="Back"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-          </svg>
-        </button>
-          <div className="flex-1 mx-1 sm:mx-2 md:mx-4 flex flex-col items-center">
-            <span className="text-[10px] sm:text-xs font-black text-blue-600/80 uppercase tracking-widest mb-0.5 text-center">
-              {isInReviewOrRevision ? 'REVISE PROGRESS' : 'LEARN PROGRESS'}: {isInReviewOrRevision ? `${initialQueueCount - queue.length + 1} / ${initialQueueCount}` : `${index + 1} / ${items.length}`}
-            </span>
-            {isInReviewOrRevision ? (
-              <ProgressBar currentIndex={initialQueueCount - queue.length} total={Math.max(1, initialQueueCount)} />
-            ) : (
-              <ProgressBar currentIndex={index} total={items.length} />
-            )}
-          </div>
-        <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
-          {(user?.role === 'admin' || user?.role === 'master' || ['Host', 'hostcbse', 'AKSHITRAVULA', 'AKSHIT', 'SB10', 'Nidhi sekhri'].includes(user?.username) || ['9867735936', '7021970672', '9820277252'].some(p => String(user?.phone || '').replace(/\D/g, '').endsWith(p))) ? (
-            <button
-              onClick={handleMasterSkip}
-              className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-black rounded-lg shadow-sm border-b-4 border-yellow-700 active:border-b-0 active:translate-y-1 transition-all mr-2 uppercase"
-            >
-              Skip ⚡️
-            </button>
-          ) : (
-            <button
-              onClick={handlePlayerSkip}
-              className={`px-3 py-1 text-white text-xs font-black rounded-lg shadow-sm border-b-4 transition-all mr-2 uppercase ${skipsLeft > 0 ? 'bg-yellow-500 hover:bg-yellow-600 border-yellow-700 active:border-b-0 active:translate-y-1' : 'bg-gray-300 border-gray-400 opacity-80 cursor-not-allowed'}`}
-            >
-              Skip ({skipsLeft})
-            </button>
-          )}
-          <StarCounter />
-        </div>
-      </div>
+    <div className="fixed inset-0 select-none overflow-hidden">
+      <PlayfulBackground cardIndex={index}>
+      {/* Unified Lesson Header */}
+      <LessonHeader
+        onBack={handleBack}
+        title={isInReviewOrRevision ? 'REVISE PROGRESS' : (actualType === 'comic' ? 'COMIC' : (stageInfo?.stageTitle || 'LEARN PROGRESS'))}
+        currentIndex={isInReviewOrRevision ? (initialQueueCount - queue.length) : index}
+        total={effectiveTotal}
+        stageInfo={stageInfo}
+        theme="light"
+        onSkip={isAdminUser ? handleMasterSkip : handlePlayerSkip}
+        skipsLeft={skipsLeft}
+        canMasterSkip={isAdminUser}
+        rightExtra={
+          <ReportFlagButton
+            itemId={item?.itemId || item?._id || `item-${index}`}
+            moduleId={moduleNumber}
+            chapterId={chapterIdParam}
+            questionText={actualType === 'comic' ? `Comic Slide ${comicSlideIndex + 1}` : (item?.text || item?.title || 'Concept Screen')}
+            screenName={actualType === 'comic' ? `Comic Slide ${comicSlideIndex + 1}` : `Screen ${index + 1}`}
+            className="w-8 h-8 sm:w-9 sm:h-9"
+          />
+        }
+      />
 
       {/* Main Content - stable height to prevent background moving */}
       <div className={`flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 pb-24 sm:pb-16 md:pb-0 md:justify-start mt-2 md:mt-4 overflow-hidden`} style={{ maxHeight: 'calc(100vh - 80px)' }}>
@@ -1015,6 +1054,15 @@ export default function ConceptPage() {
           </div>
         ) : (
           <>
+            {/* Speaker / Character badge if present */}
+            {item.speaker && (
+              <div className="flex items-center justify-center gap-2 mt-2 sm:mt-4">
+                <span className="px-3.5 py-1 bg-blue-50 text-blue-700 font-extrabold rounded-full text-xs sm:text-sm uppercase tracking-wider border border-blue-200 shadow-sm flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+                  {item.speaker}
+                </span>
+              </div>
+            )}
             {/* Title and Text - mobile optimized, desktop unchanged */}
             {item.title && (
               <h2 className="text-2xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-extrabold text-gray-900 text-center mt-2 sm:mt-4 md:mt-4 text-overflow-fix px-1 sm:px-2">
@@ -1027,6 +1075,21 @@ export default function ConceptPage() {
                 dangerouslySetInnerHTML={{ __html: String(item.text || item.content || '') }}
               />
             </div>
+
+            {/* Visual Chalkboard Drawing if available */}
+            {(item.glyphCode || actualType === 'blackboard' || actualType === 'blackboard-step' || item.inputJson?.actions) && (
+              <div className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-3xl mt-3 sm:mt-6">
+                <GlyphBoard 
+                  noShadow
+                  // Desktop: never taller than the space between the title and the Continue button
+                  cardClassName="lg:!max-h-[calc(100dvh-330px)] lg:!min-h-[240px]"
+                  currentLine={item} 
+                  stepJson={item.inputJson}
+                  cardTitle={item.title || item.cardTitle || ''} 
+                  animKey={index} 
+                />
+              </div>
+            )}
 
             {/* Images block - mobile optimized, desktop unchanged */}
             {(() => {
@@ -1049,16 +1112,8 @@ export default function ConceptPage() {
         <div className="h-16 sm:h-0 md:h-0"></div>
       </div>
 
-      <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white/40 backdrop-blur-sm border-t-2 border-white/20 sm:border-t-0 shadow-lg sm:shadow-none px-2 sm:px-3 md:px-6 py-3 sm:py-4 z-50 sm:z-auto">
+      <div className="fixed sm:relative bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto bg-white/40 lg:bg-transparent backdrop-blur-sm lg:backdrop-blur-none border-t-2 border-white/20 sm:border-t-0 shadow-lg sm:shadow-none px-2 sm:px-3 md:px-6 py-3 sm:py-4 lg:pb-8 z-50 sm:z-auto lg:w-full">
         <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative z-10">
-          {!shouldShowComic && !isVideoShowing && (
-            <img 
-              src="https://res.cloudinary.com/imq5966f/image/upload/v1791543804/img-to-link/prjwol57ayvxogrzua2z.png" 
-              alt="Hoshi" 
-              className="hidden md:block absolute bottom-0 right-4 lg:-right-4 w-[135px] lg:w-[180px] object-contain -z-10 pointer-events-none" 
-            />
-          )}
-
           <button
             onClick={() => {
               if (shouldShowComic) {
@@ -1109,6 +1164,7 @@ export default function ConceptPage() {
         />
       )}
       <NoSkipsModal isOpen={showNoSkipsModal} onClose={() => setShowNoSkipsModal(false)} />
+      </PlayfulBackground>
     </div>
   );
 }
