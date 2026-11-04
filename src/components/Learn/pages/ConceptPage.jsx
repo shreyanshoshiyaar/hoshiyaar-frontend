@@ -1121,23 +1121,6 @@ export default function ConceptPage() {
                 );
               }
 
-              // Friendly character visual for break / breather cards if no explicit image is attached
-              const isBreakCard = item.speaker === 'Hoshi' || /^(break|joke time|quick breather)/i.test(String(item.text || item.question || '').trim());
-              if (isBreakCard) {
-                return (
-                  <div className="w-full mt-4 sm:mt-6 flex flex-col items-center justify-center">
-                    <div className="w-36 h-36 sm:w-44 sm:h-44 rounded-full bg-white/80 p-3 shadow-lg border-2 border-blue-200 flex items-center justify-center">
-                      <img
-                        src="https://res.cloudinary.com/imq5966f/image/upload/v1791543786/img-to-link/rtyoddo8fjqspbtngsri.webp"
-                        alt="Hoshi"
-                        className="w-full h-full object-contain animate-bounce"
-                        style={{ animationDuration: '2.5s' }}
-                      />
-                    </div>
-                  </div>
-                );
-              }
-
               return null;
             })()}
           </>
