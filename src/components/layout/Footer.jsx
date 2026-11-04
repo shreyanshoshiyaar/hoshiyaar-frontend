@@ -49,9 +49,9 @@ const Footer = () => {
                         <div className="flex flex-col space-y-4">
                             <h3 className="font-extrabold text-[13px] tracking-wider text-[#1e3a8a]">CLASSES</h3>
                             <ul className="space-y-3 text-[14px] text-[#475569] font-medium">
-                                <li><Link to="/signup" className="hover:text-[#1e3a8a] transition-colors">Class 6</Link></li>
-                                <li><Link to="/signup" className="hover:text-[#1e3a8a] transition-colors">Class 7</Link></li>
-                                <li><Link to="/signup" className="hover:text-[#1e3a8a] transition-colors">Class 8</Link></li>
+                                <li><Link to="/start" className="hover:text-[#1e3a8a] transition-colors">Class 6</Link></li>
+                                <li><Link to="/start" className="hover:text-[#1e3a8a] transition-colors">Class 7</Link></li>
+                                <li><Link to="/start" className="hover:text-[#1e3a8a] transition-colors">Class 8</Link></li>
                             </ul>
                         </div>
 

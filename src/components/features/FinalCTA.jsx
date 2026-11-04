@@ -23,7 +23,7 @@ const FinalCTA = () => (
             
             <p className="text-2xl md:text-3xl text-duo-blue mb-8">Where chapters turn into adventures.</p>
             
-            <Link to="/signup">
+            <Link to="/start">
                 <button className="w-full sm:w-auto bg-duo-blue text-white font-bold uppercase tracking-wider py-4 px-10 rounded-2xl border-b-4 border-duo-blue hover:bg-blue-500 transition">
                     Get Started
                 </button>

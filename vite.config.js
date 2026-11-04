@@ -23,6 +23,9 @@ export default defineConfig(({ mode }) => {
 
     server: {
       port: 5173,
+      watch: {
+        ignored: ['**/android/**', '**/dist/**'],
+      },
       proxy: {
         '/api': {
           target: proxyTarget,
@@ -30,6 +33,10 @@ export default defineConfig(({ mode }) => {
           secure: proxyTarget.startsWith('https'),
         },
       },
+    },
+
+    optimizeDeps: {
+      entries: ['index.html', 'src/**/*.{js,jsx,ts,tsx}'],
     },
 
     build: {

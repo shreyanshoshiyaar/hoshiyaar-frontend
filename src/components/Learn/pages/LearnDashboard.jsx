@@ -2764,11 +2764,15 @@ const LearnDashboard = ({ onboardingData }) => {
                           );
                         }
 
-                        // Duolingo-style path layout for Chapter 9 (v12 Test) requested by user
+                        // Duolingo-style path layout for Chapter 9, Chapter 11, and modern multi-unit chapters
                         const isDuolingoChapter =
-                          String(chapterId) === '6ad8be61e323d9a75e28c0d5' ||
+                          String(chapterId) === '6ad8be61e323d9a75e28c0d5' || // Chapter 9: Life Processes
+                          String(chapterId) === '6ab0db4316293cf7bf7f88bb' || // Chapter 11: Light
+                          chapterTitle?.toLowerCase()?.includes('light') ||
+                          chapterTitle?.toLowerCase()?.includes('life processes') ||
                           chapterTitle?.toLowerCase()?.includes('v12 test') ||
-                          chapterTitle?.toLowerCase()?.includes('life processes in animals (v12 test)');
+                          chapterTitle?.toLowerCase()?.includes('life processes in animals (v12 test)') ||
+                          (visibleUnits && visibleUnits.length >= 5);
 
                         if (isDuolingoChapter) {
                           const activeChapterObj = findActiveChapter();

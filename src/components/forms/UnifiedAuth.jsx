@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import authService from '../../services/authService.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getSignupSource, setUserProperties } from '../../utils/analytics.js';
@@ -8,7 +8,7 @@ import './RobotAuth.css';
 const HoshiyaarLogo = "https://res.cloudinary.com/imq5966f/image/upload/v1791543780/img-to-link/bihseec7aigbmau4amnd.png";
 
 const UnifiedAuth = () => {
-  // Steps: 1=Phone, 2=Password(Login), 3=OTP(Signup), 4=Details(Signup)
+  // Steps: 1=Phone, 2=Password(Login), 3=OTP(Signup), 4=Details(Signup), 5=Class+Name (Get Started, new number)
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -51,7 +51,16 @@ const UnifiedAuth = () => {
 
   const [usernameStatus, setUsernameStatus] = useState({ checking: false, available: null, message: '' });
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const location = useLocation();
+  const { login, user } = useAuth();
+  // /start and /signup open the same robot screen as Get Started
+  const isStartMode = location.pathname === '/start' || location.pathname === '/signup';
+  const CLASSES = ['6', '7', '8'];
+
+  // Already signed in (and not mid-celebration): go to lessons
+  useEffect(() => {
+    if (user && !doneRef.current) navigate('/learn', { replace: true });
+  }, [user, navigate]);
 
   // Helper to trigger speech bubble pop animation
   const say = useCallback((text) => {
@@ -206,6 +215,27 @@ const UnifiedAuth = () => {
     return () => clearTimeout(id);
   }, [formData.username, step, say]);
 
+  // Get Started sends existing numbers here: fill the number and go straight to the password step
+  useEffect(() => {
+    const prefill = String(location.state?.phone || '').replace(/\D/g, '').slice(-10);
+    if (prefill.length !== 10) return;
+    setFormData((prev) => ({ ...prev, phone: prefill }));
+    authService.checkUser(prefill)
+      .then(({ data }) => {
+        if (data?.exists) {
+          setUserName(data.name || '');
+          setStep(2);
+          setMood('happy');
+          say(`Welcome back, ${data.name?.split(' ')[0] || 'friend'}! Enter your password.`);
+        } else {
+          setStep(5);
+          setMood('happy');
+          say("New here? Tell me your class and name!");
+        }
+      })
+      .catch(() => {});
+  }, [location.state?.phone, say]);
+
   // OTP resend timer
   useEffect(() => {
     let interval;
@@ -310,12 +340,10 @@ const UnifiedAuth = () => {
         setMood('happy');
         say(`Welcome back, ${response.data.name?.split(' ')[0] || 'friend'}! Enter your password.`);
       } else {
-        await authService.sendOtp(formData.phone, 'signup');
-        setStep(3);
-        setResendTimer(60);
-        setResendCount(0);
-        setMood('watching');
-        say("New around here? Sent a 6-digit WhatsApp code!");
+        // New number: class + name, then straight into lessons as a guest (verify after 3 lessons)
+        setStep(5);
+        setMood('happy');
+        say("New here? Tell me your class and name!");
       }
     } catch (err) {
       const msg = err.response?.data?.message || 'Failed to verify number. Please try again.';
@@ -377,6 +405,58 @@ const UnifiedAuth = () => {
       setError(msg);
       triggerCardShake();
       say("Incorrect password! Give it another shot.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Step 5: Get Started as a guest (class + name); the number is verified after 3 lessons
+  const handleGuestStart = async (e) => {
+    e.preventDefault();
+    if (!formData.classLevel || formData.name.trim().length < 2) {
+      setError('Pick your class and enter your name');
+      triggerCardShake();
+      say("I need your class and name first!");
+      return;
+    }
+    setError('');
+    setIsLoading(true);
+    try {
+      const response = await authService.registerGuest({
+        name: formData.name.trim(),
+        classLevel: formData.classLevel,
+        phone: formData.phone,
+        region: sessionStorage.getItem('user_region') || null,
+        city: sessionStorage.getItem('user_city') || null,
+        country: sessionStorage.getItem('user_country') || null,
+      });
+
+      if (response.data && response.data.token) {
+        doneRef.current = true;
+        setIsTurned(false);
+        setIsHyped(false);
+        setMood('success');
+        setIsSuccess(true);
+        setIsSpinning(true);
+        say(`Let's go, ${formData.name.trim().split(' ')[0]}!`);
+        fireConfetti();
+
+        const source = getSignupSource();
+        try { localStorage.setItem('classLevel', formData.classLevel); } catch (_) {}
+        window.hyTrack?.('guest_start', { class: formData.classLevel, signup_source: source });
+        setUserProperties({ signup_source: source, class: formData.classLevel, user_type: 'guest' });
+
+        login(response.data);
+        try { sessionStorage.setItem('entryType', 'guest_start'); } catch (_) {}
+
+        setTimeout(() => {
+          navigate('/learn');
+        }, 1200);
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Something went wrong. Please try again.');
+      triggerCardShake();
+      say("Bzzzt! Let's try that again.");
     } finally {
       setIsLoading(false);
     }
@@ -584,7 +664,7 @@ const UnifiedAuth = () => {
           {/* ================= STEP 1: Phone Number ================= */}
           {step === 1 && (
             <div>
-              <h1 className="robot-card-title">Who goes there?</h1>
+              <h1 className="robot-card-title">{isStartMode ? 'Get Started' : 'Who goes there?'}</h1>
               <p className="robot-card-subtitle">Enter your 10-digit mobile number</p>
 
               <form onSubmit={handlePhoneCheck}>
@@ -969,6 +1049,87 @@ const UnifiedAuth = () => {
                 >
                   <span className="btn-bolt" aria-hidden="true">⚡</span>
                   <span>{isLoading ? 'CREATING...' : isSuccess ? 'WELCOME ABOARD ✓' : 'COMPLETE SIGN UP'}</span>
+                </button>
+              </form>
+            </div>
+          )}
+
+          {/* ================= STEP 5: Class + Name (Get Started, new number) ================= */}
+          {step === 5 && (
+            <div>
+              <h1 className="robot-card-title">Nice to meet you!</h1>
+              <p className="robot-card-subtitle">
+                Starting with <strong>{formData.phone}</strong>{' '}
+                <button
+                  type="button"
+                  onClick={() => { setStep(1); setMood('idle'); setError(''); }}
+                  className="text-blue-600 font-bold underline hover:text-blue-800 ml-1 text-xs cursor-pointer bg-transparent border-none p-0"
+                >
+                  (Change)
+                </button>
+              </p>
+
+              <form onSubmit={handleGuestStart}>
+                <label className="field-label">Which class are you in?</label>
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  {CLASSES.map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => {
+                        setFormData((prev) => ({ ...prev, classLevel: c }));
+                        setMood('happy');
+                        say(`Class ${c}! Great choice.`);
+                      }}
+                      className={`h-[52px] rounded-[14px] border-2 font-extrabold text-[15px] transition-colors cursor-pointer ${
+                        formData.classLevel === c
+                          ? 'bg-[#2563eb] border-[#23252d] text-white'
+                          : 'bg-[#faf7f0] border-[rgba(35,37,45,0.24)] text-[#23252d] hover:border-[#23252d]'
+                      }`}
+                    >
+                      Class {c}
+                    </button>
+                  ))}
+                </div>
+
+                <label className="field-label">Your Name</label>
+                <div className="field">
+                  <svg className="field-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 12a4.5 4.5 0 1 0-4.5-4.5A4.5 4.5 0 0 0 12 12Zm0 2c-3.9 0-8 2-8 5v1.5h16V19c0-3-4.1-5-8-5Z"/>
+                  </svg>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    placeholder="Your name"
+                    autoComplete="name"
+                    required
+                    onChange={(e) => {
+                      onChange(e);
+                      followTyping(e.target.value.length, 20);
+                    }}
+                    onFocus={() => {
+                      setIsTurned(false);
+                      setMood('watching');
+                      say("What should I call you?");
+                    }}
+                  />
+                </div>
+
+                <button
+                  ref={btnRef}
+                  type="submit"
+                  disabled={isLoading || !formData.classLevel || formData.name.trim().length < 2}
+                  className={`btn ${isSuccess ? 'is-success' : ''}`}
+                  onMouseEnter={() => handleBtnHype(true)}
+                  onMouseLeave={() => handleBtnHype(false)}
+                  onFocus={() => handleBtnHype(true)}
+                  onBlur={() => handleBtnHype(false)}
+                  onPointerDown={handleBtnPointerDown}
+                  onPointerUp={handleBtnPointerUp}
+                >
+                  <span className="btn-bolt" aria-hidden="true">⚡</span>
+                  <span>{isLoading ? 'GETTING READY...' : isSuccess ? "LET'S GO ✓" : 'GET STARTED'}</span>
                 </button>
               </form>
             </div>

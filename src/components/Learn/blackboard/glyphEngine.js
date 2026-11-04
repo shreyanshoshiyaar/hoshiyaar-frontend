@@ -83,18 +83,32 @@ const Glyph = (() => {
     const at = pt.pos || pt.at || [0, 0];
     if (kind === 'circle') { const r = pt.r ?? 3; out.push([at[0] - r, at[1] - r], [at[0] + r, at[1] + r]); }
     else if (kind === 'rectangle' || kind === 'rect') { const w = (pt.width ?? pt.w ?? 10) / 2, h = (pt.height ?? pt.h ?? 10) / 2; out.push([at[0] - w, at[1] - h], [at[0] + w, at[1] + h]); }
-    else if (kind === 'straight_line' || kind === 'line' || kind === 'arrow') { if (isPt(pt.from)) out.push(pt.from); if (isPt(pt.to)) out.push(pt.to); }
-    else if (kind === 'polyline' || kind === 'poly') (pt.points || []).forEach(q => isPt(q) && out.push(q));
+    else if (kind === 'straight_line' || kind === 'line' || kind === 'arrow') { 
+      if (isPt(pt.from)) out.push([pt.from[0] + at[0], pt.from[1] + at[1]]); 
+      if (isPt(pt.to)) out.push([pt.to[0] + at[0], pt.to[1] + at[1]]); 
+    }
+    else if (kind === 'polyline' || kind === 'poly') (pt.points || []).forEach(q => isPt(q) && out.push([q[0] + at[0], q[1] + at[1]]));
     else if (kind === 'arc') { const r = pt.r || 5; out.push([at[0] - r, at[1] - r], [at[0] + r, at[1] + r]); }
   }
 
   function glyphBox(g, depth = 0) {
     if (bbCache.has(g.name)) return bbCache.get(g.name);
     let b;
-    if (g.size) b = [-g.size[0] / 2, -g.size[1] / 2, g.size[0] / 2, g.size[1] / 2];
-    else {
-      const pts = []; (g.parts || []).forEach(pt => partPoints(pt, pts, depth));
-      b = pts.length ? [Math.min(...pts.map(p => p[0])), Math.min(...pts.map(p => p[1])), Math.max(...pts.map(p => p[0])), Math.max(...pts.map(p => p[1]))] : [-4, -4, 4, 4];
+    const pts = [];
+    if (g.parts && g.parts.length > 0) {
+      g.parts.forEach(pt => partPoints(pt, pts, depth));
+    }
+    if (pts.length) {
+      b = [
+        Math.min(...pts.map(p => p[0])),
+        Math.min(...pts.map(p => p[1])),
+        Math.max(...pts.map(p => p[0])),
+        Math.max(...pts.map(p => p[1]))
+      ];
+    } else if (g.size) {
+      b = [-g.size[0] / 2, -g.size[1] / 2, g.size[0] / 2, g.size[1] / 2];
+    } else {
+      b = [-4, -4, 4, 4];
     }
     bbCache.set(g.name, b); return b;
   }
@@ -363,12 +377,13 @@ const Glyph = (() => {
     if (p.label && p.drawP > .6 && p.popP > .6) {
       const pos = p.labelPos || 'above';
       let lx = (bb[0] + bb[2]) / 2, ly = bb[1] - 3, anc = 'middle';
-      if (pos === 'below') ly = bb[3] + 6.5;
+      if (pos === 'below') ly = Math.min(94, bb[3] + 5.5);
       if (pos === 'left') { lx = bb[0] - 2; ly = (bb[1] + bb[3]) / 2 + 1.8; anc = 'end'; }
       if (pos === 'right') { lx = bb[2] + 2; ly = (bb[1] + bb[3]) / 2 + 1.8; anc = 'start'; }
       if (pos === 'center') { ly = (bb[1] + bb[3]) / 2 + 1.8; }
       if (p.glyph === 'straight_line' && pos === 'above') { lx = cx; ly = cy - 3; anc = 'middle'; }
-      label = `<text x="${f(lx)}" y="${f(ly)}" text-anchor="${anc}" class="glabel" fill="#FFFFFF">${esc(p.label)}</text>`;
+      const lSize = p.labelSize ? ` style="font-size:${f(p.labelSize)}px"` : '';
+      label = `<text x="${f(lx)}" y="${f(ly)}" text-anchor="${anc}" class="glabel" fill="#FFFFFF"${lSize}>${esc(p.label)}</text>`;
     }
     const pulseGlow = p.pulseAt != null && t >= p.pulseAt && t - p.pulseAt < .9 ? ' filter="url(#gl)"' : '';
     let blur = '';

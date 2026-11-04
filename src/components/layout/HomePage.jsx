@@ -142,17 +142,17 @@ const MobileWelcomeScreen = () => {
           </div>
         </div>
 
-        {/* Primary CTA: Log in / Sign up */}
+        {/* Primary CTA: Get Started (guest, verify after 3 lessons) */}
         <button
           type="button"
-          onClick={() => navigate('/login')}
+          onClick={() => navigate('/start')}
           className="w-full h-12 xs:h-12.5 rounded-full bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] hover:from-[#1D4ED8] hover:to-[#1E40AF] active:scale-[0.98] text-white font-bold text-[16px] xs:text-[17px] shadow-[0_8px_20px_rgba(37,99,235,0.32)] transition-all flex items-center justify-center gap-3 border-b-2 border-blue-900 cursor-pointer z-10"
         >
           <svg className="w-5 h-5 stroke-white fill-none stroke-2 shrink-0" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
           <span className="h-4.5 w-px bg-white/35" />
-          <span className="tracking-wide">Log in / Sign up</span>
+          <span className="tracking-wide">Get Started</span>
           <span className="text-lg leading-none">→</span>
         </button>
 
@@ -165,6 +165,13 @@ const MobileWelcomeScreen = () => {
               <span className="text-[#2563EB] font-black text-[12px] uppercase tracking-wider mt-0.5">Tap to play</span>
             </div>
           </div>
+          <button
+            type="button"
+            onClick={() => navigate('/login')}
+            className="relative z-10 w-full text-center text-[14px] font-bold text-slate-500 mt-1 cursor-pointer"
+          >
+            Already have an account? <span className="text-[#2563EB] font-black">Log in</span>
+          </button>
         </div>
 
         {/* BOTTOM FIXED CONTAINER (WhatsApp & Footer) */}
