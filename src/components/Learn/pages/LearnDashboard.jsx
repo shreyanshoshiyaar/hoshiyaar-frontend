@@ -2461,12 +2461,12 @@ const LearnDashboard = ({ onboardingData }) => {
                                     <div className="flex items-center gap-2">
                                       <button
                                         onClick={() => setShowChapters(true)}
-                                        className="flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-white/10 hover:bg-white/20 transition-colors border border-white/20 text-xs font-extrabold text-white"
+                                        className="flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-white hover:bg-slate-50 active:scale-95 transition-all border-2 border-white/90 text-xs font-black text-slate-900 shadow-md cursor-pointer"
                                       >
                                         <span className="inline-flex items-center justify-center flex-shrink-0">
                                           <ChapterNavIcon />
                                         </span>
-                                        <span>All Chapters</span>
+                                        <span className="text-slate-900 font-black">All Chapters</span>
                                       </button>
                                     </div>
                                   </div>
@@ -2498,12 +2498,12 @@ const LearnDashboard = ({ onboardingData }) => {
                                 <div className="flex items-center gap-2">
                                   <button
                                     onClick={() => setShowChapters(true)}
-                                    className="flex items-center gap-2.5 py-2 px-4 rounded-xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-base"
+                                    className="flex items-center gap-2.5 py-2 px-4 rounded-xl bg-white hover:bg-slate-50 active:scale-95 transition-all border-2 border-white/90 text-base font-black text-slate-900 shadow-md cursor-pointer"
                                   >
                                     <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-white/20 flex-shrink-0">
                                       <ChapterNavIcon />
                                     </span>
-                                    <span className="font-bold hidden sm:inline leading-tight self-center">All Chapters</span>
+                                    <span className="font-black hidden sm:inline leading-tight self-center text-slate-900">All Chapters</span>
                                   </button>
                                   {/* Debug button to clear false completions */}
                                   <button
@@ -2888,12 +2888,12 @@ const LearnDashboard = ({ onboardingData }) => {
                                               <div className="flex items-center gap-2">
                                                 <button
                                                   onClick={() => setShowChapters(true)}
-                                                  className="flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-white/10 hover:bg-white/20 transition-colors border border-white/20 text-xs font-extrabold text-white"
+                                                  className="flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-white hover:bg-slate-50 active:scale-95 transition-all border-2 border-white/90 text-xs font-black text-slate-900 shadow-md cursor-pointer"
                                                 >
                                                   <span className="inline-flex items-center justify-center flex-shrink-0">
                                                     <ChapterNavIcon />
                                                   </span>
-                                                  <span>All Chapters</span>
+                                                  <span className="text-slate-900 font-black">All Chapters</span>
                                                 </button>
                                               </div>
                                             </div>
@@ -2941,12 +2941,12 @@ const LearnDashboard = ({ onboardingData }) => {
                                           <div className="flex items-center gap-2 relative z-10">
                                             <button
                                               onClick={() => setShowChapters(true)}
-                                              className="flex items-center gap-2.5 py-2 px-4 rounded-xl bg-white/15 hover:bg-white/25 transition-colors ring-2 ring-white/40 text-base"
+                                              className="flex items-center gap-2.5 py-2 px-4 rounded-xl bg-white hover:bg-slate-50 active:scale-95 transition-all border-2 border-white/90 text-base font-black text-slate-900 shadow-md cursor-pointer"
                                             >
                                               <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-white/20 flex-shrink-0">
                                                 <ChapterNavIcon />
                                               </span>
-                                              <span className="font-bold hidden sm:inline leading-tight self-center">All Chapters</span>
+                                              <span className="font-black hidden sm:inline leading-tight self-center text-slate-900">All Chapters</span>
                                             </button>
                                           </div>
                                         </div>

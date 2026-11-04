@@ -5,6 +5,7 @@ import authService from '../../../services/authService';
 import { useAuth } from '../../../context/AuthContext';
 import LessonHeader from '../LessonHeader.jsx';
 import ReportFlagButton from '../../common/ReportFlagButton.jsx';
+import SimpleLoading from '../../ui/SimpleLoading.jsx';
 import { getApiBase } from '../../../utils/apiBase.js';
 import { getStageInfoForIndex } from '../../../utils/moduleStages.js';
 import { isNewStyleStory } from '../../../utils/comicStyleHelper.js';
@@ -418,8 +419,8 @@ export default function StoryMode() {
           }
         }
 
-        // Complete 3-page rich story demo showcasing all 14 characters for client presentation
-        if (parsedPages.length === 0) {
+        // Only load rich story demo if this is explicitly a demo route
+        if (targetModuleId === 'demo' && parsedPages.length === 0) {
           parsedPages = [
             {
               partTitle: "The Clinic Visit",
@@ -951,6 +952,14 @@ export default function StoryMode() {
     navigate(`/learn${params.toString() ? '?' + params.toString() : ''}`);
   };
 
+  if (loading || !currentPage) {
+    return (
+      <div className="h-screen bg-[#FEFEF6] flex flex-col justify-center items-center">
+        <SimpleLoading text="Loading comic scene..." />
+      </div>
+    );
+  }
+
   const totalModuleItems = Math.max(1, rawItemsState?.length || pages.length);
   const currentModuleItemIndex = Math.min(startIndex + currentPageIndex, totalModuleItems - 1);
   const stageInfo = getStageInfoForIndex(rawItemsState, currentModuleItemIndex);
@@ -993,11 +1002,18 @@ export default function StoryMode() {
           {/* LEFT COLUMN: Dedicated Big Image Box (ONLY 1 IMAGE, NO TEXT) - Responsively scaled with dvh so dialogue fits on all phone heights */}
           <div className="w-full md:w-1/2 lg:w-7/12 flex-shrink-0 flex flex-col items-center justify-center min-h-0 md:h-full my-auto self-center">
             <div className="relative w-full h-[26dvh] min-h-[160px] max-h-[240px] sm:h-[32dvh] sm:min-h-[220px] sm:max-h-[320px] md:h-full md:max-h-[calc(100vh-170px)] rounded-[18px] overflow-hidden border-2 border-[#CFCDC6] shadow-[0_4px_0_#CFCDC6] bg-[#0E1A2B] flex items-center justify-center">
-              <img 
-                src={currentPage?.sceneImage || "https://res.cloudinary.com/fhscvc7p/image/upload/v1791975544/img-to-link/s3nfwa9j64jx4orq5kuj.webp"} 
-                alt="Story Scene" 
-                className="w-full h-full object-cover object-center select-none block"
-              />
+              {currentPage?.sceneImage ? (
+                <img 
+                  src={currentPage.sceneImage} 
+                  alt={currentPage.partTitle || "Story Scene"} 
+                  className="w-full h-full object-cover object-center select-none block"
+                />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-slate-400 gap-2 p-4 text-center">
+                  <span className="text-3xl">🎨</span>
+                  <span className="text-xs font-bold uppercase tracking-wider">{currentPage?.partTitle || "Comic Scene"}</span>
+                </div>
+              )}
             </div>
           </div>
 
