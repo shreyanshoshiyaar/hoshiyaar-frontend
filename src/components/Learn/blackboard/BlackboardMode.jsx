@@ -11,7 +11,7 @@ import ReportFlagButton from '../../common/ReportFlagButton.jsx';
 import Glyph from './glyphEngine';
 import { getApiBase } from '../../../utils/apiBase.js';
 import { getStageInfoForIndex } from '../../../utils/moduleStages.js';
-import { unlockMobileAudio, prefetchTts, waitForTts } from '../../../utils/audioPreloadService.js';
+import { unlockMobileAudio, prefetchTts, waitForTts, getTtsSrc } from '../../../utils/audioPreloadService.js';
 import { getCharacterImage, useCharacterImages } from '../../../utils/characterImages.js';
 import { markModuleAsCompleted } from '../../../utils/progressSyncService.js';
 
