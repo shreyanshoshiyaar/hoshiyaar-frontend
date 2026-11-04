@@ -1052,15 +1052,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
       navigate('/review-round');
       return;
     }
-    const qid = `${moduleNumber}_${index}_rearrange`;
-    const type = isRevisionModeFromUrl ? 'revision' : 'curriculum';
-    awardCorrect(String(moduleNumber), qid, 3, { type });
-    addToSession(qid);
-    try {
-      if (user?._id) {
-        authService.updateProgress({ userId: user._id, moduleId: String(moduleNumber), subject: user.subject || 'Science', lessonTitle: item?.title || `Module ${moduleNumber}`, isCorrect: true, deltaScore: 3 });
-      }
-    } catch (_) {}
+    // Skip to next item in sequence without awarding points or stars
     handleNext(true);
   };
 
