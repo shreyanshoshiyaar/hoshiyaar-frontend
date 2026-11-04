@@ -2,23 +2,31 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import authService from '../../services/authService.js';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { GUEST_LESSON_LIMIT } from '../../utils/guestAccess.js';
 
 const HOSHI = 'https://res.cloudinary.com/fhscvc7p/image/upload/v1790922377/img-to-link/yiua95vucvhqg1zlfb5d.webp';
 
-// Shown to guests after their 3 free lessons: verify the number they gave at Get Started (WhatsApp OTP)
-// and set a password. The guest account is upgraded in place, so lesson 1 progress is kept.
+function transferGuestLessons(fromUserId, toUserId) {
+  if (!fromUserId || !toUserId || fromUserId === toUserId) return;
+  try {
+    const fromList = JSON.parse(localStorage.getItem(`guest_lessons_v1__${fromUserId}`) || '[]');
+    const toList = JSON.parse(localStorage.getItem(`guest_lessons_v1__${toUserId}`) || '[]');
+    const combined = Array.from(new Set([...toList, ...fromList]));
+    localStorage.setItem(`guest_lessons_v1__${toUserId}`, JSON.stringify(combined));
+  } catch (_) {}
+}
+
 export default function GuestVerifyModal({ onClose }) {
-  const { user, login, logout } = useAuth();
+  const { user, login } = useAuth();
   const navigate = useNavigate();
   const [phone, setPhone] = useState(user?.pendingPhone || '');
-  const [step, setStep] = useState('phone'); // phone | code
+  // Steps: 'phone' -> 'password' (existing user) | 'code' (new user signup) | 'otp-login' (existing user OTP)
+  const [step, setStep] = useState('phone');
+  const [existingUserName, setExistingUserName] = useState('');
   const [otp, setOtp] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [phoneTaken, setPhoneTaken] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
 
   useEffect(() => {
@@ -31,34 +39,133 @@ export default function GuestVerifyModal({ onClose }) {
     return () => clearTimeout(id);
   }, [resendTimer]);
 
-  const sendCode = async (e) => {
+  // Step 1: Submit mobile number -> verify if account exists
+  const handlePhoneSubmit = async (e) => {
     e?.preventDefault();
     if (phone.length !== 10) {
       setError('Please enter a valid 10-digit mobile number');
       return;
     }
     setError('');
-    setPhoneTaken(false);
     setLoading(true);
+
     try {
-      await authService.sendOtp(phone, 'signup');
-      setStep('code');
-      setResendTimer(60);
+      // 1. Check if user already exists
+      const { data } = await authService.checkUser(phone);
+      if (data?.exists) {
+        setExistingUserName(data.name || '');
+        setStep('password');
+        setPassword('');
+        setError('');
+      } else {
+        // 2. New account -> send signup OTP
+        await authService.sendOtp(phone, 'signup');
+        setStep('code');
+        setOtp('');
+        setPassword('');
+        setResendTimer(60);
+      }
     } catch (err) {
-      const msg = err.response?.data?.message || 'Could not send the code. Please try again.';
+      const msg = err.response?.data?.message || 'Could not verify number. Please try again.';
       setError(msg);
-      setPhoneTaken(/already exists/i.test(msg));
     } finally {
       setLoading(false);
     }
   };
 
-  const verify = async (e) => {
-    e.preventDefault();
+  // Step 2A: Existing user logs in with password
+  const handlePasswordLogin = async (e) => {
+    e?.preventDefault();
+    if (!password) {
+      setError('Please enter your password');
+      return;
+    }
+    setError('');
+    setLoading(true);
+
+    try {
+      const { data } = await authService.login({
+        phone,
+        password,
+        guestUserId: user?._id,
+      });
+
+      transferGuestLessons(user?._id, data._id);
+      window.hyTrack?.('login', {
+        method: 'guest_prompt_password',
+        class: data?.classLevel || user?.classLevel || 'unknown_class',
+      });
+
+      login(data);
+      onClose?.();
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Incorrect password. Try again or log in with WhatsApp code.';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Send WhatsApp OTP for existing user (forgot password / OTP login)
+  const handleSendOtpForLogin = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      await authService.sendOtp(phone, 'login');
+      setStep('otp-login');
+      setOtp('');
+      setPassword('');
+      setResendTimer(60);
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Could not send WhatsApp code. Please try again.';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Step 2B: Existing user logs in with WhatsApp OTP
+  const handleOtpLogin = async (e) => {
+    e?.preventDefault();
+    if (otp.length !== 6) {
+      setError('Please enter the 6-digit code from WhatsApp');
+      return;
+    }
+    setError('');
+    setLoading(true);
+
+    try {
+      const { data } = await authService.loginWithOtp({
+        phone,
+        otp,
+        newPassword: password.length >= 6 ? password : undefined,
+        guestUserId: user?._id,
+      });
+
+      transferGuestLessons(user?._id, data._id);
+      window.hyTrack?.('login', {
+        method: 'guest_prompt_otp',
+        class: data?.classLevel || user?.classLevel || 'unknown_class',
+      });
+
+      login(data);
+      onClose?.();
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Verification failed. Please check the code.';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Step 2C: New user verifies signup OTP + sets password
+  const handleSignupVerify = async (e) => {
+    e?.preventDefault();
     if (otp.length !== 6) { setError('Enter the 6-digit code from WhatsApp'); return; }
     if (password.length < 6) { setError('Password must be at least 6 characters'); return; }
     setError('');
     setLoading(true);
+
     try {
       const { data } = await authService.upgradeGuest({ phone, otp, password });
       window.hyTrack?.('sign_up', {
@@ -69,25 +176,37 @@ export default function GuestVerifyModal({ onClose }) {
       });
       try { window.NativeFB?.logSignup?.(); } catch (_) {}
       try { sessionStorage.setItem('entryType', 'signup'); } catch (_) {}
-      // Same user id, so login() keeps local progress; ProtectedRoute then shows the lesson
+
       login(data);
+      onClose?.();
     } catch (err) {
       const msg = err.response?.data?.message || 'Verification failed. Please try again.';
       setError(msg);
-      setPhoneTaken(/already exists/i.test(msg));
     } finally {
       setLoading(false);
     }
   };
 
-  const goToLogin = () => {
-    logout();
-    navigate('/login', { replace: true, state: { phone } });
+  // Resend code handler
+  const handleResend = async () => {
+    if (resendTimer > 0 || loading) return;
+    setError('');
+    setLoading(true);
+    try {
+      const otpType = step === 'code' ? 'signup' : 'login';
+      await authService.sendOtp(phone, otpType);
+      setResendTimer(60);
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Could not resend code. Please try again.';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-slate-900/50 backdrop-blur-sm p-0 sm:p-4 font-sans">
-      <div className="relative w-full sm:max-w-md bg-white rounded-t-[28px] sm:rounded-[28px] shadow-2xl px-5 pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:pb-6">
+      <div className="relative w-full sm:max-w-md bg-white rounded-t-[28px] sm:rounded-[28px] shadow-2xl px-5 pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:pb-6 animate-fade-in">
         <button
           type="button"
           onClick={onClose}
@@ -97,12 +216,23 @@ export default function GuestVerifyModal({ onClose }) {
           ×
         </button>
 
+        {/* Header */}
         <div className="flex items-center gap-3 mb-4 pr-8">
           <img src={HOSHI} alt="" className="w-16 h-16 object-contain shrink-0" />
           <div>
-            <h2 className="text-xl font-black text-slate-900 leading-tight">Create Account To Continue</h2>
+            <h2 className="text-xl font-black text-slate-900 leading-tight">
+              {step === 'password'
+                ? (existingUserName ? `Welcome back, ${existingUserName}!` : 'Welcome back!')
+                : step === 'otp-login'
+                ? 'Log in via WhatsApp'
+                : 'Create Account To Continue'}
+            </h2>
             <p className="text-sm font-semibold text-slate-500 leading-snug mt-0.5">
-              You've completed 5 lessons! Verify your number to unlock all lessons. Your stars stay with you.
+              {step === 'password'
+                ? 'Account found! Log in to keep your 5 free lessons and unlock the rest.'
+                : step === 'otp-login'
+                ? 'Enter the code sent to your WhatsApp to keep your progress.'
+                : "You've completed 5 lessons! Verify your number to unlock all lessons. Your stars stay with you."}
             </p>
           </div>
         </div>
@@ -110,16 +240,12 @@ export default function GuestVerifyModal({ onClose }) {
         {error && (
           <div className="mb-3 rounded-xl bg-red-50 border border-red-200 px-3 py-2 text-sm font-semibold text-red-700">
             {error}
-            {phoneTaken && (
-              <button type="button" onClick={goToLogin} className="block mt-1 text-blue-700 underline font-bold">
-                Log in with this number instead
-              </button>
-            )}
           </div>
         )}
 
-        {step === 'phone' ? (
-          <form onSubmit={sendCode}>
+        {/* STEP 1: Phone number entry */}
+        {step === 'phone' && (
+          <form onSubmit={handlePhoneSubmit}>
             <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-1.5">Mobile number</label>
             <div className="flex items-center rounded-2xl border-2 border-slate-200 focus-within:border-blue-500 bg-slate-50 px-4 h-14 mb-4">
               <span className="text-base font-bold text-slate-400 mr-2">+91</span>
@@ -131,14 +257,15 @@ export default function GuestVerifyModal({ onClose }) {
                 onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                 placeholder="10-digit mobile number"
                 className="flex-1 bg-transparent outline-none text-lg font-bold text-slate-900 tracking-wide"
+                autoFocus
               />
             </div>
             <button
               type="submit"
               disabled={loading || phone.length !== 10}
-              className="w-full h-14 rounded-2xl bg-[#25D366] hover:bg-[#1ebe5b] disabled:opacity-50 text-white font-black text-base shadow-[0_4px_0_#128C7E] active:translate-y-[2px] active:shadow-none transition-all"
+              className="w-full h-14 rounded-2xl bg-[#25D366] hover:bg-[#1ebe5b] disabled:opacity-50 text-white font-black text-base shadow-[0_4px_0_#128C7E] active:translate-y-[2px] active:shadow-none transition-all cursor-pointer"
             >
-              {loading ? 'Sending…' : 'Send code on WhatsApp'}
+              {loading ? 'Checking…' : 'Continue'}
             </button>
             <div className="mt-4 text-center">
               <a
@@ -154,14 +281,84 @@ export default function GuestVerifyModal({ onClose }) {
               </a>
             </div>
           </form>
-        ) : (
-          <form onSubmit={verify}>
-            <p className="text-sm font-semibold text-slate-600 mb-3">
-              Code sent on WhatsApp to <strong>+91 {phone}</strong>{' '}
-              <button type="button" onClick={() => { setStep('phone'); setOtp(''); setError(''); }} className="text-blue-600 underline font-bold">
+        )}
+
+        {/* STEP 2A: Existing User - Password Login */}
+        {step === 'password' && (
+          <form onSubmit={handlePasswordLogin}>
+            <div className="flex items-center justify-between mb-3 text-sm">
+              <span className="font-semibold text-slate-600">
+                Logging in as <strong>+91 {phone}</strong>
+              </span>
+              <button
+                type="button"
+                onClick={() => { setStep('phone'); setError(''); }}
+                className="text-blue-600 underline font-bold"
+              >
                 Change
               </button>
-            </p>
+            </div>
+
+            <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-1.5">Enter Password</label>
+            <div className="flex items-center rounded-2xl border-2 border-slate-200 focus-within:border-blue-500 bg-slate-50 px-4 h-14 mb-3">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Your account password"
+                className="flex-1 bg-transparent outline-none text-base font-bold text-slate-900"
+                autoFocus
+              />
+              <button type="button" onClick={() => setShowPassword((v) => !v)} className="text-xs font-black text-blue-600 ml-2">
+                {showPassword ? 'HIDE' : 'SHOW'}
+              </button>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading || !password}
+              className="w-full h-14 rounded-2xl bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-white font-black text-base shadow-[0_4px_0_#1E3A8A] active:translate-y-[2px] active:shadow-none transition-all cursor-pointer mb-3"
+            >
+              {loading ? 'Logging in…' : 'Log In & Save Progress'}
+            </button>
+
+            <div className="flex flex-col gap-2 items-center text-center">
+              <button
+                type="button"
+                onClick={handleSendOtpForLogin}
+                disabled={loading}
+                className="text-xs font-bold text-blue-600 hover:text-blue-800 underline"
+              >
+                Forgot password? Log in with WhatsApp OTP
+              </button>
+              <button
+                type="button"
+                onClick={() => { setStep('phone'); setError(''); }}
+                className="text-xs font-semibold text-slate-400 hover:text-slate-600"
+              >
+                Use a different number
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* STEP 2B: Existing User - WhatsApp OTP Login */}
+        {step === 'otp-login' && (
+          <form onSubmit={handleOtpLogin}>
+            <div className="flex items-center justify-between mb-3 text-sm">
+              <span className="font-semibold text-slate-600">
+                Code sent to <strong>+91 {phone}</strong>
+              </span>
+              <button
+                type="button"
+                onClick={() => { setStep('phone'); setError(''); setOtp(''); }}
+                className="text-blue-600 underline font-bold"
+              >
+                Change
+              </button>
+            </div>
+
             <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-1.5">6-digit code</label>
             <input
               type="text"
@@ -171,7 +368,73 @@ export default function GuestVerifyModal({ onClose }) {
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
               placeholder="••••••"
               className="w-full h-14 rounded-2xl border-2 border-slate-200 focus:border-blue-500 bg-slate-50 outline-none text-center text-2xl font-black tracking-[0.5em] text-slate-900 mb-3"
+              autoFocus
             />
+
+            <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-1.5">New password (optional)</label>
+            <div className="flex items-center rounded-2xl border-2 border-slate-200 focus-within:border-blue-500 bg-slate-50 px-4 h-14 mb-4">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="new-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Set new password (optional)"
+                className="flex-1 bg-transparent outline-none text-base font-bold text-slate-900"
+              />
+              <button type="button" onClick={() => setShowPassword((v) => !v)} className="text-xs font-black text-blue-600 ml-2">
+                {showPassword ? 'HIDE' : 'SHOW'}
+              </button>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading || otp.length !== 6}
+              className="w-full h-14 rounded-2xl bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-white font-black text-base shadow-[0_4px_0_#1E3A8A] active:translate-y-[2px] active:shadow-none transition-all cursor-pointer mb-3"
+            >
+              {loading ? 'Verifying…' : 'Log In & Save Progress'}
+            </button>
+
+            <div className="flex flex-col gap-2 items-center text-center">
+              {resendTimer > 0 ? (
+                <span className="text-xs font-semibold text-slate-400">Resend code in {resendTimer}s</span>
+              ) : (
+                <button type="button" onClick={handleResend} disabled={loading} className="text-xs font-bold text-blue-600 underline">
+                  Didn't get it? Resend code
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => { setStep('password'); setError(''); }}
+                className="text-xs font-semibold text-slate-500 hover:text-slate-700 underline"
+              >
+                Log in with password instead
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* STEP 2C: New User - Signup OTP + Password */}
+        {step === 'code' && (
+          <form onSubmit={handleSignupVerify}>
+            <p className="text-sm font-semibold text-slate-600 mb-3">
+              Code sent on WhatsApp to <strong>+91 {phone}</strong>{' '}
+              <button type="button" onClick={() => { setStep('phone'); setOtp(''); setError(''); }} className="text-blue-600 underline font-bold">
+                Change
+              </button>
+            </p>
+
+            <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-1.5">6-digit code</label>
+            <input
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              placeholder="••••••"
+              className="w-full h-14 rounded-2xl border-2 border-slate-200 focus:border-blue-500 bg-slate-50 outline-none text-center text-2xl font-black tracking-[0.5em] text-slate-900 mb-3"
+              autoFocus
+            />
+
             <label className="block text-xs font-black uppercase tracking-wider text-slate-500 mb-1.5">Set a password</label>
             <div className="flex items-center rounded-2xl border-2 border-slate-200 focus-within:border-blue-500 bg-slate-50 px-4 h-14 mb-1">
               <input
@@ -187,22 +450,25 @@ export default function GuestVerifyModal({ onClose }) {
               </button>
             </div>
             <p className="text-xs font-semibold text-slate-400 mb-4">You'll use your number and this password to log in.</p>
+
             <button
               type="submit"
               disabled={loading || otp.length !== 6 || password.length < 6}
-              className="w-full h-14 rounded-2xl bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-white font-black text-base shadow-[0_4px_0_#1E3A8A] active:translate-y-[2px] active:shadow-none transition-all"
+              className="w-full h-14 rounded-2xl bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-white font-black text-base shadow-[0_4px_0_#1E3A8A] active:translate-y-[2px] active:shadow-none transition-all cursor-pointer mb-3"
             >
-              {loading ? 'Verifying…' : 'Unlock all lessons'}
+              {loading ? 'Verifying…' : 'Unlock All Lessons'}
             </button>
+
             <div className="mt-3 text-center">
               {resendTimer > 0 ? (
                 <span className="text-xs font-semibold text-slate-400">Resend code in {resendTimer}s</span>
               ) : (
-                <button type="button" onClick={sendCode} disabled={loading} className="text-xs font-bold text-blue-600 underline">
+                <button type="button" onClick={handleResend} disabled={loading} className="text-xs font-bold text-blue-600 underline">
                   Didn't get it? Resend
                 </button>
               )}
             </div>
+
             <div className="mt-3 text-center">
               <a
                 href="https://wa.me/918310532323?text=Hi!%20I%20need%20help%20with%20OTP%20verification%20for%20my%20Hoshiyaar%20account."
@@ -218,8 +484,6 @@ export default function GuestVerifyModal({ onClose }) {
             </div>
           </form>
         )}
-
-        
       </div>
     </div>
   );
