@@ -94,6 +94,7 @@ export function getStageInfoForIndex(items = [], currentIndex = 0) {
       stageNumber: 1,
       totalStages: 1,
       stageIndex: 0,
+      stageIndexInStage: 0,
       stageTitle: 'STAGE 1',
       stageType: 'concept',
       itemCountInStage: 1,
@@ -115,9 +116,11 @@ export function getStageInfoForIndex(items = [], currentIndex = 0) {
   }
 
   const s = stages[matchedStageIdx];
+  const stageIndexInStage = Math.max(0, currentIndex - s.startIndex);
   return {
     stageNumber: matchedStageIdx + 1,
     stageIndex: matchedStageIdx,
+    stageIndexInStage,
     totalStages,
     stageTitle: s.title,
     stageType: s.type,
