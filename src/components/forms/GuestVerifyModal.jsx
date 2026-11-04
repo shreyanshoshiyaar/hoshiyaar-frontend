@@ -140,6 +140,19 @@ export default function GuestVerifyModal({ onClose }) {
             >
               {loading ? 'Sending…' : 'Send code on WhatsApp'}
             </button>
+            <div className="mt-4 text-center">
+              <a
+                href="https://wa.me/918310532323?text=Hi!%20I%20need%20help%20creating%20my%20Hoshiyaar%20account."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors py-1"
+              >
+                <span>Need help?</span>
+                <span className="text-[#128C7E] font-black underline flex items-center gap-1">
+                  Chat on WhatsApp
+                </span>
+              </a>
+            </div>
           </form>
         ) : (
           <form onSubmit={verify}>
@@ -189,6 +202,19 @@ export default function GuestVerifyModal({ onClose }) {
                   Didn't get it? Resend
                 </button>
               )}
+            </div>
+            <div className="mt-3 text-center">
+              <a
+                href="https://wa.me/918310532323?text=Hi!%20I%20need%20help%20with%20OTP%20verification%20for%20my%20Hoshiyaar%20account."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors py-1"
+              >
+                <span>Need help?</span>
+                <span className="text-[#128C7E] font-black underline flex items-center gap-1">
+                  Chat on WhatsApp
+                </span>
+              </a>
             </div>
           </form>
         )}
