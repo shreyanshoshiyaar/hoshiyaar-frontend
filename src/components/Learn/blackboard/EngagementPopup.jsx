@@ -1330,6 +1330,11 @@ function EngagementRearrangeContent({ item, onSuccess, playSound }) {
                   setTypedText(e.target.value);
                   setFeedback('idle');
                 }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && hasInput) {
+                    handleCheck();
+                  }
+                }}
                 placeholder={hasBlankInSentence ? "Type the missing word..." : "Type in order (e.g. Mouth, Food pipe...)"}
                 className="w-full px-4 py-3 rounded-2xl border-2 border-[#1E74FD] text-lg sm:text-xl font-black text-center text-[#101F33] bg-[#F8FAFC] focus:outline-hidden focus:ring-4 focus:ring-blue-100 transition-all shadow-inner"
               />
