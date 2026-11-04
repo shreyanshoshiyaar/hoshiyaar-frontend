@@ -163,6 +163,22 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
     return q.includes('hot zone') || q.includes('hotzone') || ct.includes('hot zone') || type.includes('hotzone');
   }, [item]);
 
+  const questionNumberDisplay = useMemo(() => {
+    if (actualReviewMode) {
+      return `${initialQueueCount - queue.length + 1} / ${initialQueueCount}`;
+    }
+    if (stageInfo && stageInfo.itemCountInStage) {
+      return `${stageInfo.stageIndexInStage + 1} / ${stageInfo.itemCountInStage}`;
+    }
+    const practiceList = (items || []).filter(it => ['multiple-choice', 'fill-in-the-blank', 'rearrange', 'descriptive'].includes(String(it?.type || '').toLowerCase()));
+    if (practiceList.length > 0) {
+      const pIdx = practiceList.findIndex(it => (it?.itemId && it?.itemId === item?.itemId) || it === items[index]);
+      const currentQ = pIdx >= 0 ? pIdx + 1 : 1;
+      return `${currentQ} / ${practiceList.length}`;
+    }
+    return `${index + 1} / ${items.length}`;
+  }, [actualReviewMode, initialQueueCount, queue, stageInfo, items, item, index]);
+
   const [eliminatedOptions, setEliminatedOptions] = useState([]);
   const [showTextHint, setShowTextHint] = useState(false);
   const [hintUsed, setHintUsed] = useState(false);
@@ -216,21 +232,6 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
-    const questionNumberDisplay = useMemo(() => {
-    if (actualReviewMode) {
-      return `${initialQueueCount - queue.length + 1} / ${initialQueueCount}`;
-    }
-    if (stageInfo && stageInfo.itemCountInStage) {
-      return `${stageInfo.stageIndexInStage + 1} / ${stageInfo.itemCountInStage}`;
-    }
-    const practiceList = (items || []).filter(it => ['multiple-choice', 'fill-in-the-blank', 'rearrange', 'descriptive'].includes(String(it?.type || '').toLowerCase()));
-    if (practiceList.length > 0) {
-      const pIdx = practiceList.findIndex(it => (it?.itemId && it?.itemId === item?.itemId) || it === items[index]);
-      const currentQ = pIdx >= 0 ? pIdx + 1 : 1;
-      return `${currentQ} / ${practiceList.length}`;
-    }
-    return `${index + 1} / ${items.length}`;
-  }, [actualReviewMode, initialQueueCount, queue, stageInfo, items, item, index]);
 
   return () => window.removeEventListener('resize', handleResize);
   }, []);

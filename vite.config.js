@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => {
   // For Android builds, bake in the absolute production URL
   // For web builds, use proxy as usual
   const apiBase = String(env.VITE_API_BASE || '').trim().replace(/\/+$/, '');
-  const proxyTarget = apiBase || 'http://localhost:5000';
+  const proxyTarget = apiBase || PRODUCTION_API;
 
   return {
     plugins: [react()],
