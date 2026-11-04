@@ -191,31 +191,8 @@ export default function DidYouKnowPage() {
       )}
 
       {/* ── MAIN CONTENT AREA (3D FLIP CARD) ── */}
-      <div className="flex-1 w-full max-w-sm sm:max-w-md px-4 py-2 flex flex-col justify-center items-center relative">
-        {/* Floating Action Pills (Top Right) */}
-        <div className="w-full flex justify-end items-center gap-2 mb-2 z-20">
-          <button
-            type="button"
-            onClick={handleContinue}
-            className="px-3.5 py-1.5 rounded-full bg-[#1E1E24] hover:bg-black text-white font-black text-xs sm:text-sm flex items-center gap-1 shadow-md active:scale-95 transition-all cursor-pointer"
-          >
-            <span>Skip</span>
-            <span className="text-xs">›</span>
-          </button>
+      <div className="flex-1 w-full max-w-sm sm:max-w-md px-4 py-2 flex flex-col justify-start pt-2 sm:pt-4 items-center relative">
 
-          {(isUserAdmin(user) || user?.role === 'admin' || user?.role === 'master') && (
-            <button
-              type="button"
-              onClick={handleEditCard}
-              className="px-3.5 py-1.5 rounded-full bg-[#1E1E24] hover:bg-black text-[#FDE047] font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
-                <path d="M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z" />
-              </svg>
-              <span>Edit card</span>
-            </button>
-          )}
-        </div>
 
         {/* 3D Flip Card Container */}
         <div
