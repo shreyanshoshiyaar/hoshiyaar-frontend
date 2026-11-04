@@ -119,8 +119,8 @@ const DesktopHome = () => {
               </p>
               
               <div className="flex flex-wrap items-center gap-4 mb-10">
-                <a href="/signup" className="bg-[#FFC107] hover:bg-[#FFB300] text-[#4527A0] font-extrabold text-[16px] px-8 py-4 rounded-xl transition-transform hover:scale-105 shadow-md flex items-center gap-2">
-                  Let's Play
+                <a href="/start" className="bg-[#FFC107] hover:bg-[#FFB300] text-[#4527A0] font-extrabold text-[16px] px-8 py-4 rounded-xl transition-transform hover:scale-105 shadow-md flex items-center gap-2">
+                  Get Started
                 </a>
                 <a href="https://play.google.com/store/apps/details?id=com.hoshiyaarlearning.app" target="_blank" rel="noopener noreferrer" className="bg-white hover:bg-slate-50 text-[#1E3A8A] font-bold text-[16px] px-8 py-4 rounded-xl transition-all border border-[#CBD5E1] shadow-sm hover:border-[#94A3B8]">
                   Download our App
@@ -419,7 +419,7 @@ const DesktopHome = () => {
               
               <div className="class-cards">
                 {/* Class 6 */}
-                <div className="class-card class-card-6" onClick={() => window.location.href = '/signup'}>
+                <div className="class-card class-card-6" onClick={() => window.location.href = '/start'}>
                   <div className="class-card-title">Class 6</div>
                   <div className="class-card-icon">🪐</div>
                   <p className="class-card-desc">Build strong foundations</p>
@@ -427,7 +427,7 @@ const DesktopHome = () => {
                 </div>
 
                 {/* Class 7 */}
-                <div className="class-card class-card-7" onClick={() => window.location.href = '/signup'}>
+                <div className="class-card class-card-7" onClick={() => window.location.href = '/start'}>
                   <div className="class-card-title">Class 7</div>
                   <div className="class-card-icon">🪐</div>
                   <p className="class-card-desc">Understand deeper concepts</p>
@@ -435,7 +435,7 @@ const DesktopHome = () => {
                 </div>
 
                 {/* Class 8 */}
-                <div className="class-card class-card-8" onClick={() => window.location.href = '/signup'}>
+                <div className="class-card class-card-8" onClick={() => window.location.href = '/start'}>
                   <div className="class-card-title">Class 8</div>
                   <div className="class-card-icon">🪐</div>
                   <p className="class-card-desc">Master topics with confidence</p>
@@ -548,8 +548,8 @@ const DesktopHome = () => {
               </div>
 
               <div style={{ zIndex: 2, marginLeft: 'auto' }}>
-                <button onClick={() => window.location.href = '/signup'} className="bg-[#facc15] hover:bg-[#eab308] text-[#4527A0] font-extrabold px-8 py-4 rounded-xl shadow-md transition-transform hover:scale-105 text-[18px] flex items-center gap-2">
-                  Start Learning Now 🚀
+                <button onClick={() => window.location.href = '/start'} className="bg-[#facc15] hover:bg-[#eab308] text-[#4527A0] font-extrabold px-8 py-4 rounded-xl shadow-md transition-transform hover:scale-105 text-[18px] flex items-center gap-2">
+                  Get Started 🚀
                 </button>
               </div>
 

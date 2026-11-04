@@ -361,6 +361,7 @@ function App() {
                 {/* Public Routes */}
                 <Route path="/login" element={<UnifiedAuth />} />
                 <Route path="/signup" element={<UnifiedAuth />} />
+                <Route path="/start" element={<UnifiedAuth />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/loading" element={<LoadingPage />} />
                 <Route path="/story-demo" element={<InteractiveStory />} />

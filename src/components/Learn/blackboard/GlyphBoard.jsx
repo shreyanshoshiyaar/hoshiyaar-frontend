@@ -275,7 +275,7 @@ export default function GlyphBoard({
       <div 
         onClick={handleBoardClick}
         title="Click to reveal complete drawing"
-        className={`w-full max-w-2xl sm:max-w-3xl md:max-w-4xl h-[28dvh] min-h-[200px] max-h-[270px] sm:h-[32dvh] sm:min-h-[240px] sm:max-h-[340px] md:h-[36dvh] md:min-h-[300px] md:max-h-[420px] lg:h-[50dvh] lg:min-h-[380px] lg:max-h-[560px] flex flex-col items-center justify-center relative rounded-[18px] sm:rounded-[26px] overflow-hidden p-2 sm:p-4 transition-all duration-300 cursor-pointer shadow-xl${noShadow ? ' lg:!shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),inset_0_0_40px_rgba(0,0,0,0.8)]' : ''}${fillHeight ? ' lg:!h-full lg:!max-h-none' : ''} ${cardClassName}`}
+        className={`w-full max-w-2xl sm:max-w-3xl md:max-w-4xl h-[33dvh] min-h-[220px] max-h-[320px] sm:h-[38dvh] sm:min-h-[260px] sm:max-h-[380px] md:h-[42dvh] md:min-h-[320px] md:max-h-[460px] lg:h-[50dvh] lg:min-h-[380px] lg:max-h-[560px] flex flex-col items-center justify-center relative rounded-[18px] sm:rounded-[26px] overflow-hidden p-2 sm:p-3.5 transition-all duration-300 cursor-pointer shadow-xl${noShadow ? ' lg:!shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),inset_0_0_40px_rgba(0,0,0,0.8)]' : ''}${fillHeight ? ' lg:!h-full lg:!max-h-none' : ''} ${cardClassName}`}
         style={{
           background: 'radial-gradient(130% 130% at 50% 15%, #0B131E 0%, #070B11 55%, #030508 100%)',
           border: '1.5px solid rgba(255, 255, 255, 0.16)',
@@ -314,7 +314,7 @@ export default function GlyphBoard({
                 viewBox={`0 0 ${Glyph.W} ${Glyph.H}`}
                 role="img" 
                 aria-label="Board drawing"
-                className="w-full h-full max-h-full object-contain"
+                className="w-full h-full max-h-full object-contain overflow-visible"
               />
             </div>
           ) : isSingleKnownGlyph ? (

@@ -17,9 +17,14 @@ const register = (userData, opts) => {
   return api.post('/api/auth/register', { ...userData, platform: getPlatform() }, opts);
 };
 
-// Register guest (anonymous)
-const registerGuest = (opts) => {
-  return api.post('/api/auth/register-guest', { platform: getPlatform() }, opts);
+// Register guest (Get Started: name, classLevel, phone are optional)
+const registerGuest = (details = {}, opts) => {
+  return api.post('/api/auth/register-guest', { ...details, platform: getPlatform() }, opts);
+};
+
+// Guest -> full account once the phone is OTP-verified (keeps the guest's progress)
+const upgradeGuest = ({ phone, otp, password }, opts) => {
+  return api.post('/api/auth/upgrade-guest', { phone, otp, password }, opts);
 };
 
 // Check if user exists by phone
@@ -234,6 +239,7 @@ const claimWeeklyGoal = (userId, opts) => api.post(`/api/auth/user/${userId}/cla
 const authService = {
   register,
   registerGuest,
+  upgradeGuest,
   login,
   adminLogin,
   verifyOtp,

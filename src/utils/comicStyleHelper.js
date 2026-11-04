@@ -11,9 +11,12 @@ export function isNewStyleStory({ item, items = [], chapterId = '', chapterTitle
   const chIdStr = String(chapterId || '').trim();
   const chTitleStr = String(chapterTitle || '').toLowerCase();
 
-  // 1. Explicit check for Chapter 9 (v12 Test) or any chapter marked v12
+  // 1. Explicit check for Chapter 9, Chapter 11, or any chapter marked v12
   if (
     chIdStr === '6ad8be61e323d9a75e28c0d5' ||
+    chIdStr === '6ab0db4316293cf7bf7f88bb' ||
+    chTitleStr.includes('light') ||
+    chTitleStr.includes('life processes') ||
     chTitleStr.includes('v12') ||
     chTitleStr.includes('life processes in animals (v12 test)')
   ) {
