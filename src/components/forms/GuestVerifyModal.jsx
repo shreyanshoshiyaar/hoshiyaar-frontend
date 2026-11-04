@@ -91,7 +91,7 @@ export default function GuestVerifyModal({ onClose }) {
         <button
           type="button"
           onClick={onClose}
-          aria-label="Not now"
+          aria-label="Close"
           className="absolute top-3 right-3 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-lg font-bold"
         >
           ×
