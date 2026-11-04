@@ -123,18 +123,24 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
 
   const questionNumberDisplay = useMemo(() => {
     if (actualReviewMode) {
-      return `${initialQueueCount - queue.length + 1} / ${initialQueueCount}`;
+      const qTotal = initialQueueCount || queue.length || 1;
+      const current = Math.max(1, qTotal - queue.length + 1);
+      return `${current} / ${qTotal}`;
     }
     if (stageInfo && stageInfo.itemCountInStage) {
-      return `${stageInfo.stageIndexInStage + 1} / ${stageInfo.itemCountInStage}`;
+      const stageIdx = stageInfo.stageIndexInStage ?? (stageInfo.stageStartIndex !== undefined ? Math.max(0, index - stageInfo.stageStartIndex) : 0);
+      const current = Math.min(stageIdx + 1, stageInfo.itemCountInStage);
+      return `${current} / ${stageInfo.itemCountInStage}`;
     }
     const practiceList = (items || []).filter(it => ['multiple-choice', 'fill-in-the-blank', 'rearrange', 'descriptive'].includes(String(it?.type || '').toLowerCase()));
     if (practiceList.length > 0) {
       const pIdx = practiceList.findIndex(it => (it?.itemId && it?.itemId === item?.itemId) || it === items[index]);
-      const currentQ = pIdx >= 0 ? pIdx + 1 : 1;
+      const currentQ = pIdx >= 0 ? pIdx + 1 : Math.min(index + 1, practiceList.length);
       return `${currentQ} / ${practiceList.length}`;
     }
-    return `${index + 1} / ${items.length}`;
+    const totalCount = Math.max(1, items?.length || 1);
+    const current = Math.min(index + 1, totalCount);
+    return `${current} / ${totalCount}`;
   }, [actualReviewMode, initialQueueCount, queue, stageInfo, items, item, index]);
 
   const [eliminatedOptions, setEliminatedOptions] = useState([]);
