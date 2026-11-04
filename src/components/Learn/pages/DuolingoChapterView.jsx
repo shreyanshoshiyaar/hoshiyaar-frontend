@@ -171,12 +171,12 @@ export default function DuolingoChapterView({
               {/* All Chapters Button */}
               <button
                 onClick={onOpenChapters}
-                className="flex items-center gap-2 py-1.5 px-3.5 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-95 transition-all border border-white/20 text-xs font-black text-white shadow-sm"
+                className="flex items-center gap-2 py-1.5 px-3.5 rounded-2xl bg-white text-slate-900 hover:bg-slate-50 active:scale-95 transition-all border-2 border-white/90 text-xs font-black shadow-md cursor-pointer"
               >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                <svg className="w-4 h-4 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
                 </svg>
-                <span>All Chapters</span>
+                <span className="text-slate-900 font-black">All Chapters</span>
               </button>
             </div>
           </div>
