@@ -55,6 +55,10 @@ const resetPassword = (phone, otp, newPassword, opts) => {
   return api.post('/api/auth/reset-password', { phone, otp, newPassword }, opts);
 };
 
+const loginWithOtp = ({ phone, otp, newPassword, guestUserId }, opts) => {
+  return api.post('/api/auth/login-with-otp', { phone, otp, newPassword, guestUserId, platform: getPlatform() }, opts);
+};
+
 // Update onboarding selections
 const updateOnboarding = (data, opts) => {
   return api.put('/api/auth/onboarding', { ...data, platform: getPlatform() }, opts);
@@ -244,6 +248,7 @@ const authService = {
   adminLogin,
   verifyOtp,
   resetPassword,
+  loginWithOtp,
   updateOnboarding,
   updateProfile,
   updateActivity,

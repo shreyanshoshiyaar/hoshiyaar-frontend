@@ -367,7 +367,8 @@ const UnifiedAuth = () => {
         password: formData.password,
         region: sessionStorage.getItem('user_region') || null,
         city: sessionStorage.getItem('user_city') || null,
-        country: sessionStorage.getItem('user_country') || null
+        country: sessionStorage.getItem('user_country') || null,
+        guestUserId: user?.isGuest ? user._id : undefined
       });
 
       if (response.data && response.data.token) {
