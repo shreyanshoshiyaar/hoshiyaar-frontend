@@ -629,6 +629,23 @@ export default function DescriptivePage() {
     }
   }
 
+  const actualType = useMemo(() => {
+    if (isRevisionModeFromUrl && revisionItem?.type) {
+      return String(revisionItem.type || '').toLowerCase();
+    }
+    return String(item?.type || '').toLowerCase();
+  }, [isRevisionModeFromUrl, revisionItem, item]);
+
+  // Automatic redirect if the current question type does not match descriptive
+  useEffect(() => {
+    if (!loading && item && actualType && actualType !== 'descriptive') {
+      const params = new URLSearchParams(window.location.search);
+      const suffix = params.toString() ? `?${params.toString()}` : '';
+      const targetRoute = routeForType(actualType, index);
+      navigate(`${targetRoute}${suffix}`, { replace: true });
+    }
+  }, [loading, item, actualType, index, navigate]);
+
   const handleBack = useCallback(() => {
     // Double press detection for quit popup
     const lastPress = Number(sessionStorage.getItem('last_back_press_time') || 0);
@@ -730,6 +747,49 @@ export default function DescriptivePage() {
       navigate('/learn', { replace: true });
     }, 0);
     return <SimpleLoading text="Redirecting to dashboard..." />;
+  }
+
+  // Only display if it's actually a descriptive type
+  if (actualType !== 'descriptive') {
+    return (
+      <div className="fixed inset-0 select-none overflow-hidden">
+        <PlayfulBackground cardIndex={index}>
+          <LessonHeader
+            onBack={handleBack}
+            title={actualReviewMode ? 'REVISE PROGRESS' : 'PRACTICE'}
+            currentIndex={actualReviewMode ? (initialQueueCount - queue.length) : index}
+            total={actualReviewMode ? Math.max(1, initialQueueCount) : (items?.filter(it => !isMissionCompleteItem(it)).length || items.length)}
+            stageInfo={stageInfo}
+            theme="light"
+            onSkip={handleMasterSkip}
+          />
+          <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+            <SimpleLoading text="Loading question..." />
+            <div className="mt-4 flex gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  const targetRoute = routeForType(actualType, index);
+                  const params = new URLSearchParams(window.location.search);
+                  const suffix = params.toString() ? `?${params.toString()}` : '';
+                  navigate(`${targetRoute}${suffix}`, { replace: true });
+                }}
+                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl shadow-md transition-all cursor-pointer"
+              >
+                Go to Question →
+              </button>
+              <button
+                type="button"
+                onClick={handleMasterSkip}
+                className="px-6 py-2.5 bg-yellow-500 hover:bg-yellow-600 text-white font-black rounded-xl shadow-md transition-all cursor-pointer"
+              >
+                Skip ⚡️
+              </button>
+            </div>
+          </div>
+        </PlayfulBackground>
+      </div>
+    );
   }
 
   return (
