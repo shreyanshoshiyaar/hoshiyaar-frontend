@@ -73,12 +73,10 @@ export default function EngagementPopup({ item, onComplete }) {
   };
 
   useEffect(() => {
-    const autoReadTimer = setTimeout(() => {
-      playPromptAudio();
-    }, 220);
+    // Play question audio immediately on mount (zero latency)
+    playPromptAudio();
 
     return () => {
-      clearTimeout(autoReadTimer);
       if (audioRef.current) audioRef.current.pause();
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel();

@@ -340,7 +340,23 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
     wrongAudioRef.current.volume = 0.35;
     
     // Cleanup on unmount
-    return () => {
+    const questionNumberDisplay = useMemo(() => {
+    if (actualReviewMode) {
+      return `${initialQueueCount - queue.length + 1} / ${initialQueueCount}`;
+    }
+    if (stageInfo && stageInfo.itemCountInStage) {
+      return `${stageInfo.stageIndexInStage + 1} / ${stageInfo.itemCountInStage}`;
+    }
+    const practiceList = (items || []).filter(it => ['multiple-choice', 'fill-in-the-blank', 'rearrange', 'descriptive'].includes(String(it?.type || '').toLowerCase()));
+    if (practiceList.length > 0) {
+      const pIdx = practiceList.findIndex(it => (it?.itemId && it?.itemId === item?.itemId) || it === items[index]);
+      const currentQ = pIdx >= 0 ? pIdx + 1 : 1;
+      return `${currentQ} / ${practiceList.length}`;
+    }
+    return `${index + 1} / ${items.length}`;
+  }, [actualReviewMode, initialQueueCount, queue, stageInfo, items, item, index]);
+
+  return () => {
       if (correctAudioRef.current) {
         correctAudioRef.current.pause();
         correctAudioRef.current = null;
@@ -1207,7 +1223,7 @@ export default function RearrangePage({ onQuestionComplete, isReviewMode = false
             </div>
             <div className="flex items-center gap-2.5">
               <div className="text-slate-500 font-extrabold text-sm sm:text-base">
-                {index + 1} / {items.length || 2}
+                {questionNumberDisplay}
               </div>
               <ReportFlagButton
                 itemId={item?.itemId || item?._id || `rearrange-${index}`}

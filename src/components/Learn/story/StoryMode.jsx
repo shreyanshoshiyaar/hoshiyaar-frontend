@@ -38,7 +38,8 @@ const CHARACTER_AVATARS = {
   zoe: "https://api.dicebear.com/7.x/adventurer/svg?seed=Zoe",
   chinki: "https://res.cloudinary.com/imq5966f/image/upload/c_crop,x_25,y_135,w_310,h_310/c_scale,w_300,h_300/v1792740022/img-to-link/bhpngalg3micbma3fjqc.webp",
   lakshmi: "https://api.dicebear.com/7.x/adventurer/svg?seed=Lakshmi",
-  farmer: "https://api.dicebear.com/7.x/adventurer/svg?seed=Lakshmi"
+  farmer: "https://api.dicebear.com/7.x/adventurer/svg?seed=Lakshmi",
+  dadi: "https://res.cloudinary.com/imq5966f/image/upload/v1792840515/img-to-link/dee69e93.png"
 };
 
 // Design system tokens & CSS variables
@@ -194,6 +195,13 @@ const SPEAKER_THEMES = {
     activeRing: 'ring-fuchsia-200',
     avatarBg: 'bg-fuchsia-100'
   },
+  dadi: {
+    cardBg: 'bg-white',
+    cardBorder: 'border-amber-300',
+    activeBorder: 'border-[#F59E0B]',
+    activeRing: 'ring-amber-200',
+    avatarBg: 'bg-amber-100'
+  },
   lakshmi: {
     cardBg: 'bg-white',
     cardBorder: 'border-emerald-400',
@@ -211,6 +219,7 @@ const getSpeakerTheme = (speaker = '') => {
   if (s.includes('chinki') || s.includes('didi')) return { key: 'chinki', avatar: CHARACTER_AVATARS.chinki, theme: SPEAKER_THEMES.chinki };
   if (s.includes('hoshi')) return { key: 'hoshi', avatar: CHARACTER_AVATARS.hoshi, theme: SPEAKER_THEMES.hoshi };
   
+  if (s.includes('dadi') || s.includes('nani') || s.includes('grandma') || s.includes('grandmother')) return { key: 'dadi', avatar: CHARACTER_AVATARS.dadi, theme: SPEAKER_THEMES.dadi };
   if (s.includes('lakshmi') || s.includes('farmer')) return { key: 'lakshmi', avatar: CHARACTER_AVATARS.lakshmi, theme: SPEAKER_THEMES.lakshmi };
   if (s.includes('anjali') || s.includes('captain')) return { key: 'anjali', avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=CaptainAnjali", theme: SPEAKER_THEMES.myra };
   if (s.includes('narrator')) return { key: 'narrator', avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Narrator", theme: SPEAKER_THEMES.sharma };
@@ -874,22 +883,72 @@ export default function StoryMode() {
     }
   };
 
-  // Skip button handler: advances to next dialogue / screen instead of skipping whole stage
-  const handleSkipNext = () => {
+  // Stage skip: skips the entire comic stage directly to the next section
+  const handleStageSkip = () => {
     stopAudio();
-    if (elements && elements.length > 0 && activeItemIndex < elements.length - 1) {
-      const nextIdx = activeItemIndex + 1;
-      playLineAudio(nextIdx);
+    const query = window.location.search || '';
+
+    // If there is a next section in the module, jump immediately past all comic pages
+    if (rawItemsState && rawItemsState.length > 0 && nextSectionIndex < rawItemsState.length) {
+      const nextItem = rawItemsState[nextSectionIndex];
+      const nextType = String(nextItem?.type || '').toLowerCase();
+
+      if (['blackboard', 'blackboard-step', 'board'].includes(nextType)) {
+        navigate(`/learn/module/${targetModuleId}/blackboard/${nextSectionIndex}${query}`);
+        return;
+      }
+      if (nextType === 'multiple-choice') {
+        navigate(`/learn/module/${targetModuleId}/mcq/${nextSectionIndex}${query}`);
+        return;
+      }
+      if (nextType === 'fill-in-the-blank') {
+        navigate(`/learn/module/${targetModuleId}/fillups/${nextSectionIndex}${query}`);
+        return;
+      }
+      if (nextType === 'rearrange') {
+        navigate(`/learn/module/${targetModuleId}/rearrange/${nextSectionIndex}${query}`);
+        return;
+      }
+      if (nextType === 'descriptive') {
+        navigate(`/learn/module/${targetModuleId}/descriptive/${nextSectionIndex}${query}`);
+        return;
+      }
+      if (['didyouknow', 'did_you_know', 'did-you-know', 'remember'].includes(nextType)) {
+        navigate(`/learn/module/${targetModuleId}/didyouknow/${nextSectionIndex}${query}`);
+        return;
+      }
+      if (nextType.startsWith('engagement')) {
+        navigate(`/learn/module/${targetModuleId}/engagement/${nextSectionIndex}${query}`);
+        return;
+      }
+      if (['concept', 'statement'].includes(nextType)) {
+        navigate(`/learn/module/${targetModuleId}/concept/${nextSectionIndex}${query}`);
+        return;
+      }
+    }
+
+    // If last stage, proceed to completion
+    if (rawItemsState && rawItemsState.length > 0 && (nextSectionIndex >= rawItemsState.length || isMissionCompleteItem(rawItemsState[nextSectionIndex]))) {
+      markModuleAsCompleted({
+        userId: user?._id,
+        subject: user?.subject || 'Science',
+        chapterId,
+        unitId,
+        moduleId: targetModuleId
+      });
+      const completionParams = new URLSearchParams();
+      completionParams.set('moduleId', String(targetModuleId));
+      completionParams.set('chapter', String(targetModuleId));
+      if (chapterId) completionParams.set('chapterId', chapterId);
+      if (unitId) completionParams.set('unitId', unitId);
+      navigate(`/lesson-complete?${completionParams.toString()}`);
       return;
     }
-    if (currentPageIndex < pages.length - 1) {
-      setCurrentPageIndex(prev => prev + 1);
-      setActiveItemIndex(-1);
-      setCurrentSec(0);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-    handleContinue();
+
+    const params = new URLSearchParams();
+    if (chapterId) params.set('chapterId', chapterId);
+    if (unitId) params.set('unitId', unitId);
+    navigate(`/learn${params.toString() ? '?' + params.toString() : ''}`);
   };
 
   const totalModuleItems = Math.max(1, rawItemsState?.length || pages.length);
@@ -913,7 +972,7 @@ export default function StoryMode() {
             total={totalModuleItems}
             stageInfo={stageInfo}
             theme="light"
-            onSkip={handleSkipNext}
+            onSkip={handleStageSkip}
             canMasterSkip={isAdmin}
             rightExtra={
               <ReportFlagButton

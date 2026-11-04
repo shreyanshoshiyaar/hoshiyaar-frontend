@@ -60,14 +60,16 @@ export default function LessonHeader({
   let displayTitle = stageTitle;
   let mobileTitle = stageTitle;
 
-  if (stageNumber && totalStages && totalStages > 1) {
-    if (stageTitle.toUpperCase().includes('PRACTICE')) {
-      displayTitle = `PRACTICE · STAGE ${stageNumber} OF ${totalStages} (${stageIndexInStage + 1}/${itemCountInStage})`;
-      mobileTitle = `STAGE ${stageNumber} OF ${totalStages} · PRACTICE`;
-    } else {
-      displayTitle = `${stageTitle} · STAGE ${stageNumber} OF ${totalStages}`;
-      mobileTitle = `STAGE ${stageNumber} OF ${totalStages}`;
-    }
+  const isPracticeMode = stageInfo?.stageType === 'practice' || stageTitle.toUpperCase().includes('PRACTICE') || String(title || '').toUpperCase().includes('PRACTICE');
+
+  if (isPracticeMode) {
+    const qNum = stageIndexInStage + 1;
+    const qTotal = Math.max(1, itemCountInStage);
+    displayTitle = `PRACTICE · QUESTION ${qNum} OF ${qTotal}`;
+    mobileTitle = `QUESTION ${qNum} OF ${qTotal} · PRACTICE`;
+  } else if (stageNumber && totalStages && totalStages > 1) {
+    displayTitle = `${stageTitle} · STAGE ${stageNumber} OF ${totalStages}`;
+    mobileTitle = `STAGE ${stageNumber} OF ${totalStages}`;
   } else {
     if (showCount && total > 1) {
       displayTitle = `${stageTitle} · ${Math.min(currentIndex + 1, total)}/${total}`;
@@ -133,7 +135,7 @@ export default function LessonHeader({
         {rightExtra}
 
         {/* Skip is an admin tool for moving through lessons; students don't see it */}
-        {onSkip && isMasterUser && (
+        {onSkip && (
           <button
             onClick={onSkip}
             type="button"

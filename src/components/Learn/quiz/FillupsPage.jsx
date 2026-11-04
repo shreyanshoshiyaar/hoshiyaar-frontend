@@ -223,7 +223,23 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
     };
     handleResize();
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    const questionNumberDisplay = useMemo(() => {
+    if (actualReviewMode) {
+      return `${initialQueueCount - queue.length + 1} / ${initialQueueCount}`;
+    }
+    if (stageInfo && stageInfo.itemCountInStage) {
+      return `${stageInfo.stageIndexInStage + 1} / ${stageInfo.itemCountInStage}`;
+    }
+    const practiceList = (items || []).filter(it => ['multiple-choice', 'fill-in-the-blank', 'rearrange', 'descriptive'].includes(String(it?.type || '').toLowerCase()));
+    if (practiceList.length > 0) {
+      const pIdx = practiceList.findIndex(it => (it?.itemId && it?.itemId === item?.itemId) || it === items[index]);
+      const currentQ = pIdx >= 0 ? pIdx + 1 : 1;
+      return `${currentQ} / ${practiceList.length}`;
+    }
+    return `${index + 1} / ${items.length}`;
+  }, [actualReviewMode, initialQueueCount, queue, stageInfo, items, item, index]);
+
+  return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // GA4 Tracking: First Question Start
@@ -1027,7 +1043,7 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
           </span>
           <div className="flex items-center gap-2.5">
             <span className="text-slate-500 font-black text-sm sm:text-base">
-              {actualReviewMode ? `${initialQueueCount - queue.length + 1} / ${initialQueueCount}` : `${index + 1} / ${items.length}`}
+              {questionNumberDisplay}
             </span>
             <ReportFlagButton
               itemId={item?.itemId || item?._id || `fillups-${index}`}

@@ -539,6 +539,13 @@ export default function BlackboardMode() {
               setCurrentLineIndex(0);
               setCards(parsedCards);
               setLoading(false);
+              // Immediately prefetch first card lines and any engagement audio for instant playback!
+              if (parsedCards[0]?.lines) {
+                parsedCards[0].lines.forEach((l, idx) => {
+                  const txt = l.targetWord || l.question || l.text;
+                  if (txt) prefetchTts(getLineTtsUrl(txt, l.speaker), { priority: idx === 0 });
+                });
+              }
               return;
             }
           }
@@ -605,8 +612,10 @@ export default function BlackboardMode() {
   };
 
   const preloadLineAudio = (lineItem, priority = false) => {
-    if (!lineItem || !lineItem.text || lineItem.isEngagement) return;
-    prefetchTts(getLineTtsUrl(lineItem.text, lineItem.speaker), { priority });
+    if (!lineItem) return;
+    const txt = lineItem.targetWord || lineItem.question || lineItem.text;
+    if (!txt) return;
+    prefetchTts(getLineTtsUrl(txt, lineItem.speaker), { priority });
   };
 
   const stopAudio = () => {
@@ -711,33 +720,32 @@ export default function BlackboardMode() {
       readingPaceFallback();
     };
 
-    // Play from the in-memory copy; if this line is still downloading, reuse that download
-    waitForTts(ttsUrl).then((src) => {
-      if (!isMountedRef.current || audioRef.current !== audio) return;
-      audio.src = src;
-      audio.play().then(() => {
+    // Stream immediately using getTtsSrc; background-prefetch caches it for replays
+    const audioSrc = getTtsSrc(ttsUrl);
+    prefetchTts(ttsUrl, { priority: true });
+    audio.src = audioSrc;
+    audio.play().then(() => {
+      if (isMountedRef.current && audioRef.current === audio) {
+        setIsPlaying(true);
+      }
+    }).catch(err => {
+      console.warn("Autoplay audio error, unlocking audio & waiting for user gesture:", err);
+      unlockMobileAudio();
+      if (touchListenerRef.current) {
+        window.removeEventListener('click', touchListenerRef.current);
+        window.removeEventListener('touchstart', touchListenerRef.current);
+      }
+      const onFirstGesture = () => {
+        window.removeEventListener('click', onFirstGesture);
+        window.removeEventListener('touchstart', onFirstGesture);
+        touchListenerRef.current = null;
         if (isMountedRef.current && audioRef.current === audio) {
-          setIsPlaying(true);
+          audio.play().catch(() => readingPaceFallback());
         }
-      }).catch(err => {
-        console.warn("Autoplay audio error, unlocking audio & waiting for user gesture:", err);
-        unlockMobileAudio();
-        if (touchListenerRef.current) {
-          window.removeEventListener('click', touchListenerRef.current);
-          window.removeEventListener('touchstart', touchListenerRef.current);
-        }
-        const onFirstGesture = () => {
-          window.removeEventListener('click', onFirstGesture);
-          window.removeEventListener('touchstart', onFirstGesture);
-          touchListenerRef.current = null;
-          if (isMountedRef.current && audioRef.current === audio) {
-            audio.play().catch(() => readingPaceFallback());
-          }
-        };
-        touchListenerRef.current = onFirstGesture;
-        window.addEventListener('click', onFirstGesture, { once: true, passive: true });
-        window.addEventListener('touchstart', onFirstGesture, { once: true, passive: true });
-      });
+      };
+      touchListenerRef.current = onFirstGesture;
+      window.addEventListener('click', onFirstGesture, { once: true, passive: true });
+      window.addEventListener('touchstart', onFirstGesture, { once: true, passive: true });
     });
   };
 
@@ -1240,6 +1248,12 @@ export default function BlackboardMode() {
     handleNext();
   };
 
+  // Stage Skip in Blackboard: jumps past the entire blackboard stage
+  const handleStageSkip = () => {
+    stopAudio();
+    handleProceedNext();
+  };
+
   if (loading) {
     return (
       <div className="h-screen w-screen bg-[#0E1724] text-white flex flex-col items-center justify-center gap-3">
@@ -1287,7 +1301,7 @@ export default function BlackboardMode() {
                   total={rawItemsState.length || cards.length}
                   stageInfo={boardStageInfo}
                   theme="blackboard"
-                  onSkip={handleContinue}
+                  onSkip={handleStageSkip}
                   rightExtra={
                     <>
                     {/* Mute lives in the top bar so it never covers the board's drawing */}
@@ -1715,15 +1729,12 @@ export default function BlackboardMode() {
             </svg>
           </button>
 
-          {/* Fast Forward Button (Skips directly to next bunch/card) */}
+          {/* Fast Forward Button (Skips directly to next bunch/card or finishes stage) */}
           <button
             onClick={handleFastForward}
             style={{ fontFamily: "'Nunito', sans-serif" }}
-            className={`flex-1 h-[44px] sm:h-[52px] rounded-[14px] sm:rounded-[18px] bg-[#0D1623] hover:bg-[#121E30] text-slate-200 hover:text-white border border-white/10 hover:border-white/20 flex items-center justify-center gap-1 font-black text-xs sm:text-base transition-all shadow-md active:scale-95 ${
-              currentCardIndex >= cards.length - 1 ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
-            disabled={currentCardIndex >= cards.length - 1}
-            title="Fast forward to next bunch"
+            className="flex-1 h-[44px] sm:h-[52px] rounded-[14px] sm:rounded-[18px] bg-[#0D1623] hover:bg-[#121E30] text-slate-200 hover:text-white border border-white/10 hover:border-white/20 flex items-center justify-center gap-1 font-black text-xs sm:text-base transition-all shadow-md active:scale-95 cursor-pointer"
+            title="Fast forward"
           >
             <span className="truncate">
               <span className="hidden sm:inline">Fast </span>Forward
