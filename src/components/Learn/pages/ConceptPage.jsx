@@ -1091,19 +1091,54 @@ export default function ConceptPage() {
               </div>
             )}
 
-            {/* Images block - mobile optimized, desktop unchanged */}
+            {/* Images block - larger and responsive */}
             {(() => {
-              const imgs = (Array.isArray(item.images) ? item.images : (item.images ? [item.images] : [])).filter(Boolean); if (imgs.length === 0 && item.imageUrl) imgs.push(item.imageUrl); return imgs.length > 0 ? (
-                <div className="w-full max-w-2xl sm:max-w-3xl md:max-w-4xl mt-2 sm:mt-6 md:mt-8 flex justify-center">
-                  <div className="flex flex-wrap justify-center gap-1 sm:gap-3 md:gap-5">
-                    {(Array.isArray(item.images) ? item.images.filter(Boolean) : (item.images ? [item.images].filter(Boolean) : (item.imageUrl ? [item.imageUrl] : []))).slice(0, 5).map((src, i) => (
-                      <div key={i} className="border border-blue-300 rounded-lg sm:rounded-2xl p-1 sm:p-3 bg-white shadow-sm">
-                        <img src={src} alt={'concept-' + i} className="h-40 w-32 sm:h-32 sm:w-24 md:h-24 md:w-20 lg:h-32 lg:w-24 xl:h-40 xl:w-32 object-contain rounded-md sm:rounded-xl" />
-                      </div>
-                    ))}
+              const imgs = (Array.isArray(item.images) ? item.images : (item.images ? [item.images] : [])).filter(Boolean);
+              if (imgs.length === 0 && item.imageUrl) imgs.push(item.imageUrl);
+              if (imgs.length > 0) {
+                const isSingle = imgs.length === 1;
+                return (
+                  <div className="w-full max-w-3xl md:max-w-4xl mt-3 sm:mt-5 flex justify-center px-2">
+                    <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-4 max-w-full">
+                      {imgs.slice(0, 5).map((src, i) => (
+                        <div
+                          key={i}
+                          className="border-2 border-blue-200/90 rounded-2xl p-2 sm:p-3 bg-white shadow-md flex items-center justify-center max-w-full overflow-hidden"
+                        >
+                          <img
+                            src={src}
+                            alt={'concept-' + i}
+                            className={`${
+                              isSingle
+                                ? 'max-h-[46vh] sm:max-h-[50vh] md:max-h-[54vh] w-auto max-w-full'
+                                : 'h-44 sm:h-56 md:h-64 w-auto max-w-full'
+                            } object-contain rounded-xl`}
+                          />
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ) : null
+                );
+              }
+
+              // Friendly character visual for break / breather cards if no explicit image is attached
+              const isBreakCard = item.speaker === 'Hoshi' || /^(break|joke time|quick breather)/i.test(String(item.text || item.question || '').trim());
+              if (isBreakCard) {
+                return (
+                  <div className="w-full mt-4 sm:mt-6 flex flex-col items-center justify-center">
+                    <div className="w-36 h-36 sm:w-44 sm:h-44 rounded-full bg-white/80 p-3 shadow-lg border-2 border-blue-200 flex items-center justify-center">
+                      <img
+                        src="https://res.cloudinary.com/imq5966f/image/upload/v1791543786/img-to-link/rtyoddo8fjqspbtngsri.webp"
+                        alt="Hoshi"
+                        className="w-full h-full object-contain animate-bounce"
+                        style={{ animationDuration: '2.5s' }}
+                      />
+                    </div>
+                  </div>
+                );
+              }
+
+              return null;
             })()}
           </>
         )}
