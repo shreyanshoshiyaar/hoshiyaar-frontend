@@ -27,6 +27,36 @@ import ReportFlagButton from '../../common/ReportFlagButton.jsx';
 import { vibrateLight, vibrateSuccess, vibrateError } from '../../../utils/vibrationService.js';
 import { preloadAudio, playTtsAudio } from '../../../utils/audioPreloadService.js';
 
+export const extractKeywords = (item) => {
+  if (!item) return [];
+  let rawSource = [];
+  if (Array.isArray(item.keywords) && item.keywords.length > 0) {
+    rawSource = item.keywords;
+  } else if (item.audioKey && typeof item.audioKey === 'string' && item.audioKey.trim()) {
+    rawSource = [item.audioKey];
+  } else if (item.keyword && typeof item.keyword === 'string' && item.keyword.trim()) {
+    rawSource = [item.keyword];
+  } else if (typeof item.answer === 'string' && /key points?:/i.test(item.answer)) {
+    const kp = item.answer.split(/key points?:/i)[1];
+    rawSource = [kp];
+  } else if (typeof item.answer === 'string') {
+    const cleanAnswer = item.answer.replace(/^Model:\s*/i, '').trim();
+    // Only treat answer as keyword if it's short and concise (< 80 chars),
+    // never split a long model explanation paragraph into random comma fragments.
+    if (cleanAnswer.length > 0 && cleanAnswer.length < 80) {
+      rawSource = [cleanAnswer];
+    }
+  }
+
+  // Flatten and split by commas, semicolons, or pipes
+  const list = (Array.isArray(rawSource) ? rawSource : [rawSource])
+    .flatMap(k => String(k || '').split(/[,;|]+/))
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  return Array.from(new Set(list));
+};
+
 export default function DescriptivePage() {
   const navigate = useNavigate();
   const { moduleNumber, index: indexParam } = useParams();
@@ -116,6 +146,8 @@ export default function DescriptivePage() {
         question: revisionQuestion || curriculumItem?.question || '',
         text: revisionItem.text || revisionItem.question || curriculumItem?.text || '',
         answer: revisionItem.answer || curriculumItem?.answer || '',
+        keywords: revisionItem.keywords || curriculumItem?.keywords || [],
+        audioKey: revisionItem.audioKey || curriculumItem?.audioKey || '',
         images: Array.isArray(revisionItem.images) ? revisionItem.images : (curriculumItem?.images || []),
         explanation: revisionItem.explanation || curriculumItem?.explanation || '',
         onWrong: revisionItem.onWrong || curriculumItem?.onWrong || '',
@@ -269,18 +301,8 @@ export default function DescriptivePage() {
   const handleSubmit = async () => {
     if (!userInput.trim() || showResult) return;
 
-    // Safely extract and split keywords. 
-    // Mongoose sometimes casts a comma string "A, B" into an array ["A, B"]. We must split strings.
-    let keywordsSource = (item.keywords && item.keywords.length > 0) ? item.keywords : (item.answer || []);
-    if (typeof keywordsSource === 'string') {
-      // Split by common separators: comma, semicolon, pipe
-      keywordsSource = keywordsSource.split(/[,;|]+/).map(s => s.trim()).filter(Boolean);
-    }
-    
-    // Ensure we have a clean array of keywords
-    const keywords = Array.isArray(keywordsSource) 
-      ? keywordsSource.map(k => String(k || '').trim()).filter(Boolean)
-      : [];
+    // Safely extract and split keywords from keywords column / audioKey / key points
+    const keywords = extractKeywords(item);
     
     const normalizedInput = normalize(userInput);
     
@@ -296,20 +318,26 @@ export default function DescriptivePage() {
       // 1. Exact phrase match or phrase is a substring of the input
       let isMatch = normalizedInput.includes(nk);
       
-      // 2. If no exact match, allow fuzzy word-level matching for single-word keywords
+      // 2. If no exact match, allow fuzzy word-level matching
       if (!isMatch) {
-        const nkWords = nk.split(/\s+/);
+        const nkWords = nk.split(/\s+/).filter(Boolean);
         if (nkWords.length === 1) {
           isMatch = inputWords.some(w => {
             if (w === nk) return true;
             // Allow substring match only if both words are reasonably long (>= 4 chars)
-            // This prevents short inputs like "a" or "is" from matching longer keywords,
-            // and prevents "i" from matching "kinetic" (nk.includes(w))
             if (nk.length >= 4 && w.length >= 4) {
               return w.includes(nk) || nk.includes(w);
             }
             return false;
           });
+        } else if (nkWords.length > 1) {
+          // Multi-word phrase: match if at least 70% of significant words are found
+          const significantWords = nkWords.filter(w => !['is', 'are', 'the', 'a', 'an', 'to', 'of', 'in', 'and', 'or', 'for', 'on', 'with'].includes(w));
+          const targetWords = significantWords.length > 0 ? significantWords : nkWords;
+          const matchedCount = targetWords.filter(w => inputWords.some(iw => iw === w || (w.length >= 4 && iw.includes(w)))).length;
+          if (matchedCount / targetWords.length >= 0.7) {
+            isMatch = true;
+          }
         }
       }
       
@@ -892,7 +920,7 @@ export default function DescriptivePage() {
           onClose={() => setShowIncorrectModal(false)}
           onTryAgain={() => { setShowIncorrectModal(false); setShowResult(false); setForceShowExpert(false); }}
           onViewExpertAnswer={() => { setShowIncorrectModal(false); setForceShowExpert(true); }}
-          answer={`Suggested Keywords: ${item.keywords?.join(', ')}`}
+          answer={`Suggested Keywords: ${extractKeywords(item).join(', ')}`}
           hideCorrectAnswer={true}
         />
       )}
