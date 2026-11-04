@@ -633,7 +633,23 @@ export default function DescriptivePage() {
       }
     };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    const questionNumberDisplay = useMemo(() => {
+    if (actualReviewMode) {
+      return `${initialQueueCount - queue.length + 1} / ${initialQueueCount}`;
+    }
+    if (stageInfo && stageInfo.itemCountInStage) {
+      return `${stageInfo.stageIndexInStage + 1} / ${stageInfo.itemCountInStage}`;
+    }
+    const practiceList = (items || []).filter(it => ['multiple-choice', 'fill-in-the-blank', 'rearrange', 'descriptive'].includes(String(it?.type || '').toLowerCase()));
+    if (practiceList.length > 0) {
+      const pIdx = practiceList.findIndex(it => (it?.itemId && it?.itemId === item?.itemId) || it === items[index]);
+      const currentQ = pIdx >= 0 ? pIdx + 1 : 1;
+      return `${currentQ} / ${practiceList.length}`;
+    }
+    return `${index + 1} / ${items.length}`;
+  }, [actualReviewMode, initialQueueCount, queue, stageInfo, items, item, index]);
+
+  return () => window.removeEventListener('keydown', onKey);
   }, [showResult, isCorrect]);
 
   const handleMasterSkip = async () => {
@@ -707,7 +723,7 @@ export default function DescriptivePage() {
             </span>
             <div className="flex items-center gap-2.5">
               <span className="text-slate-400 font-black text-sm">
-                {actualReviewMode ? `${initialQueueCount - queue.length + 1} / ${initialQueueCount}` : `${index + 1} / ${items.length}`}
+                {questionNumberDisplay}
               </span>
               <ReportFlagButton
                 itemId={item?.itemId || item?._id || `descriptive-${index}`}

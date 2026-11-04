@@ -16,6 +16,7 @@ export const CHARACTERS = [
   { key: 'babloo', name: 'Babloo', match: ['babloo'], image: 'https://res.cloudinary.com/imq5966f/image/upload/v1791543789/img-to-link/rqwxrpdymyzbhqd74eiy.webp' },
   { key: 'chinki', name: 'Chinki Didi', match: ['chinki', 'didi'], image: 'https://res.cloudinary.com/imq5966f/image/upload/c_crop,x_25,y_135,w_310,h_310/c_scale,w_300,h_300/v1792740022/img-to-link/bhpngalg3micbma3fjqc.webp' },
   { key: 'hoshi', name: 'Hoshi', match: ['hoshi'], image: 'https://res.cloudinary.com/imq5966f/image/upload/v1791543786/img-to-link/rtyoddo8fjqspbtngsri.webp' },
+  { key: 'dadi', name: 'Dadi', match: ['dadi', 'nani', 'grandma', 'grandmother'], image: 'https://res.cloudinary.com/imq5966f/image/upload/v1792840515/img-to-link/dee69e93.png' },
   { key: 'farmer_lakshmi', name: 'Farmer Lakshmi', match: ['lakshmi', 'farmer'], image: placeholder('Lakshmi') },
   { key: 'captain_anjali', name: 'Captain Anjali', match: ['anjali', 'captain'], image: placeholder('CaptainAnjali') },
   { key: 'narrator', name: 'Narrator', match: ['narrator'], image: placeholder('Narrator') },

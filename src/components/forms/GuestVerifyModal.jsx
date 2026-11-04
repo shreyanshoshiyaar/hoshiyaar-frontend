@@ -100,9 +100,9 @@ export default function GuestVerifyModal({ onClose }) {
         <div className="flex items-center gap-3 mb-4 pr-8">
           <img src={HOSHI} alt="" className="w-16 h-16 object-contain shrink-0" />
           <div>
-            <h2 className="text-xl font-black text-slate-900 leading-tight">Save your progress</h2>
+            <h2 className="text-xl font-black text-slate-900 leading-tight">Create Account To Continue</h2>
             <p className="text-sm font-semibold text-slate-500 leading-snug mt-0.5">
-              You've played 5 free lessons! Verify your number to unlock all lessons. Your stars stay with you.
+              You've completed 5 lessons! Verify your number to unlock all lessons. Your stars stay with you.
             </p>
           </div>
         </div>
@@ -193,9 +193,7 @@ export default function GuestVerifyModal({ onClose }) {
           </form>
         )}
 
-        <button type="button" onClick={onClose} className="w-full mt-3 text-sm font-bold text-slate-400 hover:text-slate-600">
-          Not now
-        </button>
+        
       </div>
     </div>
   );
