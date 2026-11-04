@@ -888,11 +888,15 @@ export default function BlackboardMode() {
     }
   };
 
-  // ── Interactive Slider Widget logic (Child drives blackboard animation) ──
+  // ── Interactive Slider & Buttons Widget logic (Child drives blackboard animation) ──
   const currentWidget = currentCard?.inputJson?.widget;
   const isSliderWidget = Boolean(currentWidget && (currentWidget.type === 'slider' || currentWidget.type === 'board_slider'));
+  const isButtonWidget = Boolean(currentWidget && (currentWidget.type === 'buttons' || currentWidget.type === 'button'));
 
-  // Reset or initialize slider state when current card changes
+  const [selectedWidgetButton, setSelectedWidgetButton] = useState(null);
+  const [tappedWidgetButtons, setTappedWidgetButtons] = useState(() => new Set());
+
+  // Reset or initialize widget state when current card changes
   useEffect(() => {
     if (isSliderWidget) {
       const initialT = typeof currentWidget.t0 === 'number' ? currentWidget.t0 : 0.1;
@@ -902,16 +906,51 @@ export default function BlackboardMode() {
       } else {
         setSliderFeedback({ status: 'idle', text: '' });
       }
+    } else if (isButtonWidget) {
+      const initialT = typeof currentWidget.t0 === 'number' ? currentWidget.t0 : 0;
+      setSliderT(initialT);
+      setSelectedWidgetButton(null);
+      setTappedWidgetButtons(new Set());
+      if (completedSliders.has(currentCard.cardId)) {
+        setSliderFeedback({ status: 'ok', text: 'All explored!' });
+      } else {
+        setSliderFeedback({ status: 'idle', text: '' });
+      }
     } else {
       setSliderT(null);
       setSliderFeedback({ status: 'idle', text: '' });
     }
-  }, [currentCardIndex, currentCard?.cardId, isSliderWidget]);
+  }, [currentCardIndex, currentCard?.cardId, isSliderWidget, isButtonWidget]);
 
-  // True while the current step is a slider the child has not completed yet (read by onLineDone)
+  // True while the current step is a slider/button widget the child has not completed yet (read by onLineDone)
   useEffect(() => {
-    sliderWaitingRef.current = isSliderWidget && !completedSliders.has(currentCard?.cardId);
-  }, [isSliderWidget, completedSliders, currentCard?.cardId]);
+    sliderWaitingRef.current = (isSliderWidget || isButtonWidget) && !completedSliders.has(currentCard?.cardId);
+  }, [isSliderWidget, isButtonWidget, completedSliders, currentCard?.cardId]);
+
+  const handleWidgetButtonClick = (opt, optIdx) => {
+    setSelectedWidgetButton(optIdx);
+    setTappedWidgetButtons(prev => {
+      const next = new Set(prev).add(optIdx);
+      const isComplete = currentWidget.all
+        ? next.size >= (currentWidget.options?.length || 1)
+        : (currentWidget.answer != null ? optIdx === currentWidget.answer : true);
+
+      if (isComplete) {
+        setCompletedSliders(c => new Set(c).add(currentCard?.cardId));
+        sliderWaitingRef.current = false;
+        setSliderFeedback({ status: 'ok', text: 'All explored!' });
+      }
+      return next;
+    });
+
+    if (typeof opt.t === 'number') {
+      setSliderT(opt.t);
+    }
+
+    if (opt.say) {
+      playLineAudio(opt.say, currentCard?.speaker || 'Arpit Sir');
+    }
+  };
 
   const handleSliderChange = (e) => {
     const val = parseFloat(e.target.value);
@@ -1345,7 +1384,7 @@ export default function BlackboardMode() {
             replayKey={replayKey}
             animKey={`${currentCardIndex}_${replayKey}`}
             isPaused={!!activeEngagement}
-            scrubTime={isSliderWidget ? sliderT : null}
+            scrubTime={(isSliderWidget || isButtonWidget) ? sliderT : null}
             fillHeight
           />
         </div>
@@ -1551,6 +1590,55 @@ export default function BlackboardMode() {
                             <span className="leading-snug">{sliderFeedback.text}</span>
                           </div>
                         )}
+                      </div>
+                    )}
+
+                    {/* Interactive Buttons Widget (Child taps each item to explore the board) */}
+                    {isCurrentLine && 
+                     (lIdx === totalLinesInCard - 1 || lines.length === 1) && 
+                     isButtonWidget && (
+                      <div className="mt-3.5 w-full bg-[#0E1A29]/95 border border-[#1F6FE5]/40 rounded-[20px] p-3.5 sm:p-4 shadow-[0_8px_30px_rgba(0,0,0,0.6)] flex flex-col gap-3 select-none">
+                        <div className="flex items-center justify-between">
+                          <span 
+                            style={{ fontFamily: "'Nunito', sans-serif" }}
+                            className="text-xs sm:text-sm font-black uppercase tracking-wider text-amber-300 flex items-center gap-2"
+                          >
+                            <span>👉 {currentWidget.label || 'TAP TO TEST'}</span>
+                          </span>
+                          {completedSliders.has(currentCard?.cardId) && (
+                            <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-bold tracking-wide">
+                              <span>✓</span>
+                              <span>All tested!</span>
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-2.5">
+                          {Array.isArray(currentWidget.options) && currentWidget.options.map((opt, optIdx) => {
+                            const isSelected = selectedWidgetButton === optIdx;
+                            const isTapped = tappedWidgetButtons.has(optIdx);
+                            return (
+                              <button
+                                key={optIdx}
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleWidgetButtonClick(opt, optIdx);
+                                }}
+                                className={`w-full py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-1.5 border active:scale-95 ${
+                                  isSelected
+                                    ? 'bg-[#1F6FE5] text-white border-white/50 shadow-[0_0_18px_rgba(31,111,229,0.7)] scale-[1.02]'
+                                    : isTapped
+                                    ? 'bg-slate-800/90 text-emerald-300 border-emerald-500/40'
+                                    : 'bg-white/5 hover:bg-white/10 text-slate-200 border-white/15'
+                                }`}
+                              >
+                                <span>{opt.label}</span>
+                                {isTapped && <span className="text-xs text-emerald-400">✓</span>}
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
                     )}
                   </div>
