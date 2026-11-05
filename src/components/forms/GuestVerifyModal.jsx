@@ -242,7 +242,7 @@ export default function GuestVerifyModal({ onClose }) {
                 ? (existingUserName ? `Welcome back, ${existingUserName}` : 'Welcome back')
                 : step === 'otp-login'
                 ? 'Log In via WhatsApp'
-                : 'Save Your Progress'}
+                : 'Create account to continue'}
             </h2>
             <p className="text-xs text-slate-500 font-medium leading-relaxed mt-0.5">
               {step === 'password'
