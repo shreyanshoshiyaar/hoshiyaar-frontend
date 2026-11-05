@@ -5,6 +5,7 @@ import { useAccess, trialMsLeft } from '../../../context/AccessContext.jsx';
 import paymentService from '../../../services/paymentService.js';
 import { usesPlayBilling } from '../../../services/billingService.js';
 import PaywallModal from './PaywallModal.jsx';
+import GuestVerifyModal from '../../forms/GuestVerifyModal.jsx';
 import BottomNavigation from '../../layout/BottomNavigation.jsx';
 import LiveCountdown from './LiveCountdown.jsx';
 import TrialTestToggle from './TrialTestToggle.jsx';
@@ -120,7 +121,16 @@ export default function SubscriptionPage() {
   const [userStatus, setUserStatus] = useState(null);
   const [plan, setPlan] = useState({ amount: 99, discountedFrom: 599, features: [] });
   const [showPaywall, setShowPaywall] = useState(false);
+  const [showGuestVerify, setShowGuestVerify] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+
+  const handleUnlockClick = () => {
+    if (user?.isGuest || access?.isGuest) {
+      setShowGuestVerify(true);
+      return;
+    }
+    setShowPaywall(true);
+  };
   const [openFaq, setOpenFaq] = useState(0);
 
   // The page renders straight away from the trial status the app already holds;
@@ -269,7 +279,7 @@ export default function SubscriptionPage() {
             </p>
 
             <button
-              onClick={() => setShowPaywall(true)}
+              onClick={handleUnlockClick}
               className="relative mt-5 w-full py-3.5 rounded-full bg-gradient-to-b from-[#FEF3C7] via-[#FCD34D] to-[#F59E0B] text-[#3B0764] font-black text-base shadow-[0_4px_0_0_#B45309,0_0_22px_rgba(252,211,77,0.45)] active:translate-y-0.5 active:shadow-none cursor-pointer"
             >
               {hasPass ? 'Add 6 more months' : `Unlock Pro for ₹${plan.amount}`}
@@ -385,6 +395,16 @@ export default function SubscriptionPage() {
       </div>
 
       <BottomNavigation />
+
+      {showGuestVerify && (
+        <GuestVerifyModal
+          onClose={() => {
+            setShowGuestVerify(false);
+            refresh();
+            loadData();
+          }}
+        />
+      )}
 
       {showPaywall && (
         <PaywallModal

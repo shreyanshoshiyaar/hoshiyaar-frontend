@@ -1,17 +1,28 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAccess, trialMsLeft } from '../../../context/AccessContext.jsx';
+import { useAuth } from '../../../context/AuthContext.jsx';
+import GuestVerifyModal from '../../forms/GuestVerifyModal.jsx';
 import PaywallModal from './PaywallModal.jsx';
 import { useServerNow } from '../../../hooks/useServerNow.js';
 
 const formatDate = (d) => new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 
 // Hours and minutes left: "47h 54m", or "38m" in the last hour
+// Hours, minutes and seconds left: "47h 30m 15s", or "38m 20s"
 const clockParts = (ms) => {
-  const totalMin = Math.max(0, Math.floor(ms / 60000));
-  const h = Math.floor(totalMin / 60);
-  const m = totalMin % 60;
-  return { h, m, text: h > 0 ? `${h}h ${String(m).padStart(2, '0')}m` : `${m}m` };
+  const totalSec = Math.max(0, Math.floor(ms / 1000));
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  return {
+    h,
+    m,
+    s,
+    text: h > 0
+      ? `${h}h ${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}s`
+      : `${m}m ${String(s).padStart(2, '0')}s`
+  };
 };
 
 // A trial 6 minutes in, with 2 of 7 lessons played; started once per page load
@@ -47,9 +58,11 @@ const Stopwatch = ({ className = '' }) => (
 // During the trial it should feel time-limited, not restricted: every lesson is still open.
 export default function TrialBanner() {
   const { access: liveAccess, refresh } = useAccess();
+  const { user } = useAuth();
   // Ticks every second on server time, so the countdown is live
   const now = useServerNow();
   const [showPaywall, setShowPaywall] = useState(false);
+  const [showGuestVerify, setShowGuestVerify] = useState(false);
 
   // Dev builds only: with no live trial (old backend, or trial not enforced) show a
   // sample countdown so the design can be checked. Production never shows this.
@@ -61,9 +74,23 @@ export default function TrialBanner() {
   const msLeft = trialMsLeft(access, now);
   const urgent = msLeft != null && msLeft < 6 * 60 * 60 * 1000;
   const navigate = useNavigate();
-  // Go Pro opens the Pro page; the payment pop-up itself appears only on locked lessons.
-  // A guest at their lesson limit still gets the create-account sheet here.
-  const open = () => (access.state === 'guest_limit' ? setShowPaywall(true) : navigate('/subscription'));
+
+  // Dynamic pricing from backend access.plan or config
+  const planPrice = access?.plan?.amount ?? 99;
+  const planOriginalPrice = access?.plan?.discountedFrom ?? 599;
+
+  // Before payment for guest accounts, prompt login/verification first!
+  const open = () => {
+    if (access?.isGuest || user?.isGuest) {
+      setShowGuestVerify(true);
+      return;
+    }
+    if (access.state === 'guest_limit') {
+      setShowPaywall(true);
+    } else {
+      navigate('/subscription');
+    }
+  };
 
   const goPro = (label = 'Go Pro Now') => (
     <div className="relative flex flex-col items-center gap-1 shrink-0">
@@ -75,8 +102,8 @@ export default function TrialBanner() {
         {label} →
       </button>
       <div className="flex items-baseline gap-1.5">
-        <span className="text-[22px] min-[380px]:text-[26px] leading-none font-black text-white">₹99</span>
-        <span className="text-sm min-[380px]:text-base font-bold text-white/55 line-through decoration-[#FB7185] decoration-2">₹599</span>
+        <span className="text-[20px] min-[380px]:text-[24px] leading-none font-black text-white">₹{planPrice}</span>
+        <span className="text-xs min-[380px]:text-sm font-bold text-white/55 line-through decoration-[#FB7185] decoration-2">₹{planOriginalPrice}</span>
       </div>
     </div>
   );
@@ -134,29 +161,26 @@ export default function TrialBanner() {
     );
   } else {
     const notStarted = access.state === 'trial_not_started';
-    const clock = notStarted ? { h: access.trialHours, m: 0 } : clockParts(msLeft);
+    const clock = notStarted ? { h: access.trialHours || 48, m: 0, s: 0 } : clockParts(msLeft);
     left = (
       <div className="flex items-center gap-1.5 min-[380px]:gap-2.5 shrink-0">
-        <Stopwatch className="w-10 h-10 min-[380px]:w-[54px] min-[380px]:h-[54px] shrink-0" />
+        <Stopwatch className="w-9 h-9 min-[380px]:w-[48px] min-[380px]:h-[48px] shrink-0" />
         <div className="min-w-0">
           <p className="text-[10px] min-[380px]:text-[11px] font-black uppercase tracking-[0.18em] text-[#FCD34D] whitespace-nowrap leading-none mb-1">Free trial</p>
-          <p className={`font-black leading-none tabular-nums text-[1.85rem] min-[380px]:text-[2.35rem] ${urgent ? 'text-[#FDA4AF]' : 'text-white'}`}>
+          <p className={`font-black leading-none tabular-nums text-[1.25rem] min-[360px]:text-[1.5rem] min-[390px]:text-[1.8rem] ${urgent ? 'text-[#FDA4AF]' : 'text-white'}`}>
             {clock.h > 0 && (
               <>
-                {clock.h}<span className="text-[0.55em] font-black text-indigo-200 ml-0.5 mr-1.5">h</span>
+                {clock.h}<span className="text-[0.48em] font-black text-indigo-200 ml-0.5 mr-1">h</span>
               </>
             )}
-            {notStarted ? null : (
-              <>
-                {String(clock.m).padStart(clock.h > 0 ? 2 : 1, '0')}<span className="text-[0.55em] font-black text-indigo-200 ml-0.5">m</span>
-              </>
-            )}
+            {String(clock.m).padStart(clock.h > 0 ? 2 : 1, '0')}<span className="text-[0.48em] font-black text-indigo-200 ml-0.5 mr-1">m</span>
+            {String(clock.s ?? 0).padStart(2, '0')}<span className="text-[0.48em] font-black text-indigo-200 ml-0.5">s</span>
           </p>
-          <p className="text-[12px] min-[380px]:text-[13px] font-bold text-indigo-200 leading-tight whitespace-nowrap">{notStarted ? 'free' : 'left'}</p>
+          <p className="text-[11px] min-[380px]:text-[12px] font-bold text-indigo-200 leading-tight whitespace-nowrap">{notStarted ? '48 hours free' : 'left'}</p>
         </div>
       </div>
     );
-    if (access.isGuest) right = null;
+    // Guests can also see the Pro plan and price!
   }
 
   return (
@@ -177,6 +201,11 @@ export default function TrialBanner() {
         </div>
        </div>
       </div>
+      {showGuestVerify && (
+        <GuestVerifyModal
+          onClose={() => { setShowGuestVerify(false); refresh(); }}
+        />
+      )}
       {showPaywall && (
         <PaywallModal
           isOpen={showPaywall}

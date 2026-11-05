@@ -36,7 +36,16 @@ export default function PaymentManager() {
     try {
       setLoading(true);
       const data = await paymentService.getAdminSettings();
-      setConfig(data.config);
+      const pass = data.plans?.find(p => p.code === 'pass_6m');
+      setConfig({
+        ...data.config,
+        trialHours: data.config?.trialHours ?? 48,
+        trialLessonLimit: data.config?.trialLessonLimit ?? 7,
+        guestLessonLimit: data.config?.guestLessonLimit ?? 5,
+        passPrice: data.config?.passPrice ?? pass?.amount ?? 99,
+        passOriginalPrice: data.config?.passOriginalPrice ?? pass?.discountedFrom ?? 599,
+        passDays: data.config?.passDays ?? pass?.durationDays ?? 180,
+      });
       setPlans(data.plans || []);
       setAnalytics(data.analytics);
     } catch (err) {
@@ -70,9 +79,18 @@ export default function PaymentManager() {
     try {
       setSaving(true);
       setMessage({ type: '', text: '' });
-      await paymentService.updateAdminSettings(config);
-      setMessage({ type: 'success', text: 'Payment settings saved successfully!' });
-      setTimeout(() => setMessage({ type: '', text: '' }), 4000);
+      await paymentService.updateAdminSettings({
+        ...config,
+        trialHours: Number(config.trialHours),
+        trialLessonLimit: Number(config.trialLessonLimit),
+        guestLessonLimit: Number(config.guestLessonLimit),
+        passPrice: Number(config.passPrice),
+        passOriginalPrice: Number(config.passOriginalPrice),
+        passDays: Number(config.passDays)
+      });
+      setMessage({ type: 'success', text: 'Settings saved! Trial hours and pricing are now live on all apps and web without an app push.' });
+      loadSettings();
+      setTimeout(() => setMessage({ type: '', text: '' }), 5000);
     } catch (err) {
       setMessage({ type: 'error', text: err.response?.data?.message || 'Failed to save settings' });
     } finally {
@@ -258,23 +276,146 @@ export default function PaymentManager() {
       {/* TAB 1: BILLING RULES ENGINE */}
       {activeTab === 'rules' && config && (
         <div className="space-y-8 animate-fade-in">
-          {/* Trial rules are fixed in the backend (services/accessService.js) */}
-          <div className="bg-indigo-50/70 p-6 rounded-3xl border border-indigo-200">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-xl">⏳</span>
-              <h3 className="font-black text-gray-900 text-base">Free Trial &amp; Pass</h3>
+          {/* Live Free Trial & Pricing Configuration */}
+          <div className="bg-white p-6 rounded-3xl border border-indigo-200 shadow-sm space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">⚡</span>
+                  <h3 className="font-black text-gray-900 text-lg">Free Trial &amp; Pro Plan Settings</h3>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Changes made here update instantly on all users' mobile apps and web screens without needing an app release.
+                </p>
+              </div>
+              <span className="self-start sm:self-auto px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+                Live Instant Sync
+              </span>
             </div>
-            <p className="text-xs text-gray-500 mb-4">
-              These rules are enforced by the server. Switch the paywall on and set the mode to Live to apply them to every student; in Admin Only mode they apply only when an admin previews as a student.
-            </p>
-            <ul className="space-y-1.5 text-sm text-gray-800">
-              <li>• The trial starts when the learner plays their first lesson, never on install or sign-up.</li>
-              <li>• It ends after <strong>48 hours</strong> or <strong>7 lessons</strong>, whichever comes first.</li>
-              <li>• Guests can play <strong>5 lessons</strong>, then must create an account to play the remaining 2.</li>
-              <li>• After the trial, lessons already played stay open; new lessons need the pass.</li>
-              <li>• Pass: <strong>₹99</strong> (shown against ₹599) for <strong>6 months</strong> of every lesson. Google Play in the Android app, Razorpay on the website.</li>
-              <li>• The trial follows the learner across logins, devices and reinstalls (Android ID).</li>
-            </ul>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+              {/* 1. Trial Hours */}
+              <div className="p-4 rounded-2xl bg-indigo-50/60 border border-indigo-100">
+                <label className="block text-xs font-black text-indigo-900 uppercase tracking-wider mb-1">
+                  Free Trial Time (Hours)
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="1"
+                    max="720"
+                    value={config.trialHours ?? 48}
+                    onChange={(e) => setConfig({ ...config, trialHours: e.target.value })}
+                    className="w-full h-11 px-3.5 rounded-xl border border-indigo-200 bg-white font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                  <span className="text-xs font-black text-indigo-600 shrink-0">Hours</span>
+                </div>
+                <p className="text-[11px] text-gray-500 mt-1.5 leading-snug">
+                  Starts on the user's first level played. Default: 48h.
+                </p>
+              </div>
+
+              {/* 2. Pro Pass Price */}
+              <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-100">
+                <label className="block text-xs font-black text-amber-900 uppercase tracking-wider mb-1">
+                  Pro Pass Price (₹)
+                </label>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-black text-amber-700 shrink-0">₹</span>
+                  <input
+                    type="number"
+                    min="1"
+                    max="10000"
+                    value={config.passPrice ?? 99}
+                    onChange={(e) => setConfig({ ...config, passPrice: e.target.value })}
+                    className="w-full h-11 px-3.5 rounded-xl border border-amber-200 bg-white font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                </div>
+                <p className="text-[11px] text-gray-500 mt-1.5 leading-snug">
+                  Charged for Pro pass on web &amp; app. Default: ₹99.
+                </p>
+              </div>
+
+              {/* 3. Original / Strikethrough Price */}
+              <div className="p-4 rounded-2xl bg-rose-50/60 border border-rose-100">
+                <label className="block text-xs font-black text-rose-900 uppercase tracking-wider mb-1">
+                  Original Strikethrough (₹)
+                </label>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-black text-rose-700 shrink-0">₹</span>
+                  <input
+                    type="number"
+                    min="1"
+                    max="10000"
+                    value={config.passOriginalPrice ?? 599}
+                    onChange={(e) => setConfig({ ...config, passOriginalPrice: e.target.value })}
+                    className="w-full h-11 px-3.5 rounded-xl border border-rose-200 bg-white font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-rose-500"
+                  />
+                </div>
+                <p className="text-[11px] text-gray-500 mt-1.5 leading-snug">
+                  Shown strikethrough next to live price. Default: ₹599.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 pt-2">
+              {/* 4. Guest Lesson Limit */}
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1">
+                  Guest Lesson Limit
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="50"
+                  value={config.guestLessonLimit ?? 5}
+                  onChange={(e) => setConfig({ ...config, guestLessonLimit: e.target.value })}
+                  className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-white font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <p className="text-[11px] text-gray-500 mt-1.5 leading-snug">
+                  Lessons allowed for guest before account prompt. Default: 5.
+                </p>
+              </div>
+
+              {/* 5. Registered Student Trial Limit */}
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1">
+                  Total Trial Lesson Limit
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="100"
+                  value={config.trialLessonLimit ?? 7}
+                  onChange={(e) => setConfig({ ...config, trialLessonLimit: e.target.value })}
+                  className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-white font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <p className="text-[11px] text-gray-500 mt-1.5 leading-snug">
+                  Max lessons playable during free trial. Default: 7.
+                </p>
+              </div>
+
+              {/* 6. Pass Duration Days */}
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1">
+                  Pass Validity (Days)
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="1"
+                    max="730"
+                    value={config.passDays ?? 180}
+                    onChange={(e) => setConfig({ ...config, passDays: e.target.value })}
+                    className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-white font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <span className="text-xs font-black text-slate-600 shrink-0">Days</span>
+                </div>
+                <p className="text-[11px] text-gray-500 mt-1.5 leading-snug">
+                  Validity granted by one pass. Default: 180 days (6 months).
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Rollout: older Android builds can't run the trial, so they stay open until switched on */}
