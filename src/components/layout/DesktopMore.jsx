@@ -6,6 +6,8 @@ import curriculumService from '../../services/curriculumService';
 import { CalendarIcon } from '../ui/Icons';
 import SimpleLoading from '../ui/SimpleLoading.jsx';
 import { isUserAdmin } from '../../utils/adminCheck.js';
+import ProPlanCard from '../features/Subscription/ProPlanCard.jsx';
+import TrialTestToggle from '../features/Subscription/TrialTestToggle.jsx';
 import { 
   AreaChart, 
   Area, 
@@ -320,6 +322,8 @@ const DesktopMore = ({ stars, weeklyStars }) => {
 
           {/* Right Column: Graphs & Extra Actions */}
           <div className="flex flex-col gap-4 overflow-y-auto no-scrollbar">
+            <ProPlanCard className="shrink-0" />
+            <TrialTestToggle className="shrink-0" />
             <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col h-48 shrink-0">
                <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-wider mb-2">Star Progress (7 Days)</h3>
                <div className="flex-1 w-full -ml-4 mt-1">

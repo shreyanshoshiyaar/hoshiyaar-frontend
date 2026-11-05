@@ -19,6 +19,7 @@ export default function DuolingoChapterView({
   isAdmin = false,
   isMobileLayout = false,
   onModuleClick,
+  isPaywallLocked = null,
   onOpenSubjectModal,
   onOpenChapters,
   availableSubjects = [],
@@ -245,11 +246,14 @@ export default function DuolingoChapterView({
                     completedCompositeKeys.has(key) ||
                     completedCompositeKeys.has(altKey) ||
                     (mod._id && completedIdSet.has(String(mod._id)));
-                  const isActive = !isCompleted && key === firstIncompleteGlobalKey;
-                  const isLocked = !isCompleted && !isActive;
+                  // Pro lock: a normal grey locked lesson with a lock icon; tapping it opens the payment pop-up
+                  const paywalled = Boolean(isPaywallLocked && isPaywallLocked(mod, isCompleted));
+                  const done = isCompleted && !paywalled;
+                  const isActive = !paywalled && !isCompleted && key === firstIncompleteGlobalKey;
+                  const isLocked = !paywalled && !isCompleted && !isActive;
 
-                  const status = isCompleted ? 'completed' : isActive ? 'active' : 'locked';
-                  const canClick = isCompleted || isActive || isAdmin;
+                  const status = paywalled ? 'paywall' : isCompleted ? 'completed' : isActive ? 'active' : 'locked';
+                  const canClick = paywalled || isCompleted || isActive || isAdmin;
 
                   return (
                     <div
@@ -290,7 +294,9 @@ export default function DuolingoChapterView({
                           <div
                             className="absolute inset-0 rounded-full translate-y-[6px]"
                             style={{
-                              backgroundColor: isCompleted
+                              backgroundColor: paywalled
+                              ? '#94A3B8'
+                              : done
                                 ? '#CA8A04'
                                 : isActive
                                 ? '#1D4ED8'
@@ -302,7 +308,9 @@ export default function DuolingoChapterView({
                           <div
                             className="relative w-full h-full rounded-full flex items-center justify-center border border-white/50 shadow-inner"
                             style={{
-                              background: isCompleted
+                              background: paywalled
+                              ? 'linear-gradient(180deg, #E2E8F0 0%, #CBD5E1 100%)'
+                              : done
                                 ? 'linear-gradient(180deg, #FDE047 0%, #FACC15 50%, #EAB308 100%)'
                                 : isActive
                                 ? 'linear-gradient(180deg, #60A5FA 0%, #2563EB 50%, #1D4ED8 100%)'
@@ -310,7 +318,15 @@ export default function DuolingoChapterView({
                             }}
                           >
                             {/* Star Icon (or Lock for locked non-admin) */}
-                            {isLocked && !isAdmin ? (
+                            {paywalled ? (
+                              <svg className="w-7 h-7 sm:w-8 sm:h-8 text-slate-400 drop-shadow-sm" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                  fillRule="evenodd"
+                                  d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 00-7.5 0v3h7.5z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            ) : isLocked && !isAdmin ? (
                               <svg
                                 className="w-7 h-7 sm:w-8 sm:h-8 text-slate-400 drop-shadow-sm"
                                 viewBox="0 0 24 24"
@@ -348,7 +364,9 @@ export default function DuolingoChapterView({
                         <div
                           className="absolute inset-0 rounded-2xl translate-y-[4px]"
                           style={{
-                            backgroundColor: isCompleted
+                            backgroundColor: paywalled
+                              ? '#94A3B8'
+                              : done
                               ? '#B45309'
                               : isActive
                               ? '#1E40AF'
@@ -360,12 +378,16 @@ export default function DuolingoChapterView({
                         <div
                           className="relative rounded-2xl px-3.5 py-3 sm:px-4 sm:py-3.5 flex items-center justify-between gap-2.5 border shadow-sm"
                           style={{
-                            backgroundColor: isCompleted
+                            backgroundColor: paywalled
+                              ? '#F1F5F9'
+                              : done
                               ? '#FACC15'
                               : isActive
                               ? '#2563EB'
                               : '#F1F5F9',
-                            borderColor: isCompleted
+                            borderColor: paywalled
+                              ? '#CBD5E1'
+                              : done
                               ? '#EAB308'
                               : isActive
                               ? '#1D4ED8'
@@ -374,7 +396,9 @@ export default function DuolingoChapterView({
                         >
                           <span
                             className={`text-sm sm:text-base font-black leading-snug line-clamp-2 tracking-tight ${
-                              isCompleted
+                              paywalled
+                              ? 'text-slate-600'
+                              : done
                                 ? 'text-yellow-950'
                                 : isActive
                                 ? 'text-white'
@@ -387,7 +411,9 @@ export default function DuolingoChapterView({
                           {/* Reduced Lesson Arrow Size */}
                           <svg
                             className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 font-bold ${
-                              isCompleted
+                              paywalled
+                              ? 'text-slate-400'
+                              : done
                                 ? 'text-yellow-950'
                                 : isActive
                                 ? 'text-white'

@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useMemo, useLayoutEffect, useCallback, useRef } from "react";
 import { useAuth } from "../../../context/AuthContext.jsx";
+import { useAccess } from "../../../context/AccessContext.jsx";
+import { useShowPro } from "../../../hooks/useShowPro.js";
 import { useNavigate, useLocation } from "react-router-dom";
 import heroChar from "../../../assets/images/heroChar.png";
 import RevisionStar from "../quiz/RevisionStar.jsx";
@@ -321,14 +323,14 @@ export const PathNode = React.memo(({ status, onClick, disabled, color = "#2C6DE
     topColor = "#2563EB"; // Blue for next module to start
     bottomColor = "#1D4ED8"; // Darker Blue
   } else if (isPaywallLocked) {
-    topColor = "#F8FAFC"; // Clean Slate for Paywall Locked
-    bottomColor = "#CBD5E1"; // Slate depth
+    topColor = "#E5E7EB"; // same grey as a locked lesson; the lock icon shows it needs the pass
+    bottomColor = "#9CA3AF";
   } else {
     topColor = "#E5E7EB"; // Light Gray (locked)
     bottomColor = "#9CA3AF"; // Darker Gray (locked)
   }
 
-  const iconColor = isPaywallLocked ? "text-amber-500" : isLocked ? "text-gray-400" : "text-white";
+  const iconColor = isPaywallLocked || isLocked ? "text-gray-400" : "text-white";
 
   const sizeBase = "w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 lg:w-22 lg:h-22";
 
@@ -433,6 +435,10 @@ async function findChapterInOtherClasses(cur, board, subject, ownClass, wanted) 
 
 const LearnDashboard = ({ onboardingData }) => {
   const { logout, user, loading: authLoading, updateUser } = useAuth();
+  // Once the trial is over, lessons the learner has not played yet are locked behind the pass
+  const { access, refresh: refreshAccess } = useAccess();
+  const showPro = useShowPro();
+  const playedModuleSet = useMemo(() => new Set(access?.playedModuleIds || []), [access?.playedModuleIds]);
   const { resetModuleLedger, stars, syncFromServer, setTotal } = useStars();
   const navigate = useNavigate();
   const location = useLocation();
@@ -471,7 +477,7 @@ const LearnDashboard = ({ onboardingData }) => {
   // Leaderboard states
   const [leaderboardSchool, setLeaderboardSchool] = useState("");
   const [leaderboardData, setLeaderboardData] = useState([]);
-  const [weeklyLeaderboardData, setWeeklyLeaderboardData] = useState([]);
+  const [homeRankBoard, setHomeRankBoard] = useState([]);
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
   const [leaderboardError, setLeaderboardError] = useState(false);
   const [leaderboardSearched, setLeaderboardSearched] = useState(false);
@@ -1707,24 +1713,25 @@ const LearnDashboard = ({ onboardingData }) => {
     } catch (_) { }
   };
 
-  const fetchWeeklyLeaderboard = useCallback(async (schoolName) => {
-    if (!schoolName?.trim()) return;
+  // Home-screen rank: the all-time points board for the learner's school (overall when no
+  // school is set), built exactly like the Leaderboard tab so the two show the same number
+  const fetchHomeRankBoard = useCallback(async (schoolName) => {
     try {
-      const response = await authService.getLeaderboard(schoolName, 'weekly');
+      const response = await authService.getLeaderboard(schoolName?.trim() ? schoolName : null, 'total', 'points');
       let data = response?.data?.leaderboard || [];
-      
+
       if (user && !data.find(u => u.username === user.username)) {
         data.push({
           username: user.username,
           name: user.name || user.username,
           school: user.school || schoolName,
-          totalPoints: weeklyStarsRef.current || 0
+          totalPoints: starsRef.current || 0
         });
       }
       data.sort((a, b) => (b.totalPoints || 0) - (a.totalPoints || 0));
-      setWeeklyLeaderboardData(data);
+      setHomeRankBoard(data);
     } catch (error) {
-      console.error('Weekly leaderboard fetch failed:', error);
+      console.error('Home rank leaderboard fetch failed:', error);
     }
   }, [user?._id, user?.username, user?.school]);
 
@@ -1837,9 +1844,10 @@ const LearnDashboard = ({ onboardingData }) => {
       const fetchSchool = leaderboardScope === 'global' ? null : activeSchool;
       // Also pass the metric to the fetch call so it correctly respects state changes
       fetchLeaderboard(fetchSchool, leaderboardTimeframe, leaderboardScope, leaderboardMetric);
-      fetchWeeklyLeaderboard(fetchSchool);
+      // The home rank always uses the learner's own school, whatever the Ranks tab is set to
+      fetchHomeRankBoard(activeSchool);
     }
-  }, [user?.school, isChangingSchool, leaderboardTimeframe, leaderboardScope, leaderboardMetric, fetchLeaderboard, fetchWeeklyLeaderboard]);
+  }, [user?.school, isChangingSchool, leaderboardTimeframe, leaderboardScope, leaderboardMetric, fetchLeaderboard, fetchHomeRankBoard]);
 
   // Reset to points as default when navigating to ranks
   useEffect(() => {
@@ -2126,7 +2134,7 @@ const LearnDashboard = ({ onboardingData }) => {
                   setIsMobileMenuOpen(false);
                   navigate("/subscription");
                 }}
-                className="hidden"
+                className={showPro ? "flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors text-gray-600 hover:bg-blue-50" : "hidden"}
               >
                 <NavProIcon active={false} />
                 <div className="flex items-center justify-between flex-1">
@@ -2201,7 +2209,7 @@ const LearnDashboard = ({ onboardingData }) => {
           <a
               href="#"
               onClick={(e) => { e.preventDefault(); navigate('/subscription'); }}
-              className="hidden"
+              className={showPro ? `flex items-center gap-3 py-2 px-3.5 rounded-xl text-base font-bold transition-colors ${activeTab === 'subscription' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}` : 'hidden'}
             >
               <NavProIcon active={activeTab === 'subscription'} />
               <div className="flex items-center justify-between flex-1">
@@ -2247,7 +2255,7 @@ const LearnDashboard = ({ onboardingData }) => {
               user={user} 
               stars={stars} 
               weeklyStars={weeklyStars} 
-              leaderboardData={weeklyLeaderboardData} 
+              leaderboardData={homeRankBoard} 
               chaptersList={chaptersList} 
               chapterStats={chapterStats} 
               currentChapterId={chapterId} 
@@ -2264,7 +2272,7 @@ const LearnDashboard = ({ onboardingData }) => {
               user={user} 
               stars={stars} 
               weeklyStars={weeklyStars} 
-              leaderboardData={weeklyLeaderboardData} 
+              leaderboardData={homeRankBoard} 
               chaptersList={chaptersList} 
               chapterStats={chapterStats} 
               currentChapterId={chapterId} 
@@ -2552,13 +2560,13 @@ const LearnDashboard = ({ onboardingData }) => {
                                 const isFreeLesson = index < chapterFreeLessons;
                                 const isChapterPurchased = chapterId && purchasedChapterSet.has(String(chapterId));
                                 const isPurchased = (mod?._id && purchasedModuleSet.has(String(mod._id))) || Boolean(isChapterPurchased);
-                                const isPaywallLocked = false;
+                                const isPaywallLocked = Boolean(access?.locked && mod?._id && !isCompleted && !playedModuleSet.has(String(mod._id)) && (!isAdmin || access?.testView));
 
                                 let status = "locked";
-                                if (isCompleted) {
-                                  status = "completed";
-                                } else if (isPaywallLocked) {
+                                if (isPaywallLocked) {
                                   status = "locked";
+                                } else if (isCompleted) {
+                                  status = "completed";
                                 } else if (index === firstIncompleteGlobal) {
                                   status = "active";
                                 }
@@ -2599,7 +2607,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                               chapterTitle: activeChapterObj?.title || '',
                                               price: chapterPrice
                                             });
-                                            /* setShowPaywallModal(true); bypassed */
+                                            setShowPaywallModal(true);
                                               return;
                                             }
                                             if (status === 'locked' && !isAdmin) {
@@ -2636,7 +2644,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                               chapterTitle: activeChapterObj?.title || '',
                                               price: chapterPrice
                                             });
-                                            /* setShowPaywallModal(true); bypassed */
+                                            setShowPaywallModal(true);
                                               return;
                                             }
                                             if (status === 'locked' && !isAdmin) {
@@ -2789,7 +2797,16 @@ const LearnDashboard = ({ onboardingData }) => {
                               completedIdSet={completedIdSet}
                               isAdmin={user?.role === 'admin' && adminViewMode !== 'student'}
                               isMobileLayout={isMobileLayout}
+                              // Same rule as the classic map: once the trial is over, lessons not played need the pass
+                              isPaywallLocked={(mod, isCompleted) => Boolean(
+                                access?.locked && mod?._id && !isCompleted && !playedModuleSet.has(String(mod._id)) &&
+                                (!(user?.role === 'admin' && adminViewMode !== 'student') || access?.testView)
+                              )}
                               onModuleClick={(mod, u, status) => {
+                                if (status === 'paywall') {
+                                  setShowPaywallModal(true);
+                                  return;
+                                }
                                 if (status === 'locked' && !(user?.role === 'admin' && adminViewMode !== 'student')) {
                                   setShowProgressionWarning(true);
                                   return;
@@ -2989,13 +3006,13 @@ const LearnDashboard = ({ onboardingData }) => {
                                        const isFreeLesson = index < chapterFreeLessons;
                                        const isChapterPurchased = chapterId && purchasedChapterSet.has(String(chapterId));
                                        const isPurchased = (mod?._id && purchasedModuleSet.has(String(mod._id))) || Boolean(isChapterPurchased);
-                                       const isPaywallLocked = false;
+                                       const isPaywallLocked = Boolean(access?.locked && mod?._id && !isCompleted && !playedModuleSet.has(String(mod._id)) && (!isAdmin || access?.testView));
 
                                        let status = "locked";
-                                       if (isCompleted) {
-                                         status = "completed";
-                                       } else if (isPaywallLocked) {
+                                       if (isPaywallLocked) {
                                          status = "locked";
+                                       } else if (isCompleted) {
+                                         status = "completed";
                                        } else if (index === firstIncompleteForUnit) {
                                          status = "active";
                                        }
@@ -3043,7 +3060,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                                     chapterTitle: activeChapterObj?.title || '',
                                                     price: chapterPrice
                                                   });
-                                                  /* setShowPaywallModal(true); bypassed */
+                                                  setShowPaywallModal(true);
                                               return;
                                             }
                                             if (status === 'locked' && !isAdmin) {
@@ -3075,7 +3092,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                                      chapterTitle: activeChapterObj?.title || '',
                                                      price: chapterPrice
                                                    });
-                                                   /* setShowPaywallModal(true); bypassed */
+                                                   setShowPaywallModal(true);
                                               return;
                                             }
                                             if (status === 'locked' && !isAdmin) {
@@ -3784,12 +3801,8 @@ const LearnDashboard = ({ onboardingData }) => {
             onSuccess={() => {
               setShowPaywallModal(false);
               fetchUserSubStatus();
+              refreshAccess();
             }}
-            chapterId={selectedPaywallModule?.chapterId || chapterId}
-            moduleId={selectedPaywallModule?.id}
-            moduleTitle={selectedPaywallModule?.title}
-            chapterTitle={selectedPaywallModule?.chapterTitle}
-            price={selectedPaywallModule?.price}
           />
         )}
       </div>

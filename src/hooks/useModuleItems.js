@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import curriculumService from '../services/curriculumService.js';
 
-export function useModuleItems(moduleNumber) {
+// `enabled: false` holds the fetch back, e.g. until the trial has let the lesson start
+export function useModuleItems(moduleNumber, { enabled = true } = {}) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -9,6 +10,7 @@ export function useModuleItems(moduleNumber) {
   const [refreshCount, setRefreshCount] = useState(0);
 
   useEffect(() => {
+    if (!enabled) return undefined;
     let isMounted = true;
     setLoading(true);
     setError(''); // Clear previous error
@@ -18,7 +20,7 @@ export function useModuleItems(moduleNumber) {
       .catch((e) => { if (isMounted) setError(e.message); })
       .finally(() => { if (isMounted) setLoading(false); });
     return () => { isMounted = false; };
-  }, [moduleNumber, refreshCount]);
+  }, [moduleNumber, refreshCount, enabled]);
 
   const retry = () => setRefreshCount(c => c + 1);
 
