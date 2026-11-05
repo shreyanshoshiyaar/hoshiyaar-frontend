@@ -203,8 +203,8 @@ export default function GuestVerifyModal({ onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-slate-900/60 backdrop-blur-sm p-0 sm:p-4 font-sans select-none">
-      <div className="relative w-full sm:max-w-md bg-white rounded-t-[28px] sm:rounded-[28px] shadow-2xl px-5 pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:pb-7 border border-slate-100 animate-fade-in">
+    <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-slate-900/60 backdrop-blur-sm p-0 sm:p-4 font-sans select-none overflow-y-auto">
+      <div className="relative w-full max-w-md bg-white rounded-t-[28px] sm:rounded-[28px] shadow-2xl px-5 pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:pb-7 border border-slate-100 animate-fade-in overflow-hidden mx-auto">
         
         {/* Close Button */}
         <button
@@ -220,8 +220,15 @@ export default function GuestVerifyModal({ onClose }) {
 
         {/* Top Header */}
         <div className="flex items-center gap-3.5 mb-5 pr-7">
-          <div className="w-15 h-15 rounded-2xl bg-blue-50/80 border border-blue-100 p-1 flex items-center justify-center shrink-0">
-            <img src={HOSHI} alt="Hoshi" className="w-full h-full object-contain" />
+          <div className="w-14 h-14 min-w-[56px] min-h-[56px] max-w-[56px] max-h-[56px] rounded-2xl bg-blue-50/80 border border-blue-100 p-1 flex items-center justify-center shrink-0 overflow-hidden">
+            <img
+              src={HOSHI}
+              alt="Hoshi"
+              width={48}
+              height={48}
+              style={{ width: '48px', height: '48px', objectFit: 'contain' }}
+              className="w-12 h-12 object-contain shrink-0"
+            />
           </div>
           <div className="min-w-0 flex-1">
             <div className="mb-1">
