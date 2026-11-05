@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAccess, trialMsLeft } from '../../../context/AccessContext.jsx';
 import { useAuth } from '../../../context/AuthContext.jsx';
@@ -34,8 +34,8 @@ const clockParts = (ms) => {
 };
 
 /**
- * TrialPromoModal: High-converting, non-intrusive modal that pops up 2-3 times max
- * on app open / returning to the Home screen during the 48-hour free trial.
+ * TrialPromoModal: Non-intrusive modal showing live trial time and Pro deal.
+ * Appears when landing on Home during the free trial and automatically goes off in 6 seconds.
  */
 export default function TrialPromoModal({ isOpen, onClose }) {
   const { access, refresh } = useAccess();
@@ -45,6 +45,26 @@ export default function TrialPromoModal({ isOpen, onClose }) {
 
   const [showGuestVerify, setShowGuestVerify] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
+  const [autoDismissSecs, setAutoDismissSecs] = useState(6);
+
+  // 6-second auto-dismiss countdown
+  useEffect(() => {
+    if (!isOpen || showGuestVerify || showPaywall) return;
+    setAutoDismissSecs(6);
+
+    const interval = setInterval(() => {
+      setAutoDismissSecs((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          onClose?.();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isOpen, showGuestVerify, showPaywall, onClose]);
 
   if (!isOpen || !access || access.state === 'pass') return null;
 
@@ -71,18 +91,27 @@ export default function TrialPromoModal({ isOpen, onClose }) {
           {/* Card inner */}
           <div className="relative overflow-hidden rounded-[30px] bg-gradient-to-br from-[#2E0854] via-[#4C1D95] to-[#1E1B4B] p-6 text-center text-white">
             
+            {/* 6-second auto-dismiss top progress bar */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-white/10 overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-amber-300 via-amber-400 to-amber-200 transition-all duration-1000 ease-linear"
+                style={{ width: `${Math.max(0, (autoDismissSecs / 6) * 100)}%` }}
+              />
+            </div>
+
             {/* Soft decorative background glows */}
             <span className="pointer-events-none absolute -top-12 -left-12 w-48 h-48 rounded-full bg-[radial-gradient(closest-side,rgba(252,211,77,0.22),transparent)]" aria-hidden="true" />
             <span className="pointer-events-none absolute -bottom-16 -right-12 w-52 h-52 rounded-full bg-[radial-gradient(closest-side,rgba(168,85,247,0.35),transparent)]" aria-hidden="true" />
 
-            {/* Close 'X' button */}
+            {/* Close button with seconds remaining */}
             <button
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white/80 hover:text-white flex items-center justify-center text-xs font-bold transition-all cursor-pointer z-20"
+              className="absolute top-3.5 right-3.5 px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white/80 hover:text-white flex items-center gap-1.5 text-[11px] font-bold transition-all cursor-pointer z-20"
             >
-              ✕
+              <span className="text-[10px] text-amber-200 font-mono">{autoDismissSecs}s</span>
+              <span>✕</span>
             </button>
 
             {/* Top Badge */}
@@ -147,13 +176,13 @@ export default function TrialPromoModal({ isOpen, onClose }) {
               <span className="text-lg">→</span>
             </button>
 
-            {/* Secondary CTA: Keep browsing trial */}
+            {/* Secondary CTA: Auto-dismisses in 6s */}
             <button
               type="button"
               onClick={onClose}
               className="text-xs font-semibold text-indigo-200/70 hover:text-white transition-colors cursor-pointer py-1"
             >
-              Continue with Free Trial
+              Continue to Home ({autoDismissSecs}s)
             </button>
 
           </div>
