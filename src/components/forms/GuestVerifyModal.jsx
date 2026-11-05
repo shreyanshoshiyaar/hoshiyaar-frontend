@@ -203,8 +203,8 @@ export default function GuestVerifyModal({ onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-slate-900/60 backdrop-blur-sm p-0 sm:p-4 font-sans select-none overflow-y-auto">
-      <div className="relative w-full max-w-md bg-white rounded-t-[28px] sm:rounded-[28px] shadow-2xl px-5 pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:pb-7 border border-slate-100 animate-fade-in overflow-hidden mx-auto">
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-900/70 backdrop-blur-sm p-3 sm:p-4 font-sans select-none overflow-y-auto overscroll-contain">
+      <div className="relative w-full max-w-md bg-white rounded-[28px] shadow-2xl px-5 pt-6 pb-6 border border-slate-100 animate-fade-in my-auto max-h-[calc(100dvh-2rem)] overflow-y-auto mx-auto">
         
         {/* Close Button */}
         <button

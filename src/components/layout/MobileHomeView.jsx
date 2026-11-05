@@ -11,7 +11,7 @@ export default function MobileHomeView({ stars, myRank, myStreak, chapters, load
   return (
     <div className="w-full font-sans select-none bg-[#F0F6FF]" style={{ paddingBottom: 'calc(88px + env(safe-area-inset-bottom, 0px))' }}>
       <HeaderBar stars={stars} myRank={myRank} myStreak={myStreak} />
-      <div className="px-3 mt-3">
+      <div className="px-3 mt-3 mb-1">
         <TrialBanner />
       </div>
       <HeroSection />
