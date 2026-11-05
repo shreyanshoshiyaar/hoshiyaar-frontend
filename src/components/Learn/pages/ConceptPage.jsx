@@ -20,6 +20,7 @@ import PlayfulBackground from '../quiz/PlayfulBackground.jsx';
 import { getStageInfoForIndex } from '../../../utils/moduleStages.js';
 import { isNewStyleStory } from '../../../utils/comicStyleHelper.js';
 import { isMissionCompleteItem } from '../../../utils/missionCompleteHelper.js';
+import { getCharacterImage, useCharacterImages } from '../../../utils/characterImages.js';
 // Large Lottie files are now fetched from the public folder to avoid build issues
 
 const ComicLightbox = ({ src, alt, onClose }) => {
@@ -125,6 +126,7 @@ const LazyIframe = ({ src, title, className, allow, allowFullScreen }) => {
 };
 
 export default function ConceptPage() {
+  useCharacterImages();
   const navigate = useNavigate();
   const { moduleNumber, index: indexParam } = useParams();
   const index = Number(indexParam || 0);
@@ -1054,18 +1056,20 @@ export default function ConceptPage() {
           </div>
         ) : (
           <>
-            {/* Speaker / Character badge if present */}
-            {item.speaker && (
-              <div className="flex items-center justify-center gap-2 mt-2 sm:mt-4">
-                <span className="px-3.5 py-1 bg-blue-50 text-blue-700 font-extrabold rounded-full text-xs sm:text-sm uppercase tracking-wider border border-blue-200 shadow-sm flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
-                  {item.speaker}
-                </span>
+            {/* Character Avatar at top - Hoshi image in every concept card (as requested) */}
+            <div className="flex justify-center mb-2 sm:mb-3 mt-1 sm:mt-2">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-[22px] sm:rounded-[28px] p-1 bg-white/80 backdrop-blur-xs shadow-md border-2 border-white/80 overflow-hidden flex items-center justify-center flex-shrink-0">
+                <img
+                  src={getCharacterImage(item.speaker || 'hoshi', 'hoshi')}
+                  alt={item.speaker || "Hoshi"}
+                  className="w-full h-full object-cover rounded-[18px] sm:rounded-[24px]"
+                />
               </div>
-            )}
-            {/* Title and Text - mobile optimized, desktop unchanged */}
+            </div>
+
+            {/* Title if present */}
             {item.title && (
-              <h2 className="text-2xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-extrabold text-gray-900 text-center mt-2 sm:mt-4 md:mt-4 text-overflow-fix px-1 sm:px-2">
+              <h2 className="text-2xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-extrabold text-gray-900 text-center mt-1 sm:mt-2 text-overflow-fix px-1 sm:px-2">
                 {item.title}
               </h2>
             )}
@@ -1074,6 +1078,13 @@ export default function ConceptPage() {
                 className="text-lg sm:text-base md:text-lg lg:text-xl xl:text-2xl font-extrabold text-gray-900 leading-relaxed whitespace-pre-wrap text-center text-overflow-fix px-1 sm:px-2"
                 dangerouslySetInnerHTML={{ __html: String(item.text || item.content || '') }}
               />
+            </div>
+
+            {/* Speaker name label at bottom (like second screenshot) */}
+            <div className="flex items-center justify-center mt-3 sm:mt-4 mb-1">
+              <span className="text-xs sm:text-sm font-black text-slate-600 uppercase tracking-wider">
+                {item.speaker || 'Hoshi'}
+              </span>
             </div>
 
             {/* Visual Chalkboard Drawing if available */}
