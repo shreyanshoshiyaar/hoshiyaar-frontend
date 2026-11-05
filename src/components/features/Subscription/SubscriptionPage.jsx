@@ -150,9 +150,27 @@ export default function SubscriptionPage() {
   };
 
   useEffect(() => {
+    if (access?.plan?.amount) {
+      setPlan(prev => ({
+        ...prev,
+        amount: access.plan.amount,
+        discountedFrom: access.plan.discountedFrom || prev.discountedFrom,
+        durationDays: access.plan.durationDays || prev.durationDays
+      }));
+    }
+  }, [access?.plan?.amount, access?.plan?.discountedFrom, access?.plan?.durationDays]);
+
+  useEffect(() => {
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?._id]);
+
+  const faqList = [
+    ['Does the pass renew automatically?', `No. It is a one-time payment of ₹${plan.amount} for 6 months. Nothing is charged again unless you choose to buy another pass.`],
+    ['What happens after 6 months?', 'Lessons you played stay open. You can buy another pass any time to unlock everything again, and if you buy early the new 6 months are added on top.'],
+    ['Will I lose my progress?', 'Never. Your stars, streaks and completed lessons stay with your account on every device.'],
+    ['How can I pay?', 'In the Android app, through Google Play. On the website, through Razorpay with UPI, cards or netbanking.'],
+  ];
 
   const isPreview = import.meta.env.DEV && (!liveAccess || liveAccess.state === 'open');
   const access = isPreview ? previewAccess(now) : liveAccess;
@@ -336,7 +354,7 @@ export default function SubscriptionPage() {
         <section>
           <h2 className="text-[17px] font-black text-slate-900 mb-3 px-1">Questions</h2>
           <div className="rounded-[24px] bg-white border border-slate-100 shadow-sm divide-y divide-slate-100">
-            {FAQ.map(([q, a], i) => (
+            {faqList.map(([q, a], i) => (
               <div key={q}>
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? -1 : i)}
