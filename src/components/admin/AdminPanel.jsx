@@ -338,6 +338,20 @@ const AdminPanel = () => {
               <span>Content</span>
             </button>
             <button
+              onClick={() => setActiveTab('payments')}
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
+                activeTab === 'payments'
+                  ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
+                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
+              }`}
+            >
+              <span className="text-base">💳</span>
+              <span>Payments &amp; Subscriptions</span>
+              <span className="ml-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-300">
+                ⚡ Trial &amp; Price
+              </span>
+            </button>
+            <button
               onClick={() => setActiveTab('glyphs')}
               className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
                 activeTab === 'glyphs'
@@ -412,17 +426,6 @@ const AdminPanel = () => {
             >
               <span className="text-base">⚙️</span>
               <span>System Settings</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('payments')}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
-                activeTab === 'payments'
-                  ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
-                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
-              }`}
-            >
-              <span className="text-base">💳</span>
-              <span>Payments &amp; Subscriptions</span>
             </button>
             <button
               onClick={() => setActiveTab('stories')}
