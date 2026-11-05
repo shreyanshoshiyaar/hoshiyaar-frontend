@@ -24,13 +24,20 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
 
   useEffect(() => {
     if (!isOpen) return;
+    if (access?.plan?.amount) {
+      setPlan(prev => ({
+        ...prev,
+        amount: access.plan.amount,
+        discountedFrom: access.plan.discountedFrom || prev.discountedFrom
+      }));
+    }
     paymentService.getPublicConfig().then(cfg => {
       const pass = cfg?.plans?.find(p => p.code === PASS_PLAN_CODE);
       if (pass) setPlan(pass);
       setMockMode(Boolean(cfg?.mockMode));
     }).catch(() => {});
     if (playBilling) getPassPrice().then(setPlayPrice);
-  }, [isOpen, playBilling]);
+  }, [isOpen, playBilling, access?.plan?.amount, access?.plan?.discountedFrom]);
 
   if (!isOpen) return null;
 
