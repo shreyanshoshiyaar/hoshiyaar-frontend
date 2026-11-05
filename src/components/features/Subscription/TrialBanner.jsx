@@ -168,8 +168,8 @@ export default function TrialBanner() {
          </span>
        )}
        <div className="relative overflow-hidden rounded-[20px] bg-gradient-to-br from-[#3B0764] via-[#4C1D95] to-[#1E1B4B] px-2.5 min-[380px]:px-4 py-3">
-        <span className="pointer-events-none absolute -top-10 -left-6 w-40 h-24 rounded-full bg-white/10 blur-2xl" aria-hidden="true" />
-        <span className="pointer-events-none absolute -bottom-10 right-0 w-36 h-24 rounded-full bg-[#F59E0B]/20 blur-2xl" aria-hidden="true" />
+        <span className="pointer-events-none absolute -top-10 -left-6 w-40 h-24 rounded-full bg-[radial-gradient(closest-side,rgba(255,255,255,0.14),rgba(255,255,255,0))]" aria-hidden="true" />
+        <span className="pointer-events-none absolute -bottom-10 right-0 w-36 h-24 rounded-full bg-[radial-gradient(closest-side,rgba(245,158,11,0.28),rgba(245,158,11,0))]" aria-hidden="true" />
         <div className="relative flex items-center justify-between gap-2 min-[380px]:gap-3">
           {left}
           {right && <div className="w-px self-stretch my-1 bg-gradient-to-b from-transparent via-[#FCD34D]/60 to-transparent" />}

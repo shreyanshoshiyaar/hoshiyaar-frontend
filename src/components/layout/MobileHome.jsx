@@ -11,7 +11,10 @@ const MobileHome = ({
   onNavigateToPractice,
 }) => {
   return (
-    <div className="w-full max-w-full flex-1 min-h-0 bg-[#F0F6FF] font-sans flex flex-col overflow-y-auto overflow-x-hidden md:hidden relative">
+    <div
+      className="w-full max-w-full flex-1 min-h-0 bg-[#F0F6FF] font-sans overflow-y-auto overflow-x-hidden overscroll-contain no-scrollbar md:hidden relative"
+      style={{ WebkitOverflowScrolling: 'touch' }}
+    >
       <HomeProgressCards
         user={user}
         leaderboardData={leaderboardData}

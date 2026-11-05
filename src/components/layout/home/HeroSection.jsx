@@ -16,9 +16,9 @@ export default function HeroSection() {
         <span key={i} className={`absolute w-2 h-3 rounded-sm ${rot}`} style={{ left, top, background: color }} aria-hidden="true" />
       ))}
       {/* soft glow so the characters don't float on a flat colour */}
-      <div className="absolute left-1/2 top-[38%] -translate-x-1/2 w-[85%] h-[55%] rounded-full bg-white/70 blur-2xl" aria-hidden="true" />
+      <div className="absolute left-1/2 top-[38%] -translate-x-1/2 w-[85%] h-[55%] rounded-full bg-[radial-gradient(closest-side,rgba(255,255,255,0.85),rgba(255,255,255,0))]" aria-hidden="true" />
 
-      <img src={squadCharacters} alt="Solve Squad" className="relative w-[96%] h-auto drop-shadow-[0_6px_8px_rgba(76,29,149,0.18)]" />
+      <img src={squadCharacters} alt="Solve Squad" width={824} height={342} className="relative w-[96%] h-auto" decoding="async" />
 
       <h1
         className="relative -mt-2 text-[2.7rem] leading-none tracking-wide text-[#FACC15]"
