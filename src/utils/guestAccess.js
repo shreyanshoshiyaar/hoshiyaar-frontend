@@ -18,6 +18,10 @@ export function getGuestLessons(userId) {
 
 // Lessons already started stay open (so a guest can finish or replay them)
 export function canGuestOpenLesson(userId, lessonId) {
+  // Developer/client preview query param: ?guestPaywall=true forces the 5-lesson modal for inspection
+  if (typeof window !== 'undefined' && window.location.search.includes('guestPaywall=true')) {
+    return false;
+  }
   const played = getGuestLessons(userId);
   return played.includes(String(lessonId)) || played.length < GUEST_LESSON_LIMIT;
 }

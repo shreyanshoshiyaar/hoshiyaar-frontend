@@ -59,7 +59,7 @@ const UnifiedAuth = () => {
 
   // Already signed in (and not mid-celebration): go to lessons
   useEffect(() => {
-    if (user && !doneRef.current) navigate('/learn', { replace: true });
+    if (user && !user.isGuest && !doneRef.current) navigate('/learn', { replace: true });
   }, [user, navigate]);
 
   // Helper to trigger speech bubble pop animation

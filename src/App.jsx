@@ -53,6 +53,7 @@ const About = lazy(() => import('./components/layout/About.jsx'));
 const Contact = lazy(() => import('./components/layout/Contact.jsx'));
 const Disclaimer = lazy(() => import('./components/Legal/Disclaimer.jsx'));
 const DeleteAccountPage = lazy(() => import('./components/features/DeleteAccountPage.jsx'));
+const GuestVerifyModal = lazy(() => import('./components/forms/GuestVerifyModal.jsx'));
 const AndroidForcedInstall = lazy(() => import('./components/layout/AndroidForcedInstall.jsx'));
 const InteractiveStory = lazy(() => import('./components/features/InteractiveStory.jsx'));
 const ExamFlow = lazy(() => import('./components/features/ExamMode/ExamFlow.jsx'));
@@ -365,6 +366,7 @@ function App() {
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/loading" element={<LoadingPage />} />
                 <Route path="/story-demo" element={<InteractiveStory />} />
+                <Route path="/guest-verify-preview" element={<div className="fixed inset-0 bg-[#F0F6FF] flex items-center justify-center"><GuestVerifyModal onClose={() => window.location.href = '/learn'} /></div>} />
                 <Route path="/exam/flow" element={<Navigate to="/learn" replace />} />
                 {/* Home Page Route */}
                 <Route path="/" element={
