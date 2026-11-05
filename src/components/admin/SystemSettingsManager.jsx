@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import curriculumService from '../../services/curriculumService';
+import paymentService from '../../services/paymentService';
 
 const SystemSettingsManager = () => {
   const [missionVideoUrl, setMissionVideoUrl] = useState('');
@@ -12,6 +13,16 @@ const SystemSettingsManager = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
+  const [trialConfig, setTrialConfig] = useState({
+    trialHours: 48,
+    passPrice: 99,
+    passOriginalPrice: 599,
+    guestLessonLimit: 5,
+    trialLessonLimit: 7,
+    passDays: 180,
+  });
+  const [trialSaving, setTrialSaving] = useState(false);
+  const [trialMsg, setTrialMsg] = useState({ text: '', type: '' });
 
   useEffect(() => {
     fetchSettings();
@@ -20,6 +31,21 @@ const SystemSettingsManager = () => {
   const fetchSettings = async () => {
     try {
       setLoading(true);
+      try {
+        const payData = await paymentService.getAdminSettings();
+        const pass = payData?.plans?.find((p) => p.code === 'pass_6m');
+        setTrialConfig({
+          trialHours: payData?.config?.trialHours ?? 48,
+          passPrice: payData?.config?.passPrice ?? pass?.amount ?? 99,
+          passOriginalPrice: payData?.config?.passOriginalPrice ?? pass?.discountedFrom ?? 599,
+          guestLessonLimit: payData?.config?.guestLessonLimit ?? 5,
+          trialLessonLimit: payData?.config?.trialLessonLimit ?? 7,
+          passDays: payData?.config?.passDays ?? pass?.durationDays ?? 180,
+          ...payData?.config,
+        });
+      } catch (e) {
+        console.warn('Could not fetch payment config in SystemSettings', e);
+      }
       const resVideo = await curriculumService.getSetting('mission_video_url');
       if (resVideo.data) {
         setMissionVideoUrl(resVideo.data.value || '');
@@ -253,8 +279,130 @@ const SystemSettingsManager = () => {
     }
   };
 
+  const handleSaveTrialSettings = async () => {
+    try {
+      setTrialSaving(true);
+      setTrialMsg({ text: '', type: '' });
+      await paymentService.updateAdminSettings({
+        ...trialConfig,
+        trialHours: Number(trialConfig.trialHours),
+        passPrice: Number(trialConfig.passPrice),
+        passOriginalPrice: Number(trialConfig.passOriginalPrice),
+        guestLessonLimit: Number(trialConfig.guestLessonLimit),
+        trialLessonLimit: Number(trialConfig.trialLessonLimit),
+        passDays: Number(trialConfig.passDays),
+      });
+      setTrialMsg({ text: 'Free trial duration and Pro pricing updated live across all apps and web! ✨', type: 'success' });
+      setTimeout(() => setTrialMsg({ text: '', type: '' }), 5000);
+    } catch (err) {
+      setTrialMsg({ text: err.response?.data?.message || 'Failed to save trial settings', type: 'error' });
+    } finally {
+      setTrialSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {/* FREE TRIAL TIME & PRICE SETTINGS */}
+      <div className="rounded-3xl p-6 shadow-sm border border-indigo-200 bg-white">
+        <div className="flex items-center justify-between flex-wrap gap-4 border-b border-gray-100 pb-4 mb-5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-indigo-50 text-indigo-600">
+              <span className="text-xl">⚡</span>
+            </div>
+            <div>
+              <h2 className="text-xl font-black text-gray-900 tracking-tight">Free Trial &amp; Pro Plan Settings</h2>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                Changes update instantly in users' apps &amp; web without app release
+              </p>
+            </div>
+          </div>
+          <span className="px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+            Live Instant Sync
+          </span>
+        </div>
+
+        {trialMsg.text && (
+          <div className={`mb-4 p-3.5 rounded-xl text-xs font-bold ${trialMsg.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
+            {trialMsg.text}
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+          {/* Trial Hours */}
+          <div className="p-4 rounded-2xl bg-indigo-50/60 border border-indigo-100">
+            <label className="block text-xs font-black text-indigo-900 uppercase tracking-wider mb-1">
+              Free Trial Time (Hours)
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                min="1"
+                max="720"
+                value={trialConfig.trialHours ?? 48}
+                onChange={(e) => setTrialConfig({ ...trialConfig, trialHours: e.target.value })}
+                className="w-full h-11 px-3.5 rounded-xl border border-indigo-200 bg-white font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+              <span className="text-xs font-black text-indigo-600 shrink-0">Hours</span>
+            </div>
+            <p className="text-[11px] text-gray-500 mt-1.5 leading-snug">
+              Countdown starts on first level played. Default: 48h.
+            </p>
+          </div>
+
+          {/* Pro Pass Price */}
+          <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-100">
+            <label className="block text-xs font-black text-amber-900 uppercase tracking-wider mb-1">
+              Pro Pass Price (₹)
+            </label>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-black text-amber-700 shrink-0">₹</span>
+              <input
+                type="number"
+                min="1"
+                max="10000"
+                value={trialConfig.passPrice ?? 99}
+                onChange={(e) => setTrialConfig({ ...trialConfig, passPrice: e.target.value })}
+                className="w-full h-11 px-3.5 rounded-xl border border-amber-200 bg-white font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+              />
+            </div>
+            <p className="text-[11px] text-gray-500 mt-1.5 leading-snug">
+              Charged for Pro pass on web &amp; app. Default: ₹99.
+            </p>
+          </div>
+
+          {/* Original Strikethrough Price */}
+          <div className="p-4 rounded-2xl bg-rose-50/60 border border-rose-100">
+            <label className="block text-xs font-black text-rose-900 uppercase tracking-wider mb-1">
+              Original Strikethrough (₹)
+            </label>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-black text-rose-700 shrink-0">₹</span>
+              <input
+                type="number"
+                min="1"
+                max="10000"
+                value={trialConfig.passOriginalPrice ?? 599}
+                onChange={(e) => setTrialConfig({ ...trialConfig, passOriginalPrice: e.target.value })}
+                className="w-full h-11 px-3.5 rounded-xl border border-rose-200 bg-white font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-rose-500"
+              />
+            </div>
+            <p className="text-[11px] text-gray-500 mt-1.5 leading-snug">
+              Shown crossed out next to price. Default: ₹599.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-end">
+          <button
+            onClick={handleSaveTrialSettings}
+            disabled={trialSaving}
+            className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-black text-xs uppercase tracking-wider shadow-sm transition-all cursor-pointer"
+          >
+            {trialSaving ? 'Saving...' : '💾 Save Free Trial & Pricing'}
+          </button>
+        </div>
+      </div>
       {/* MAINTENANCE MODE SECTION */}
       <div className={`rounded-3xl p-6 shadow-sm border transition-all ${maintenanceMode ? 'bg-red-50 border-red-200' : 'bg-white border-gray-100'}`}>
         <div className="flex items-center justify-between flex-wrap gap-4">
