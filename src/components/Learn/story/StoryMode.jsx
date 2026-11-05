@@ -1071,6 +1071,8 @@ export default function StoryMode() {
               className="flex-1 overflow-y-auto flex flex-col gap-2.5 sm:gap-3.5 p-1 pr-1 md:pr-2 pb-3 [scrollbar-width:thin] [scrollbar-color:#CBD5E1_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent"
             >
               {elements.map((item, idx) => {
+                const speakerName = String(item.speaker || '').toLowerCase().trim();
+                const isNarrator = speakerName.includes('narrat') || speakerName.includes('caption') || speakerName === 'scene narration';
                 const { avatar, key: speakerKey } = getSpeakerInfo(item.speaker);
                 const isActive = activeItemIndex === idx;
 
@@ -1082,6 +1084,47 @@ export default function StoryMode() {
                   if (k.includes('sharma') || k.includes('arpit') || k.includes('sir')) return 'text-[#0D9488]'; // Teal
                   return 'text-[#1E65FA]'; // Bright vibrant blue (Babloo, Hoshi, etc.)
                 };
+
+                if (isNarrator) {
+                  return (
+                    <div
+                      key={item.id || idx}
+                      ref={el => (itemRefs.current[idx] = el)}
+                      onClick={() => playLineAudio(idx)}
+                      style={{
+                        fontFamily: "'Fredoka', 'Nunito', Trebuchet MS, sans-serif",
+                        transition: "transform .3s cubic-bezier(.2,.9,.3,1), opacity .3s, box-shadow .2s"
+                      }}
+                      className={`w-full p-3.5 sm:p-4 md:p-5 rounded-[16px] sm:rounded-[18px] cursor-pointer bg-[#FEF08A] select-none border-2 border-[#EAB308] shadow-[0_3px_0_0_#CA8A04] transition-all ${
+                        isActive 
+                          ? 'ring-2 ring-amber-400 -translate-y-0.5 shadow-[0_6px_20px_rgba(234,179,8,0.35)]' 
+                          : 'hover:brightness-95 hover:-translate-y-0.5'
+                      }`}
+                    >
+                      {isActive && isPlaying && (
+                        <div className="flex items-center justify-end mb-1">
+                          <span 
+                            style={{ fontFamily: "'Nunito', sans-serif" }}
+                            className="flex items-center gap-1 text-[11px] font-bold text-amber-900 bg-amber-300/80 px-2 py-0.5 rounded-full border border-amber-400/60 animate-pulse"
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-700"></span>
+                            <span>Narrating</span>
+                          </span>
+                        </div>
+                      )}
+                      <p 
+                        style={{ 
+                          fontFamily: "'Fredoka', 'Nunito', Trebuchet MS, sans-serif",
+                          lineHeight: "1.38",
+                          color: "#292524"
+                        }}
+                        className="text-[15px] sm:text-[18px] md:text-[19px] font-medium leading-[1.38] text-[#292524] select-text"
+                      >
+                        {item.text}
+                      </p>
+                    </div>
+                  );
+                }
 
                 return (
                   <div
