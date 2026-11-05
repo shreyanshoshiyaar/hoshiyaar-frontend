@@ -1411,6 +1411,55 @@ export default function BlackboardMode() {
           <div className="w-full max-w-2xl sm:max-w-3xl md:max-w-4xl flex flex-col gap-2 sm:gap-3 mx-auto pb-2">
             {lines.slice(0, currentLineIndex + 1).map((lineItem, lIdx) => {
               const isCurrentLine = lIdx === currentLineIndex;
+              const spkLow = String(lineItem?.speaker || '').toLowerCase().trim();
+              const isNarrator = spkLow.includes('narrat') || spkLow.includes('caption') || spkLow === 'scene narration';
+
+              if (isNarrator) {
+                return (
+                  <div
+                    key={lineItem.id || lineItem._id || lIdx}
+                    onClick={() => {
+                      setCurrentLineIndex(lIdx);
+                      setAnimKey(k => k + 1);
+                      if (lineItem.isEngagement) {
+                        setActiveEngagement(lineItem);
+                      }
+                    }}
+                    className={`w-full p-3 sm:p-4 rounded-[16px] sm:rounded-[18px] cursor-pointer bg-[#FEF08A] select-none border-2 border-[#EAB308] shadow-[0_3px_0_0_#CA8A04] transition-all flex-shrink-0 ${
+                      isCurrentLine
+                        ? 'ring-2 ring-amber-400 -translate-y-0.5 shadow-[0_6px_20px_rgba(234,179,8,0.35)] opacity-100'
+                        : 'opacity-85 hover:opacity-100 hover:-translate-y-0.5'
+                    }`}
+                    style={{
+                      fontFamily: "'Fredoka', 'Nunito', Trebuchet MS, sans-serif",
+                      animation: isCurrentLine ? 'cardSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards' : 'none'
+                    }}
+                  >
+                    {isCurrentLine && isPlaying && !lineItem.isEngagement && (
+                      <div className="flex items-center justify-end mb-1">
+                        <span 
+                          style={{ fontFamily: "'Nunito', sans-serif" }}
+                          className="flex items-center gap-1 text-[11px] font-bold text-amber-900 bg-amber-300/80 px-2 py-0.5 rounded-full border border-amber-400/60 animate-pulse"
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-700"></span>
+                          <span>Speaking</span>
+                        </span>
+                      </div>
+                    )}
+                    <p 
+                      style={{ 
+                        fontFamily: "'Fredoka', 'Nunito', Trebuchet MS, sans-serif",
+                        lineHeight: "1.38",
+                        color: "#292524"
+                      }}
+                      className="text-[15px] sm:text-[18px] md:text-[19px] font-medium leading-[1.38] text-[#292524] select-text"
+                    >
+                      {lineItem?.text || lineItem?.question || ""}
+                    </p>
+                  </div>
+                );
+              }
+
               return (
                 <div
                   key={lineItem.id || lineItem._id || lIdx}
