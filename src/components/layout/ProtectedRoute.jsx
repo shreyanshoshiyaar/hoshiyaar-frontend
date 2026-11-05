@@ -12,14 +12,17 @@ const ProtectedRoute = ({ children }) => {
     return <SimpleLoading />;
   }
 
-  if (!user) {
+  // Preview override: ?guestPaywall=true allows testing the guest modal on any lesson
+  const isGuestTest = typeof window !== 'undefined' && window.location.search.includes('guestPaywall=true');
+
+  if (!user && !isGuestTest) {
     return <Navigate to="/login" replace />;
   }
 
   // Guests can play 5 lessons in total; the gate asks them to verify for the rest
   const lessonId = moduleNumber || moduleId;
-  if (user.isGuest && lessonId) {
-    return <GuestLessonGate userId={user._id} moduleId={lessonId}>{children}</GuestLessonGate>;
+  if (((user && user.isGuest) || isGuestTest) && lessonId) {
+    return <GuestLessonGate userId={user?._id || 'guest_demo'} moduleId={lessonId}>{children}</GuestLessonGate>;
   }
 
   return children;
