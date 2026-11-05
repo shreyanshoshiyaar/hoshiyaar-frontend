@@ -108,6 +108,8 @@ export default function SubscriptionPage() {
   const { access: liveAccess, refresh } = useAccess();
   // Ticks every second on server time, so the countdown is live
   const now = useServerNow();
+  const isPreview = import.meta.env.DEV && (!liveAccess || liveAccess.state === 'open');
+  const access = isPreview ? previewAccess(now) : liveAccess;
 
   const handleBack = () => {
     if (window.history.state && typeof window.history.state.idx === 'number' && window.history.state.idx > 0) {
@@ -172,8 +174,6 @@ export default function SubscriptionPage() {
     ['How can I pay?', 'In the Android app, through Google Play. On the website, through Razorpay with UPI, cards or netbanking.'],
   ];
 
-  const isPreview = import.meta.env.DEV && (!liveAccess || liveAccess.state === 'open');
-  const access = isPreview ? previewAccess(now) : liveAccess;
   const state = access?.state || 'open';
   const hasPass = state === 'pass';
   const inTrial = state === 'trial_active' || state === 'guest_limit' || state === 'trial_not_started';
