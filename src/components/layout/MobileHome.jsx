@@ -11,7 +11,7 @@ const MobileHome = ({
   onNavigateToPractice,
 }) => {
   return (
-    <div className="w-full max-w-full min-h-screen bg-[#F0F6FF] font-sans flex flex-col overflow-y-auto overflow-x-hidden block md:hidden relative">
+    <div className="w-full max-w-full flex-1 min-h-0 bg-[#F0F6FF] font-sans flex flex-col overflow-y-auto overflow-x-hidden md:hidden relative">
       <HomeProgressCards
         user={user}
         leaderboardData={leaderboardData}

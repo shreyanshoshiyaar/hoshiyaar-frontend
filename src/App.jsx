@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import { ReviewProvider } from './context/ReviewContext.jsx';
+import { AccessProvider } from './context/AccessContext.jsx';
 
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
@@ -347,6 +348,7 @@ function App() {
 
   return (
     <AuthProvider>
+      <AccessProvider>
       <ReviewProvider>
           <Router>
             <MaintenancePrompt />
@@ -735,6 +737,7 @@ function App() {
             </Suspense>
           </Router>
         </ReviewProvider>
+      </AccessProvider>
     </AuthProvider>
   );
 }

@@ -6,6 +6,8 @@ import curriculumService from '../../services/curriculumService';
 import { CalendarIcon } from '../ui/Icons';
 import SimpleLoading from '../ui/SimpleLoading.jsx';
 import { isUserAdmin } from '../../utils/adminCheck.js';
+import ProPlanCard from '../features/Subscription/ProPlanCard.jsx';
+import TrialTestToggle from '../features/Subscription/TrialTestToggle.jsx';
 import { 
   AreaChart, 
   Area, 
@@ -200,6 +202,10 @@ const MobileMore = ({ stars, weeklyStars }) => {
              <p className="text-gray-500 font-bold text-[10px] mt-1 leading-snug">Manage your account details and view your progress.</p>
            </div>
         </div>
+
+        {/* HoshiYaar Pro: trial / pass status and plan */}
+        <ProPlanCard />
+        <TrialTestToggle />
 
         {/* Daily Progress Graph */}
         <div>

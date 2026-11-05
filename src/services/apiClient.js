@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { getApiBase } from '../utils/apiBase.js';
 import { logDev, warnDev } from '../utils/logger.js';
+import { getDeviceId } from '../utils/deviceId.js';
 
 /**
  * Centralized API client for all backend communication.
@@ -49,6 +50,17 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  // Tells the backend this build runs the free trial (older Android builds send nothing)
+  config.headers = config.headers || {};
+  config.headers['x-hy-client'] = '2';
+
+  // Lets the backend keep a guest's free trial across reinstalls
+  const deviceId = getDeviceId();
+  if (deviceId) {
+    config.headers = config.headers || {};
+    config.headers['x-device-id'] = deviceId;
   }
 
   return config;

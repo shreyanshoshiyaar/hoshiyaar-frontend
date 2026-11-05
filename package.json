@@ -22,6 +22,7 @@
     "@capacitor/haptics": "^8.0.2",
     "@capacitor/push-notifications": "^8.1.1",
     "@capgo/capacitor-updater": "^8.50.2",
+    "@capgo/native-purchases": "^8.9.6",
     "@tailwindcss/typography": "^0.5.19",
     "axios": "^1.12.2",
     "canvas-confetti": "^1.9.3",

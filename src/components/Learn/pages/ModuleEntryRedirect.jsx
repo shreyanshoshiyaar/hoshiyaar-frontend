@@ -8,7 +8,7 @@ import { getLearningParams } from '../../../utils/analyticsHelpers.js';
 import { trackAppError, trackFirstModuleStatus } from '../../../utils/analytics.js';
 import paymentService from '../../../services/paymentService.js';
 import PaywallModal from '../../features/Subscription/PaywallModal.jsx';
-import { isUserAdmin } from '../../../utils/adminCheck.js';
+import { useAccess } from '../../../context/AccessContext.jsx';
 import { isNewStyleStory } from '../../../utils/comicStyleHelper.js';
 import { requestAudioPermissions } from '../../../utils/audioPreloadService.js';
 
@@ -16,7 +16,6 @@ export default function ModuleEntryRedirect() {
   const navigate = useNavigate();
   const { moduleNumber } = useParams();
   const location = useLocation();
-  const { items, loading, error, retry } = useModuleItems(moduleNumber);
   const { reset } = useReview();
   const { user } = useAuth();
   const searchSuffix = location.search || '';
@@ -25,10 +24,12 @@ export default function ModuleEntryRedirect() {
   const [resumePathState, setResumePathState] = useState(null);
   const [unsupportedType, setUnsupportedType] = useState(false);
 
-  // Billing & Paywall Gatekeeper State
+  // Trial / pass gatekeeper: the server counts this lesson against the trial or refuses it
   const [accessChecking, setAccessChecking] = useState(true);
-  const [accessData, setAccessData] = useState(null);
   const [showPaywall, setShowPaywall] = useState(false);
+  const [accessAttempt, setAccessAttempt] = useState(0);
+  const { setAccess } = useAccess();
+  const { items, loading, error, retry } = useModuleItems(moduleNumber, { enabled: !accessChecking && !showPaywall });
 
   useEffect(() => {
     // Request audio permissions & unlock audio pipeline early
@@ -39,28 +40,16 @@ export default function ModuleEntryRedirect() {
     let isMounted = true;
     const verifyModuleAccess = async () => {
       if (!moduleNumber) return;
-
-      // In admin-only mode, regular students have 100% free open access with zero paywalls
-      if (!isUserAdmin(user)) {
-        if (!isMounted) return;
-        setAccessData({ hasAccess: true, reason: 'open_access_for_students' });
-        setShowPaywall(false);
-        setAccessChecking(false);
-        return;
-      }
-
       try {
         setAccessChecking(true);
-        const res = await paymentService.checkAccess(moduleNumber);
+        const res = await paymentService.startLesson(moduleNumber);
         if (!isMounted) return;
-        setAccessData(res);
-        if (res && res.hasAccess === false) {
-          setShowPaywall(true);
-        } else {
-          setShowPaywall(false);
-        }
+        if (res?.access) setAccess(res.access);
+        setShowPaywall(res?.hasAccess === false);
       } catch (err) {
-        console.warn('[ModuleEntryRedirect] Access check error, failing open:', err);
+        // Network trouble: carry on; the lesson content endpoint still enforces access
+        console.warn('[ModuleEntryRedirect] start-lesson failed:', err);
+        if (isMounted) setShowPaywall(false);
       } finally {
         if (isMounted) setAccessChecking(false);
       }
@@ -68,7 +57,7 @@ export default function ModuleEntryRedirect() {
 
     verifyModuleAccess();
     return () => { isMounted = false; };
-  }, [moduleNumber]);
+  }, [moduleNumber, accessAttempt, setAccess]);
 
   useEffect(() => {
     // GA4 Tracking: Level Start
@@ -218,21 +207,31 @@ export default function ModuleEntryRedirect() {
     const searchParams = new URLSearchParams(window.location.search);
     const lessonTitle = searchParams.get('title') || 'Lesson';
 
+    const chapterIdParam = searchParams.get('chapterId');
+    const backTo = chapterIdParam ? `/learn?chapterId=${encodeURIComponent(chapterIdParam)}` : '/learn';
     return (
-      <PaywallModal
-        isOpen={true}
-        onClose={() => navigate('/learn')}
-        onSuccess={() => {
-          setShowPaywall(false);
-          setAccessChecking(false);
-        }}
-        moduleId={moduleNumber}
-        moduleTitle={lessonTitle}
-        variant={accessData?.variant || 'hybrid'}
-        plans={accessData?.plans || []}
-        mockMode={accessData?.mockMode}
-        razorpayKeyId={accessData?.razorpayKeyId}
-      />
+      <div className="fixed inset-0 bg-[#F0F6FF]">
+        <PaywallModal
+          isOpen={true}
+          onClose={() => {
+            // A guest who just created an account gets their remaining trial lessons; try again.
+            // login() has already stored the new account, but `user` here is from before it.
+            let nowRegistered = false;
+            try { nowRegistered = JSON.parse(localStorage.getItem('user') || 'null')?.isGuest === false; } catch (_) {}
+            if (user?.isGuest && nowRegistered) {
+              setShowPaywall(false);
+              setAccessAttempt(n => n + 1);
+              return;
+            }
+            navigate(backTo, { replace: true });
+          }}
+          onSuccess={() => {
+            setShowPaywall(false);
+            setAccessAttempt(n => n + 1);
+          }}
+          moduleTitle={lessonTitle}
+        />
+      </div>
     );
   }
 

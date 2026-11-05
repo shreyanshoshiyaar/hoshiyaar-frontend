@@ -1,5 +1,10 @@
 import { api } from './apiClient.js';
 
+const previewHeaders = () => {
+  const previewMode = localStorage.getItem('admin_view_mode') || 'admin';
+  return previewMode === 'student' ? { 'x-admin-preview-mode': 'student' } : {};
+};
+
 export const paymentService = {
   /**
    * Get public payment configuration & active plans
@@ -7,6 +12,44 @@ export const paymentService = {
   async getPublicConfig() {
     const res = await api.get('/api/payments/config');
     return res.data;
+  },
+
+  /**
+   * Trial countdown, lessons left and pass status (all computed from server time)
+   */
+  async getAccess({ reconcile = false } = {}) {
+    const res = await api.get('/api/payments/access', {
+      headers: previewHeaders(),
+      params: reconcile ? { reconcile: 1 } : undefined
+    });
+    return res.data;
+  },
+
+  /**
+   * Opens a lesson. Counts it against the trial; resolves { hasAccess:false, reason, access }
+   * when the trial is over (the server answers 402).
+   */
+  async startLesson(moduleId) {
+    try {
+      const res = await api.post('/api/payments/start-lesson', { moduleId }, { headers: previewHeaders() });
+      return res.data;
+    } catch (err) {
+      if (err.response?.status === 402) return err.response.data;
+      throw err;
+    }
+  },
+
+  /**
+   * Sends a Google Play purchase token for the server to verify with Google
+   */
+  async verifyGooglePurchase({ purchaseToken, productId }) {
+    try {
+      const res = await api.post('/api/payments/google/verify', { purchaseToken, productId });
+      return { ...res.data, httpStatus: res.status };
+    } catch (err) {
+      if (err.response?.data) return { success: false, httpStatus: err.response.status, ...err.response.data };
+      throw err;
+    }
   },
 
   /**
@@ -167,22 +210,6 @@ export const paymentService = {
    */
   async updateChapterSetting(chapterId, data) {
     const res = await api.put(`/api/payments/admin/chapter-settings/${chapterId}`, data);
-    return res.data;
-  },
-
-  /**
-   * Admin: Search users for A/B testing
-   */
-  async searchAbTestUsers(query = '') {
-    const res = await api.get('/api/payments/admin/abtest/users', { params: { search: query } });
-    return res.data;
-  },
-
-  /**
-   * Admin: Toggle a specific user between Free and Paid
-   */
-  async toggleAbTestUser(userId, variant) {
-    const res = await api.post('/api/payments/admin/abtest/toggle-user', { userId, variant });
     return res.data;
   }
 };

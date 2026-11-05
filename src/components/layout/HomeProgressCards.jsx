@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import TrialBanner from '../features/Subscription/TrialBanner.jsx';
+import MobileHomeView from './MobileHomeView.jsx';
 import { useNavigate } from 'react-router-dom';
 import curriculumService from '../../services/curriculumService';
 import { useStars } from '../../context/StarsContext.jsx';
@@ -26,6 +28,7 @@ const HexagonRankIcon = () => (
 export const CATCHY_PALETTES = [
   {
     id: 'emerald',
+    cardBg: 'bg-gradient-to-b from-emerald-50 to-white',
     name: 'Emerald Green',
     dotColor: 'bg-emerald-500',
     cardBorder: 'border-emerald-300 hover:border-emerald-400',
@@ -42,6 +45,7 @@ export const CATCHY_PALETTES = [
   },
   {
     id: 'blue',
+    cardBg: 'bg-gradient-to-b from-sky-50 to-white',
     name: 'Electric Blue',
     dotColor: 'bg-blue-600',
     cardBorder: 'border-blue-300 hover:border-blue-400',
@@ -58,6 +62,7 @@ export const CATCHY_PALETTES = [
   },
   {
     id: 'purple',
+    cardBg: 'bg-gradient-to-b from-purple-50 to-white',
     name: 'Cosmic Violet',
     dotColor: 'bg-purple-600',
     cardBorder: 'border-purple-300 hover:border-purple-400',
@@ -74,6 +79,7 @@ export const CATCHY_PALETTES = [
   },
   {
     id: 'coral',
+    cardBg: 'bg-gradient-to-b from-rose-50 to-white',
     name: 'Sunset Coral',
     dotColor: 'bg-rose-500',
     cardBorder: 'border-rose-300 hover:border-rose-400',
@@ -90,6 +96,7 @@ export const CATCHY_PALETTES = [
   },
   {
     id: 'amber',
+    cardBg: 'bg-gradient-to-b from-amber-50 to-white',
     name: 'Warm Amber',
     dotColor: 'bg-amber-500',
     cardBorder: 'border-amber-300 hover:border-amber-400',
@@ -320,11 +327,11 @@ export default function HomeProgressCards({
   const renderStudyWithFriends = (className) => (
     <button
       onClick={handleShareWhatsApp}
-      className={`relative w-full shrink-0 mt-4 lg:mt-0 mb-1.5 lg:mb-0 overflow-hidden rounded-3xl lg:rounded-2xl bg-[#6D28D9] shadow-[0_6px_0_#4C1D95] active:translate-y-1 active:shadow-[0_2px_0_#4C1D95] transition-all text-left ${className}`}
+      className={`relative w-full shrink-0 mt-4 lg:mt-0 mb-1.5 lg:mb-0 overflow-hidden rounded-3xl lg:rounded-2xl bg-gradient-to-b from-[#FDE047] to-[#F59E0B] border-2 border-[#FCD34D] shadow-[0_6px_0_#B45309] active:translate-y-1 active:shadow-[0_2px_0_#B45309] transition-all text-left ${className}`}
     >
       {/* Faint background silhouette */}
       <svg
-        className="absolute -right-4 -top-2 h-[125%] text-white/10 pointer-events-none"
+        className="absolute -right-4 -top-2 h-[125%] text-white/25 pointer-events-none"
         viewBox="0 0 100 110"
         fill="currentColor"
         aria-hidden="true"
@@ -334,31 +341,24 @@ export default function HomeProgressCards({
       </svg>
 
       <div className="relative flex items-center gap-4 lg:gap-3 py-4 lg:py-2.5 pl-4 pr-10">
-        <div className="w-14 h-14 lg:w-10 lg:h-10 rounded-2xl lg:rounded-xl bg-white flex items-center justify-center shrink-0 shadow-sm">
-          <svg className="w-8 h-8 lg:w-6 lg:h-6 text-[#6D28D9]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <circle cx="6.5" cy="8" r="2.6" />
-            <circle cx="17.5" cy="8" r="2.6" />
-            <path d="M1.5 16c0-2.5 2.2-4.2 5-4.2 1 0 1.9.2 2.7.6A6 6 0 0 0 7.8 16z" />
-            <path d="M22.5 16c0-2.5-2.2-4.2-5-4.2-1 0-1.9.2-2.7.6a6 6 0 0 1 1.4 3.6z" />
-            <circle cx="12" cy="10" r="3.2" />
-            <path d="M5.8 19.5c0-3.2 2.8-5.4 6.2-5.4s6.2 2.2 6.2 5.4z" />
-          </svg>
+        <div className="w-14 h-14 lg:w-10 lg:h-10 rounded-2xl lg:rounded-xl bg-[#6D28D9] flex items-center justify-center shrink-0 shadow-sm text-3xl lg:text-2xl">
+          <span aria-hidden="true">🎮</span>
         </div>
         <div className="min-w-0">
           <div
-            className="text-white text-[1.6rem] lg:text-[1.3rem] leading-tight tracking-wide uppercase"
+            className="text-[#3B0764] text-[1.6rem] lg:text-[1.3rem] leading-tight tracking-wide"
             style={{ fontFamily: "'Bangers', 'Barlow Condensed', Impact, sans-serif" }}
           >
-            Study with Friends
+            Play with Friends
           </div>
-          <div className="font-dialogue text-[0.95rem] lg:text-[0.85rem] text-purple-100 leading-snug mt-0.5">
+          <div className="font-dialogue text-[0.95rem] lg:text-[0.85rem] text-[#5B21B6] leading-snug mt-0.5">
             Add friends and see who studies more this week
           </div>
         </div>
       </div>
 
       <svg
-        className="absolute right-3.5 top-1/2 -translate-y-1/2 w-6 h-6 text-white/70"
+        className="absolute right-3.5 top-1/2 -translate-y-1/2 w-6 h-6 text-[#5B21B6]/70"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -372,20 +372,61 @@ export default function HomeProgressCards({
     </button>
   );
 
+  // Phones get the client's home design; desktop keeps the dashboard layout below
+  if (isMobile) {
+    return (
+      <MobileHomeView
+        stars={stars}
+        myRank={myRank}
+        myStreak={myStreak}
+        chapters={fourChapters}
+        loading={loading}
+        onContinue={handleContinue}
+        onAllLessons={() => (onNavigateToPractice ? onNavigateToPractice() : navigate('/learn'))}
+        onShare={handleShareWhatsApp}
+      />
+    );
+  }
+
   // shrink-0 on the root and every section: inside the h-screen dashboard, flex would otherwise
   // squash and crop the banners instead of letting the page scroll
   return (
     <div className="w-full max-w-full flex flex-col shrink-0 [&>*]:shrink-0 font-sans select-none pb-28 lg:pb-1 pt-2 lg:pt-0 px-2.5 sm:px-6 max-w-5xl lg:max-w-[1400px] lg:flex-1 lg:gap-3 lg:[container-type:inline-size] mx-auto overflow-x-hidden box-border">
       {/* 1. TOP HEADER (Logo) - hidden on desktop, where the sidebar already shows it */}
-      <div className="flex items-center justify-between w-full mb-3 lg:hidden">
-        <div className="flex items-center">
-          <img
-            src="https://res.cloudinary.com/imq5966f/image/upload/v1791543780/img-to-link/bihseec7aigbmau4amnd.png"
-            alt="HoshiYaar Logo"
-            className="h-10 sm:h-12 lg:h-9 w-auto drop-shadow-xs"
-          />
+      <div className="flex items-center justify-between gap-2 w-full mb-3 lg:hidden">
+        <img
+          src="https://res.cloudinary.com/imq5966f/image/upload/v1791543780/img-to-link/bihseec7aigbmau4amnd.png"
+          alt="HoshiYaar Logo"
+          className="h-9 sm:h-12 w-auto drop-shadow-xs shrink-0"
+        />
+        {/* Streak, stars and rank as chips, as in the client's home design */}
+        <div className="flex items-center gap-1 sm:gap-1.5 min-w-0">
+          <span className="flex items-center gap-1 bg-white/95 border border-orange-200 rounded-full pl-1.5 pr-2 py-1 shadow-xs">
+            <span className="text-sm leading-none">🔥</span>
+            <span className="flex flex-col leading-none">
+              <span className="text-[11px] font-black text-gray-800">{myStreak} {myStreak === 1 ? 'Day' : 'Days'}</span>
+              <span className="text-[8px] font-bold text-gray-400 uppercase">Streak</span>
+            </span>
+          </span>
+          <span className="flex items-center gap-1 bg-white/95 border border-yellow-200 rounded-full pl-1.5 pr-2 py-1 shadow-xs">
+            <span className="text-sm leading-none">⭐</span>
+            <span className="flex flex-col leading-none">
+              <span className="text-[11px] font-black text-gray-800">{stars === null ? '…' : Number(stars).toLocaleString('en-IN')}</span>
+              <span className="text-[8px] font-bold text-gray-400 uppercase">Stars</span>
+            </span>
+          </span>
+          <span className="flex items-center gap-1 bg-white/95 border border-purple-200 rounded-full pl-1.5 pr-2 py-1 shadow-xs">
+            <span className="text-sm leading-none">👑</span>
+            <span className="flex flex-col leading-none">
+              <span className="text-[11px] font-black text-gray-800">{myRank === '-' ? '-' : `#${myRank}`}</span>
+              <span className="text-[8px] font-bold text-gray-400 uppercase">Rank</span>
+            </span>
+          </span>
         </div>
       </div>
+
+      {/* Free trial countdown / pass status, kept at the top so the deadline is always visible */}
+      <TrialBanner />
 
       {/* Desktop: banner on the left, stats + Study with Friends stacked on the right */}
       <div className="contents lg:grid lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-3">
@@ -400,7 +441,7 @@ export default function HomeProgressCards({
 
       <div className="contents lg:flex lg:flex-col lg:gap-3 lg:min-h-0">
       {/* 3. STRIP OF RANKS, STARS, STREAKS (a column on desktop) */}
-      <div className="w-full shrink-0 bg-white/95 rounded-[22px] px-3 py-2.5 sm:px-5 sm:py-3 lg:px-6 lg:py-2 shadow-[0_4px_12px_rgba(0,0,0,0.04)] flex lg:flex-col lg:flex-1 lg:min-h-0 justify-between lg:justify-evenly items-center lg:items-stretch border border-white/80 backdrop-blur-md mb-6 lg:mb-0">
+      <div className="w-full shrink-0 bg-white/95 rounded-[22px] px-3 py-2.5 sm:px-5 sm:py-3 lg:px-6 lg:py-2 shadow-[0_4px_12px_rgba(0,0,0,0.04)] hidden lg:flex lg:flex-col lg:flex-1 lg:min-h-0 justify-between lg:justify-evenly items-center lg:items-stretch border border-white/80 backdrop-blur-md mb-6 lg:mb-0">
         {/* Rank */}
         <div className="flex items-center gap-2 lg:gap-4 w-1/3 lg:w-full justify-center lg:justify-start">
           <HexagonRankIcon />
@@ -449,12 +490,12 @@ export default function HomeProgressCards({
       {/* 4. SECTION TITLE + PALETTE PICKER */}
       <div className="flex items-center justify-between mb-3.5 lg:mb-0 px-1">
         <div className="flex items-center gap-3">
-          <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
-            <span>🎯</span> Chapters
+          <h2 className="text-lg sm:text-xl font-black text-[#3B0764] tracking-tight flex items-center gap-2 bg-gradient-to-r from-[#FEF3C7] to-[#FDE68A] border-2 border-[#FCD34D] rounded-full pl-2 pr-4 py-1 shadow-[0_2px_0_0_#F59E0B]">
+            <span className="text-xl">📖</span> Chapters
           </h2>
 
           {/* Quick Color Picker Dots */}
-          <div className="hidden xs:flex items-center gap-1.5 bg-white/80 backdrop-blur-sm border border-slate-200/80 rounded-full px-2 py-1 shadow-2xs">
+          <div className="hidden lg:flex items-center gap-1.5 bg-white/80 backdrop-blur-sm border border-slate-200/80 rounded-full px-2 py-1 shadow-2xs">
             {CATCHY_PALETTES.map((pal, pIdx) => {
               const isSelected = pIdx === activePaletteIndex;
               return (
@@ -473,7 +514,7 @@ export default function HomeProgressCards({
 
         <button
           onClick={() => (onNavigateToPractice ? onNavigateToPractice() : navigate('/learn'))}
-          className="text-xs font-black text-blue-600 hover:text-blue-700 flex items-center gap-1 transition-colors"
+          className="text-xs sm:text-sm font-black text-[#5B21B6] bg-white border-2 border-purple-200 hover:border-purple-300 rounded-full px-3 py-1.5 flex items-center gap-1 shadow-xs transition-colors"
         >
           <span>All Lessons</span>
           <span>→</span>
@@ -515,12 +556,12 @@ export default function HomeProgressCards({
               <div
                 key={ch._id || idx}
                 onClick={() => handleContinue(ch)}
-                className={`relative rounded-2xl sm:rounded-3xl p-2.5 sm:p-4 lg:p-3 lgshort:p-2 border-2 transition-all flex flex-col justify-between cursor-pointer active:translate-y-[2px] bg-white w-full min-w-0 min-h-[170px] sm:min-h-[200px] lg:min-h-[150px] box-border ${palette.cardBorder} ${palette.cardShadow}`}
+                className={`relative rounded-2xl sm:rounded-3xl p-2.5 sm:p-4 lg:p-3 lgshort:p-2 border-2 transition-all flex flex-col justify-between cursor-pointer active:translate-y-[2px] ${palette.cardBg} w-full min-w-0 min-h-[170px] sm:min-h-[200px] lg:min-h-[150px] box-border ${palette.cardBorder} ${palette.cardShadow}`}
               >
                 {/* Top Row: Icon + Status Badge */}
                 <div className="flex items-center justify-between gap-1 w-full">
                   <div
-                    className={`w-8 h-8 sm:w-9 sm:h-9 lg:w-11 lg:h-11 lg:text-2xl lgshort:w-7 lgshort:h-7 lgshort:text-base rounded-xl flex items-center justify-center text-lg sm:text-xl shadow-xs shrink-0 transition-colors ${palette.iconBg}`}
+                    className={`w-11 h-11 sm:w-12 sm:h-12 lg:w-11 lg:h-11 lg:text-2xl lgshort:w-7 lgshort:h-7 lgshort:text-base rounded-2xl flex items-center justify-center text-2xl sm:text-3xl shadow-xs shrink-0 transition-colors ${palette.iconBg}`}
                   >
                     {icon}
                   </div>
@@ -594,9 +635,9 @@ export default function HomeProgressCards({
                       handleContinue(ch);
                     }}
                     className={`w-full py-1.5 sm:py-2 rounded-xl font-black text-xs sm:text-[13px] lgshort:text-xs tracking-wide transition-all active:translate-y-[1px] active:shadow-none flex items-center justify-center gap-1 ${
-                      ch.isInProgress
-                        ? palette.btn
-                        : 'bg-slate-800 hover:bg-slate-900 text-white shadow-[0_3px_0_0_#0F172A]'
+                      ch.isCompleted
+                        ? 'bg-[#0D9488] hover:bg-[#0F766E] text-white shadow-[0_3px_0_0_#115E59]'
+                        : palette.btn
                     }`}
                   >
                     <span>
