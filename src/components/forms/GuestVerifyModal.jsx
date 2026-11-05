@@ -203,66 +203,56 @@ export default function GuestVerifyModal({ onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-slate-900/65 backdrop-blur-md p-0 sm:p-4 font-sans select-none">
-      <div className="relative w-full sm:max-w-md bg-white rounded-t-[32px] sm:rounded-[32px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] px-5 pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:pb-7 border border-slate-100 animate-fade-in">
+    <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-slate-900/60 backdrop-blur-sm p-0 sm:p-4 font-sans select-none">
+      <div className="relative w-full sm:max-w-md bg-white rounded-t-[28px] sm:rounded-[28px] shadow-2xl px-5 pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:pb-7 border border-slate-100 animate-fade-in">
         
         {/* Close Button */}
         <button
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-lg font-bold transition-transform active:scale-90 cursor-pointer z-10"
+          className="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-sm font-bold transition-all cursor-pointer z-10"
         >
-          ✕
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
         </button>
 
-        {/* Top Header Card */}
-        <div className="flex items-center gap-3.5 mb-4 pr-7">
-          <div className="relative shrink-0">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-100 to-indigo-50 border-2 border-blue-200/60 p-1 flex items-center justify-center shadow-inner">
-              <img src={HOSHI} alt="Hoshi" className="w-full h-full object-contain drop-shadow" />
-            </div>
-            <span className="absolute -bottom-1 -right-1 text-sm">⭐</span>
+        {/* Top Header */}
+        <div className="flex items-center gap-3.5 mb-5 pr-7">
+          <div className="w-15 h-15 rounded-2xl bg-blue-50/80 border border-blue-100 p-1 flex items-center justify-center shrink-0">
+            <img src={HOSHI} alt="Hoshi" className="w-full h-full object-contain" />
           </div>
           <div className="min-w-0 flex-1">
-            {/* Pill Badge */}
             <div className="mb-1">
-              {step === 'password' ? (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-blue-100 text-blue-700">
-                  ✨ Account Found
-                </span>
-              ) : step === 'otp-login' ? (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800">
-                  💬 WhatsApp Login
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-800">
-                  🎯 5 Free Lessons Played
-                </span>
-              )}
+              <span className="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-bold tracking-wider uppercase bg-amber-50 text-amber-900 border border-amber-200/80">
+                5 Guest Lessons Played
+              </span>
             </div>
 
-            <h2 className="text-xl font-black text-slate-900 leading-tight">
+            <h2 className="text-xl font-bold text-slate-900 leading-tight">
               {step === 'password'
-                ? (existingUserName ? `Welcome back, ${existingUserName}!` : 'Welcome back!')
+                ? (existingUserName ? `Welcome back, ${existingUserName}` : 'Welcome back')
                 : step === 'otp-login'
-                ? 'Log In with Code'
+                ? 'Log In via WhatsApp'
                 : 'Save Your Progress'}
             </h2>
-            <p className="text-xs text-slate-500 font-semibold leading-relaxed mt-0.5">
+            <p className="text-xs text-slate-500 font-medium leading-relaxed mt-0.5">
               {step === 'password'
-                ? 'Log in to keep your 5 free lessons and unlock all chapters.'
+                ? 'Log in to keep your 5 guest lessons and unlock all chapters.'
                 : step === 'otp-login'
                 ? 'Enter the 6-digit code sent to your WhatsApp.'
-                : 'Verify your number to keep your stars and unlock all lessons.'}
+                : 'Verify your number to keep your progress and unlock all lessons.'}
             </p>
           </div>
         </div>
 
         {/* Error Alert */}
         {error && (
-          <div className="mb-3.5 rounded-2xl bg-red-50 border border-red-200 px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-red-700 flex items-start gap-2 animate-shake">
-            <span className="text-base shrink-0 leading-none">⚠️</span>
+          <div className="mb-4 rounded-xl bg-red-50 border border-red-200 px-3.5 py-2.5 text-xs font-semibold text-red-700 flex items-start gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0 text-red-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
             <span className="flex-1">{error}</span>
           </div>
         )}
@@ -272,18 +262,17 @@ export default function GuestVerifyModal({ onClose }) {
           <form onSubmit={handlePhoneSubmit} className="space-y-4">
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-black uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-[#25D366] inline-block animate-pulse"></span>
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-600">
                   WhatsApp Mobile Number
                 </label>
-                <span className="text-[11px] font-bold text-slate-400">Step 1 of 2</span>
+                <span className="text-[11px] font-semibold text-slate-400">Step 1 of 2</span>
               </div>
               
-              <div className="flex items-center rounded-2xl border-2 border-slate-200 focus-within:border-emerald-500 focus-within:ring-4 focus-within:ring-emerald-100 bg-slate-50/80 px-3.5 h-14 transition-all shadow-xs">
-                <span className="flex items-center gap-1.5 text-base font-black text-slate-700 mr-2 shrink-0 select-none">
-                  <span className="text-lg">🇮🇳</span> +91
+              <div className="flex items-center rounded-xl border border-slate-300 focus-within:border-emerald-600 focus-within:ring-2 focus-within:ring-emerald-100 bg-white px-3.5 h-14 transition-all">
+                <span className="text-sm font-bold text-slate-700 mr-2 shrink-0 select-none">
+                  +91
                 </span>
-                <span className="h-6 w-px bg-slate-200 mr-2.5"></span>
+                <span className="h-5 w-px bg-slate-200 mr-3"></span>
                 <input
                   type="tel"
                   inputMode="numeric"
@@ -291,7 +280,7 @@ export default function GuestVerifyModal({ onClose }) {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                   placeholder="98765 43210"
-                  className="flex-1 bg-transparent outline-none text-lg font-black text-slate-900 tracking-wider placeholder:font-bold placeholder:text-slate-300"
+                  className="flex-1 bg-transparent outline-none text-base font-bold text-slate-900 tracking-wider placeholder:font-normal placeholder:text-slate-400"
                   autoFocus
                 />
               </div>
@@ -300,35 +289,32 @@ export default function GuestVerifyModal({ onClose }) {
             <button
               type="submit"
               disabled={loading || phone.length !== 10}
-              className="w-full h-14 rounded-2xl bg-[#25D366] hover:bg-[#1ebe5b] disabled:opacity-50 text-white font-black text-base shadow-[0_4px_0_#128C7E] active:translate-y-[2px] active:shadow-none transition-all cursor-pointer flex items-center justify-center gap-2"
+              className="w-full h-14 rounded-xl bg-[#25D366] hover:bg-[#20BD5A] disabled:opacity-50 text-white font-bold text-base shadow-sm transition-all cursor-pointer flex items-center justify-center gap-2"
             >
               {loading ? (
-                <span>Checking number…</span>
+                <span>Checking number...</span>
               ) : (
-                <>
-                  <span>Continue with WhatsApp</span>
-                  <span className="text-lg">→</span>
-                </>
+                <span>Continue with WhatsApp</span>
               )}
             </button>
 
-            <div className="pt-1 flex items-center justify-center gap-3 text-center text-xs font-semibold text-slate-400">
-              <span className="flex items-center gap-1">🔒 Fast & Secure</span>
+            <div className="pt-1 flex items-center justify-center gap-3 text-center text-xs font-medium text-slate-400">
+              <span>Secure Verification</span>
               <span>•</span>
-              <span className="flex items-center gap-1">⭐ Progress Kept</span>
+              <span>Progress Saved</span>
               <span>•</span>
-              <span className="flex items-center gap-1">🚫 No Spam</span>
+              <span>No Spam</span>
             </div>
 
             <div className="pt-1 text-center">
               <a
-                href="https://wa.me/918310532323?text=Hi!%20I%20need%20help%20with%20my%20Hoshiyaar%20lessons."
+                href="https://wa.me/918310532323?text=Hi!%20I%20need%20help%20with%20my%20Hoshiyaar%20account."
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors py-1"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors py-1"
               >
                 <span>Need help?</span>
-                <span className="text-[#128C7E] font-black underline flex items-center gap-1">
+                <span className="text-[#128C7E] font-bold underline">
                   Chat on WhatsApp
                 </span>
               </a>
@@ -338,38 +324,35 @@ export default function GuestVerifyModal({ onClose }) {
 
         {/* STEP 2A: Existing User - Password Login */}
         {step === 'password' && (
-          <form onSubmit={handlePasswordLogin} className="space-y-3.5">
+          <form onSubmit={handlePasswordLogin} className="space-y-4">
             {/* Number chip */}
-            <div className="flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-blue-50 border border-blue-200/70 text-xs">
-              <div className="flex items-center gap-2">
-                <span className="text-base">📱</span>
-                <span className="font-bold text-slate-700">Account: <strong>+91 {phone}</strong></span>
-              </div>
+            <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+              <span className="font-semibold text-slate-700">Account: <strong>+91 {phone}</strong></span>
               <button
                 type="button"
                 onClick={() => { setStep('phone'); setError(''); }}
-                className="text-blue-700 hover:text-blue-900 underline font-black cursor-pointer"
+                className="text-blue-600 hover:text-blue-800 font-bold underline cursor-pointer"
               >
                 Change
               </button>
             </div>
 
             <div>
-              <label className="block text-xs font-black uppercase tracking-wider text-slate-600 mb-1.5">Enter Password</label>
-              <div className="flex items-center rounded-2xl border-2 border-slate-200 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100 bg-slate-50/80 px-4 h-14 transition-all">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Enter Password</label>
+              <div className="flex items-center rounded-xl border border-slate-300 focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-100 bg-white px-3.5 h-14 transition-all">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className="flex-1 bg-transparent outline-none text-base font-bold text-slate-900"
+                  className="flex-1 bg-transparent outline-none text-base font-semibold text-slate-900 placeholder:font-normal placeholder:text-slate-400"
                   autoFocus
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="text-xs font-black text-blue-600 hover:text-blue-800 ml-2 px-2 py-1 rounded-md bg-blue-50 cursor-pointer"
+                  className="text-xs font-bold text-slate-600 hover:text-slate-900 px-2 py-1 cursor-pointer"
                 >
                   {showPassword ? 'HIDE' : 'SHOW'}
                 </button>
@@ -379,9 +362,9 @@ export default function GuestVerifyModal({ onClose }) {
             <button
               type="submit"
               disabled={loading || !password}
-              className="w-full h-14 rounded-2xl bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-white font-black text-base shadow-[0_4px_0_#1E3A8A] active:translate-y-[2px] active:shadow-none transition-all cursor-pointer flex items-center justify-center gap-2"
+              className="w-full h-14 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-base shadow-sm transition-all cursor-pointer flex items-center justify-center gap-2"
             >
-              {loading ? 'Logging in…' : 'Log In & Save Progress 🚀'}
+              {loading ? 'Logging in...' : 'Log In & Save Progress'}
             </button>
 
             {/* Alternative: WhatsApp OTP */}
@@ -390,16 +373,15 @@ export default function GuestVerifyModal({ onClose }) {
                 type="button"
                 onClick={handleSendOtpForLogin}
                 disabled={loading}
-                className="w-full py-2.5 px-4 rounded-xl border border-emerald-300 bg-emerald-50/60 hover:bg-emerald-100/60 text-emerald-800 text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-2"
+                className="w-full py-2.5 px-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold transition-all cursor-pointer"
               >
-                <span>💬</span>
-                <span>Forgot password? Log in with WhatsApp Code</span>
+                Forgot password? Log in with WhatsApp Code
               </button>
 
               <button
                 type="button"
                 onClick={() => { setStep('phone'); setError(''); }}
-                className="text-xs font-semibold text-slate-400 hover:text-slate-600 cursor-pointer"
+                className="text-xs font-medium text-slate-500 hover:text-slate-700 cursor-pointer"
               >
                 Use a different phone number
               </button>
@@ -409,23 +391,20 @@ export default function GuestVerifyModal({ onClose }) {
 
         {/* STEP 2B: Existing User - WhatsApp OTP Login */}
         {step === 'otp-login' && (
-          <form onSubmit={handleOtpLogin} className="space-y-3.5">
-            <div className="flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-emerald-50 border border-emerald-200/70 text-xs">
-              <div className="flex items-center gap-2">
-                <span className="text-base">💬</span>
-                <span className="font-bold text-slate-700">Code sent to: <strong>+91 {phone}</strong></span>
-              </div>
+          <form onSubmit={handleOtpLogin} className="space-y-4">
+            <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+              <span className="font-semibold text-slate-700">Code sent to: <strong>+91 {phone}</strong></span>
               <button
                 type="button"
                 onClick={() => { setStep('phone'); setError(''); setOtp(''); }}
-                className="text-emerald-700 hover:text-emerald-900 underline font-black cursor-pointer"
+                className="text-blue-600 hover:text-blue-800 font-bold underline cursor-pointer"
               >
                 Change
               </button>
             </div>
 
             <div>
-              <label className="block text-xs font-black uppercase tracking-wider text-slate-600 mb-1.5">6-Digit WhatsApp Code</label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">6-Digit WhatsApp Code</label>
               <input
                 type="text"
                 inputMode="numeric"
@@ -433,26 +412,26 @@ export default function GuestVerifyModal({ onClose }) {
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                 placeholder="••••••"
-                className="w-full h-14 rounded-2xl border-2 border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 bg-slate-50/80 outline-none text-center text-2xl font-black tracking-[0.5em] text-slate-900 shadow-xs"
+                className="w-full h-14 rounded-xl border border-slate-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 bg-white outline-none text-center text-xl font-bold tracking-[0.4em] text-slate-900 transition-all"
                 autoFocus
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-500 mb-1">Set new password (optional)</label>
-              <div className="flex items-center rounded-2xl border-2 border-slate-200 focus-within:border-blue-500 bg-slate-50 px-3.5 h-12">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Set New Password (Optional)</label>
+              <div className="flex items-center rounded-xl border border-slate-300 focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-100 bg-white px-3.5 h-14 transition-all">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Min 6 characters (optional)"
-                  className="flex-1 bg-transparent outline-none text-sm font-bold text-slate-900"
+                  className="flex-1 bg-transparent outline-none text-base font-semibold text-slate-900 placeholder:font-normal placeholder:text-slate-400"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="text-xs font-black text-blue-600 ml-2"
+                  className="text-xs font-bold text-slate-600 hover:text-slate-900 px-2 py-1 cursor-pointer"
                 >
                   {showPassword ? 'HIDE' : 'SHOW'}
                 </button>
@@ -462,14 +441,14 @@ export default function GuestVerifyModal({ onClose }) {
             <button
               type="submit"
               disabled={loading || otp.length !== 6}
-              className="w-full h-14 rounded-2xl bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-white font-black text-base shadow-[0_4px_0_#1E3A8A] active:translate-y-[2px] active:shadow-none transition-all cursor-pointer"
+              className="w-full h-14 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-base shadow-sm transition-all cursor-pointer"
             >
-              {loading ? 'Verifying…' : 'Verify & Log In'}
+              {loading ? 'Verifying...' : 'Verify & Log In'}
             </button>
 
             <div className="pt-1 flex flex-col gap-2 items-center text-center">
               {resendTimer > 0 ? (
-                <span className="text-xs font-semibold text-slate-400">Resend code in {resendTimer}s</span>
+                <span className="text-xs font-medium text-slate-400">Resend code in {resendTimer}s</span>
               ) : (
                 <button type="button" onClick={handleResend} disabled={loading} className="text-xs font-bold text-blue-600 hover:text-blue-800 underline cursor-pointer">
                   Didn't receive code? Resend
@@ -478,7 +457,7 @@ export default function GuestVerifyModal({ onClose }) {
               <button
                 type="button"
                 onClick={() => { setStep('password'); setError(''); }}
-                className="text-xs font-semibold text-slate-500 hover:text-slate-700 underline cursor-pointer"
+                className="text-xs font-medium text-slate-500 hover:text-slate-700 underline cursor-pointer"
               >
                 Log in with password instead
               </button>
@@ -488,23 +467,20 @@ export default function GuestVerifyModal({ onClose }) {
 
         {/* STEP 2C: New User - Signup OTP + Password */}
         {step === 'code' && (
-          <form onSubmit={handleSignupVerify} className="space-y-3.5">
-            <div className="flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-purple-50 border border-purple-200/70 text-xs">
-              <div className="flex items-center gap-2">
-                <span className="text-base">💬</span>
-                <span className="font-bold text-slate-700">Code sent to: <strong>+91 {phone}</strong></span>
-              </div>
+          <form onSubmit={handleSignupVerify} className="space-y-4">
+            <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+              <span className="font-semibold text-slate-700">Code sent to: <strong>+91 {phone}</strong></span>
               <button
                 type="button"
                 onClick={() => { setStep('phone'); setOtp(''); setError(''); }}
-                className="text-purple-700 hover:text-purple-900 underline font-black cursor-pointer"
+                className="text-blue-600 hover:text-blue-800 font-bold underline cursor-pointer"
               >
                 Change
               </button>
             </div>
 
             <div>
-              <label className="block text-xs font-black uppercase tracking-wider text-slate-600 mb-1.5">6-Digit WhatsApp Code</label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">6-Digit WhatsApp Code</label>
               <input
                 type="text"
                 inputMode="numeric"
@@ -512,44 +488,44 @@ export default function GuestVerifyModal({ onClose }) {
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                 placeholder="••••••"
-                className="w-full h-14 rounded-2xl border-2 border-slate-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 bg-slate-50/80 outline-none text-center text-2xl font-black tracking-[0.5em] text-slate-900 shadow-xs"
+                className="w-full h-14 rounded-xl border border-slate-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 bg-white outline-none text-center text-xl font-bold tracking-[0.4em] text-slate-900 transition-all"
                 autoFocus
               />
             </div>
 
             <div>
-              <label className="block text-xs font-black uppercase tracking-wider text-slate-600 mb-1.5">Create a Password</label>
-              <div className="flex items-center rounded-2xl border-2 border-slate-200 focus-within:border-purple-500 bg-slate-50 px-3.5 h-13">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Create a Password</label>
+              <div className="flex items-center rounded-xl border border-slate-300 focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-100 bg-white px-3.5 h-14 transition-all">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Min 6 characters"
-                  className="flex-1 bg-transparent outline-none text-base font-bold text-slate-900"
+                  className="flex-1 bg-transparent outline-none text-base font-semibold text-slate-900 placeholder:font-normal placeholder:text-slate-400"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="text-xs font-black text-purple-600 ml-2"
+                  className="text-xs font-bold text-slate-600 hover:text-slate-900 px-2 py-1 cursor-pointer"
                 >
                   {showPassword ? 'HIDE' : 'SHOW'}
                 </button>
               </div>
-              <p className="text-[11px] font-semibold text-slate-400 mt-1">You'll use this password to log in next time.</p>
+              <p className="text-[11px] font-medium text-slate-400 mt-1">You will use this password to log in next time.</p>
             </div>
 
             <button
               type="submit"
               disabled={loading || otp.length !== 6 || password.length < 6}
-              className="w-full h-14 rounded-2xl bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-white font-black text-base shadow-[0_4px_0_#1E3A8A] active:translate-y-[2px] active:shadow-none transition-all cursor-pointer flex items-center justify-center gap-2"
+              className="w-full h-14 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-base shadow-sm transition-all cursor-pointer flex items-center justify-center"
             >
-              {loading ? 'Creating account…' : 'Unlock All Lessons 🚀'}
+              {loading ? 'Creating account...' : 'Unlock All Lessons'}
             </button>
 
             <div className="pt-1 text-center">
               {resendTimer > 0 ? (
-                <span className="text-xs font-semibold text-slate-400">Resend code in {resendTimer}s</span>
+                <span className="text-xs font-medium text-slate-400">Resend code in {resendTimer}s</span>
               ) : (
                 <button type="button" onClick={handleResend} disabled={loading} className="text-xs font-bold text-blue-600 hover:text-blue-800 underline cursor-pointer">
                   Didn't receive code? Resend
