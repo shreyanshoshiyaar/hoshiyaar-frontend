@@ -1,10 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAccess, trialMsLeft } from '../../../context/AccessContext.jsx';
-import { useAuth } from '../../../context/AuthContext.jsx';
 import { useServerNow } from '../../../hooks/useServerNow.js';
-import GuestVerifyModal from '../../forms/GuestVerifyModal.jsx';
-import PaywallModal from './PaywallModal.jsx';
 
 const StopwatchIcon = ({ className = '' }) => (
   <svg viewBox="0 0 48 48" className={className} aria-hidden="true">
@@ -14,14 +10,18 @@ const StopwatchIcon = ({ className = '' }) => (
         <stop offset="55%" stopColor="#F59E0B" />
         <stop offset="100%" stopColor="#B45309" />
       </linearGradient>
+      <linearGradient id="ringGlow" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stopColor="#FDE68A" stopOpacity="0.8" />
+        <stop offset="100%" stopColor="#F59E0B" stopOpacity="0.2" />
+      </linearGradient>
     </defs>
     <rect x="19" y="2" width="10" height="5" rx="2" fill="url(#promoGold)" />
     <rect x="22" y="6" width="4" height="5" fill="#D97706" />
     <rect x="35" y="9" width="6" height="4" rx="1.5" transform="rotate(45 38 11)" fill="#D97706" />
     <circle cx="24" cy="27" r="18" fill="url(#promoGold)" />
     <circle cx="24" cy="27" r="13.5" fill="#1E1B4B" />
-    <circle cx="24" cy="27" r="13.5" fill="none" stroke="#FDE68A" strokeOpacity="0.5" strokeWidth="1" />
-    <path d="M24 17v10l6 4" stroke="#FDE68A" strokeWidth="3" strokeLinecap="round" fill="none" />
+    <circle cx="24" cy="27" r="13.5" fill="none" stroke="url(#ringGlow)" strokeWidth="1.5" />
+    <path d="M24 18v9l5.5 3.5" stroke="#FDE68A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
   </svg>
 );
 
@@ -33,38 +33,56 @@ const clockParts = (ms) => {
   return { h, m, s };
 };
 
+const AUTO_DISMISS_SECONDS = 5;
+
 /**
- * TrialPromoModal: Non-intrusive modal showing live trial time and Pro deal.
- * Appears when landing on Home during the free trial and automatically goes off in 6 seconds.
+ * TrialPromoModal: Clean, animated pop-up that only displays the Free Trial timer
+ * and automatically dismisses itself with exit animation after 5 seconds.
  */
 export default function TrialPromoModal({ isOpen, onClose }) {
-  const { access, refresh } = useAccess();
-  const { user } = useAuth();
+  const { access } = useAccess();
   const now = useServerNow();
-  const navigate = useNavigate();
 
-  const [showGuestVerify, setShowGuestVerify] = useState(false);
-  const [showPaywall, setShowPaywall] = useState(false);
-  const [autoDismissSecs, setAutoDismissSecs] = useState(6);
+  const [remainingSecs, setRemainingSecs] = useState(AUTO_DISMISS_SECONDS);
+  const [isExiting, setIsExiting] = useState(false);
+  const timerRef = useRef(null);
+  const exitTimeoutRef = useRef(null);
 
-  // 6-second auto-dismiss countdown
+  // Trigger smooth exit animation before calling onClose
+  const handleDismiss = () => {
+    if (isExiting) return;
+    setIsExiting(true);
+    exitTimeoutRef.current = setTimeout(() => {
+      onClose?.();
+    }, 320); // 320ms matching CSS transition
+  };
+
   useEffect(() => {
-    if (!isOpen || showGuestVerify || showPaywall) return;
-    setAutoDismissSecs(6);
+    if (!isOpen) {
+      setIsExiting(false);
+      setRemainingSecs(AUTO_DISMISS_SECONDS);
+      return;
+    }
+
+    setIsExiting(false);
+    setRemainingSecs(AUTO_DISMISS_SECONDS);
 
     const interval = setInterval(() => {
-      setAutoDismissSecs((prev) => {
+      setRemainingSecs((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
-          onClose?.();
+          handleDismiss();
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, [isOpen, showGuestVerify, showPaywall, onClose]);
+    return () => {
+      clearInterval(interval);
+      if (exitTimeoutRef.current) clearTimeout(exitTimeoutRef.current);
+    };
+  }, [isOpen]);
 
   if (!isOpen || !access || access.state === 'pass') return null;
 
@@ -72,146 +90,105 @@ export default function TrialPromoModal({ isOpen, onClose }) {
   const notStarted = access.state === 'trial_not_started';
   const clock = notStarted ? { h: access.trialHours || 48, m: 0, s: 0 } : clockParts(msLeft);
 
-  const planPrice = access?.plan?.amount ?? 99;
-  const planOriginalPrice = access?.plan?.discountedFrom ?? 599;
-
-  const handleGoPro = () => {
-    if (access?.isGuest || user?.isGuest) {
-      setShowGuestVerify(true);
-      return;
-    }
-    setShowPaywall(true);
-  };
+  const progressPercent = Math.max(0, (remainingSecs / AUTO_DISMISS_SECONDS) * 100);
 
   return (
-    <>
-      <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-950/75 backdrop-blur-md p-4 font-sans select-none animate-fade-in">
-        <div className="relative w-full max-w-sm rounded-[32px] p-[2.5px] bg-gradient-to-br from-[#FDE68A] via-[#F59E0B] to-[#B45309] shadow-[0_20px_50px_rgba(76,29,149,0.5)] animate-in zoom-in-95 duration-300">
+    <div
+      onClick={handleDismiss}
+      className={`fixed inset-0 z-[10000] flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 font-sans select-none transition-opacity duration-300 ${
+        isExiting ? 'opacity-0' : 'opacity-100'
+      }`}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className={`relative w-full max-w-xs sm:max-w-sm rounded-[32px] p-[2.5px] bg-gradient-to-br from-[#FDE68A] via-[#F59E0B] to-[#B45309] shadow-[0_24px_60px_rgba(76,29,149,0.55)] transition-all duration-300 transform ${
+          isExiting
+            ? 'scale-90 opacity-0 translate-y-3'
+            : 'scale-100 opacity-100 translate-y-0 animate-in zoom-in-95 ease-out'
+        }`}
+      >
+        {/* Card inner */}
+        <div className="relative overflow-hidden rounded-[30px] bg-gradient-to-br from-[#2E0854] via-[#4C1D95] to-[#1E1B4B] px-6 py-6 text-center text-white">
           
-          {/* Card inner */}
-          <div className="relative overflow-hidden rounded-[30px] bg-gradient-to-br from-[#2E0854] via-[#4C1D95] to-[#1E1B4B] p-6 text-center text-white">
-            
-            {/* 6-second auto-dismiss top progress bar */}
-            <div className="absolute top-0 left-0 right-0 h-1 bg-white/10 overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-amber-300 via-amber-400 to-amber-200 transition-all duration-1000 ease-linear"
-                style={{ width: `${Math.max(0, (autoDismissSecs / 6) * 100)}%` }}
-              />
-            </div>
-
-            {/* Soft decorative background glows */}
-            <span className="pointer-events-none absolute -top-12 -left-12 w-48 h-48 rounded-full bg-[radial-gradient(closest-side,rgba(252,211,77,0.22),transparent)]" aria-hidden="true" />
-            <span className="pointer-events-none absolute -bottom-16 -right-12 w-52 h-52 rounded-full bg-[radial-gradient(closest-side,rgba(168,85,247,0.35),transparent)]" aria-hidden="true" />
-
-            {/* Close button with seconds remaining */}
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close"
-              className="absolute top-3.5 right-3.5 px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white/80 hover:text-white flex items-center gap-1.5 text-[11px] font-bold transition-all cursor-pointer z-20"
-            >
-              <span className="text-[10px] text-amber-200 font-mono">{autoDismissSecs}s</span>
-              <span>✕</span>
-            </button>
-
-            {/* Top Badge */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-purple-500/20 border border-amber-300/40 text-amber-300 text-[11px] font-black uppercase tracking-wider mb-4 shadow-sm">
-              <span className="text-sm">👑</span>
-              <span>Exclusive Pro Offer</span>
-            </div>
-
-            {/* Stopwatch & Big Live Timer Box */}
-            <div className="flex flex-col items-center justify-center p-4 rounded-2xl bg-white/5 border border-white/10 mb-4 backdrop-blur-xs">
-              <div className="flex items-center gap-2 mb-1">
-                <StopwatchIcon className="w-6 h-6 shrink-0" />
-                <span className="text-xs font-black uppercase tracking-[0.18em] text-amber-300">
-                  {notStarted ? '48-Hour Free Trial' : 'Free Trial Ending Soon'}
-                </span>
-              </div>
-
-              {/* Huge Live Clock */}
-              <p className="font-black tabular-nums tracking-tight text-3xl sm:text-4xl text-white leading-none my-1">
-                {clock.h > 0 && (
-                  <>
-                    {clock.h}<span className="text-sm font-black text-indigo-200 ml-0.5 mr-1.5">h</span>
-                  </>
-                )}
-                {String(clock.m).padStart(clock.h > 0 ? 2 : 1, '0')}<span className="text-sm font-black text-indigo-200 ml-0.5 mr-1.5">m</span>
-                {String(clock.s ?? 0).padStart(2, '0')}<span className="text-sm font-black text-indigo-200 ml-0.5">s</span>
-              </p>
-
-              <span className="text-[12px] font-bold text-indigo-200/80">
-                {notStarted ? 'Starts on your first lesson' : 'Remaining to unlock special relaunch pricing'}
-              </span>
-            </div>
-
-            {/* Headline & Value Prop */}
-            <h3 className="text-xl font-black text-white leading-tight mb-1.5">
-              Unlock All Lessons &amp; Chapters
-            </h3>
-            <p className="text-xs font-medium text-indigo-100/90 leading-relaxed mb-5 px-2">
-              Get full 6-month access to every chapter, story mode, quizzes &amp; boards across Class 6, 7 &amp; 8.
-            </p>
-
-            {/* Pricing Pill */}
-            <div className="flex items-center justify-center gap-2.5 mb-5">
-              <span className="text-3xl font-black text-white tracking-tight leading-none">
-                ₹{planPrice}
-              </span>
-              <span className="text-base font-bold text-white/50 line-through decoration-rose-400 decoration-2">
-                ₹{planOriginalPrice}
-              </span>
-              <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[11px] font-black uppercase tracking-wider">
-                83% OFF
-              </span>
-            </div>
-
-            {/* Main CTA */}
-            <button
-              type="button"
-              onClick={handleGoPro}
-              className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-b from-[#FEF3C7] via-[#FCD34D] to-[#F59E0B] text-[#3B0764] font-black text-base shadow-[0_4px_0_0_#B45309,0_0_24px_rgba(252,211,77,0.5)] active:translate-y-0.5 active:shadow-none hover:brightness-105 transition-all cursor-pointer flex items-center justify-center gap-2 mb-3"
-            >
-              <span>Go Pro Now</span>
-              <span className="text-lg">→</span>
-            </button>
-
-            {/* Secondary CTA: Auto-dismisses in 6s */}
-            <button
-              type="button"
-              onClick={onClose}
-              className="text-xs font-semibold text-indigo-200/70 hover:text-white transition-colors cursor-pointer py-1"
-            >
-              Continue to Home ({autoDismissSecs}s)
-            </button>
-
+          {/* 5-second animated top progress bar */}
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-white/10 overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-200 transition-all duration-1000 ease-linear rounded-r-full shadow-[0_0_8px_rgba(252,211,77,0.7)]"
+              style={{ width: `${progressPercent}%` }}
+            />
           </div>
+
+          {/* Background decorative glows */}
+          <span
+            className="pointer-events-none absolute -top-10 -left-10 w-36 h-36 rounded-full bg-[radial-gradient(closest-side,rgba(252,211,77,0.25),transparent)] animate-pulse"
+            aria-hidden="true"
+          />
+          <span
+            className="pointer-events-none absolute -bottom-10 -right-10 w-40 h-40 rounded-full bg-[radial-gradient(closest-side,rgba(168,85,247,0.35),transparent)]"
+            aria-hidden="true"
+          />
+
+          {/* Close button with remaining seconds */}
+          <button
+            type="button"
+            onClick={handleDismiss}
+            aria-label="Close"
+            className="absolute top-3.5 right-3.5 px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 active:scale-90 text-white/80 hover:text-white flex items-center gap-1.5 text-[11px] font-bold transition-all cursor-pointer z-20"
+          >
+            <span className="text-[10px] text-amber-200 font-mono font-bold">{remainingSecs}s</span>
+            <span>✕</span>
+          </button>
+
+          {/* Top Badge */}
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500/25 to-purple-500/25 border border-amber-300/40 text-amber-300 text-[11px] font-black uppercase tracking-wider mb-3.5 shadow-sm">
+            <span>⏳</span>
+            <span>{notStarted ? 'Free Trial Ready' : 'Free Trial Active'}</span>
+          </div>
+
+          {/* Big Animated Stopwatch */}
+          <div className="relative mx-auto w-20 h-20 mb-3 flex items-center justify-center">
+            {/* Outer pulse ring */}
+            <span className="absolute inset-0 rounded-full bg-amber-400/20 animate-ping opacity-60" />
+            <span className="absolute inset-1 rounded-full bg-gradient-to-tr from-amber-400/30 to-purple-500/30 blur-sm" />
+            <StopwatchIcon className="relative w-16 h-16 drop-shadow-[0_4px_12px_rgba(245,158,11,0.5)] transform hover:scale-105 transition-transform" />
+          </div>
+
+          {/* Title */}
+          <h3 className="text-sm font-black uppercase tracking-[0.2em] text-amber-300 mb-1">
+            {notStarted ? '48-Hour Free Trial' : 'Remaining Free Trial'}
+          </h3>
+
+          {/* Huge Live Timer */}
+          <div className="my-2.5 py-2.5 px-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs">
+            <p className="font-black tabular-nums tracking-tight text-3xl sm:text-4xl text-white leading-none">
+              {clock.h > 0 && (
+                <>
+                  {clock.h}
+                  <span className="text-base font-black text-indigo-200 ml-0.5 mr-1.5">h</span>
+                </>
+              )}
+              {String(clock.m).padStart(clock.h > 0 ? 2 : 1, '0')}
+              <span className="text-base font-black text-indigo-200 ml-0.5 mr-1.5">m</span>
+              {String(clock.s ?? 0).padStart(2, '0')}
+              <span className="text-base font-black text-indigo-200 ml-0.5">s</span>
+            </p>
+          </div>
+
+          {/* Subtitle / Caption */}
+          <p className="text-xs font-semibold text-indigo-200/90 leading-snug mt-2">
+            {notStarted
+              ? 'Starts automatically when you play your first lesson!'
+              : 'Enjoy full access to your lessons during your free trial!'}
+          </p>
+
+          {/* Auto-closing animated indicator pill at bottom */}
+          <div className="mt-4 pt-2 border-t border-white/10 flex items-center justify-center gap-1.5 text-[11px] font-medium text-indigo-200/60">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+            <span>Closes in {remainingSecs}s</span>
+          </div>
+
         </div>
       </div>
-
-      {showGuestVerify && (
-        <GuestVerifyModal
-          onClose={() => {
-            setShowGuestVerify(false);
-            refresh();
-          }}
-        />
-      )}
-
-      {showPaywall && (
-        <PaywallModal
-          isOpen={showPaywall}
-          onClose={() => {
-            setShowPaywall(false);
-            onClose();
-          }}
-          onSuccess={() => {
-            setShowPaywall(false);
-            onClose();
-            navigate('/learn');
-          }}
-        />
-      )}
-    </>
+    </div>
   );
 }
