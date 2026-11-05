@@ -2065,7 +2065,7 @@ const LearnDashboard = ({ onboardingData }) => {
 
   return (
     <ReviewProvider>
-      <div className="bg-gradient-to-b from-[#E6F2FF] to-[#F7FBFF] h-screen flex flex-col md:flex-row overflow-hidden">
+      <div className="bg-gradient-to-b from-[#E6F2FF] to-[#F7FBFF] h-screen flex flex-col md:flex-row overflow-hidden" style={{ height: '100dvh' }}>
         {/* Mobile Header */}
         {/* Mobile Header Removed Per Request */}
 

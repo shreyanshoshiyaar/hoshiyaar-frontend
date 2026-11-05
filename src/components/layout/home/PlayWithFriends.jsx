@@ -16,7 +16,7 @@ const Gamepad = () => (
 // Short yellow "Play with Friends" pill, centred under the chapters; shares the app on WhatsApp
 export default function PlayWithFriends({ onClick }) {
   return (
-    <div className="mt-5 flex justify-center">
+    <div className="mt-5 mb-2 flex justify-center">
       <button
         onClick={onClick}
         className="inline-flex items-center gap-2.5 rounded-full border-[3px] border-white bg-gradient-to-b from-[#FFF176] via-[#FDE047] to-[#FACC15] pl-4 pr-2.5 py-1.5 shadow-[inset_0_-3px_0_rgba(202,138,4,0.45),0_3px_0_0_#EAB308,0_6px_14px_rgba(234,179,8,0.35)] active:translate-y-px transition-transform"

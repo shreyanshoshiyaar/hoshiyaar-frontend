@@ -30,7 +30,7 @@ const artFor = (title = '') => (CHAPTER_ART.find(([re]) => re.test(title)) || [n
 
 export default function ChaptersGrid({ chapters, loading, onContinue, onAllLessons }) {
   return (
-    <div className="mx-3 mt-4 rounded-[24px] bg-white/70 backdrop-blur-md border-2 border-white p-4 shadow-[0_0_0_4px_rgba(191,219,254,0.5),0_8px_24px_rgba(59,130,246,0.18)]">
+    <div className="mx-3 mt-4 rounded-[24px] bg-white/95 border-2 border-white p-4 shadow-[0_0_0_4px_rgba(191,219,254,0.5),0_8px_24px_rgba(59,130,246,0.18)]">
       <div className="flex items-center justify-between mb-3">
         <h2 className="flex items-center gap-1.5 text-[20px] font-black text-slate-900">
           <span>📖</span> Chapters
