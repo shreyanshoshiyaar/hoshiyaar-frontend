@@ -13,6 +13,9 @@ import { isMissionCompleteItem } from '../../../utils/missionCompleteHelper.js';
 import { unlockMobileAudio, prefetchTts, waitForTts } from '../../../utils/audioPreloadService.js';
 import { getCharacterImage, useCharacterImages } from '../../../utils/characterImages.js';
 import { markModuleAsCompleted } from '../../../utils/progressSyncService.js';
+import paymentService from '../../../services/paymentService.js';
+import { useAccess } from '../../../context/AccessContext.jsx';
+import PaywallModal from '../../features/Subscription/PaywallModal.jsx';
 
 const CHARACTER_AVATARS = {
   // Core 4 Characters
@@ -356,6 +359,10 @@ export default function StoryMode() {
   const unitId = searchParams.get('unitId') || '';
 
   const [loading, setLoading] = useState(true);
+  // Set when the trial has ended and this story was not played in it
+  const [paywallBlocked, setPaywallBlocked] = useState(false);
+  const [accessAttempt, setAccessAttempt] = useState(0);
+  const { setAccess } = useAccess();
   const [pages, setPages] = useState([]);
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [rawItemsState, setRawItemsState] = useState([]);
@@ -394,6 +401,20 @@ export default function StoryMode() {
 
         // If not a demo slug, load from backend
         if (targetModuleId && targetModuleId !== 'demo') {
+          // Stories open straight from the chapter map, so count the lesson against the
+          // trial here (as ModuleEntryRedirect does for other lessons) before loading it
+          try {
+            const started = await paymentService.startLesson(targetModuleId);
+            if (!isMounted) return;
+            if (started?.access) setAccess(started.access);
+            if (started?.hasAccess === false) {
+              setPaywallBlocked(true);
+              setLoading(false);
+              return;
+            }
+          } catch (_) {
+            // Network trouble: carry on; the lesson content endpoint still enforces access
+          }
           try {
             const resp = await curriculumService.listCurriculumItems(targetModuleId);
             const rawItems = resp?.data || [];
@@ -546,7 +567,7 @@ export default function StoryMode() {
       isMounted = false;
       stopAudio();
     };
-  }, [targetModuleId, startIndex]);
+  }, [targetModuleId, startIndex, accessAttempt]);
 
   const currentPage = pages[currentPageIndex] || pages[0];
   const rawElements = currentPage?.elements || [];
@@ -951,6 +972,24 @@ export default function StoryMode() {
     if (unitId) params.set('unitId', unitId);
     navigate(`/learn${params.toString() ? '?' + params.toString() : ''}`);
   };
+
+  if (paywallBlocked) {
+    const backToMap = () => {
+      const params = new URLSearchParams();
+      if (chapterId) params.set('chapterId', chapterId);
+      if (unitId) params.set('unitId', unitId);
+      navigate(`/learn${params.toString() ? '?' + params.toString() : ''}`, { replace: true });
+    };
+    return (
+      <div className="fixed inset-0 bg-[#F0F6FF]">
+        <PaywallModal
+          isOpen
+          onClose={backToMap}
+          onSuccess={() => { setPaywallBlocked(false); setAccessAttempt(n => n + 1); }}
+        />
+      </div>
+    );
+  }
 
   if (loading || !currentPage) {
     return (
