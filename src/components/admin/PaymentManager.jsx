@@ -79,7 +79,7 @@ export default function PaymentManager() {
     try {
       setSaving(true);
       setMessage({ type: '', text: '' });
-      await paymentService.updateAdminSettings({
+      const payload = {
         ...config,
         trialHours: Number(config.trialHours),
         trialLessonLimit: Number(config.trialLessonLimit),
@@ -87,11 +87,32 @@ export default function PaymentManager() {
         passPrice: Number(config.passPrice),
         passOriginalPrice: Number(config.passOriginalPrice),
         passDays: Number(config.passDays)
+      };
+      const res = await paymentService.updateAdminSettings(payload);
+      
+      const updatedConfig = {
+        ...config,
+        ...(res?.config || {}),
+        trialHours: res?.config?.trialHours ?? payload.trialHours,
+        passPrice: res?.config?.passPrice ?? payload.passPrice,
+        passOriginalPrice: res?.config?.passOriginalPrice ?? payload.passOriginalPrice,
+        passDays: res?.config?.passDays ?? payload.passDays,
+        guestLessonLimit: res?.config?.guestLessonLimit ?? payload.guestLessonLimit,
+        trialLessonLimit: res?.config?.trialLessonLimit ?? payload.trialLessonLimit,
+      };
+      setConfig(updatedConfig);
+
+      if (res?.plan) {
+        setPlans(prev => prev.map(p => p.code === 'pass_6m' ? { ...p, ...res.plan } : p));
+      }
+
+      setMessage({
+        type: 'success',
+        text: `Settings saved successfully! Pro Pass is now ₹${updatedConfig.passPrice} and Free Trial is ${updatedConfig.trialHours}h.`
       });
-      setMessage({ type: 'success', text: 'Settings saved! Trial hours and pricing are now live on all apps and web without an app push.' });
-      loadSettings();
-      setTimeout(() => setMessage({ type: '', text: '' }), 5000);
+      setTimeout(() => setMessage({ type: '', text: '' }), 6000);
     } catch (err) {
+      console.error(err);
       setMessage({ type: 'error', text: err.response?.data?.message || 'Failed to save settings' });
     } finally {
       setSaving(false);
@@ -415,6 +436,21 @@ export default function PaymentManager() {
                   Validity granted by one pass. Default: 180 days (6 months).
                 </p>
               </div>
+            </div>
+
+            {/* Direct Save Button inside card */}
+            <div className="flex items-center justify-between pt-4 border-t border-gray-100 flex-wrap gap-3">
+              <p className="text-xs text-gray-500 font-semibold">
+                ⚡ Updates trial time and pricing live for all users instantly without app release.
+              </p>
+              <button
+                type="button"
+                disabled={saving}
+                onClick={handleSaveConfig}
+                className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm rounded-2xl shadow-lg shadow-indigo-100 transition-all active:scale-95 disabled:opacity-50 cursor-pointer flex items-center gap-2"
+              >
+                <span>{saving ? 'Saving...' : '💾 Save Free Trial & Price Settings'}</span>
+              </button>
             </div>
           </div>
 
