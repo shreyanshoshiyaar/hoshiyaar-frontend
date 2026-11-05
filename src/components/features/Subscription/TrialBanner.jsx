@@ -163,20 +163,20 @@ export default function TrialBanner() {
     const notStarted = access.state === 'trial_not_started';
     const clock = notStarted ? { h: access.trialHours || 48, m: 0, s: 0 } : clockParts(msLeft);
     left = (
-      <div className="flex items-center gap-1.5 min-[380px]:gap-2.5 shrink-0">
-        <Stopwatch className="w-9 h-9 min-[380px]:w-[48px] min-[380px]:h-[48px] shrink-0" />
+      <div className="flex items-center gap-2 min-[380px]:gap-3 shrink-0">
+        <Stopwatch className="w-11 h-11 min-[380px]:w-[56px] min-[380px]:h-[56px] shrink-0" />
         <div className="min-w-0">
-          <p className="text-[10px] min-[380px]:text-[11px] font-black uppercase tracking-[0.18em] text-[#FCD34D] whitespace-nowrap leading-none mb-1">Free trial</p>
-          <p className={`font-black leading-none tabular-nums text-[1.25rem] min-[360px]:text-[1.5rem] min-[390px]:text-[1.8rem] ${urgent ? 'text-[#FDA4AF]' : 'text-white'}`}>
+          <p className="text-[11px] min-[380px]:text-[13px] font-black uppercase tracking-[0.2em] text-[#FCD34D] whitespace-nowrap leading-none mb-1.5">Free trial</p>
+          <p className={`font-black leading-none tabular-nums text-[1.55rem] min-[360px]:text-[1.85rem] min-[390px]:text-[2.2rem] tracking-tight ${urgent ? 'text-[#FDA4AF]' : 'text-white'}`}>
             {clock.h > 0 && (
               <>
-                {clock.h}<span className="text-[0.48em] font-black text-indigo-200 ml-0.5 mr-1">h</span>
+                {clock.h}<span className="text-[0.52em] font-black text-indigo-200 ml-0.5 mr-1">h</span>
               </>
             )}
-            {String(clock.m).padStart(clock.h > 0 ? 2 : 1, '0')}<span className="text-[0.48em] font-black text-indigo-200 ml-0.5 mr-1">m</span>
-            {String(clock.s ?? 0).padStart(2, '0')}<span className="text-[0.48em] font-black text-indigo-200 ml-0.5">s</span>
+            {String(clock.m).padStart(clock.h > 0 ? 2 : 1, '0')}<span className="text-[0.52em] font-black text-indigo-200 ml-0.5 mr-1">m</span>
+            {String(clock.s ?? 0).padStart(2, '0')}<span className="text-[0.52em] font-black text-indigo-200 ml-0.5">s</span>
           </p>
-          <p className="text-[11px] min-[380px]:text-[12px] font-bold text-indigo-200 leading-tight whitespace-nowrap">{notStarted ? '48 hours free' : 'left'}</p>
+          <p className="text-[12px] min-[380px]:text-[14px] font-bold text-indigo-200 leading-tight whitespace-nowrap mt-0.5">{notStarted ? '48 hours free' : 'left'}</p>
         </div>
       </div>
     );

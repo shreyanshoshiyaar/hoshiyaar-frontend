@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import TrialBanner from '../features/Subscription/TrialBanner.jsx';
+import TrialPromoModal from '../features/Subscription/TrialPromoModal.jsx';
+import { useAccess } from '../../context/AccessContext.jsx';
 import MobileHomeView from './MobileHomeView.jsx';
 import { useNavigate } from 'react-router-dom';
 import curriculumService from '../../services/curriculumService';
@@ -132,6 +134,30 @@ export default function HomeProgressCards({
   const [loading, setLoading] = useState(initialChapters.length === 0);
 
   // Active theme index for rotating or picking base theme
+  const { access } = useAccess();
+  const [showPromoModal, setShowPromoModal] = useState(false);
+
+  useEffect(() => {
+    // Only pop up during active trial (never for paid Pro subscribers or open state)
+    if (!access || access.state === 'pass' || access.state === 'open') return;
+
+    try {
+      const count = parseInt(localStorage.getItem('hy_trial_promo_popup_count') || '0', 10);
+      const lastShown = parseInt(localStorage.getItem('hy_trial_promo_last_shown') || '0', 10);
+      const now = Date.now();
+
+      // Show 2-3 times max (capped at 3), with a 15-minute gap between app visits/returns
+      if (count < 3 && (!lastShown || now - lastShown > 15 * 60 * 1000)) {
+        const timer = setTimeout(() => {
+          setShowPromoModal(true);
+          localStorage.setItem('hy_trial_promo_popup_count', String(count + 1));
+          localStorage.setItem('hy_trial_promo_last_shown', String(Date.now()));
+        }, 1200);
+        return () => clearTimeout(timer);
+      }
+    } catch (_) {}
+  }, [access?.state]);
+
   const [activePaletteIndex, setActivePaletteIndex] = useState(() => {
     const saved = localStorage.getItem('hoshiyaar_home_color_theme');
     const parsed = parseInt(saved, 10);
@@ -375,16 +401,19 @@ export default function HomeProgressCards({
   // Phones get the client's home design; desktop keeps the dashboard layout below
   if (isMobile) {
     return (
-      <MobileHomeView
-        stars={stars}
-        myRank={myRank}
-        myStreak={myStreak}
-        chapters={fourChapters}
-        loading={loading}
-        onContinue={handleContinue}
-        onAllLessons={() => (onNavigateToPractice ? onNavigateToPractice() : navigate('/learn'))}
-        onShare={handleShareWhatsApp}
-      />
+      <>
+        <MobileHomeView
+          stars={stars}
+          myRank={myRank}
+          myStreak={myStreak}
+          chapters={fourChapters}
+          loading={loading}
+          onContinue={handleContinue}
+          onAllLessons={() => (onNavigateToPractice ? onNavigateToPractice() : navigate('/learn'))}
+          onShare={handleShareWhatsApp}
+        />
+        <TrialPromoModal isOpen={showPromoModal} onClose={() => setShowPromoModal(false)} />
+      </>
     );
   }
 
@@ -658,6 +687,7 @@ export default function HomeProgressCards({
 
       {/* 6. STUDY WITH FRIENDS - phones keep it at the bottom; desktop shows it beside the banner */}
       {renderStudyWithFriends('lg:hidden')}
+      <TrialPromoModal isOpen={showPromoModal} onClose={() => setShowPromoModal(false)} />
     </div>
   );
 }
