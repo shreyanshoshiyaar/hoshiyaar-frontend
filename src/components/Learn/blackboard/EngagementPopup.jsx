@@ -89,7 +89,6 @@ export default function EngagementPopup({ item, onComplete }) {
 
   const handleSuccess = () => {
     setIsSuccess(true);
-    playSound(true);
     setTimeout(() => {
       if (onComplete) onComplete();
     }, 700);
@@ -899,23 +898,44 @@ function EngagementMcqContent({ item, onSuccess, onSkip, playSound }) {
     options = item.answer ? [item.answer, 'Option A', 'Option B'] : ['Option A', 'Option B', 'Option C'];
   }
 
-  const rawAns = item.answer != null ? String(item.answer).trim() : '';
-  const hasSpecificAnswer = rawAns.length > 0;
-  const correctAnswer = hasSpecificAnswer ? rawAns.toLowerCase() : null;
+  const resolveCorrectAnswer = () => {
+    const rawAns = item.answer != null ? String(item.answer).trim() : '';
+    if (rawAns.length > 0) return rawAns;
+    if (item.targetWord && String(item.targetWord).trim()) return String(item.targetWord).trim();
 
-    const handleSelect = (opt) => {
+    let react = item.react;
+    if (!react) {
+      const ij = typeof item.inputJson === 'string' ? (() => { try { return JSON.parse(item.inputJson); } catch (_) { return null; } })() : item.inputJson;
+      react = ij?.react;
+    }
+    if (react && typeof react === 'object' && Array.isArray(options) && options.length > 0) {
+      const reactKeys = Object.keys(react).map(k => k.trim().toLowerCase());
+      const unreacted = options.filter(o => !reactKeys.includes(String(o).trim().toLowerCase()));
+      if (unreacted.length === 1) return unreacted[0];
+    }
+    return null;
+  };
+
+  const resolvedAns = resolveCorrectAnswer();
+  const hasSpecificAnswer = resolvedAns != null && resolvedAns.length > 0;
+  const correctAnswer = hasSpecificAnswer ? resolvedAns.toLowerCase() : null;
+
+  const handleSelect = (opt) => {
     setSelectedOpt(opt);
     const cleanOpt = String(opt || '').trim().toLowerCase();
 
-    // If no specific answer is defined in sheet (curiosity question), all options are accepted!
-    const isCorrect = !hasSpecificAnswer || 
-                      cleanOpt === correctAnswer || 
-                      (correctAnswer && (cleanOpt.includes(correctAnswer) || correctAnswer.includes(cleanOpt)));
+    let isCorrect = false;
+    if (hasSpecificAnswer) {
+      isCorrect = cleanOpt === correctAnswer || (correctAnswer && (cleanOpt.includes(correctAnswer) || correctAnswer.includes(cleanOpt)));
+    } else {
+      const react = item.react || (typeof item.inputJson === 'object' ? item.inputJson?.react : null);
+      const isPurePoll = !react || Object.keys(react).length === 0;
+      isCorrect = isPurePoll;
+    }
 
     if (isCorrect) {
       setFeedback('success');
       if (playSound) playSound(true);
-      // Fast auto-advance after 500ms without requiring a manual Continue button
       setTimeout(() => {
         if (onSuccess) onSuccess();
       }, 500);
