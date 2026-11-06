@@ -63,6 +63,8 @@ export default function TrialBanner() {
   const now = useServerNow();
   const [showPaywall, setShowPaywall] = useState(false);
   const [showGuestVerify, setShowGuestVerify] = useState(false);
+  // Must run before the early return below, or React sees a different hook count
+  const navigate = useNavigate();
 
   // Dev builds only: with no live trial (old backend, or trial not enforced) show a
   // sample countdown so the design can be checked. Production never shows this.
@@ -73,7 +75,6 @@ export default function TrialBanner() {
 
   const msLeft = trialMsLeft(access, now);
   const urgent = msLeft != null && msLeft < 6 * 60 * 60 * 1000;
-  const navigate = useNavigate();
 
   // Dynamic pricing from backend access.plan or config
   const planPrice = access?.plan?.amount ?? 99;
@@ -92,6 +93,13 @@ export default function TrialBanner() {
     }
   };
 
+  const priceLine = (
+    <div className="flex items-baseline gap-1.5">
+      <span className="text-[20px] min-[380px]:text-[24px] leading-none font-black text-white">₹{planPrice}</span>
+      <span className="text-xs min-[380px]:text-sm font-bold text-white/55 line-through decoration-[#FB7185] decoration-2">₹{planOriginalPrice}</span>
+    </div>
+  );
+
   const goPro = (label = 'Go Pro Now') => (
     <div className="relative flex flex-col items-center gap-1 shrink-0">
       <span className="absolute -top-[15px] -left-2.5 z-10 text-[20px] min-[380px]:text-[24px] rotate-[-22deg] drop-shadow-[0_2px_1px_rgba(0,0,0,0.2)]" aria-hidden="true">👑</span>
@@ -101,10 +109,7 @@ export default function TrialBanner() {
       >
         {label} →
       </button>
-      <div className="flex items-baseline gap-1.5">
-        <span className="text-[20px] min-[380px]:text-[24px] leading-none font-black text-white">₹{planPrice}</span>
-        <span className="text-xs min-[380px]:text-sm font-bold text-white/55 line-through decoration-[#FB7185] decoration-2">₹{planOriginalPrice}</span>
-      </div>
+      {priceLine}
     </div>
   );
 
@@ -151,13 +156,17 @@ export default function TrialBanner() {
         </div>
       </div>
     );
+    // Guests see the price too; the button asks them to log in first
     right = (
-      <button
-        onClick={open}
-        className="shrink-0 px-3.5 py-2 rounded-full bg-gradient-to-b from-[#FEF3C7] via-[#FCD34D] to-[#F59E0B] border border-[#FFF7D6] text-[#3B0764] font-black text-[13px] whitespace-nowrap shadow-[0_3px_0_0_#B45309] active:translate-y-0.5 active:shadow-none transition-all cursor-pointer"
-      >
-        Create free account →
-      </button>
+      <div className="flex flex-col items-center gap-1 shrink-0">
+        <button
+          onClick={open}
+          className="px-3 py-1.5 min-[380px]:py-2 rounded-full bg-gradient-to-b from-[#FEF3C7] via-[#FCD34D] to-[#F59E0B] border border-[#FFF7D6] text-[#3B0764] font-black text-[13px] whitespace-nowrap shadow-[0_3px_0_0_#B45309] active:translate-y-0.5 active:shadow-none transition-all cursor-pointer"
+        >
+          Log in to continue →
+        </button>
+        {priceLine}
+      </div>
     );
   } else {
     const notStarted = access.state === 'trial_not_started';
@@ -167,14 +176,15 @@ export default function TrialBanner() {
         <Stopwatch className="w-11 h-11 min-[380px]:w-[56px] min-[380px]:h-[56px] shrink-0" />
         <div className="min-w-0">
           <p className="text-[11px] min-[380px]:text-[13px] font-black uppercase tracking-[0.2em] text-[#FCD34D] whitespace-nowrap leading-none mb-1.5">Free trial</p>
-          <p className={`font-black leading-none tabular-nums text-[1.55rem] min-[360px]:text-[1.85rem] min-[390px]:text-[2.2rem] tracking-tight ${urgent ? 'text-[#FDA4AF]' : 'text-white'}`}>
+          <p className={`hy-timer-bob font-black leading-none tabular-nums text-[1.55rem] min-[360px]:text-[1.85rem] min-[390px]:text-[2.2rem] tracking-tight ${urgent ? 'text-[#FDA4AF]' : 'text-white'}`}>
             {clock.h > 0 && (
               <>
-                {clock.h}<span className="text-[0.52em] font-black text-indigo-200 ml-0.5 mr-1">h</span>
+                <span key={`h${clock.h}`} className="hy-tick inline-block">{clock.h}</span><span className="text-[0.52em] font-black text-indigo-200 ml-0.5 mr-1">h</span>
               </>
             )}
-            {String(clock.m).padStart(clock.h > 0 ? 2 : 1, '0')}<span className="text-[0.52em] font-black text-indigo-200 ml-0.5 mr-1">m</span>
-            {String(clock.s ?? 0).padStart(2, '0')}<span className="text-[0.52em] font-black text-indigo-200 ml-0.5">s</span>
+            <span key={`m${clock.m}`} className="hy-tick inline-block">{String(clock.m).padStart(clock.h > 0 ? 2 : 1, '0')}</span><span className="text-[0.52em] font-black text-indigo-200 ml-0.5 mr-1">m</span>
+            {/* Re-keyed every second, so each new value pops in */}
+            <span key={`s${clock.s}`} className={`${notStarted ? '' : 'hy-tick'} inline-block text-[#FCD34D]`}>{String(clock.s ?? 0).padStart(2, '0')}</span><span className="text-[0.52em] font-black text-indigo-200 ml-0.5">s</span>
           </p>
           <p className="text-[12px] min-[380px]:text-[14px] font-bold text-indigo-200 leading-tight whitespace-nowrap mt-0.5">{notStarted ? '48 hours free' : 'left'}</p>
         </div>
@@ -185,6 +195,13 @@ export default function TrialBanner() {
 
   return (
     <>
+      <style>{`
+        @keyframes hyTimerBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+        @keyframes hyTick { 0% { transform: translateY(-45%) scale(1.25); opacity: 0.2; } 60% { transform: translateY(6%) scale(0.96); opacity: 1; } 100% { transform: none; } }
+        .hy-timer-bob { animation: hyTimerBob 2s ease-in-out infinite; }
+        .hy-tick { animation: hyTick 0.42s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @media (prefers-reduced-motion: reduce) { .hy-timer-bob, .hy-tick { animation: none; } }
+      `}</style>
       <div className="relative w-full rounded-[22px] p-[2px] mb-4 lg:mb-3 bg-gradient-to-br from-[#FDE68A] via-[#D97706] to-[#FDE68A] shadow-[0_10px_24px_rgba(76,29,149,0.35)]">
        {(isPreview || liveAccess?.testView) && (
          <span className="absolute -top-2 left-4 z-20 rounded-full bg-[#1E1B4B] border border-[#FCD34D]/60 px-1.5 py-px text-[8px] font-black uppercase tracking-wider text-[#FCD34D]">

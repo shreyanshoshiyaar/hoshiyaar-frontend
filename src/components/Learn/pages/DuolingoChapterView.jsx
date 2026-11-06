@@ -89,21 +89,23 @@ export default function DuolingoChapterView({
 
   return (
     <div
-      className="relative w-full min-h-screen pb-28 pt-2 transition-all duration-300"
+      className="relative isolate w-full min-h-screen pb-28 pt-2 transition-all duration-300"
       style={
         chapterBg
-          ? {
-              backgroundImage: `url(${chapterBg})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundAttachment: 'fixed',
-            }
+          ? { background: '#E0F2FE' }
           : {
               background:
                 'linear-gradient(180deg, #E0F2FE 0%, #EDE9FE 25%, #F0FDF4 55%, #FEF9C3 85%, #FEF08A 100%)',
             }
       }
     >
+      {/* Admin-set page background: one image that stays put while the path scrolls.
+          A sticky layer, since background-attachment: fixed doesn't work on iOS. */}
+      {chapterBg && (
+        <div className="sticky top-0 h-[100dvh] -mb-[100dvh] pointer-events-none select-none -z-10" aria-hidden="true">
+          <img src={chapterBg} alt="" className="w-full h-full object-cover" decoding="async" />
+        </div>
+      )}
       {/* Decorative colorful ambient elements for new chapter if no custom background image yet */}
       {!chapterBg && (
         <div className="absolute inset-0 pointer-events-none overflow-hidden select-none -z-0">

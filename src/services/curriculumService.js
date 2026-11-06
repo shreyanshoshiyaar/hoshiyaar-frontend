@@ -15,7 +15,13 @@ const cachedGet = async (url, config = {}) => {
     return api.get(url, { ...axiosConfig, params: finalParams });
   }
 
-  const cacheKey = JSON.stringify({ url, params: axiosConfig.params });
+  // Keyed by account too: admins get draft chapters, so their cached lists must
+  // never be served to a guest who logs in on the same device.
+  let who = '';
+  try {
+    who = JSON.parse(localStorage.getItem('user') || 'null')?.token || localStorage.getItem('token') || '';
+  } catch (_) { }
+  const cacheKey = JSON.stringify({ url, params: axiosConfig.params, who: String(who).slice(-24) });
   const now = Date.now();
   
   if (cache.has(cacheKey)) {
@@ -57,6 +63,10 @@ const curriculumService = {
   toggleChapterPublishStatus(id, isPublished) {
     // This mutates data on the server, no cache
     return api.patch(`/api/curriculum/chapters/${id}/publish`, { isPublished });
+  },
+  updateChapterDisplay(id, data) {
+    cache.clear();
+    return api.patch(`/api/curriculum/chapters/${id}/display`, data);
   },
   listUnits(chapterId, opts) {
     const passedOpts = passOpts(opts);

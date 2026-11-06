@@ -82,6 +82,91 @@ const UnitEditRow = ({ unit, onUpdateUnit }) => {
   );
 };
 
+const MAP_STYLES = [
+  { value: 'auto', label: 'Auto', hint: 'Path view for chapters with 5+ units' },
+  { value: 'path', label: 'Path (Duolingo)', hint: 'Winding path of lesson bubbles' },
+  { value: 'classic', label: 'Classic', hint: 'Unit cards with timeline backgrounds' },
+];
+
+// Lesson map layout and the full-page background shown behind the path view
+const ChapterDisplayCard = ({ chapter, onSaved }) => {
+  const [mapStyle, setMapStyle] = useState(chapter.mapStyle || 'auto');
+  const [bgUrl, setBgUrl] = useState(chapter.backgroundImage || '');
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState('');
+
+  useEffect(() => {
+    setMapStyle(chapter.mapStyle || 'auto');
+    setBgUrl(chapter.backgroundImage || '');
+    setMsg('');
+  }, [chapter._id, chapter.mapStyle, chapter.backgroundImage]);
+
+  const save = async () => {
+    try {
+      setSaving(true);
+      setMsg('');
+      const res = await curriculumService.updateChapterDisplay(chapter._id, { mapStyle, backgroundImage: bgUrl.trim() });
+      onSaved(res.data);
+      setMsg('Saved. Students see it the next time they open the chapter.');
+    } catch (err) {
+      setMsg(err.response?.data?.message || 'Could not save');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-6">
+      <h2 className="text-xl font-semibold text-gray-800 mb-1">Chapter Map Style &amp; Background</h2>
+      <p className="text-xs text-gray-500 mb-4">{chapter.title}</p>
+      <div className="flex flex-col lg:flex-row gap-5">
+        <div className="lg:w-1/2">
+          <label className="block text-xs font-bold text-gray-600 mb-2">Lesson map style</label>
+          <div className="grid grid-cols-3 gap-2">
+            {MAP_STYLES.map((s) => (
+              <button
+                key={s.value}
+                type="button"
+                onClick={() => setMapStyle(s.value)}
+                className={`rounded-xl border-2 px-2 py-2.5 text-left transition-colors ${mapStyle === s.value ? 'border-indigo-600 bg-indigo-50' : 'border-gray-200 hover:border-gray-300'}`}
+              >
+                <span className="block text-sm font-bold text-gray-800">{s.label}</span>
+                <span className="block text-[11px] text-gray-500 leading-snug mt-0.5">{s.hint}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="lg:w-1/2">
+          <label className="block text-xs font-bold text-gray-600 mb-2">Page background image URL (path view)</label>
+          <div className="flex gap-3 items-start">
+            <input
+              type="text"
+              value={bgUrl}
+              onChange={(e) => setBgUrl(e.target.value)}
+              placeholder="https://res.cloudinary.com/... (leave empty for the default)"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            />
+            {bgUrl.trim() && (
+              <img src={bgUrl.trim()} alt="" className="w-12 h-20 object-cover rounded-md border border-gray-200 shrink-0" />
+            )}
+          </div>
+          <p className="text-[11px] text-gray-500 mt-1">One image for the whole page; it stays in place while lessons scroll. A tall (portrait) image works best.</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-3 mt-4">
+        <button
+          onClick={save}
+          disabled={saving}
+          className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-sm font-bold rounded-md shadow transition-colors"
+        >
+          {saving ? 'Saving...' : 'Save Map Settings'}
+        </button>
+        {msg && <span className="text-xs font-semibold text-gray-600">{msg}</span>}
+      </div>
+    </div>
+  );
+};
+
 const AdminPanel = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('curriculum');
@@ -607,6 +692,13 @@ const AdminPanel = () => {
               )}
             </div>
           </div>
+
+          {selectedChapter && activeTab === 'curriculum' && chapters.find(c => c._id === selectedChapter) && (
+            <ChapterDisplayCard
+              chapter={chapters.find(c => c._id === selectedChapter)}
+              onSaved={(saved) => setChapters(prev => prev.map(c => c._id === saved._id ? { ...c, mapStyle: saved.mapStyle, backgroundImage: saved.backgroundImage } : c))}
+            />
+          )}
 
           {/* Unit Management section when chapter is selected */}
           {selectedChapter && units.length > 0 && activeTab === 'curriculum' && (
