@@ -364,6 +364,17 @@ export default function GuestVerifyModal({ onClose }) {
                   {showPassword ? 'HIDE' : 'SHOW'}
                 </button>
               </div>
+              {/* Right under the field, so the phone keyboard can't cover it */}
+              <div className="mt-2.5 text-center">
+                <button
+                  type="button"
+                  onClick={handleSendOtpForLogin}
+                  disabled={loading}
+                  className="inline-flex items-center gap-1 rounded-full bg-blue-50 border border-blue-100 px-4 py-2 text-[13px] font-bold text-blue-700 hover:bg-blue-100 transition-all cursor-pointer"
+                >
+                  Forgot password? <span className="underline">Get a WhatsApp code</span>
+                </button>
+              </div>
             </div>
 
             <button
@@ -374,17 +385,7 @@ export default function GuestVerifyModal({ onClose }) {
               {loading ? 'Logging in...' : 'Log In & Save Progress'}
             </button>
 
-            {/* Alternative: WhatsApp OTP */}
             <div className="pt-1 flex flex-col gap-2.5 items-center text-center">
-              <button
-                type="button"
-                onClick={handleSendOtpForLogin}
-                disabled={loading}
-                className="w-full py-2.5 px-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold transition-all cursor-pointer"
-              >
-                Forgot password? Log in with WhatsApp Code
-              </button>
-
               <button
                 type="button"
                 onClick={() => { setStep('phone'); setError(''); }}

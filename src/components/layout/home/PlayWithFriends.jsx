@@ -1,32 +1,48 @@
 import React from 'react';
 
-const Gamepad = () => (
-  <svg viewBox="0 0 64 44" className="w-10 h-7 shrink-0 drop-shadow-[0_2px_0_#4C1D95]" aria-hidden="true">
-    <path d="M18 2h28c9 0 15 6 17 16l1 9c1 9-4 15-10 15-5 0-8-3-11-8H21c-3 5-6 8-11 8C4 42-1 36 0 27l1-9C3 8 9 2 18 2z" fill="#7C3AED" />
-    <path d="M18 5h28c7 0 12 5 14 13" stroke="#A78BFA" strokeWidth="3" fill="none" strokeLinecap="round" />
-    <rect x="12" y="17" width="12" height="4" rx="2" fill="#EDE9FE" />
-    <rect x="16" y="13" width="4" height="12" rx="2" fill="#EDE9FE" />
-    <circle cx="45" cy="15" r="3" fill="#FACC15" />
-    <circle cx="51" cy="21" r="3" fill="#F472B6" />
-    <circle cx="39" cy="21" r="3" fill="#34D399" />
-    <circle cx="45" cy="27" r="3" fill="#60A5FA" />
-  </svg>
-);
-
-// Short yellow "Play with Friends" pill, centred under the chapters; shares the app on WhatsApp
+// Purple "Play with Friends" card under the chapters, per the client's design; shares the app on WhatsApp
 export default function PlayWithFriends({ onClick }) {
   return (
-    <div className="mt-5 mb-2 flex justify-center">
+    <div className="mx-3 mt-5 mb-2">
       <button
         onClick={onClick}
-        className="inline-flex items-center gap-2.5 rounded-full border-[3px] border-white bg-gradient-to-b from-[#FFF176] via-[#FDE047] to-[#FACC15] pl-4 pr-2.5 py-1.5 shadow-[inset_0_-3px_0_rgba(202,138,4,0.45),0_3px_0_0_#EAB308,0_6px_14px_rgba(234,179,8,0.35)] active:translate-y-px transition-transform"
+        className="relative w-full overflow-hidden rounded-[18px] bg-gradient-to-br from-[#8B3FE8] via-[#7C2FE0] to-[#6A1FD0] border border-[#A78BFA]/40 shadow-[0_4px_0_#4C1D95,0_8px_18px_rgba(109,40,217,0.3)] active:translate-y-0.5 active:shadow-[0_2px_0_#4C1D95] transition-all text-left"
       >
-        <Gamepad />
-        <span className="text-[18px] font-black text-[#4C1D95] tracking-tight whitespace-nowrap">Play with Friends</span>
-        <span className="flex -space-x-2 shrink-0" aria-hidden="true">
-          <span className="w-9 h-9 rounded-full bg-sky-100 border-2 border-white flex items-center justify-center text-lg">👦</span>
-          <span className="w-9 h-9 rounded-full bg-pink-100 border-2 border-white flex items-center justify-center text-lg">👧</span>
-        </span>
+        {/* Faint person silhouette and bubbles, as in the design */}
+        <svg className="absolute right-6 -bottom-3 h-[115%] text-white/[0.12] pointer-events-none" viewBox="0 0 100 110" fill="currentColor" aria-hidden="true">
+          <circle cx="50" cy="34" r="26" />
+          <path d="M0 112c0-30 22-48 50-48s50 18 50 48z" />
+        </svg>
+        <span className="absolute -top-6 right-16 w-16 h-16 rounded-full bg-white/[0.08] pointer-events-none" aria-hidden="true" />
+        <span className="absolute -top-3 -right-3 w-12 h-12 rounded-full bg-white/[0.08] pointer-events-none" aria-hidden="true" />
+
+        <div className="relative flex items-center gap-3.5 py-3.5 pl-3.5 pr-10">
+          <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-sm">
+            <svg viewBox="0 0 24 24" className="w-8 h-8 text-[#6D28D9]" fill="currentColor" aria-hidden="true">
+              <circle cx="12" cy="8.5" r="3.2" />
+              <path d="M5.8 18.5c0-3.2 2.8-5.4 6.2-5.4s6.2 2.2 6.2 5.4v.7H5.8z" />
+              <circle cx="5.6" cy="9.8" r="2.3" opacity="0.75" />
+              <path d="M1.5 18.2c0-2.3 1.8-3.9 4.2-3.9.6 0 1.1.1 1.6.3-1.2 1-1.9 2.4-2 3.9v.6H1.5z" opacity="0.75" />
+              <circle cx="18.4" cy="9.8" r="2.3" opacity="0.75" />
+              <path d="M22.5 18.2c0-2.3-1.8-3.9-4.2-3.9-.6 0-1.1.1-1.6.3 1.2 1 1.9 2.4 2 3.9v.6h3.8z" opacity="0.75" />
+            </svg>
+          </div>
+          <div className="min-w-0">
+            <div
+              className="text-white text-[1.55rem] leading-none tracking-wide uppercase"
+              style={{ fontFamily: "'Bangers', 'Barlow Condensed', Impact, sans-serif" }}
+            >
+              Play with Friends
+            </div>
+            <div className="font-dialogue text-[15px] text-white/90 leading-snug mt-1">
+              Share with friends and see who plays more this week
+            </div>
+          </div>
+        </div>
+
+        <svg className="absolute right-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M9 5l7 7-7 7" />
+        </svg>
       </button>
     </div>
   );
