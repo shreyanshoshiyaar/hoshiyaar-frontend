@@ -110,6 +110,15 @@ export default function GlyphBoard({
     };
   };
 
+  // Read inside the frame loop, so pausing (e.g. a question pop-up) freezes the drawing
+  // where it is instead of restarting the whole timeline
+  const isPausedRef = useRef(isPaused);
+  isPausedRef.current = isPaused;
+  // When the narration moves to a line before its drawing caught up, the board
+  // fast-forwards (still in order) up to here, then plays the new line at normal speed
+  const catchUpToRef = useRef(0);
+  const isScrubbing = scrubTime !== null && scrubTime !== undefined;
+
   // 1. Vector Action Timeline Loop (Runs on card change or replay)
   useEffect(() => {
     clearTimers();
@@ -120,7 +129,10 @@ export default function GlyphBoard({
     }
 
     const duration = Glyph.stepDuration(activeStepJson);
-    currentTRef.current = 0;
+    // A fresh card starts at 0; coming back from a slider widget resumes at the current line
+    const startRange = getLineTimeRange(activeLineIndex);
+    currentTRef.current = activeLineIndex > 0 ? startRange.start : 0;
+    catchUpToRef.current = currentTRef.current;
 
     const renderAtT = (t) => {
       if (!svgContainerRef.current) return;
@@ -145,15 +157,8 @@ export default function GlyphBoard({
       return () => clearTimers();
     }
 
-    // Render frame at t=0
-    renderAtT(0);
-
-    const initialRange = getLineTimeRange(activeLineIndex);
-    targetEndTRef.current = initialRange.end;
-
-    if (isPaused) {
-      return;
-    }
+    renderAtT(currentTRef.current);
+    targetEndTRef.current = startRange.end;
 
     let lastTime = performance.now();
 
@@ -161,12 +166,13 @@ export default function GlyphBoard({
       const dt = Math.min(0.05, (now - lastTime) / 1000);
       lastTime = now;
 
-      if (!isPaused) {
+      if (!isPausedRef.current) {
         const targetEnd = targetEndTRef.current;
 
         // Animate up to the current line's target end time, then pause and hold!
         if (currentTRef.current < targetEnd) {
-          currentTRef.current += dt * 0.70;
+          const behind = currentTRef.current < catchUpToRef.current;
+          currentTRef.current += dt * (behind ? 3.0 : 0.70);
           if (currentTRef.current >= targetEnd) {
             currentTRef.current = targetEnd;
           }
@@ -188,7 +194,10 @@ export default function GlyphBoard({
     animFrameRef.current = requestAnimationFrame(loop);
 
     return () => clearTimers();
-  }, [hasActions, activeStepJson, initPieces, cardIndex, replayKey, isPaused, scrubTime]);
+    // isPaused and activeLineIndex are deliberately left out: pausing freezes via
+    // isPausedRef, and line changes are handled by the sync effect below
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasActions, activeStepJson, initPieces, cardIndex, replayKey, isScrubbing]);
 
   // Handle interactive manual scrubbing (e.g. from slider widget)
   useEffect(() => {
@@ -213,12 +222,18 @@ export default function GlyphBoard({
     // If student navigated backward, snap board to that line's completed drawing
     if (currentTRef.current > range.end) {
       currentTRef.current = range.end;
+      catchUpToRef.current = range.end;
       renderAtTRef.current?.(range.end);
-    } 
-    // If student jumped forward, ensure all prior pieces are rendered
+    }
+    // Moved on before the previous line finished drawing: finish it quickly, piece by
+    // piece, rather than popping it all in. A big jump (skipping several lines) snaps
+    // to just before this line so the student isn't left waiting.
     else if (currentTRef.current < range.start) {
-      currentTRef.current = range.start;
-      renderAtTRef.current?.(range.start);
+      if (range.start - currentTRef.current > 3) {
+        currentTRef.current = Math.max(0, range.start - 0.6);
+        renderAtTRef.current?.(currentTRef.current);
+      }
+      catchUpToRef.current = range.start;
     }
   }, [activeLineIndex, hasActions, activeStepJson]);
 
