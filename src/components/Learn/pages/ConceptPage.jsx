@@ -1057,12 +1057,12 @@ export default function ConceptPage() {
         ) : (
           <>
             {/* Character Avatar at top - Hoshi image in every concept card (as requested) */}
-            <div className="flex justify-center mb-2 sm:mb-3 mt-1 sm:mt-2">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-[22px] sm:rounded-[28px] p-1 bg-white/80 backdrop-blur-xs shadow-md border-2 border-white/80 overflow-hidden flex items-center justify-center flex-shrink-0">
+            <div className="flex justify-center mb-3 sm:mb-4 mt-2 sm:mt-3">
+              <div className="w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 rounded-[30px] sm:rounded-[38px] md:rounded-[44px] p-1.5 bg-white/90 backdrop-blur-xs shadow-lg border-[3px] border-white overflow-hidden flex items-center justify-center flex-shrink-0 transition-transform duration-200 hover:scale-105">
                 <img
                   src={getCharacterImage(item.speaker || 'hoshi', 'hoshi')}
                   alt={item.speaker || "Hoshi"}
-                  className="w-full h-full object-cover rounded-[18px] sm:rounded-[24px]"
+                  className="w-full h-full object-cover rounded-[25px] sm:rounded-[33px] md:rounded-[39px]"
                 />
               </div>
             </div>
