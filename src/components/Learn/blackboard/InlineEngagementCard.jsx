@@ -87,7 +87,25 @@ function InlineMcq({ item, onComplete, onSkip, playSound }) {
         ? rawOptions.split(',').map(s => s.trim())
         : (item.answer ? [item.answer, 'Option A', 'Option B'] : ['Option 1', 'Option 2', 'Option 3']));
 
-  const correctAnswer = String(item.answer || item.targetWord || options[0] || '').trim().toLowerCase();
+  const resolveCorrectAnswer = () => {
+    const rawAns = item.answer != null ? String(item.answer).trim() : '';
+    if (rawAns.length > 0) return rawAns;
+    if (item.targetWord && String(item.targetWord).trim()) return String(item.targetWord).trim();
+
+    let react = item.react;
+    if (!react) {
+      const ij = typeof item.inputJson === 'string' ? (() => { try { return JSON.parse(item.inputJson); } catch (_) { return null; } })() : item.inputJson;
+      react = ij?.react;
+    }
+    if (react && typeof react === 'object' && Array.isArray(options) && options.length > 0) {
+      const reactKeys = Object.keys(react).map(k => k.trim().toLowerCase());
+      const unreacted = options.filter(o => !reactKeys.includes(String(o).trim().toLowerCase()));
+      if (unreacted.length === 1) return unreacted[0];
+    }
+    return options[0] || '';
+  };
+
+  const correctAnswer = resolveCorrectAnswer().trim().toLowerCase();
 
   const [selectedOption, setSelectedOption] = useState(null);
   const [feedback, setFeedback] = useState('idle'); // 'idle' | 'success' | 'wrong'
