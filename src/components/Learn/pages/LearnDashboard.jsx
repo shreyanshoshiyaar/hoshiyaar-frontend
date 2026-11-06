@@ -1289,7 +1289,8 @@ const LearnDashboard = ({ onboardingData }) => {
           }
           const id = raw._id || raw.id || raw.chapterId;
           const title = raw.title || raw.name || `Chapter ${index + 1}`;
-          return id ? { _id: String(id), title, order: raw.order ?? index + 1 } : null;
+          // Keep the admin's map settings (layout + page background)
+          return id ? { _id: String(id), title, order: raw.order ?? index + 1, mapStyle: raw.mapStyle || 'auto', backgroundImage: raw.backgroundImage || null } : null;
         };
         const normalizedChapters = (listCh || []).map((c, i) => toChapter(c, i)).filter(Boolean);
         normalizedChapters.sort((a, b) => {
@@ -2772,15 +2773,17 @@ const LearnDashboard = ({ onboardingData }) => {
                           );
                         }
 
-                        // Duolingo-style path layout for Chapter 9, Chapter 11, and modern multi-unit chapters
-                        const isDuolingoChapter =
+                        // Duolingo-style path layout. The admin panel can force it on or off per
+                        // chapter; on 'auto' it's Chapter 9, Chapter 11, and modern multi-unit chapters
+                        const mapStyle = findActiveChapter()?.mapStyle || 'auto';
+                        const isDuolingoChapter = mapStyle === 'path' || (mapStyle !== 'classic' && (
                           String(chapterId) === '6ad8be61e323d9a75e28c0d5' || // Chapter 9: Life Processes
                           String(chapterId) === '6ab0db4316293cf7bf7f88bb' || // Chapter 11: Light
                           chapterTitle?.toLowerCase()?.includes('light') ||
                           chapterTitle?.toLowerCase()?.includes('life processes') ||
                           chapterTitle?.toLowerCase()?.includes('v12 test') ||
                           chapterTitle?.toLowerCase()?.includes('life processes in animals (v12 test)') ||
-                          (visibleUnits && visibleUnits.length >= 5);
+                          (visibleUnits && visibleUnits.length >= 5)));
 
                         if (isDuolingoChapter) {
                           const activeChapterObj = findActiveChapter();

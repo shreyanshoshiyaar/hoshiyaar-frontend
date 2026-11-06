@@ -741,14 +741,8 @@ const UnifiedAuth = () => {
               </p>
 
               <form onSubmit={handleLogin}>
-                <div className="flex justify-between items-center mb-1.5 ml-0.5">
+                <div className="mb-1.5 ml-0.5">
                   <label className="field-label" style={{ margin: 0 }}>Password</label>
-                  <Link
-                    to="/forgot-password"
-                    className="text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors"
-                  >
-                    Forgot Password?
-                  </Link>
                 </div>
 
                 <div className="field">
@@ -780,6 +774,15 @@ const UnifiedAuth = () => {
                       <path d="M12 5c-5 0-9.3 3.1-11 7.5C2.7 16.9 7 20 12 20s9.3-3.1 11-7.5C21.3 8.1 17 5 12 5Zm0 12.5a5 5 0 1 1 5-5 5 5 0 0 1-5 5Zm0-8a3 3 0 1 0 3 3 3 3 0 0 0-3-3Z" />
                     </svg>
                   </button>
+                </div>
+
+                <div className="text-center -mt-1 mb-3">
+                  <Link
+                    to="/forgot-password"
+                    className="inline-block rounded-full bg-blue-50 border border-blue-100 px-4 py-2 text-[13px] font-bold text-blue-700 hover:bg-blue-100 transition-colors"
+                  >
+                    Forgot Password?
+                  </Link>
                 </div>
 
                 <button
