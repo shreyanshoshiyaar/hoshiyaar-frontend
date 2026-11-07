@@ -26,7 +26,7 @@ const CHAPTER_ART = [
   [/earth|sky|space|star|planet/i, '🪐'],
   [/invisible|micro|cell/i, '🔬'],
 ];
-const artFor = (title = '') => (CHAPTER_ART.find(([re]) => re.test(title)) || [null, '🔬'])[1];
+export const artFor = (title = '') => (CHAPTER_ART.find(([re]) => re.test(title)) || [null, '🔬'])[1];
 
 export default function ChaptersGrid({ chapters, loading, onContinue, onAllLessons }) {
   return (

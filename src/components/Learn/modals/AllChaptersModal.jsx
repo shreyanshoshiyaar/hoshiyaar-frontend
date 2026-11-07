@@ -1,7 +1,29 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import curriculumService from '../../../services/curriculumService.js';
+import { artFor } from '../../layout/home/ChaptersGrid.jsx';
 
 const classNumber = (value) => String(value ?? '').replace(/\D/g, '');
+
+// Explore spaces show topics, not a syllabus: no "Chapter 4:" prefix, no numbering
+const topicName = (title = '') => String(title)
+  .replace(/\(coming soon\)/i, '')
+  .replace(/^\s*(chapter|ch\.?)\s*\d+\s*[:.\-–—]?\s*/i, '')
+  .trim();
+
+// Same mix for the whole day, so tiles don't jump around between visits
+const dailyShuffle = (list) => {
+  const seed = Number(new Date().toISOString().slice(0, 10).replace(/-/g, ''));
+  const score = (c) => { let h = seed; for (const ch of String(c._id || c.id || c.title)) h = (h * 31 + ch.charCodeAt(0)) % 1000003; return h; };
+  return [...list].sort((a, b) => score(a) - score(b));
+};
+
+const TILE_COLORS = [
+  'from-[#E0F2FE] to-[#BAE6FD] border-sky-200',
+  'from-[#F3E8FF] to-[#E9D5FF] border-purple-200',
+  'from-[#DCFCE7] to-[#BBF7D0] border-emerald-200',
+  'from-[#FEF3C7] to-[#FDE68A] border-amber-200',
+  'from-[#FCE7F3] to-[#FBCFE8] border-pink-200',
+];
 
 /**
  * Modern, robust, and space-efficient All Chapters modal.
@@ -23,11 +45,15 @@ const AllChaptersModal = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterTab, setFilterTab] = useState('all'); // 'all' | 'in_progress' | 'completed'
-  // 'mine' = the student's own class; 'other' = every other class's chapters, grouped by class,
-  // so students can keep playing beyond their own class
+  // 'mine' = the student's own class. Other classes are two explore spaces, not a syllabus:
+  // 'levelup' = higher grades (grouped by grade, to look forward to), 'curious' = lower grades
+  // (one mixed set of topics, no grades or numbers)
   const [view, setView] = useState('mine');
   const [other, setOther] = useState({ loading: false, failed: false, groups: null }); // groups: [{ name, chapters }]
   const ownClass = classNumber(classLevel);
+  const ownNum = Number(ownClass) || 0;
+  const higherGroups = (other.groups || []).filter((g) => ownNum && Number(g.name) > ownNum);
+  const lowerGroups = (other.groups || []).filter((g) => !ownNum || Number(g.name) < ownNum);
 
   const loadOtherChapters = async () => {
     setOther({ loading: true, failed: false, groups: null });
@@ -39,25 +65,47 @@ const AllChaptersModal = ({
         const resp = await curriculumService.listChapters(board, subjectName, { classTitle: cls.name });
         return { name: classNumber(cls.name) || String(cls.name), chapters: (resp?.data || []).filter((c) => c && (c._id || c.id)) };
       }));
-      setOther({ loading: false, failed: false, groups: groups.filter((g) => g.chapters.length) });
+      setOther({
+        loading: false,
+        failed: false,
+        // Coming-soon topics only make a space feel unfinished, so they stay out of it
+        groups: groups
+          .map((g) => ({ ...g, chapters: g.chapters.filter((c) => !String(c.title || '').includes('(Coming Soon)')) }))
+          .filter((g) => g.chapters.length)
+      });
     } catch (_) {
       setOther({ loading: false, failed: true, groups: null });
     }
   };
 
-  const openOtherChapters = () => {
-    setView('other');
+  const openExplore = (space) => {
+    setView(space);
     if (!other.groups && !other.loading) loadOtherChapters();
   };
 
-  // Open on the tab holding the chapter the student is in: their own class, or Other Chapters
+  // Load the other classes as soon as the panel opens, so the explore tabs know whether they
+  // have anything to show (Class 8 has no Level Up, Class 6 no Curiosity Corner)
   useEffect(() => {
-    if (!isOpen) return;
-    const inOwnClass = !currentChapterId || chaptersList.some((c) => String(c._id) === String(currentChapterId));
-    if (inOwnClass) setView('mine');
-    else openOtherChapters();
+    if (isOpen && !other.groups && !other.loading) loadOtherChapters();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
+
+  // Open on the tab holding the chapter the student is in: their own class right away; a chapter
+  // from another class once those have loaded (only when the panel opens, never mid-browse)
+  const placedRef = React.useRef(false);
+  useEffect(() => {
+    if (!isOpen) { placedRef.current = false; return; }
+    const inOwnClass = !currentChapterId || chaptersList.some((c) => String(c._id) === String(currentChapterId));
+    if (inOwnClass) { setView('mine'); placedRef.current = true; }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
+  useEffect(() => {
+    if (!isOpen || placedRef.current || !other.groups) return;
+    placedRef.current = true;
+    const inHigher = higherGroups.some((g) => g.chapters.some((c) => String(c._id || c.id) === String(currentChapterId)));
+    setView(inHigher ? 'levelup' : 'curious');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, other.groups]);
 
   // Close on Escape key
   useEffect(() => {
@@ -178,17 +226,18 @@ const AllChaptersModal = ({
         </div>
 
         {/* My class / Other chapters tabs */}
-        <div className="px-5 sm:px-6 pt-3 bg-white flex gap-1 border-b border-slate-100" role="tablist">
+        <div className="shrink-0 px-3 sm:px-6 pt-3 bg-white flex gap-0.5 border-b border-slate-100 overflow-x-auto overflow-y-hidden no-scrollbar" role="tablist">
           {[
-            { id: 'mine', label: ownClass ? `Class ${ownClass} Chapters` : 'My Chapters' },
-            { id: 'other', label: 'Other Chapters' }
-          ].map((tab) => (
+            { id: 'mine', label: ownClass ? `Class ${ownClass} Chapters` : 'My Chapters', show: true },
+            { id: 'levelup', label: '🚀 Level Up', show: !other.groups || higherGroups.length > 0 },
+            { id: 'curious', label: '🔍 Curiosity Corner', show: !other.groups || lowerGroups.length > 0 }
+          ].filter((tab) => tab.show).map((tab) => (
             <button
               key={tab.id}
               role="tab"
               aria-selected={view === tab.id}
-              onClick={() => (tab.id === 'other' ? openOtherChapters() : setView('mine'))}
-              className={`px-3.5 py-2 text-xs sm:text-sm font-extrabold border-b-2 -mb-px transition-colors ${
+              onClick={() => (tab.id === 'mine' ? setView('mine') : openExplore(tab.id))}
+              className={`px-2.5 sm:px-3.5 py-2 text-xs sm:text-sm font-extrabold border-b-2 -mb-px whitespace-nowrap shrink-0 transition-colors ${
                 view === tab.id
                   ? 'border-blue-600 text-blue-700'
                   : 'border-transparent text-slate-500 hover:text-slate-800'
@@ -200,7 +249,7 @@ const AllChaptersModal = ({
         </div>
 
         {/* Search & Filter Controls */}
-        <div className="px-5 sm:px-6 py-3 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between">
+        <div className="shrink-0 px-5 sm:px-6 py-3 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between">
           {/* Quick Search */}
           <div className="relative flex-1">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">
@@ -210,7 +259,7 @@ const AllChaptersModal = ({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search chapter title or number..."
+              placeholder={view === 'mine' ? 'Search chapter title or number...' : 'Search a topic...'}
               className="w-full pl-8 pr-7 py-1.5 text-xs font-semibold bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder:text-slate-400 transition-all"
             />
             {searchQuery && (
@@ -224,7 +273,7 @@ const AllChaptersModal = ({
           </div>
 
           {/* Filter Tabs */}
-          <div className={`flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200/80 shrink-0 text-xs ${view === 'other' ? 'hidden' : ''}`}>
+          <div className={`flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200/80 shrink-0 text-xs ${view !== 'mine' ? 'hidden' : ''}`}>
             <button
               onClick={() => setFilterTab('all')}
               className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
@@ -373,16 +422,26 @@ const AllChaptersModal = ({
           })}
 
           {filterTab === 'all' && !searchQuery && (
-            <button
-              onClick={openOtherChapters}
-              className="w-full mt-2 rounded-2xl p-3.5 sm:p-4 border border-dashed border-indigo-300 bg-indigo-50/40 hover:bg-indigo-50 text-left flex items-center justify-between gap-3 transition-colors active:scale-[0.995]"
-            >
-              <div className="min-w-0">
-                <p className="text-sm font-black text-indigo-900">Other Chapters</p>
-                <p className="text-[11px] font-medium text-indigo-700/80 mt-0.5">Revise earlier classes or get ahead with chapters from other classes</p>
-              </div>
-              <span className="shrink-0 px-2.5 py-1 rounded-xl bg-indigo-600 text-white text-[11px] font-extrabold">Explore →</span>
-            </button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+              {(!other.groups || higherGroups.length > 0) && (
+                <button
+                  onClick={() => openExplore('levelup')}
+                  className="rounded-2xl p-4 border border-indigo-200 bg-gradient-to-br from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 text-left transition-colors active:scale-[0.99]"
+                >
+                  <p className="text-sm font-black text-indigo-900">🚀 Level Up</p>
+                  <p className="text-[11px] font-semibold text-indigo-700/80 mt-0.5">Sneak a peek at what the next grades discover</p>
+                </button>
+              )}
+              {(!other.groups || lowerGroups.length > 0) && (
+                <button
+                  onClick={() => openExplore('curious')}
+                  className="rounded-2xl p-4 border border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 text-left transition-colors active:scale-[0.99]"
+                >
+                  <p className="text-sm font-black text-amber-900">🔍 Curiosity Corner</p>
+                  <p className="text-[11px] font-semibold text-amber-700/80 mt-0.5">Wonder about anything you like, no rush</p>
+                </button>
+              )}
+            </div>
           )}
 
           {filteredChapters.length === 0 && !statsLoading && (
@@ -406,90 +465,67 @@ const AllChaptersModal = ({
           )}
           </>)}
 
-          {view === 'other' && (() => {
-            if (other.loading) {
-              return (
+          {view !== 'mine' && (() => {
+            if (other.loading || !other.groups) {
+              return other.failed ? (
+                <div className="text-center py-10">
+                  <p className="text-sm font-bold text-slate-700">Couldn't load these topics</p>
+                  <button onClick={loadOtherChapters} className="mt-3 px-3 py-1 text-xs font-bold text-blue-600 bg-blue-50 rounded-lg">Try again</button>
+                </div>
+              ) : (
                 <div className="flex flex-col items-center justify-center py-12 text-slate-400">
                   <div className="animate-spin rounded-full h-8 w-8 border-3 border-indigo-500 border-t-transparent mb-3"></div>
-                  <span className="text-xs font-bold">Loading other chapters...</span>
-                </div>
-              );
-            }
-            if (other.failed) {
-              return (
-                <div className="text-center py-10">
-                  <p className="text-sm font-bold text-slate-700">Couldn't load other chapters</p>
-                  <button onClick={loadOtherChapters} className="mt-3 px-3 py-1 text-xs font-bold text-blue-600 bg-blue-50 rounded-lg">Try again</button>
+                  <span className="text-xs font-bold">Finding topics to explore...</span>
                 </div>
               );
             }
             const q = searchQuery.toLowerCase().trim();
-            const groups = (other.groups || [])
-              .map((g) => ({ ...g, chapters: g.chapters.filter((c) => !q || String(c.title || '').toLowerCase().includes(q)) }))
-              .filter((g) => g.chapters.length);
-            if (!groups.length) {
+            const matches = (c) => !q || topicName(c.title).toLowerCase().includes(q);
+            const tile = (ch, idx, gradeName) => {
+              const id = String(ch._id || ch.id);
+              const isHere = id === String(currentChapterId);
               return (
-                <div className="text-center py-10 px-4">
-                  <p className="text-sm font-bold text-slate-700">No chapters found</p>
-                  <p className="text-xs text-slate-400 mt-0.5">{q ? `No results matching "${searchQuery}"` : 'No other chapters yet'}</p>
+                <button
+                  key={id}
+                  onClick={() => onSelectChapter({ ...ch, _id: id, classLevel: gradeName })}
+                  className={`group rounded-2xl p-3.5 border bg-gradient-to-br ${TILE_COLORS[idx % TILE_COLORS.length]} text-left flex flex-col gap-2 min-h-[112px] transition-transform active:scale-[0.98] hover:-translate-y-0.5 ${isHere ? 'ring-2 ring-indigo-500' : ''}`}
+                >
+                  <span className="text-3xl leading-none" aria-hidden="true">{artFor(ch.title)}</span>
+                  <span className="text-[13px] font-extrabold text-slate-800 leading-snug line-clamp-3">{topicName(ch.title)}</span>
+                  {isHere && <span className="text-[10px] font-black uppercase tracking-wider text-indigo-700">You're here</span>}
+                </button>
+              );
+            };
+
+            if (view === 'levelup') {
+              const groups = higherGroups.map((g) => ({ ...g, chapters: g.chapters.filter(matches) })).filter((g) => g.chapters.length);
+              if (!groups.length) return <p className="text-center py-10 text-sm font-bold text-slate-500">{q ? `Nothing matches "${searchQuery}"` : 'More to discover soon!'}</p>;
+              return (
+                <div className="space-y-4">
+                  <p className="text-xs font-semibold text-slate-500">Curious what's coming? Peek into the next grades — explore anything that sounds fun.</p>
+                  {groups.map((g, gi) => (
+                    <div key={g.name} className="space-y-2.5">
+                      <h4 className="text-sm font-black text-indigo-900">{gi === 0 ? '✨' : '🌟'} Class {g.name} · what's next</h4>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                        {g.chapters.map((ch, i) => tile(ch, i + gi, g.name))}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               );
             }
-            return groups.map((g) => (
-              <div key={g.name} className="space-y-2.5">
-                <h4 className="text-[11px] uppercase tracking-wider font-black text-slate-500 pt-2">Class {g.name}</h4>
-                {g.chapters.map((ch, i) => {
-                  const id = String(ch._id || ch.id);
-                  const comingSoon = Boolean(ch.title && ch.title.includes('(Coming Soon)'));
-                  const isCurrentOther = id === String(currentChapterId);
-                  return (
-                    <div
-                      key={id}
-                      onClick={() => !comingSoon && onSelectChapter({ ...ch, _id: id, classLevel: g.name })}
-                      className={`group rounded-2xl p-3.5 sm:p-4 border transition-all duration-150 flex items-center justify-between gap-3 ${
-                        comingSoon
-                          ? 'opacity-60 cursor-not-allowed bg-slate-50 border-slate-200'
-                          : isCurrentOther
-                            ? 'cursor-pointer bg-indigo-50/60 border-indigo-300 ring-2 ring-indigo-500/20'
-                            : 'cursor-pointer bg-white hover:bg-slate-50/70 border-slate-200/80 hover:border-indigo-300 active:scale-[0.995]'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center font-black text-xs sm:text-sm shrink-0 bg-indigo-50 text-indigo-700">
-                          {String(i + 1).padStart(2, '0')}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <h4 className="text-xs sm:text-sm font-extrabold truncate text-slate-800 group-hover:text-indigo-700" title={ch.title}>
-                            {ch.title}
-                          </h4>
-                          <div className="flex items-center gap-1.5 mt-1">
-                            <span className="text-[9px] uppercase tracking-wider font-black px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
-                              Class {g.name}
-                            </span>
-                            {comingSoon && (
-                              <span className="text-[9px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-800">
-                                Coming Soon
-                              </span>
-                            )}
-                            {isCurrentOther && (
-                              <span className="text-[9px] uppercase tracking-wider font-black px-1.5 py-0.5 rounded-full bg-indigo-600 text-white">
-                                Current
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      {!comingSoon && (
-                        <span className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-100 text-slate-600 group-hover:bg-indigo-600 group-hover:text-white text-[11px] font-bold transition-colors">
-                          <span>{isCurrentOther ? 'Continue' : 'Start'}</span>
-                          <span>→</span>
-                        </span>
-                      )}
-                    </div>
-                  );
-                })}
+
+            // Curiosity Corner: one mixed set from the lower grades, no grades or numbers
+            const all = dailyShuffle(lowerGroups.flatMap((g) => g.chapters.filter(matches).map((ch) => ({ ...ch, _grade: g.name }))));
+            if (!all.length) return <p className="text-center py-10 text-sm font-bold text-slate-500">{q ? `Nothing matches "${searchQuery}"` : 'More to discover soon!'}</p>;
+            return (
+              <div className="space-y-3">
+                <p className="text-xs font-semibold text-slate-500">Just wondering about something? Pick any topic — no order, no rush.</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  {all.map((ch, i) => tile(ch, i, ch._grade))}
+                </div>
               </div>
-            ));
+            );
           })()}
         </div>
 

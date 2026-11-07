@@ -11,7 +11,7 @@ import ReportFlagButton from '../../common/ReportFlagButton.jsx';
 import Glyph from './glyphEngine';
 import { getApiBase } from '../../../utils/apiBase.js';
 import { getStageInfoForIndex } from '../../../utils/moduleStages.js';
-import { unlockMobileAudio, prefetchTts, waitForTts, getTtsSrc } from '../../../utils/audioPreloadService.js';
+import { unlockMobileAudio, prefetchTts, waitForTts, getTtsSrc, claimNarrationAudio } from '../../../utils/audioPreloadService.js';
 import { getCharacterImage, useCharacterImages } from '../../../utils/characterImages.js';
 import { markModuleAsCompleted } from '../../../utils/progressSyncService.js';
 
@@ -705,12 +705,13 @@ export default function BlackboardMode() {
       autoAdvanceTimerRef.current = setTimeout(onLineDone, readingDelay);
     };
 
-    const audio = new Audio();
-    audio.preload = 'auto';
+    // The shared, tap-unlocked player (a new one per line is blocked by Safari)
+    const audio = claimNarrationAudio();
+    const turn = audio._hyTurn;
     audioRef.current = audio;
 
     audio.onplay = () => {
-      if (isMountedRef.current && audioRef.current === audio) {
+      if (isMountedRef.current && audioRef.current === audio && audio._hyTurn === turn) {
         setIsPlaying(true);
       }
     };
@@ -725,7 +726,7 @@ export default function BlackboardMode() {
     prefetchTts(ttsUrl, { priority: true });
     audio.src = audioSrc;
     audio.play().then(() => {
-      if (isMountedRef.current && audioRef.current === audio) {
+      if (isMountedRef.current && audioRef.current === audio && audio._hyTurn === turn) {
         setIsPlaying(true);
       }
     }).catch(err => {
@@ -739,7 +740,7 @@ export default function BlackboardMode() {
         window.removeEventListener('click', onFirstGesture);
         window.removeEventListener('touchstart', onFirstGesture);
         touchListenerRef.current = null;
-        if (isMountedRef.current && audioRef.current === audio) {
+        if (isMountedRef.current && audioRef.current === audio && audio._hyTurn === turn) {
           audio.play().catch(() => readingPaceFallback());
         }
       };

@@ -10,7 +10,7 @@ import { parseStoryScenes, isSkippedStoryLine, storyLineTtsUrl } from '../../../
 import { getStageInfoForIndex } from '../../../utils/moduleStages.js';
 import { isNewStyleStory } from '../../../utils/comicStyleHelper.js';
 import { isMissionCompleteItem } from '../../../utils/missionCompleteHelper.js';
-import { unlockMobileAudio, prefetchTts, waitForTts } from '../../../utils/audioPreloadService.js';
+import { unlockMobileAudio, prefetchTts, waitForTts, claimNarrationAudio } from '../../../utils/audioPreloadService.js';
 import { getCharacterImage, useCharacterImages } from '../../../utils/characterImages.js';
 import { markModuleAsCompleted } from '../../../utils/progressSyncService.js';
 import paymentService from '../../../services/paymentService.js';
@@ -582,8 +582,9 @@ export default function StoryMode() {
     }
 
     const audioUrl = getAudioSource(currentElem);
-    const audio = new Audio();
-    audio.preload = 'auto';
+    // The shared, tap-unlocked player (a new one per line is blocked by Safari)
+    const audio = claimNarrationAudio();
+    const turn = audio._hyTurn;
     audioRef.current = audio;
 
     const baseOffset = elements.slice(0, index).reduce((acc, el) => acc + getItemEstimatedDuration(el.text), 0);
@@ -613,7 +614,7 @@ export default function StoryMode() {
 
     // Play from the in-memory copy; if this line is still downloading, reuse that download
     waitForTts(audioUrl).then((src) => {
-      if (!isMountedRef.current || audioRef.current !== audio) return;
+      if (!isMountedRef.current || (audioRef.current !== audio || audio._hyTurn !== turn)) return;
       audio.src = src;
       audio.playbackRate = playbackSpeed; // setting src resets playbackRate
       const playPromise = audio.play();
@@ -629,7 +630,7 @@ export default function StoryMode() {
             window.removeEventListener('click', onFirstTouch);
             window.removeEventListener('touchstart', onFirstTouch);
             touchListenerRef.current = null;
-            if (isMountedRef.current && activeIndexRef.current === index && audioRef.current === audio) {
+            if (isMountedRef.current && activeIndexRef.current === index && audioRef.current === audio && audio._hyTurn === turn) {
               audio.play().catch(() => {});
             }
           };

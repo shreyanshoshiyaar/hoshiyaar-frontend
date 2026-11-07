@@ -6,6 +6,12 @@ import { usesPlayBilling, playBillingAvailable, getPassOffers, pickPassOffer, bu
 import { isUserAdmin } from '../../../utils/adminCheck.js';
 import GuestVerifyModal from '../../forms/GuestVerifyModal.jsx';
 import { vibrateSuccess } from '../../../utils/vibrationService.js';
+import { getApiBase } from '../../../utils/apiBase.js';
+
+// Phone browsers: Razorpay's popup can get stuck on "Processing your payment" (bank pages and UPI
+// apps can't return to a popup), so there Razorpay redirects to our server and back instead
+const useRedirectCheckout = () => /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '') ||
+  (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent || ''));
 
 const PASS_PLAN_CODE = 'pass_6m';
 const FALLBACK_PLAN = { code: PASS_PLAN_CODE, amount: 99, discountedFrom: 599 };
@@ -125,6 +131,10 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
       order_id: orderData.order_id || orderData.orderId,
       prefill: { name: user?.name || '', contact: user?.phone || '', email: user?.email || '' },
       theme: { color: '#2563EB' },
+      ...(useRedirectCheckout() ? {
+        redirect: true,
+        callback_url: `${getApiBase()}/api/payments/razorpay/callback?site=${encodeURIComponent(window.location.origin)}&return=${encodeURIComponent(window.location.pathname + window.location.search)}`
+      } : {}),
       handler: async (response) => {
         try {
           const verifyRes = await paymentService.verifyPayment({
