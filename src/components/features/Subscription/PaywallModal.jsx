@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import { useAccess } from '../../../context/AccessContext.jsx';
 import paymentService from '../../../services/paymentService.js';
-import { usesPlayBilling, playBillingAvailable, getPassPrice, buyPassWithPlay, PLAY_STORE_URL } from '../../../services/billingService.js';
+import { usesPlayBilling, playBillingAvailable, getPassOffers, pickPassOffer, buyPassWithPlay, PLAY_STORE_URL } from '../../../services/billingService.js';
+import { isUserAdmin } from '../../../utils/adminCheck.js';
 import GuestVerifyModal from '../../forms/GuestVerifyModal.jsx';
+import { vibrateSuccess } from '../../../utils/vibrationService.js';
 
 const PASS_PLAN_CODE = 'pass_6m';
 const FALLBACK_PLAN = { code: PASS_PLAN_CODE, amount: 99, discountedFrom: 599 };
@@ -19,7 +21,10 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
   const [infoMsg, setInfoMsg] = useState('');
   const [plan, setPlan] = useState(FALLBACK_PLAN);
   const [mockMode, setMockMode] = useState(false);
-  const [playPrice, setPlayPrice] = useState(null);
+  // Every price option Google Play returns for the pass, and the one being sold
+  const [playOffers, setPlayOffers] = useState([]);
+  // '' | 'opening' (Play sheet open) | 'processing' (paid, server confirming with Google)
+  const [stage, setStage] = useState('');
   const playBilling = usesPlayBilling();
 
   useEffect(() => {
@@ -36,7 +41,7 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
       if (pass) setPlan(pass);
       setMockMode(Boolean(cfg?.mockMode));
     }).catch(() => {});
-    if (playBilling) getPassPrice().then(setPlayPrice);
+    if (playBilling) getPassOffers().then(setPlayOffers);
   }, [isOpen, playBilling, access?.plan?.amount, access?.plan?.discountedFrom]);
 
   if (!isOpen) return null;
@@ -45,13 +50,18 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
   if (user?.isGuest) return <GuestVerifyModal onClose={onClose} />;
 
   const price = `₹${plan.amount}`;
-  // Play sends a localised string such as "₹99.00"; whole rupees read better without the paise
-  const priceLabel = playPrice ? playPrice.replace(/[.,]00$/, '') : price;
-  const original = plan.discountedFrom > plan.amount ? `₹${plan.discountedFrom}` : null;
+  const playOffer = playBilling ? pickPassOffer(playOffers, plan.amount) : null;
+  // In the app Google Play charges, so its price is the one shown; ours is the website price
+  const priceLabel = playOffer?.label || price;
+  const chargedAmount = playOffer && Number.isFinite(playOffer.price) ? playOffer.price : plan.amount;
+  const playPriceDiffers = Boolean(playOffer && Number.isFinite(playOffer.price) && playOffer.price !== Number(plan.amount));
+  const original = plan.discountedFrom > chargedAmount ? `₹${plan.discountedFrom}` : null;
+  const showPriceCheck = playBilling && isUserAdmin(user);
 
   // Callers close the pop-up in onSuccess; calling onClose too would send a learner back to
   // the map instead of into the lesson they just unlocked
   const finishSuccess = async () => {
+    vibrateSuccess();
     if (testView) setTestView('');
     await refresh();
     onSuccess?.();
@@ -76,7 +86,12 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
   };
 
   const payWithPlay = async () => {
-    const result = await buyPassWithPlay(user._id);
+    setStage('opening');
+    const result = await buyPassWithPlay(user._id, {
+      offerToken: playOffer?.offerToken,
+      onProcessing: () => setStage('processing')
+    });
+    setStage('');
     if (result.status === 'success') return finishSuccess();
     if (result.status === 'pending') {
       setInfoMsg(result.message);
@@ -141,6 +156,11 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
   const handlePay = async () => {
     setErrorMsg('');
     setInfoMsg('');
+    // One pass at a time (the server refuses a second Razorpay order too)
+    if (access?.hasPass && !testView) {
+      setInfoMsg('Your Pro pass is already active. You can buy a new one after it ends.');
+      return;
+    }
     if (playBilling && !playBillingAvailable()) {
       window.open(PLAY_STORE_URL, '_system');
       return;
@@ -160,8 +180,8 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
     : access?.trialEndReason === 'lessons'
       ? `You've played all ${access?.trialLessonLimit || 7} free lessons`
       : 'Unlock every lesson';
-  const savePct = original ? Math.round((1 - plan.amount / plan.discountedFrom) * 100) : 0;
-  const perMonth = (plan.amount / 6).toFixed(plan.amount % 6 === 0 ? 0 : 1);
+  const savePct = original ? Math.round((1 - chargedAmount / plan.discountedFrom) * 100) : 0;
+  const perMonth = (chargedAmount / 6).toFixed(chargedAmount % 6 === 0 ? 0 : 1);
   const needsUpdate = playBilling && !playBillingAvailable();
 
   return (
@@ -215,6 +235,12 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
               <button onClick={() => setErrorMsg('')} className="font-black text-rose-100/80" aria-label="Dismiss">✕</button>
             </div>
           )}
+          {stage === 'processing' && (
+            <div className="relative mt-4 rounded-xl bg-[#22C55E]/15 border border-[#86EFAC]/40 px-3 py-2.5 flex items-center gap-2.5">
+              <span className="w-4 h-4 shrink-0 border-[2.5px] border-[#86EFAC] border-t-transparent rounded-full animate-spin" />
+              <span className="text-[13px] font-bold text-[#DCFCE7]">Payment received. Confirming it with Google Play, please keep the app open…</span>
+            </div>
+          )}
           {infoMsg && (
             <div className="relative mt-4 rounded-xl bg-white/10 border border-white/20 px-3 py-2 text-[13px] font-bold text-indigo-100">
               {infoMsg}
@@ -234,6 +260,9 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
               {original && <span className="mb-1 text-lg font-bold text-white/45 line-through decoration-[#FB7185] decoration-2">{original}</span>}
             </div>
             <p className="mt-1 text-[14px] font-semibold text-indigo-200">One-time payment · just ₹{perMonth} a month</p>
+            {playPriceDiffers && (
+              <p className="mt-1 text-[12px] font-semibold text-indigo-200/75">Price set by Google Play, including all taxes. Nothing else is added.</p>
+            )}
             <ul className="mt-3 space-y-2">
               {['Every lesson in every chapter', 'Stories, boards, quizzes and revision', 'No auto-renewal, ever'].map((t) => (
                 <li key={t} className="flex items-center gap-2.5 text-[14px] font-semibold text-white/90">
@@ -255,7 +284,7 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
             {loading ? (
               <>
                 <span className="w-4 h-4 border-[2.5px] border-[#3B0764] border-t-transparent rounded-full animate-spin" />
-                <span>{playBilling ? 'Opening Google Play…' : 'Opening checkout…'}</span>
+                <span>{stage === 'processing' ? 'Payment processing…' : playBilling ? 'Opening Google Play…' : 'Opening checkout…'}</span>
               </>
             ) : needsUpdate ? (
               <span>Update the app to unlock</span>
@@ -270,6 +299,22 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
               ? 'Get the latest HoshiYaar from Google Play'
               : playBilling ? 'Secure payment through Google Play' : 'Secure payment via Razorpay · UPI & cards'}
           </p>
+
+          {/* Admins only: exactly what Google Play returns, to match it against Play Console */}
+          {showPriceCheck && (
+            <div className="relative mt-3 rounded-xl border border-dashed border-[#FCD34D]/50 bg-black/20 px-3 py-2 text-[11px] font-semibold text-indigo-100 leading-relaxed">
+              <p className="font-black uppercase tracking-wider text-[#FCD34D]">Admin · Play price check</p>
+              <p>Our price (website & server): ₹{plan.amount}</p>
+              {playOffers.length === 0 ? (
+                <p>Google Play returned no price for hoshiyaar_pass_6m</p>
+              ) : playOffers.map((o, i) => (
+                <p key={o.offerToken || i}>
+                  {o === playOffer ? '▶ ' : '• '}Play option {o.purchaseOptionId || '(legacy)'}{o.offerId ? ` / offer ${o.offerId}` : ''}: {o.label} ({o.price} {o.currency})
+                </p>
+              ))}
+              <p className="text-indigo-200/70">▶ = the option the Buy button uses</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

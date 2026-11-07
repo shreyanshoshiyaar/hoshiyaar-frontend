@@ -45,7 +45,7 @@ const RefundPolicy = () => {
         <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-xs border border-gray-200 p-6 sm:p-10 md:p-14">
           <div className="mb-8 pb-6 border-b border-gray-100">
             <h2 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">Cancellation & Refund Policy</h2>
-            <p className="text-xs text-gray-500 mt-1">Last Updated: October 2026 • Effective Date: October 1, 2026</p>
+            <p className="text-xs text-gray-500 mt-1">Last Updated: November 2026 • Effective Date: November 7, 2026</p>
           </div>
 
         {/* Content */}
@@ -54,13 +54,13 @@ const RefundPolicy = () => {
           <section className="space-y-3">
             <h2 className="text-lg font-extrabold text-gray-900 flex items-center gap-2">
               <span className="w-6 h-6 rounded-lg bg-blue-100 text-blue-700 text-xs flex items-center justify-center font-black">1</span>
-              <span>Digital Educational Services & Free Preview</span>
+              <span>Digital Educational Services &amp; Free Trial</span>
             </h2>
             <p>
               Hoshiyaar Academy provides digital, interactive curriculum content, practice exercises, and Chapter Exam Mode assessments for CBSE Classes 6, 7, and 8. 
             </p>
             <div className="bg-emerald-50/70 border border-emerald-200/90 rounded-2xl p-4 text-emerald-950 text-xs leading-relaxed">
-              <strong>✨ 100% Free Chapter Previews:</strong> We believe in complete transparency. The first level of every single chapter across all subjects is available completely free to preview and test before you make any payment. We encourage parents and students to experience the teaching style, interface, and questions prior to unlocking.
+              <strong>✨ Try before you pay:</strong> Every learner gets a free trial — 48 hours or 7 lessons, whichever comes first — before any payment. We encourage parents and students to experience the teaching style, interface, and questions before buying the Pro pass.
             </div>
           </section>
 
@@ -71,12 +71,13 @@ const RefundPolicy = () => {
               <span>General Refund Guidelines</span>
             </h2>
             <p>
-              Due to the immediate digital nature of our educational software and instantaneous unlocking of chapter materials upon purchase:
+              Due to the immediate digital nature of our educational software and instantaneous unlocking of lessons upon purchase:
             </p>
             <ul className="list-disc pl-5 space-y-2 text-gray-600">
-              <li>Fees paid for unlocking individual chapters (e.g., ₹50 for a 1-Year Chapter Pass) are generally non-refundable once the chapter has been activated on the user account.</li>
+              <li>The HoshiYaar Pro pass (₹99 for 180 days, or the price shown at checkout) is generally non-refundable once it has been activated on the learner's account.</li>
               <li>Since payments are one-time and non-recurring, there are no ongoing monthly or annual subscriptions to cancel, and no recurring deductions will ever take place.</li>
-              <li>All subscription and chapter pass prices are subject to change without prior notice; any price change will not affect active passes already purchased.</li>
+              <li>Prices may change from time to time; a price change never affects a pass that has already been bought.</li>
+              <li>When a refund is issued, the Pro pass is removed from the account. Lessons played during the free trial stay open.</li>
             </ul>
           </section>
 
@@ -90,8 +91,8 @@ const RefundPolicy = () => {
               We are committed to fair customer practices. A 100% refund will be granted under the following circumstances:
             </p>
             <ul className="list-disc pl-5 space-y-2 text-gray-600">
-              <li><strong>Duplicate Transaction:</strong> You were charged more than once for the same chapter due to a payment gateway lag, network failure, or duplicate click.</li>
-              <li><strong>Technical Non-Delivery:</strong> Your payment was successfully deducted from your bank/UPI account, but the purchased chapter failed to unlock on the Platform, and our technical support team was unable to resolve the access within 24 hours of notification.</li>
+              <li><strong>Duplicate Transaction:</strong> You were charged more than once for the Pro pass due to a payment gateway lag, network failure, or duplicate click.</li>
+              <li><strong>Technical Non-Delivery:</strong> Your payment was successfully deducted from your bank/UPI account, but the Pro pass failed to activate on the Platform, and our technical support team was unable to resolve the access within 24 hours of notification.</li>
               <li><strong>Unscheduled Extended Platform Outage:</strong> Severe technical issues on our servers causing the Platform to be completely inaccessible for more than 48 consecutive hours.</li>
             </ul>
           </section>
@@ -105,7 +106,7 @@ const RefundPolicy = () => {
             <p>Refunds will not be issued under the following circumstances:</p>
             <ul className="list-disc pl-5 space-y-2 text-gray-600">
               <li>Change of mind after purchasing and completing interactive lessons or taking chapter exams.</li>
-              <li>Personal disuse of the Platform after purchase, as passes remain active for 365 days.</li>
+              <li>Personal disuse of the Platform after purchase, as the pass remains active for its full 180 days.</li>
               <li>Dissatisfaction with student academic test scores in school, as performance is subject to individual effort and revision.</li>
               <li>Account suspension or termination due to violation of our Terms of Service (e.g., unauthorized data scraping or credential sharing).</li>
             </ul>
@@ -121,8 +122,9 @@ const RefundPolicy = () => {
               To request a refund under the eligible criteria above, please reach out to us within <strong>3 business days</strong> of the transaction:
             </p>
             <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4 text-xs space-y-2">
+              <p>In the app, open <strong>More → Refund &amp; payment help</strong> to message us on WhatsApp with your account details filled in. Purchases made in the Android app can also be refunded by Google under the Google Play refund policy (Google Play → Payments &amp; subscriptions → Budget &amp; history).</p>
               <p>1. Send an email to <a href="mailto:cg.hoshiyaar@gmail.com" className="text-blue-600 font-bold hover:underline">cg.hoshiyaar@gmail.com</a> or text us on WhatsApp at <strong className="text-gray-900">+91 831 053 2323</strong>.</p>
-              <p>2. Provide your registered phone number, student username, the chapter name, transaction date, and the Razorpay Payment ID (found on your payment receipt or under the Payment History tab on the subscription page).</p>
+              <p>2. Provide your registered phone number, student username, the transaction date, and the payment reference: the Razorpay Payment ID for website payments, or the Google Play order number (starting with GPA.) for app purchases.</p>
               <p>3. Our support desk will review and respond to your request within <strong>24 to 48 business hours</strong>.</p>
             </div>
           </section>
@@ -134,7 +136,7 @@ const RefundPolicy = () => {
               <span>Processing & Payout Timeline</span>
             </h2>
             <p>
-              Once approved, your refund will be initiated through Razorpay back to your original source of payment (UPI VPA, original credit/debit card, or bank account).
+              Once approved, website payments are refunded through Razorpay to the original source of payment (UPI VPA, original credit/debit card, or bank account). App purchases are refunded through Google Play to the payment method used in your Google Play account.
             </p>
             <ul className="list-disc pl-5 space-y-2 text-gray-600">
               <li><strong>UPI Refunds:</strong> Typically reflect within 24 to 48 hours.</li>

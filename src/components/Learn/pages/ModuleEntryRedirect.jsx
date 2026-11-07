@@ -10,7 +10,16 @@ import paymentService from '../../../services/paymentService.js';
 import PaywallModal from '../../features/Subscription/PaywallModal.jsx';
 import { useAccess } from '../../../context/AccessContext.jsx';
 import { isNewStyleStory } from '../../../utils/comicStyleHelper.js';
-import { requestAudioPermissions } from '../../../utils/audioPreloadService.js';
+import { requestAudioPermissions, prefetchTts } from '../../../utils/audioPreloadService.js';
+import { storyOpeningTtsUrls } from '../../../utils/storyScenes.js';
+
+// New voices take a few seconds to generate, so start the story's opening lines now, while
+// the story screen is still loading; it plays the same downloads (first line first)
+const preloadStoryOpening = (items, idx) => {
+  try {
+    storyOpeningTtsUrls(items, idx, 3).forEach((url, i) => prefetchTts(url, { priority: i === 0 }));
+  } catch (_) {}
+};
 
 export default function ModuleEntryRedirect() {
   const navigate = useNavigate();
@@ -167,6 +176,7 @@ export default function ModuleEntryRedirect() {
             chapterTitle: searchParams.get('title')
           });
           if (isNew) {
+            preloadStoryOpening(items, idx);
             navigate(`/learn/module/${moduleNumber}/story/${idx}${searchSuffix}`, { replace: true });
           } else {
             navigate(`/learn/module/${moduleNumber}/concept/${idx}${searchSuffix}`, { replace: true });
@@ -174,6 +184,7 @@ export default function ModuleEntryRedirect() {
           break;
         }
         case 'story':
+          preloadStoryOpening(items, idx);
           navigate(`/learn/module/${moduleNumber}/story/${idx}${searchSuffix}`, { replace: true });
           break;
         case 'blackboard':

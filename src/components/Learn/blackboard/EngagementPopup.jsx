@@ -7,6 +7,7 @@ import { playTtsAudio } from '../../../utils/audioPreloadService.js';
 import { getCharacterImage, useCharacterImages } from '../../../utils/characterImages.js';
 import { Capacitor } from '@capacitor/core';
 import { SpeechRecognition as NativeSpeech } from '@capacitor-community/speech-recognition';
+import { vibrateSuccess, vibrateError } from '../../../utils/vibrationService.js';
 
 // The Android WebView has no Web Speech API, so inside the app we use the phone's own recogniser.
 // Installed builds from before the plugin was added report it unavailable and keep the web path.
@@ -45,6 +46,8 @@ export default function EngagementPopup({ item, onComplete }) {
 
   // Sound effects
   const playSound = (isCorrect) => {
+    // A buzz with every answer, like the quizzes (respects the vibration setting)
+    if (isCorrect) vibrateSuccess(); else vibrateError();
     try {
       const audio = new Audio(isCorrect ? correctSfx : errorSfx);
       audio.volume = isCorrect ? 0.6 : 0.4;

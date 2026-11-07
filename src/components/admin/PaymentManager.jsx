@@ -2,15 +2,24 @@ import React, { useState, useEffect } from 'react';
 import paymentService from '../../services/paymentService.js';
 import SimpleLoading from '../ui/SimpleLoading.jsx';
 
-export default function PaymentManager() {
-  const [activeTab, setActiveTab] = useState('rules'); // 'rules' | 'plans' | 'transactions'
+// Where a payment came from (PaymentTransaction.experimentVariant)
+const SOURCE_LABEL = {
+  razorpay: 'Website (Razorpay)',
+  google_play: 'Google Play',
+  google_play_test: 'Play (test)',
+  mock_sandbox: 'Test checkout'
+};
+const SUB_TABS = ['rules', 'transactions'];
+
+export default function PaymentManager({ subTab = '', onSubTab }) {
+  const activeTab = SUB_TABS.includes(subTab) ? subTab : 'rules';
+  const setActiveTab = (tab) => (onSubTab ? onSubTab(tab) : null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
   // Settings State
   const [config, setConfig] = useState(null);
-  const [plans, setPlans] = useState([]);
   const [analytics, setAnalytics] = useState(null);
 
   // Transactions State
@@ -18,7 +27,7 @@ export default function PaymentManager() {
   const [txLoading, setTxLoading] = useState(false);
   const [txSearch, setTxSearch] = useState('');
   const [txStatus, setTxStatus] = useState('all');
-  const [txType, setTxType] = useState('all');
+  const [txSource, setTxSource] = useState('all');
   const [txPage, setTxPage] = useState(1);
   const [txTotalPages, setTxTotalPages] = useState(1);
 
@@ -30,7 +39,7 @@ export default function PaymentManager() {
     if (activeTab === 'transactions') {
       loadTransactions();
     }
-  }, [activeTab, txPage, txStatus, txType]);
+  }, [activeTab, txPage, txStatus, txSource]);
 
   const loadSettings = async () => {
     try {
@@ -46,7 +55,6 @@ export default function PaymentManager() {
         passOriginalPrice: data.config?.passOriginalPrice ?? pass?.discountedFrom ?? 599,
         passDays: data.config?.passDays ?? pass?.durationDays ?? 180,
       });
-      setPlans(data.plans || []);
       setAnalytics(data.analytics);
     } catch (err) {
       console.error('Error loading payment settings:', err);
@@ -64,7 +72,7 @@ export default function PaymentManager() {
         limit: 20,
         search: txSearch,
         status: txStatus,
-        paymentType: txType
+        source: txSource
       });
       setTransactions(data.transactions || []);
       setTxTotalPages(data.totalPages || 1);
@@ -102,10 +110,6 @@ export default function PaymentManager() {
       };
       setConfig(updatedConfig);
 
-      if (res?.plan) {
-        setPlans(prev => prev.map(p => p.code === 'pass_6m' ? { ...p, ...res.plan } : p));
-      }
-
       setMessage({
         type: 'success',
         text: `Settings saved successfully! Pro Pass is now ₹${updatedConfig.passPrice} and Free Trial is ${updatedConfig.trialHours}h.`
@@ -119,36 +123,12 @@ export default function PaymentManager() {
     }
   };
 
-  const handleSavePlan = async (plan) => {
+  const handleExportCSV = async () => {
     try {
-      setSaving(true);
-      setMessage({ type: '', text: '' });
-      await paymentService.savePlan({
-        id: plan._id,
-        code: plan.code,
-        name: plan.name,
-        description: plan.description,
-        type: plan.type,
-        billingCycle: plan.billingCycle,
-        amount: Number(plan.amount), // In plain Rupees
-        discountedFrom: Number(plan.discountedFrom || 0),
-        badge: plan.badge,
-        features: plan.features,
-        isActive: plan.isActive
-      });
-      setMessage({ type: 'success', text: `Plan '${plan.name}' updated successfully in Rupees!` });
-      setTimeout(() => setMessage({ type: '', text: '' }), 4000);
-      await loadSettings();
+      await paymentService.downloadTransactionsCSV();
     } catch (err) {
-      setMessage({ type: 'error', text: err.response?.data?.message || 'Failed to save plan' });
-    } finally {
-      setSaving(false);
+      setMessage({ type: 'error', text: err.response?.status === 401 ? 'Your login has expired. Please log in again.' : 'Could not download the CSV' });
     }
-  };
-
-  const handleExportCSV = () => {
-    const token = localStorage.getItem('token') || sessionStorage.getItem('adminToken');
-    window.open(`${paymentService.getExportCsvUrl ? paymentService.getExportCsvUrl() : '/api/payments/admin/transactions/export-csv'}?token=${token}`, '_blank');
   };
 
   if (loading) {
@@ -163,11 +143,11 @@ export default function PaymentManager() {
           <div className="flex items-center gap-3">
             <span className="text-2xl">💳</span>
             <h2 className="text-2xl font-black text-gray-900 tracking-tight">
-              Payments & Subscriptions
+              Payments &amp; Pro Pass
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-gray-500 mt-1">
-            Manage billing rules, 30-day free trials, A/B test splits, and live Razorpay transactions.
+            Free trial rules, the Pro pass price, and every payment from the website (Razorpay) and the app (Google Play).
           </p>
         </div>
 
@@ -230,31 +210,31 @@ export default function PaymentManager() {
         </div>
       </div>
 
-      {/* Analytics Summary Cards */}
+      {/* Summary: one pass, paid on the website or in the app (test payments left out) */}
       {analytics && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <div className="bg-blue-50/70 border border-blue-100 rounded-2xl p-4">
-            <div className="text-xs font-bold text-blue-600 uppercase tracking-wider">Total Revenue</div>
-            <div className="text-2xl font-black text-blue-950 mt-1">₹{analytics.totalRevenueRupees}</div>
-            <div className="text-[11px] text-blue-500 mt-0.5">Plain Rupees (₹)</div>
-          </div>
-
-          <div className="bg-emerald-50/70 border border-emerald-100 rounded-2xl p-4">
-            <div className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Active Subscribers</div>
-            <div className="text-2xl font-black text-emerald-950 mt-1">{analytics.activeSubscribersCount}</div>
-            <div className="text-[11px] text-emerald-500 mt-0.5">Monthly passes</div>
-          </div>
-
-          <div className="bg-purple-50/70 border border-purple-100 rounded-2xl p-4">
-            <div className="text-xs font-bold text-purple-600 uppercase tracking-wider">Single Lessons Sold</div>
-            <div className="text-2xl font-black text-purple-950 mt-1">{analytics.singleLessonsPurchasedCount}</div>
-            <div className="text-[11px] text-purple-500 mt-0.5">Pay-per-lesson</div>
+            <div className="text-xs font-bold text-blue-600 uppercase tracking-wider">Revenue</div>
+            <div className="text-2xl font-black text-blue-950 mt-1">₹{analytics.realRevenueRupees ?? analytics.totalRevenueRupees}</div>
+            <div className="text-[11px] text-blue-500 mt-0.5">{analytics.paidThisMonth ?? 0} paid this month</div>
           </div>
 
           <div className="bg-amber-50/70 border border-amber-100 rounded-2xl p-4">
-            <div className="text-xs font-bold text-amber-600 uppercase tracking-wider">Successful Payments</div>
-            <div className="text-2xl font-black text-amber-950 mt-1">{analytics.capturedTransactionsCount}</div>
-            <div className="text-[11px] text-amber-500 mt-0.5">Captured orders</div>
+            <div className="text-xs font-bold text-amber-700 uppercase tracking-wider">👑 Pro users</div>
+            <div className="text-2xl font-black text-amber-950 mt-1">{analytics.activeSubscribersCount}</div>
+            <div className="text-[11px] text-amber-600 mt-0.5">With an active pass</div>
+          </div>
+
+          <div className="bg-emerald-50/70 border border-emerald-100 rounded-2xl p-4">
+            <div className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Paid via</div>
+            <div className="text-sm font-black text-emerald-950 mt-1.5">Website: {analytics.web?.count ?? 0} · ₹{analytics.web?.total ?? 0}</div>
+            <div className="text-sm font-black text-emerald-950">Google Play: {analytics.googlePlay?.count ?? 0} · ₹{analytics.googlePlay?.total ?? 0}</div>
+          </div>
+
+          <div className="bg-rose-50/70 border border-rose-100 rounded-2xl p-4">
+            <div className="text-xs font-bold text-rose-600 uppercase tracking-wider">Refunds</div>
+            <div className="text-2xl font-black text-rose-950 mt-1">{analytics.refundsCount ?? 0}</div>
+            <div className="text-[11px] text-rose-500 mt-0.5">Pass removed on refund</div>
           </div>
         </div>
       )}
@@ -276,9 +256,8 @@ export default function PaymentManager() {
       {/* Navigation Tabs */}
       <div className="flex border-b border-gray-200 mb-6 gap-2 sm:gap-4 overflow-x-auto no-scrollbar">
         {[
-          { id: 'rules', label: '⚙️ Trial Rules', desc: 'Trial & Gateway' },
-          { id: 'plans', label: '💰 Plans & Pricing', desc: 'Rupees Setup' },
-          { id: 'transactions', label: '📊 Transactions Log', desc: 'Audit & CSV' }
+          { id: 'rules', label: '⚙️ Trial & Price' },
+          { id: 'transactions', label: '📊 Payments Log' }
         ].map((tab) => (
           <button
             key={tab.id}
@@ -487,128 +466,6 @@ export default function PaymentManager() {
         </div>
       )}
 
-      {activeTab === 'plans' && (
-        <div className="space-y-6 animate-fade-in">
-          <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl text-xs sm:text-sm text-blue-900">
-            ℹ️ <strong>Active Subscription Plan:</strong> Standard chapter-based pass for full 1-year access. Prices are stored and edited in standard Rupees (₹), NOT in paise.
-          </div>
-
-          <div className="max-w-2xl mx-auto">
-            {plans
-              .filter((plan) => plan.code === 'pay_per_chapter' || plan.isActive)
-              .slice(0, 1)
-              .map((plan) => (
-                <div key={plan.code} className="bg-gray-50/70 p-6 md:p-8 rounded-3xl border border-gray-200 shadow-sm flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-xs uppercase px-2.5 py-1 rounded-md bg-blue-100 text-blue-800 font-bold">
-                          {plan.code}
-                        </span>
-                        <span className="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-                          Active Plan
-                        </span>
-                      </div>
-                      <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
-                        <input
-                          type="checkbox"
-                          checked={plan.isActive}
-                          onChange={(e) => {
-                            const updated = plans.map((p) => p.code === plan.code ? { ...p, isActive: e.target.checked } : p);
-                            setPlans(updated);
-                          }}
-                          className="rounded accent-blue-600"
-                        />
-                        Active Plan
-                      </label>
-                    </div>
-
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1">Plan Display Name</label>
-                        <input
-                          type="text"
-                          value={plan.name}
-                          onChange={(e) => {
-                            const updated = plans.map((p) => p.code === plan.code ? { ...p, name: e.target.value } : p);
-                            setPlans(updated);
-                          }}
-                          className="w-full px-3 py-2 rounded-xl border border-gray-300 text-sm font-semibold bg-white"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-xs font-bold text-gray-700 mb-1">Price (₹ Rupees)</label>
-                          <input
-                            type="number"
-                            value={plan.amount}
-                            onChange={(e) => {
-                              const updated = plans.map((p) => p.code === plan.code ? { ...p, amount: Number(e.target.value) } : p);
-                              setPlans(updated);
-                            }}
-                            className="w-full px-3 py-2 rounded-xl border border-gray-300 text-base font-bold text-blue-700 bg-white"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-bold text-gray-700 mb-1">Discount Strike Price (₹)</label>
-                          <input
-                            type="number"
-                            value={plan.discountedFrom || 0}
-                            onChange={(e) => {
-                              const updated = plans.map((p) => p.code === plan.code ? { ...p, discountedFrom: Number(e.target.value) } : p);
-                              setPlans(updated);
-                            }}
-                            className="w-full px-3 py-2 rounded-xl border border-gray-300 text-base font-semibold text-gray-500 bg-white"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1">Badge Tag</label>
-                        <input
-                          type="text"
-                          placeholder="e.g. Most Popular"
-                          value={plan.badge || ''}
-                          onChange={(e) => {
-                            const updated = plans.map((p) => p.code === plan.code ? { ...p, badge: e.target.value } : p);
-                            setPlans(updated);
-                          }}
-                          className="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs font-semibold bg-white"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1">Description</label>
-                        <textarea
-                          rows="2"
-                          value={plan.description || ''}
-                          onChange={(e) => {
-                            const updated = plans.map((p) => p.code === plan.code ? { ...p, description: e.target.value } : p);
-                            setPlans(updated);
-                          }}
-                          className="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs text-gray-700 bg-white"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="pt-6 mt-6 border-t border-gray-200">
-                    <button
-                      disabled={saving}
-                      onClick={() => handleSavePlan(plan)}
-                      className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-sm transition-transform active:scale-95 disabled:opacity-50"
-                    >
-                      {saving ? 'Saving...' : `Save Plan Changes (₹${plan.amount})`}
-                    </button>
-                  </div>
-                </div>
-              ))}
-          </div>
-        </div>
-      )}
-
       {/* TAB 4: TRANSACTIONS & AUDIT LOG */}
       {activeTab === 'transactions' && (
         <div className="space-y-6 animate-fade-in">
@@ -620,7 +477,7 @@ export default function PaymentManager() {
                 placeholder="Search phone, student, order ID..."
                 value={txSearch}
                 onChange={(e) => setTxSearch(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && loadTransactions()}
+                onKeyDown={(e) => { if (e.key === 'Enter') { setTxPage(1); loadTransactions(); } }}
                 className="px-3 py-2 rounded-xl border border-gray-300 text-xs bg-white min-w-[220px]"
               />
 
@@ -630,19 +487,21 @@ export default function PaymentManager() {
                 className="px-3 py-2 rounded-xl border border-gray-300 text-xs bg-white font-semibold"
               >
                 <option value="all">All Statuses</option>
-                <option value="captured">Captured (Paid)</option>
-                <option value="created">Created (Pending)</option>
+                <option value="captured">Paid</option>
+                <option value="created">Started, not paid</option>
                 <option value="failed">Failed</option>
+                <option value="refunded">Refunded</option>
               </select>
 
               <select
-                value={txType}
-                onChange={(e) => setTxType(e.target.value)}
+                value={txSource}
+                onChange={(e) => { setTxSource(e.target.value); setTxPage(1); }}
                 className="px-3 py-2 rounded-xl border border-gray-300 text-xs bg-white font-semibold"
               >
-                <option value="all">All Types</option>
-                <option value="subscription">Monthly Pass</option>
-                <option value="pay_per_lesson">Pay Per Lesson</option>
+                <option value="all">Paid anywhere</option>
+                {Object.entries(SOURCE_LABEL).map(([value, label]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
               </select>
 
               <button
@@ -668,21 +527,20 @@ export default function PaymentManager() {
                 <tr>
                   <th className="py-3 px-4">Date</th>
                   <th className="py-3 px-4">Student</th>
-                  <th className="py-3 px-4">Type</th>
+                  <th className="py-3 px-4">Paid via</th>
                   <th className="py-3 px-4">Amount</th>
                   <th className="py-3 px-4">Status</th>
                   <th className="py-3 px-4">Order / Payment ID</th>
-                  <th className="py-3 px-4">Variant</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 bg-white">
                 {txLoading ? (
                   <tr>
-                    <td colSpan="7" className="py-8 text-center text-gray-400">Loading transactions...</td>
+                    <td colSpan="6" className="py-8 text-center text-gray-400">Loading payments...</td>
                   </tr>
                 ) : transactions.length === 0 ? (
                   <tr>
-                    <td colSpan="7" className="py-8 text-center text-gray-400">No payment transactions found.</td>
+                    <td colSpan="6" className="py-8 text-center text-gray-400">No payments found.</td>
                   </tr>
                 ) : (
                   transactions.map((t) => (
@@ -704,8 +562,8 @@ export default function PaymentManager() {
                         </div>
                       </td>
                       <td className="py-3 px-4">
-                        <span className="font-semibold capitalize">
-                          {t.paymentType === 'subscription' ? 'Monthly Pass' : 'Single Lesson'}
+                        <span className="font-semibold">
+                          {SOURCE_LABEL[t.experimentVariant] || 'Website (Razorpay)'}
                         </span>
                       </td>
                       <td className="py-3 px-4 font-bold text-gray-900">
@@ -718,18 +576,17 @@ export default function PaymentManager() {
                               ? 'bg-green-100 text-green-800'
                               : t.status === 'failed'
                               ? 'bg-red-100 text-red-800'
+                              : t.status === 'refunded'
+                              ? 'bg-slate-200 text-slate-700'
                               : 'bg-amber-100 text-amber-800'
                           }`}
                         >
-                          {t.status}
+                          {t.status === 'captured' ? 'paid' : t.status === 'created' ? 'not paid' : t.status}
                         </span>
                       </td>
                       <td className="py-3 px-4 font-mono text-[11px] text-gray-500">
                         <div>{t.orderId}</div>
                         {t.paymentId && <div className="text-gray-400 text-[10px]">{t.paymentId}</div>}
-                      </td>
-                      <td className="py-3 px-4 font-mono text-[11px] text-gray-500">
-                        {t.experimentVariant || 'hybrid'}
                       </td>
                     </tr>
                   ))

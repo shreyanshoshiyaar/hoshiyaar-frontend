@@ -189,6 +189,31 @@ export const paymentService = {
     return res.data;
   },
 
+  /** Admin: everyone with an active pass, keyed by user id ({ count, users }) */
+  async getProUsers() {
+    const res = await api.get('/api/payments/admin/pro-users');
+    return res.data;
+  },
+
+  /** Admin: one learner's pass, trial and payment history */
+  async getUserPayments(userId) {
+    const res = await api.get(`/api/payments/admin/users/${userId}/payments`);
+    return res.data;
+  },
+
+  /** Admin: download every transaction as CSV, signed in like any other admin request */
+  async downloadTransactionsCSV() {
+    const res = await api.get('/api/payments/admin/transactions/export-csv', { responseType: 'blob', timeout: 300000 });
+    const url = URL.createObjectURL(res.data);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `hoshiyaar-transactions-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  },
+
   /**
    * Admin: Fetch subscriptions
    */

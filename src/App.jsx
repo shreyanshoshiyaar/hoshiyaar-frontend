@@ -247,6 +247,13 @@ const NavigationController = () => {
   return null;
 };
 
+// App-wide safety net: a crash on one screen shows a recovery message instead of a white
+// screen, and moving to another screen clears it
+const RouteErrorBoundary = ({ children }) => {
+  const location = useLocation();
+  return <ErrorBoundary key={location.pathname}>{children}</ErrorBoundary>;
+};
+
 const MainLayout = ({ children }) => {
   const location = useLocation();
   const isHomePage = location.pathname === '/';
@@ -359,6 +366,7 @@ function App() {
             <NavigationController />
             <Suspense fallback={<LoadingPage />}>
               <MidLessonStreakModal />
+              <RouteErrorBoundary>
               <Routes>
                 {/* Public Routes */}
                 <Route path="/login" element={<UnifiedAuth />} />
@@ -461,7 +469,7 @@ function App() {
                   } 
                 />
                 <Route 
-                  path="/admin" 
+                  path="/admin/*" 
                   element={
                     <AdminProtectedRoute>
                       <AdminPanel />
@@ -734,6 +742,7 @@ function App() {
                 {/* Catch-all redirect for broken links like /refund-policy */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
+              </RouteErrorBoundary>
             </Suspense>
           </Router>
         </ReviewProvider>

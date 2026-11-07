@@ -238,8 +238,10 @@ export const getTtsSrc = (url) => ttsBlobUrls.get(url) || url;
 /**
  * Wait (up to `timeoutMs`) for a clip that is already downloading, so the player reuses that
  * download instead of starting a second synthesis of the same line. Resolves with the src to play.
+ * A new line takes the server 2.5-6 s to generate, so the wait is long: giving up early made the
+ * player request the same line again and the server generate it twice.
  */
-export const waitForTts = (url, timeoutMs = 3000) => {
+export const waitForTts = (url, timeoutMs = 12000) => {
   if (ttsBlobUrls.has(url)) return Promise.resolve(ttsBlobUrls.get(url));
   const timeout = new Promise(r => setTimeout(r, timeoutMs));
   return Promise.race([prefetchTts(url, { priority: true }), timeout]).then(() => getTtsSrc(url));

@@ -45,7 +45,7 @@ const PrivacyPolicy = () => {
         <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-xs border border-gray-200 p-6 sm:p-10 md:p-14">
           <div className="mb-8 pb-6 border-b border-gray-100">
             <h2 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">Privacy Policy</h2>
-            <p className="text-xs text-gray-500 mt-1">Last Updated: October 2026 • Effective Date: October 1, 2026</p>
+            <p className="text-xs text-gray-500 mt-1">Last Updated: November 2026 • Effective Date: November 7, 2026</p>
           </div>
 
         {/* Content */}
@@ -59,7 +59,9 @@ const PrivacyPolicy = () => {
             <li>Account & Parent Information: Parent/Guardian name, contact email, mobile phone number, and password when registering an account.</li>
             <li>Learner Profile Information: Child's name or preferred username, school name, board (e.g. CBSE), class level (e.g. Class 6, 7, 8), and date of birth.</li>
             <li>Learning Progress & Usage: Points earned, completed lessons, chapter progress, streak milestones, and quiz results.</li>
-            <li>Billing & Transaction Data: Razorpay payment IDs, order IDs, purchase timestamps, chapter identifiers, and transaction amounts. We do NOT collect, process, or store credit/debit card numbers, CVVs, net banking credentials, or UPI PINs. All payment transactions are encrypted and processed by our certified payment partner Razorpay.</li>
+            <li>Billing & Transaction Data: for the HoshiYaar Pro pass we keep the order and payment IDs, amount, date, and whether it was paid on the website (via Razorpay) or in the Android app (via Google Play, including the Google Play purchase token used to verify it). We do NOT collect, process, or store credit/debit card numbers, CVVs, net banking credentials, or UPI PINs; these are handled entirely by Razorpay or Google Play.</li>
+            <li>Device & App Information: a random device identifier created by the app, the app version and platform (Android or web). We use the device identifier only to run the free trial fairly (so a trial isn't restarted by reinstalling the app or creating a new account on the same device) and to keep your progress in sync.</li>
+            <li>Answers to Practice Questions: answers typed into descriptive (written) questions, which may be sent for automated AI feedback as described in Section 3.</li>
           </ul>
         </section>
 
@@ -72,7 +74,8 @@ const PrivacyPolicy = () => {
             <li>Provide, maintain, and improve our gamified curriculum and learning features.</li>
             <li>Personalize the child's learning journey and track mastery over chapters.</li>
             <li>Maintain classroom and global school-specific leaderboards.</li>
-            <li>Activate chapter passes (1-Year Chapter Passes), fulfill transactions, and deliver payment receipts.</li>
+            <li>Run the free trial (48 hours or 7 lessons, whichever comes first), activate the HoshiYaar Pro pass after payment, verify payments with Razorpay or Google Play, and process refunds.</li>
+            <li>Send learning reminders and service notifications to the app (you can turn notifications off in your phone settings).</li>
             <li>Communicate with parents regarding learning milestones, service updates, billing, and parental consent.</li>
           </ul>
         </section>
@@ -83,7 +86,15 @@ const PrivacyPolicy = () => {
             We do not sell, rent, or trade your personal information. We do not share personal information with third parties outside of Hoshiyaar Academy except in the following limited situations:
           </p>
           <ul className="list-disc pl-5 text-sm font-medium space-y-2">
-            <li>Payment Processing: With Razorpay Software Private Limited strictly to verify and process online payments under PCI-DSS Level 1 compliance.</li>
+            <li>Payment Processing: with Razorpay Software Private Limited (website payments) and Google Play (in-app payments), strictly to process and verify payments and refunds.</li>
+            <li>Service Providers that help us run the Platform, only for that purpose and under their own privacy and security terms:
+              <ul className="list-[circle] pl-5 mt-2 space-y-1.5">
+                <li>Google — Firebase Cloud Messaging (app notifications) and the Gemini AI service, which receives the text of a written answer (not the child's name or contact details) to generate learning feedback.</li>
+                <li>Microsoft — text-to-speech voices generated from lesson text (no personal data is sent), and Microsoft Clarity, which records anonymous app usage (screens and taps) so we can fix problems and improve lessons.</li>
+                <li>Meta (Facebook) — the App Events SDK in the Android app, which counts app installs and sign-ups so we can measure our own campaigns. It is not used to show ads inside HoshiYaar.</li>
+                <li>Cloudinary (lesson images), Railway and MongoDB Atlas (hosting and database), and WhatsApp (when you message our support or receive a verification code).</li>
+              </ul>
+            </li>
             <li>With Explicit Parental Consent: Whenever requested or agreed to by the parent/guardian.</li>
             <li>Leaderboard Visibility: Learner username, class level, and school name are visible on competitive student leaderboards.</li>
             <li>Legal & Regulatory Compliance: To comply with applicable laws, judicial orders, or governmental directives under the DPDP Act or other statutory authorities.</li>
@@ -114,7 +125,7 @@ const PrivacyPolicy = () => {
         <section className="space-y-4">
           <h2 className="text-xl font-black text-blue-600 uppercase tracking-tight">7. Cookies & Local Storage</h2>
           <p className="text-sm font-medium leading-relaxed">
-            We use secure local storage and essential session tokens solely for authentication and remembering learner progress. We do not use third-party tracking cookies or advertising pixels.
+            We use secure local storage and session tokens for signing in, remembering learner progress, and settings such as vibration. Apart from the analytics and measurement tools listed in Section 3, we do not use third-party tracking cookies, and HoshiYaar does not show advertisements to learners.
           </p>
         </section>
 
@@ -196,7 +207,7 @@ const PrivacyPolicy = () => {
         </section>
 
         <div className="pt-10 pb-6 text-center opacity-40">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em]">Last Updated: October 2026</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em]">Last Updated: November 2026</p>
         </div>
       </div>
     </div>

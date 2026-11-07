@@ -1,20 +1,65 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import curriculumService from '../../services/curriculumService';
-import ContentEditor from './ContentEditor';
-import BlogManager from './BlogManager';
-import SystemSettingsManager from './SystemSettingsManager';
-import UserAnalytics from './UserAnalytics';
-import InteractiveStoryManager from './InteractiveStoryManager';
-import ExamManager from './ExamManager';
-import AiExamAnalytics from './AiExamAnalytics';
-import NotificationAnalytics from './NotificationAnalytics';
-import PaymentManager from './PaymentManager';
-import TeacherClassroomAnalytics from './TeacherClassroomAnalytics';
-import GlyphManager from './GlyphManager';
-import ReportManager from './ReportManager';
-import AudioVoiceManager from './AudioVoiceManager';
-import CharacterImageManager from './CharacterImageManager';
+
+// Each section loads on its own, so one heavy or broken section can't stop the panel opening
+const ContentEditor = lazy(() => import('./ContentEditor'));
+const BlogManager = lazy(() => import('./BlogManager'));
+const SystemSettingsManager = lazy(() => import('./SystemSettingsManager'));
+const UserAnalytics = lazy(() => import('./UserAnalytics'));
+const ExamManager = lazy(() => import('./ExamManager'));
+const NotificationAnalytics = lazy(() => import('./NotificationAnalytics'));
+const PaymentManager = lazy(() => import('./PaymentManager'));
+const GlyphManager = lazy(() => import('./GlyphManager'));
+const ReportManager = lazy(() => import('./ReportManager'));
+const AudioVoiceManager = lazy(() => import('./AudioVoiceManager'));
+const CharacterImageManager = lazy(() => import('./CharacterImageManager'));
+
+// Admin sections, in tab order. `slug` is the address: /admin/<slug>
+const SECTIONS = [
+  { id: 'curriculum', slug: 'curriculum', icon: '📚', label: 'Content' },
+  { id: 'payments', slug: 'payments', icon: '💳', label: 'Payments & Pro' },
+  { id: 'analytics', slug: 'analytics', icon: '📊', label: 'User Analytics' },
+  { id: 'glyphs', slug: 'glyphs', icon: '🎨', label: 'Glyph Library' },
+  { id: 'exams', slug: 'exams', icon: '📝', label: 'Exams' },
+  { id: 'reports', slug: 'reports', icon: '🚩', label: 'Reported Issues' },
+  { id: 'audio_voice', slug: 'audio-voice', icon: '🎙️', label: 'Audio & Voice' },
+  { id: 'character_images', slug: 'character-images', icon: '🧑‍🎨', label: 'Character Images' },
+  { id: 'settings', slug: 'settings', icon: '⚙️', label: 'System Settings' },
+  { id: 'blogs', slug: 'blogs', icon: '✍️', label: 'Blog' },
+  { id: 'notification_analytics', slug: 'notifications', icon: '🔔', label: 'Notifications' },
+];
+const sectionBySlug = (slug) => SECTIONS.find(sec => sec.slug === slug) || null;
+
+// Catches a crash inside one section and offers a retry, instead of a blank admin panel
+class SectionBoundary extends React.Component {
+  constructor(props) { super(props); this.state = { error: null }; }
+  static getDerivedStateFromError(error) { return { error }; }
+  componentDidCatch(error) { console.error('[Admin] Section failed:', error); }
+  render() {
+    if (!this.state.error) return this.props.children;
+    const chunkFailed = /dynamically imported module|Loading chunk|Failed to fetch/i.test(String(this.state.error?.message || ''));
+    return (
+      <div className="max-w-3xl mx-auto my-10 p-6 rounded-2xl bg-rose-50 border border-rose-200 text-center">
+        <p className="font-black text-rose-800">This section couldn't load.</p>
+        <p className="text-sm text-rose-700 mt-1">{chunkFailed ? 'A newer version of the admin panel is available.' : String(this.state.error?.message || 'Unexpected error')}</p>
+        <button
+          onClick={() => (chunkFailed ? window.location.reload() : this.setState({ error: null }))}
+          className="mt-4 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold"
+        >
+          {chunkFailed ? 'Reload' : 'Retry'}
+        </button>
+      </div>
+    );
+  }
+}
+
+const SectionLoading = () => (
+  <div className="py-16 flex items-center justify-center gap-3 text-sm font-bold text-slate-500">
+    <span className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+    Loading…
+  </div>
+);
 
 const UnitEditRow = ({ unit, onUpdateUnit }) => {
   const [title, setTitle] = useState(unit.title || '');
@@ -169,7 +214,23 @@ const ChapterDisplayCard = ({ chapter, onSaved }) => {
 
 const AdminPanel = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('curriculum');
+  // The address is the state: /admin/<section>/<sub-tab>?board=&class=&subject=&chapter=&module=
+  const params = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [sectionSlug = '', subTab = ''] = String(params['*'] || '').split('/');
+  const activeSection = sectionBySlug(sectionSlug) || SECTIONS[0];
+  const activeTab = activeSection.id;
+  const setActiveTab = (id) => {
+    const target = SECTIONS.find(sec => sec.id === id);
+    if (!target) return;
+    // Content and Exams share the chapter picker, so they keep its place in the address
+    const keep = ['curriculum', 'exams'].includes(id) ? window.location.search : '';
+    navigate(`/admin/${target.slug}${keep}`);
+  };
+  // Old or wrong addresses land on a real section
+  useEffect(() => {
+    if (!sectionBySlug(sectionSlug)) navigate(`/admin/${SECTIONS[0].slug}${window.location.search}`, { replace: true });
+  }, [sectionSlug]);
 
   const [boards, setBoards] = useState([]);
   const [classes, setClasses] = useState([]);
@@ -177,11 +238,32 @@ const AdminPanel = () => {
   const [chapters, setChapters] = useState([]);
   const [modules, setModules] = useState([]);
   
-  const [selectedBoard, setSelectedBoard] = useState('');
-  const [selectedClass, setSelectedClass] = useState('');
-  const [selectedSubject, setSelectedSubject] = useState('');
-  const [selectedChapter, setSelectedChapter] = useState('');
-  const [selectedModule, setSelectedModule] = useState('');
+  // Content path picked so far, restored from the address after a refresh or a shared link
+  const fromUrl = useRef({
+    board: searchParams.get('board') || '',
+    class: searchParams.get('class') || '',
+    subject: searchParams.get('subject') || '',
+    chapter: searchParams.get('chapter') || '',
+    module: searchParams.get('module') || ''
+  });
+  const [selectedBoard, setSelectedBoard] = useState(fromUrl.current.board);
+  const [selectedClass, setSelectedClass] = useState(fromUrl.current.class);
+  const [selectedSubject, setSelectedSubject] = useState(fromUrl.current.subject);
+  const [selectedChapter, setSelectedChapter] = useState(fromUrl.current.chapter);
+  const [selectedModule, setSelectedModule] = useState(fromUrl.current.module);
+  // While a level still matches what the address restored, its children are kept, not cleared
+  const restoring = (level, value) => Boolean(value) && fromUrl.current[level] === value;
+
+  useEffect(() => {
+    if (!['curriculum', 'exams'].includes(activeTab)) return;
+    const next = new URLSearchParams();
+    if (selectedBoard) next.set('board', selectedBoard);
+    if (selectedClass) next.set('class', selectedClass);
+    if (selectedSubject) next.set('subject', selectedSubject);
+    if (selectedChapter) next.set('chapter', selectedChapter);
+    if (selectedModule && activeTab === 'curriculum') next.set('module', selectedModule);
+    if (next.toString() !== searchParams.toString()) setSearchParams(next, { replace: true });
+  }, [activeTab, selectedBoard, selectedClass, selectedSubject, selectedChapter, selectedModule]);
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -207,6 +289,7 @@ const AdminPanel = () => {
   // Fetch classes when board is selected
   useEffect(() => {
     if (selectedBoard) {
+      if (restoring('board', selectedBoard)) { fetchClasses(); return; }
       setSelectedClass('');
       setSelectedSubject('');
       setSelectedChapter('');
@@ -236,6 +319,7 @@ const AdminPanel = () => {
   // Fetch subjects when class is selected
   useEffect(() => {
     if (selectedBoard && selectedClass) {
+      if (restoring('class', selectedClass)) { fetchSubjects(); return; }
       setSelectedSubject('');
       setSelectedChapter('');
       setSelectedModule('');
@@ -265,6 +349,7 @@ const AdminPanel = () => {
   // Fetch chapters when subject is selected
   useEffect(() => {
     if (selectedBoard && selectedSubject) {
+      if (restoring('subject', selectedSubject)) { fetchChapters(); return; }
       setSelectedChapter('');
       setSelectedModule('');
       setChapters([]);
@@ -314,6 +399,7 @@ const AdminPanel = () => {
   // Fetch modules and units when chapter is selected
   useEffect(() => {
     if (selectedChapter) {
+      if (restoring('chapter', selectedChapter)) { fetchModules(); fetchUnits(); return; }
       setSelectedModule('');
       setModules([]);
       setUnits([]);
@@ -360,22 +446,27 @@ const AdminPanel = () => {
   };
 
   const handleBoardChange = (e) => {
+    fromUrl.current = {};
     setSelectedBoard(e.target.value);
   };
 
   const handleClassChange = (e) => {
+    fromUrl.current = {};
     setSelectedClass(e.target.value);
   };
 
   const handleSubjectChange = (e) => {
+    fromUrl.current = {};
     setSelectedSubject(e.target.value);
   };
 
   const handleChapterChange = (e) => {
+    fromUrl.current = {};
     setSelectedChapter(e.target.value);
   };
 
   const handleModuleChange = (e) => {
+    fromUrl.current = {};
     setSelectedModule(e.target.value);
   };
 
@@ -409,176 +500,42 @@ const AdminPanel = () => {
             </div>
           </div>
 
-          {/* Tab Bar */}
+          {/* Tab Bar: every section has its own address */}
           <div className="flex gap-1 pt-1 overflow-x-auto no-scrollbar">
-            <button
-              onClick={() => setActiveTab('curriculum')}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
-                activeTab === 'curriculum'
-                  ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
-                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50 hover:border-slate-300'
-              }`}
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
-              <span>Content</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('payments')}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
-                activeTab === 'payments'
-                  ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
-                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
-              }`}
-            >
-              <span className="text-base">💳</span>
-              <span>Payments &amp; Subscriptions</span>
-              <span className="ml-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-300">
-                ⚡ Trial &amp; Price
-              </span>
-            </button>
-            <button
-              onClick={() => setActiveTab('glyphs')}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
-                activeTab === 'glyphs'
-                  ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
-                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50 hover:border-slate-300'
-              }`}
-            >
-              <span className="text-base">🎨</span>
-              <span>Glyph Library</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('exams')}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
-                activeTab === 'exams'
-                  ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
-                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50 hover:border-slate-300'
-              }`}
-            >
-              <span>Exams</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('blogs')}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
-                activeTab === 'blogs'
-                  ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
-                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
-              }`}
-            >
-              <span className="text-base">✍️</span>
-              <span>Blog Manager</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('reports')}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
-                activeTab === 'reports'
-                  ? 'border-rose-600 text-rose-700 bg-rose-50/40'
-                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
-              }`}
-            >
-              <span className="text-base">🚩</span>
-              <span>Reported Issues</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('audio_voice')}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
-                activeTab === 'audio_voice'
-                  ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
-                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
-              }`}
-            >
-              <span className="text-base">🎙️</span>
-              <span>Audio & Voice Studio</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('character_images')}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
-                activeTab === 'character_images'
-                  ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
-                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
-              }`}
-            >
-              <span className="text-base">🧑‍🎨</span>
-              <span>Character Images</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('settings')}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
-                activeTab === 'settings'
-                  ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
-                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
-              }`}
-            >
-              <span className="text-base">⚙️</span>
-              <span>System Settings</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('stories')}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
-                activeTab === 'stories'
-                  ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
-                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50 hover:border-slate-300'
-              }`}
-            >
-              Interactive Stories
-            </button>
-            <button
-              onClick={() => setActiveTab('analytics')}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
-                activeTab === 'analytics'
-                  ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
-                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
-              }`}
-            >
-              <span className="text-base">📊</span>
-              <span>User Analytics</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('teachers')}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
-                activeTab === 'teachers'
-                  ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
-                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
-              }`}
-            >
-              <span className="text-base">👨‍🏫</span>
-              <span>Teacher Classrooms</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('ai_analytics')}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
-                activeTab === 'ai_analytics'
-                  ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
-                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
-              }`}
-            >
-              <span className="text-base">🤖</span>
-              <span>AI Exam Analytics & Limits</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('notification_analytics')}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
-                activeTab === 'notification_analytics'
-                  ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
-                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
-              }`}
-            >
-              <span className="text-base">🔔</span>
-              <span>Notification Analytics</span>
-            </button>
+            {SECTIONS.map((sec) => (
+              <a
+                key={sec.id}
+                href={`/admin/${sec.slug}`}
+                onClick={(e) => {
+                  if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return; // new tab still works
+                  e.preventDefault();
+                  setActiveTab(sec.id);
+                }}
+                className={`flex items-center gap-2 px-4 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none ${
+                  activeTab === sec.id
+                    ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40'
+                    : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50 hover:border-slate-300'
+                }`}
+              >
+                <span className="text-base">{sec.icon}</span>
+                <span>{sec.label}</span>
+              </a>
+            ))}
             <a
               href="https://hoshiyaar-image.netlify.app/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300"
+              className="flex items-center gap-2 px-4 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-all duration-200 focus:outline-none border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300"
             >
               <span className="text-base">🖼️</span>
-              <span>Image Upload Link</span>
+              <span>Image Upload Link ↗</span>
             </a>
           </div>
         </div>
       </div>
 
+      <SectionBoundary key={activeTab}>
+      <Suspense fallback={<SectionLoading />}>
       {/* ── Tab Panel: Content Management & Exams ── */}
       {(activeTab === 'curriculum' || activeTab === 'exams') && (
         <div className="max-w-7xl mx-auto py-8 px-4">
@@ -767,7 +724,7 @@ const AdminPanel = () => {
       {/* ── Tab Panel: Payments & Subscriptions ── */}
       {activeTab === 'payments' && (
         <div className="max-w-7xl mx-auto py-8 px-4">
-          <PaymentManager />
+          <PaymentManager subTab={subTab} onSubTab={(sub) => navigate(`/admin/payments/${sub}`)} />
         </div>
       )}
 
@@ -784,37 +741,10 @@ const AdminPanel = () => {
         </div>
       )}
 
-      {/* ── Tab Panel: Teacher & Classroom Analytics ── */}
-      {activeTab === 'teachers' && (
-        <div className="max-w-7xl mx-auto py-8 px-4">
-          <TeacherClassroomAnalytics />
-        </div>
-      )}
-
-      {/* ── Tab Panel: AI Exam Analytics & Limits ── */}
-      {activeTab === 'ai_analytics' && (
-        <div className="max-w-7xl mx-auto py-8 px-4">
-          <AiExamAnalytics />
-        </div>
-      )}
-
       {/* ── Tab Panel: Notification Analytics ── */}
       {activeTab === 'notification_analytics' && (
         <div className="max-w-7xl mx-auto py-8 px-4">
           <NotificationAnalytics />
-        </div>
-      )}
-
-      {/* ── Tab Panel: Interactive Stories ── */}
-      {activeTab === 'stories' && (
-        <div className="max-w-7xl mx-auto py-8 px-4">
-          <div className="mb-6">
-            <h2 className="text-2xl font-black text-slate-800">Interactive Stories</h2>
-            <p className="text-sm text-slate-500 font-medium mt-1">
-              Manage and create interactive storytelling content.
-            </p>
-          </div>
-          <InteractiveStoryManager />
         </div>
       )}
 
@@ -845,6 +775,8 @@ const AdminPanel = () => {
           <GlyphManager />
         </div>
       )}
+      </Suspense>
+      </SectionBoundary>
     </div>
   );
 };

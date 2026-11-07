@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAccess, trialMsLeft } from '../../../context/AccessContext.jsx';
+import { useAccess, trialMsLeft, passTimeLeft } from '../../../context/AccessContext.jsx';
 import { useShowPro } from '../../../hooks/useShowPro.js';
 
 const formatDate = (d) => new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -18,9 +18,9 @@ export default function ProPlanCard({ className = '' }) {
   if (!useShowPro()) return null;
 
   let status = 'Unlock every lesson for 6 months';
-  if (access?.state === 'pass') status = `Pro active till ${formatDate(access.passExpiresAt)}`;
+  if (access?.state === 'pass') status = `Pro active · ${passTimeLeft(access, now)?.text || `till ${formatDate(access.passExpiresAt)}`}`;
   else if (access?.state === 'trial_ended') status = 'Free trial ended · unlock for ₹99';
-  else if (access?.state === 'trial_active' || access?.state === 'guest_limit') {
+  else if (access?.state === 'trial_active' || access?.state === 'guest_limit' || (access?.state === 'trial_not_started' && trialMsLeft(access, now) != null)) {
     const ms = trialMsLeft(access, now);
     status = `Free trial · ${ms != null ? hoursLeft(ms) : ''}`;
   } else if (access?.state === 'trial_not_started') status = 'Free trial: 48 hours, starts with your first lesson';

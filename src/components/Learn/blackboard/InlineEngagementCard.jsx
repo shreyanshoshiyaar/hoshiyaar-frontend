@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import correctSfx from '../../../assets/sounds/correct-choice-43861.mp3';
 import errorSfx from '../../../assets/sounds/error-010-206498.mp3';
+import { vibrateSuccess, vibrateError } from '../../../utils/vibrationService.js';
 
 /**
  * Extracts the reason / reaction / explanation for a selected option
@@ -62,6 +63,8 @@ export default function InlineEngagementCard({ item, onComplete, onSkip }) {
 
   // Sound effects
   const playSound = (isCorrect) => {
+    // A buzz with every answer, like the quizzes (respects the vibration setting)
+    if (isCorrect) vibrateSuccess(); else vibrateError();
     try {
       const audio = new Audio(isCorrect ? correctSfx : errorSfx);
       audio.volume = isCorrect ? 0.6 : 0.4;

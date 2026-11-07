@@ -48,14 +48,26 @@ export const extractKeywords = (item) => {
     }
   }
 
-  // Flatten and split by commas, semicolons, or pipes
-  const list = (Array.isArray(rawSource) ? rawSource : [rawSource])
-    .flatMap(k => String(k || '').split(/[,;|]+/))
-    .map(s => s.trim())
+  // Each entry is one key point; "a | b" inside a point means either a or b counts.
+  // Stored keyword lists keep their points whole. Raw strings use the sheet format
+  // "point / point" with "|" for alternatives; older ones are just "a, b; c | d" (all required).
+  const fromArray = Array.isArray(item.keywords) && item.keywords.length > 0;
+  const list = (Array.isArray(rawSource) ? rawSource : [rawSource]).flatMap((k) => {
+    const str = String(k || '');
+    if (fromArray) return str.split(/[,;]+/);
+    if (/\s\/\s/.test(str)) return str.split('/');
+    return str.split(/[,;|]+/);
+  })
+    .map(s => s.split('|').map(a => a.trim()).filter(Boolean).join(' | '))
     .filter(Boolean);
 
   return Array.from(new Set(list));
 };
+
+/** A key point's alternatives ("upside down | inverted" -> ["upside down", "inverted"]) */
+export const keywordAlternatives = (kw) => String(kw || '').split('|').map(a => a.trim()).filter(Boolean);
+/** How a key point reads to the learner: "upside down or inverted" */
+export const keywordLabel = (kw) => keywordAlternatives(kw).join(' or ');
 
 export default function DescriptivePage() {
   const navigate = useNavigate();
@@ -333,10 +345,11 @@ export default function DescriptivePage() {
 
     const inputWords = normalizedInput.split(/\s+/).filter(Boolean);
     
-    keywords.forEach(kw => {
-      const nk = normalize(kw);
-      if (!nk) return;
-      
+    // One alternative of a key point against the learner's answer
+    const matchesPhrase = (phrase) => {
+      const nk = normalize(phrase);
+      if (!nk) return false;
+
       // 1. Exact phrase match or phrase is a substring of the input
       let isMatch = normalizedInput.includes(nk);
       
@@ -362,11 +375,17 @@ export default function DescriptivePage() {
           }
         }
       }
-      
-      if (isMatch) {
-        matched.push(kw);
+      return isMatch;
+    };
+
+    // A key point is covered when any of its alternatives is ("upside down | inverted")
+    keywords.forEach(kw => {
+      const alternatives = keywordAlternatives(kw);
+      if (alternatives.length === 0) return;
+      if (alternatives.some(matchesPhrase)) {
+        matched.push(keywordLabel(kw));
       } else {
-        missed.push(kw);
+        missed.push(keywordLabel(kw));
       }
     });
 
@@ -994,7 +1013,7 @@ export default function DescriptivePage() {
           onClose={() => setShowIncorrectModal(false)}
           onTryAgain={() => { setShowIncorrectModal(false); setShowResult(false); setForceShowExpert(false); }}
           onViewExpertAnswer={() => { setShowIncorrectModal(false); setForceShowExpert(true); }}
-          answer={`Suggested Keywords: ${extractKeywords(item).join(', ')}`}
+          answer={`Suggested Keywords: ${extractKeywords(item).map(keywordLabel).join(', ')}`}
           hideCorrectAnswer={true}
         />
       )}

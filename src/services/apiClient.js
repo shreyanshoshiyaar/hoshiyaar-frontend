@@ -2,6 +2,7 @@ import axios from 'axios';
 import { getApiBase } from '../utils/apiBase.js';
 import { logDev, warnDev } from '../utils/logger.js';
 import { getDeviceId } from '../utils/deviceId.js';
+import { isUserAdmin } from '../utils/adminCheck.js';
 
 /**
  * Centralized API client for all backend communication.
@@ -18,9 +19,16 @@ api.interceptors.request.use((config) => {
   let token = null;
   const isAdminRequest = config.url && (config.url.includes('/api/admin') || config.url.includes('/admin') || config.url.includes('/api/curriculum/import'));
 
-  // If this is an admin request, prioritize explicit adminToken from session, then user tokens
+  // Admin requests: a logged-in admin uses their own token. The separate admin login (session
+  // token) is only for when the logged-in account isn't an admin. A loose 'token' left on the
+  // device from an older session used to win here and made the admin panel fail for real admins.
   if (isAdminRequest) {
-    token = sessionStorage.getItem('adminToken') || localStorage.getItem('token') || localStorage.getItem('authToken');
+    let current = null;
+    try { current = JSON.parse(localStorage.getItem('user') || 'null'); } catch (_) {}
+    token = (current?.token && isUserAdmin(current) ? current.token : null) ||
+      sessionStorage.getItem('adminToken') ||
+      current?.token ||
+      localStorage.getItem('token') || localStorage.getItem('authToken');
   }
 
   // 1. Try to get user token from localStorage 'user'

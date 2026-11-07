@@ -6,7 +6,7 @@ import { useAuth } from '../../../context/AuthContext';
 import LessonHeader from '../LessonHeader.jsx';
 import ReportFlagButton from '../../common/ReportFlagButton.jsx';
 import SimpleLoading from '../../ui/SimpleLoading.jsx';
-import { getApiBase } from '../../../utils/apiBase.js';
+import { parseStoryScenes, isSkippedStoryLine, storyLineTtsUrl } from '../../../utils/storyScenes.js';
 import { getStageInfoForIndex } from '../../../utils/moduleStages.js';
 import { isNewStyleStory } from '../../../utils/comicStyleHelper.js';
 import { isMissionCompleteItem } from '../../../utils/missionCompleteHelper.js';
@@ -16,6 +16,7 @@ import { markModuleAsCompleted } from '../../../utils/progressSyncService.js';
 import paymentService from '../../../services/paymentService.js';
 import { useAccess } from '../../../context/AccessContext.jsx';
 import PaywallModal from '../../features/Subscription/PaywallModal.jsx';
+import { vibrateLight } from '../../../utils/vibrationService.js';
 
 const CHARACTER_AVATARS = {
   // Core 4 Characters
@@ -245,99 +246,6 @@ const getSpeakerTheme = (speaker = '') => {
 // Theme from the story's own mapping; picture from the shared, admin-editable character list
 const getSpeakerInfo = (speaker = '') => ({ ...getSpeakerTheme(speaker), avatar: getCharacterImage(speaker, 'hoshi') });
 
-function parseStoryScenes(rawItems = [], startIndex = 0) {
-  let idx = startIndex;
-  const sequenceItems = [];
-
-  const isStopType = (t) => [
-    'blackboard', 'blackboard-step', 'board',
-    'multiple-choice', 'fill-in-the-blank', 'rearrange',
-    'descriptive', 'didyouknow', 'did_you_know', 'did-you-know',
-    'concept', 'statement', 'engagement', 'engagement-audio', 'engagement-mcq', 'engagement-rearrange'
-  ].includes(String(t || '').toLowerCase());
-
-  while (idx < rawItems.length) {
-    const it = rawItems[idx];
-    const t = String(it.type || '').toLowerCase();
-    
-    // Stop if we hit a non-comic/story section (after startIndex)
-    if (idx > startIndex && isStopType(t)) {
-      break;
-    }
-    // Also stop if startIndex itself is a stop type (unless it's comic/story)
-    if (idx === startIndex && !['comic', 'story'].includes(t)) {
-      break;
-    }
-
-    sequenceItems.push({ item: it, index: idx });
-    idx++;
-  }
-
-  const nextSectionIndex = idx;
-
-  const pages = [];
-  let currentPage = null;
-
-  for (const { item, index: itemIdx } of sequenceItems) {
-    const t = String(item.type || '').toLowerCase();
-    const itemId = String(item.itemId || '');
-    const txt = item.text || item.question || '';
-    const isImageInstruction = txt.toUpperCase().startsWith('INSERT IMAGE:');
-    const isPanelOrScene = t === 'comic' || itemId.match(/\.P\d+$/i) || (itemId.match(/\.S\d+$/i) && !itemId.match(/\.D\d+/i));
-
-    if (isPanelOrScene || !currentPage) {
-      if (currentPage && (currentPage.elements.length > 0 || currentPage.sceneImage)) {
-        pages.push(currentPage);
-      }
-      
-      let title = item.cardTitle || (isImageInstruction ? txt.replace(/^INSERT IMAGE:\s*/i, '') : txt) || `Scene ${pages.length + 1}`;
-      let image = null;
-      if (item.images && item.images.length > 0) {
-        image = item.images[0];
-      } else if (item.imageUrl) {
-        image = item.imageUrl;
-      }
-
-      currentPage = {
-        partTitle: title,
-        caption: "MISSION COMIC",
-        sceneImage: image,
-        elements: []
-      };
-
-      // If this comic item actually has spoken text or dialogue
-      if (!isImageInstruction && (item.speaker || (txt && t === 'story'))) {
-        currentPage.elements.push({
-          id: item._id || itemIdx,
-          type: 'dialogue',
-          speaker: item.speaker || 'Hoshi',
-          text: txt
-        });
-      }
-    } else {
-      // It's a dialogue / story item inside current scene
-      const cleanText = isImageInstruction ? '' : txt;
-      if (cleanText) {
-        currentPage.elements.push({
-          id: item._id || itemIdx,
-          type: 'dialogue',
-          speaker: item.speaker || 'Hoshi',
-          text: cleanText
-        });
-      }
-      if (!currentPage.sceneImage) {
-        if (item.images && item.images.length > 0) currentPage.sceneImage = item.images[0];
-        else if (item.imageUrl) currentPage.sceneImage = item.imageUrl;
-      }
-    }
-  }
-
-  if (currentPage && (currentPage.elements.length > 0 || currentPage.sceneImage)) {
-    pages.push(currentPage);
-  }
-
-  return { pages, nextSectionIndex };
-}
 
 export default function StoryMode() {
   useCharacterImages(); // redraw when admin-edited character pictures load
@@ -572,11 +480,7 @@ export default function StoryMode() {
   const currentPage = pages[currentPageIndex] || pages[0];
   const rawElements = currentPage?.elements || [];
   // Include all dialogue and narrative cards in order
-  const elements = rawElements.filter(item => {
-    const txt = (item.text || '').toLowerCase();
-    if (txt.includes('detective squad took notes') || txt.includes('squad understood how digestion')) return false;
-    return true;
-  });
+  const elements = rawElements.filter(item => !isSkippedStoryLine(item));
 
   // HTML5 Audio Reference
   const audioRef = useRef(null);
@@ -596,14 +500,7 @@ export default function StoryMode() {
     };
   }, []);
 
-  // Scalable on-the-fly streaming audio URL (zero static files, infinite comics support)
-  const getAudioSource = (element) => {
-    if (element.audioUrl) return element.audioUrl;
-    const cleanText = (element.text || '').replace(/["*]/g, '').trim();
-    const speaker = element.speaker || 'Arpit Sir';
-    const apiBase = getApiBase();
-    return `${apiBase}/api/ai/tts?text=${encodeURIComponent(cleanText)}&speaker=${encodeURIComponent(speaker)}&v=15`;
-  };
+  const getAudioSource = storyLineTtsUrl;
 
   // Calculate flexible duration for an item based on its word count
   const getItemEstimatedDuration = (text) => {
@@ -793,6 +690,7 @@ export default function StoryMode() {
   };
 
   const handleContinue = async () => {
+    vibrateLight();
     stopAudio();
     if (currentPageIndex < pages.length - 1) {
       setCurrentPageIndex(prev => prev + 1);

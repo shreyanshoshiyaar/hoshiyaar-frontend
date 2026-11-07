@@ -8,6 +8,7 @@ import SimpleLoading from '../ui/SimpleLoading.jsx';
 import { isUserAdmin } from '../../utils/adminCheck.js';
 import ProPlanCard from '../features/Subscription/ProPlanCard.jsx';
 import TrialTestToggle from '../features/Subscription/TrialTestToggle.jsx';
+import { SUPPORT_WHATSAPP } from './MoreExtras.jsx';
 import { 
   AreaChart, 
   Area, 
@@ -403,6 +404,15 @@ const DesktopMore = ({ stars, weeklyStars }) => {
                  <Link to="/blogs" className="px-4 py-2 text-left font-bold text-gray-600 hover:bg-gray-50 rounded-lg transition-colors text-xs block">Blogs & Articles</Link>
                  <Link to="/privacy-policy" className="px-4 py-2 text-left font-bold text-gray-600 hover:bg-gray-50 rounded-lg transition-colors text-xs block">Privacy Policy</Link>
                  <Link to="/terms-conditions" className="px-4 py-2 text-left font-bold text-gray-600 hover:bg-gray-50 rounded-lg transition-colors text-xs block">Terms & Conditions</Link>
+                 <Link to="/refund-policy" className="px-4 py-2 text-left font-bold text-gray-600 hover:bg-gray-50 rounded-lg transition-colors text-xs block">Refund Policy</Link>
+                 <a
+                   href={`https://wa.me/${SUPPORT_WHATSAPP}?text=${encodeURIComponent('Hi HoshiYaar team, I need help with a refund / payment for my Pro pass.')}`}
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   className="px-4 py-2 text-left font-bold text-green-700 hover:bg-green-50 rounded-lg transition-colors text-xs block"
+                 >
+                   Refund &amp; payment help (WhatsApp) ↗
+                 </a>
                  <Link to="/contact" className="px-4 py-2 text-left font-bold text-blue-600 hover:bg-blue-50 rounded-lg transition-colors text-xs mt-1 border border-blue-50 block">Contact Support</Link>
                </div>
             </div>

@@ -1,64 +1,67 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import AuthLayout from '../forms/AuthLayout';
 import { CalendarIcon } from '../ui/Icons';
 import authService from '../../services/authService';
+import api from '../../services/apiClient';
 import { useAuth } from '../../context/AuthContext';
+import { isUserAdmin } from '../../utils/adminCheck.js';
 
+// The server decides who is an admin (GET /api/admin/verify). The device only decides whether
+// it's worth asking: the logged-in account looks like an admin, or there is an admin-login session.
 const AdminProtectedRoute = ({ children }) => {
   const { user } = useAuth();
   const location = useLocation();
-  const cleanPhone = String(user?.phone || '').replace(/\D/g, '');
-  const isSuperPhone = ['9867735936', '7021970672', '9820277252'].some(p => cleanPhone.endsWith(p)) ||
-    ['Host', 'hostcbse', 'AKSHITRAVULA', 'AKSHIT', 'SB10', 'Nidhi sekhri'].includes(user?.username);
+  const isAdminPath = location.pathname === '/admin' || location.pathname.startsWith('/admin/');
 
-  const [isAdmin, setIsAdmin] = useState(() => {
-    if (isSuperPhone) return true;
-    if (user && user.role !== 'admin') return false;
-    const sessionAdmin = sessionStorage.getItem('isAdmin') === 'true';
-    const contextAdmin = user?.role === 'admin';
-    return sessionAdmin || contextAdmin;
-  });
+  const hasAdminSession = () => {
+    try { return Boolean(sessionStorage.getItem('adminToken')); } catch (_) { return false; }
+  };
+  // 'checking' | 'ok' | 'denied'
+  const [status, setStatus] = useState(() => (isUserAdmin(user) || hasAdminSession() ? 'checking' : 'denied'));
+  const [notice, setNotice] = useState('');
   const [formData, setFormData] = useState({ username: '', dob: '' });
   const [error, setError] = useState('');
 
-  // Sync state with AuthContext and session
-  React.useEffect(() => {
-    if (isSuperPhone) {
-      setIsAdmin(true);
-      return;
+  const verify = useCallback(async () => {
+    setStatus('checking');
+    try {
+      await api.get('/api/admin/verify', { timeout: 15000 });
+      setStatus('ok');
+      setNotice('');
+    } catch (err) {
+      const code = err.response?.status;
+      if (code === 401 || code === 403) {
+        // A stale admin session must not keep failing every request
+        try { sessionStorage.removeItem('adminToken'); sessionStorage.removeItem('isAdmin'); } catch (_) {}
+        setNotice(code === 401 ? 'Your login has expired. Please log in again.' : 'This account does not have admin access.');
+        setStatus('denied');
+      } else {
+        // Offline or the server is slow: let the panel open; each admin request is still checked by the server
+        setStatus('ok');
+      }
     }
-    const sessionAdmin = sessionStorage.getItem('isAdmin') === 'true';
-    let isActuallyAdmin = user?.role === 'admin' || sessionAdmin;
-    
-    // Only override if we DON'T have an active admin session but our user role changed to non-admin
-    if (user && user.role !== 'admin' && !sessionAdmin) {
-      isActuallyAdmin = false;
-    }
-    
-    if (isActuallyAdmin !== isAdmin) {
-      setIsAdmin(isActuallyAdmin);
-    }
-  }, [user, isAdmin, isSuperPhone]);
+  }, []);
+
+  useEffect(() => {
+    if (!isAdminPath) return;
+    if (isUserAdmin(user) || hasAdminSession()) verify();
+    else setStatus('denied');
+  }, [user?._id, user?.token, isAdminPath, verify]);
 
   const handleDobChange = (e) => {
-    let val = e.target.value;
-    const isDeleting = val.length < formData.dob.length;
-    
-    if (isDeleting) {
+    const val = e.target.value;
+    if (val.length < formData.dob.length) {
       setFormData(prev => ({ ...prev, dob: val }));
       return;
     }
-
-    let cleaned = val.replace(/\D/g, '').slice(0, 8);
+    const cleaned = val.replace(/\D/g, '').slice(0, 8);
     let res = '';
     if (cleaned.length > 0) {
       res = cleaned.slice(0, 2);
       if (cleaned.length > 2) {
         res += '/' + cleaned.slice(2, 4);
-        if (cleaned.length > 4) {
-          res += '/' + cleaned.slice(4, 8);
-        }
+        if (cleaned.length > 4) res += '/' + cleaned.slice(4, 8);
       }
     }
     setFormData(prev => ({ ...prev, dob: res }));
@@ -67,25 +70,17 @@ const AdminProtectedRoute = ({ children }) => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
-    
     try {
-      // Parse dateOfBirth if it's in DD/MM/YYYY format
       let dob = formData.dob;
       if (dob && /^\d{2}[/-]\d{2}[/-]\d{4}$/.test(dob)) {
         const parts = dob.split(/[/-]/);
         dob = `${parts[2]}-${parts[1]}-${parts[0]}`; // YYYY-MM-DD
       }
-
-      const { data } = await authService.adminLogin({
-        username: formData.username,
-        dateOfBirth: dob
-      });
-      
+      const { data } = await authService.adminLogin({ username: formData.username, dateOfBirth: dob });
       if (data.token && data.role === 'admin') {
-        setIsAdmin(true);
         sessionStorage.setItem('isAdmin', 'true');
         sessionStorage.setItem('adminToken', data.token);
-        try { localStorage.setItem('token', data.token); } catch (_) {}
+        await verify();
       } else {
         setError('Unauthorized: Admin access required');
       }
@@ -94,22 +89,27 @@ const AdminProtectedRoute = ({ children }) => {
     }
   };
 
-  // Check if we are actually on an admin path
-  const isExplicitAdminPath = location.pathname === '/admin' || location.pathname.startsWith('/admin/');
+  if (!isAdminPath || status === 'ok') return children;
 
-  // If we're already an admin, or if we're NOT on an admin path, just render the content
-  if (isAdmin || !isExplicitAdminPath) {
-    return children;
+  if (status === 'checking') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="flex items-center gap-3 text-sm font-bold text-slate-500">
+          <span className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+          Checking admin access…
+        </div>
+      </div>
+    );
   }
 
   return (
     <AuthLayout title="Admin Login" linkTo="/" linkText="Back to Home">
       <div className="text-center w-full max-w-sm sm:max-w-md">
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-duo-blue">Admin Access</h1>
-        
-        {error && (
-          <p className="bg-red-500 text-white p-3 rounded-md mb-4 text-sm sm:text-base">
-            {error}
+
+        {(error || notice) && (
+          <p className={`${error ? 'bg-red-500' : 'bg-amber-500'} text-white p-3 rounded-md mb-4 text-sm sm:text-base`}>
+            {error || notice}
           </p>
         )}
 
@@ -146,8 +146,8 @@ const AdminProtectedRoute = ({ children }) => {
               />
             </div>
           </div>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="w-full bg-duo-blue text-white font-bold uppercase tracking-wider py-3 sm:py-4 rounded-xl border-b-4 border-duo-blue-dark hover:bg-blue-500 transition"
           >
             Verify Access

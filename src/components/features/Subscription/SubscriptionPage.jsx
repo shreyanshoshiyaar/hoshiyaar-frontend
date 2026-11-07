@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext.jsx';
-import { useAccess, trialMsLeft } from '../../../context/AccessContext.jsx';
+import { useAccess, trialMsLeft, passTimeLeft } from '../../../context/AccessContext.jsx';
 import paymentService from '../../../services/paymentService.js';
 import { usesPlayBilling } from '../../../services/billingService.js';
 import PaywallModal from './PaywallModal.jsx';
@@ -50,6 +50,7 @@ const ICONS = {
   replay: <><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" /></>,
   lock: <><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></>,
   calendar: <><rect x="3" y="4" width="18" height="17" rx="2" /><path d="M3 9h18M8 2v4M16 2v4" /></>,
+  clock: <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>,
   check: <path d="M5 12.5l4.5 4.5L19 7.5" />,
   x: <path d="M6 6l12 12M18 6L6 18" />,
   chevron: <path d="M6 9l6 6 6-6" />,
@@ -169,7 +170,7 @@ export default function SubscriptionPage() {
 
   const faqList = [
     ['Does the pass renew automatically?', `No. It is a one-time payment of ₹${plan.amount} for 6 months. Nothing is charged again unless you choose to buy another pass.`],
-    ['What happens after 6 months?', 'Lessons you played stay open. You can buy another pass any time to unlock everything again, and if you buy early the new 6 months are added on top.'],
+    ['What happens after 6 months?', 'Lessons you played stay open. Once your pass ends, you can buy a new one to unlock everything again.'],
     ['Will I lose my progress?', 'Never. Your stars, streaks and completed lessons stay with your account on every device.'],
     ['How can I pay?', 'In the Android app, through Google Play. On the website, through Razorpay with UPI, cards or netbanking.'],
   ];
@@ -178,6 +179,7 @@ export default function SubscriptionPage() {
   const hasPass = state === 'pass';
   const inTrial = state === 'trial_active' || state === 'guest_limit' || state === 'trial_not_started';
   const msLeft = trialMsLeft(access, now);
+  const passLeft = hasPass ? passTimeLeft(access, now) : null;
   const history = userStatus?.paymentHistory || [];
   const saving = plan.discountedFrom > plan.amount ? Math.round((1 - plan.amount / plan.discountedFrom) * 100) : 0;
   const perMonth = (plan.amount / 6).toFixed(plan.amount % 6 === 0 ? 0 : 1);
@@ -185,13 +187,13 @@ export default function SubscriptionPage() {
   const lessonCap = access?.trialLessonLimit ?? 7;
 
   const statusPill = hasPass
-    ? `Pro active · till ${formatDate(access?.passExpiresAt)}`
+    ? `Pro active · ${passLeft?.text || `till ${formatDate(access?.passExpiresAt)}`}`
     : state === 'trial_ended'
       ? 'Free trial ended'
       : state === 'trial_active' || state === 'guest_limit'
         ? 'Free trial running'
         : state === 'trial_not_started'
-          ? `Free trial · ${access?.trialHours ?? 48} hours`
+          ? (msLeft != null ? 'Free trial running' : `Free trial · ${access?.trialHours ?? 48} hours`)
           : 'All lessons open';
 
   return (
@@ -223,7 +225,7 @@ export default function SubscriptionPage() {
             <p className={`mt-4 text-[17px] font-black ${state === 'trial_ended' ? 'text-[#FDA4AF]' : 'text-[#FDE68A]'}`}>
               {statusPill}
             </p>
-            {(state === 'trial_active' || state === 'guest_limit') && msLeft != null && (
+            {inTrial && msLeft != null && (
               <div className="mt-4">
                 <LiveCountdown ms={msLeft} />
                 <p className="mt-2 text-[13px] font-bold text-indigo-200">left in your free trial</p>
@@ -265,6 +267,7 @@ export default function SubscriptionPage() {
 
           {hasPass ? (
             <>
+              {passLeft && <DetailRow icon="clock" label="Time left" value={passLeft.text} />}
               <DetailRow icon="calendar" label="Valid till" value={formatDate(access?.passExpiresAt)} />
               {access?.passSource && <DetailRow icon="lock" label="Paid via" value={SOURCE_LABEL[access.passSource] || access.passSource} />}
             </>
@@ -296,12 +299,20 @@ export default function SubscriptionPage() {
               {saving > 0 && <span className="ml-2 rounded-full bg-[#22C55E]/20 text-[#86EFAC] px-2 py-px text-[13px] font-black">Save {saving}%</span>}
             </p>
 
-            <button
-              onClick={handleUnlockClick}
-              className="relative mt-5 w-full py-3.5 rounded-full bg-gradient-to-b from-[#FEF3C7] via-[#FCD34D] to-[#F59E0B] text-[#3B0764] font-black text-base shadow-[0_4px_0_0_#B45309,0_0_22px_rgba(252,211,77,0.45)] active:translate-y-0.5 active:shadow-none cursor-pointer"
-            >
-              {hasPass ? 'Add 6 more months' : `Unlock Pro for ₹${plan.amount}`}
-            </button>
+            {/* One pass at a time: no buying again until the current one ends */}
+            {hasPass ? (
+              <div className="relative mt-5 w-full py-3 rounded-full bg-white/10 border border-[#FCD34D]/50 text-center">
+                <p className="font-black text-base text-[#FDE68A]">👑 You're Pro{passLeft ? ` · ${passLeft.text}` : ''}</p>
+                <p className="text-[12px] font-semibold text-indigo-200/80">You can buy a new pass after this one ends</p>
+              </div>
+            ) : (
+              <button
+                onClick={handleUnlockClick}
+                className="relative mt-5 w-full py-3.5 rounded-full bg-gradient-to-b from-[#FEF3C7] via-[#FCD34D] to-[#F59E0B] text-[#3B0764] font-black text-base shadow-[0_4px_0_0_#B45309,0_0_22px_rgba(252,211,77,0.45)] active:translate-y-0.5 active:shadow-none cursor-pointer"
+              >
+                {`Unlock Pro for ₹${plan.amount}`}
+              </button>
+            )}
             <p className="relative mt-3 flex items-center justify-center gap-1.5 text-[13px] font-semibold text-indigo-200/80">
               <Icon d={ICONS.lock} className="w-3.5 h-3.5" />
               {usesPlayBilling() ? 'Secure payment through Google Play' : 'Secure payment via Razorpay'} · No auto-renewal
