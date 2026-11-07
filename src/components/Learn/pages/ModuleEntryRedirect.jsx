@@ -10,7 +10,9 @@ import paymentService from '../../../services/paymentService.js';
 import PaywallModal from '../../features/Subscription/PaywallModal.jsx';
 import { useAccess } from '../../../context/AccessContext.jsx';
 import { isNewStyleStory } from '../../../utils/comicStyleHelper.js';
-import { requestAudioPermissions, prefetchTts } from '../../../utils/audioPreloadService.js';
+import { unlockMobileAudio, prefetchTts } from '../../../utils/audioPreloadService.js';
+import { remindMicIfNeeded } from '../../../utils/micPermission.js';
+import { MIC_SETTINGS_EVENT } from '../../common/MicSettingsPrompt.jsx';
 import { storyOpeningTtsUrls } from '../../../utils/storyScenes.js';
 
 // New voices take a few seconds to generate, so start the story's opening lines now, while
@@ -41,8 +43,11 @@ export default function ModuleEntryRedirect() {
   const { items, loading, error, retry } = useModuleItems(moduleNumber, { enabled: !accessChecking && !showPaywall });
 
   useEffect(() => {
-    // Request audio permissions & unlock audio pipeline early
-    requestAudioPermissions().catch(() => {});
+    // Unlock audio early, and ask for the microphone again if the pop-up was missed or refused
+    unlockMobileAudio();
+    remindMicIfNeeded()
+      .then((next) => { if (next === 'show-settings-card') window.dispatchEvent(new CustomEvent(MIC_SETTINGS_EVENT)); })
+      .catch(() => {});
   }, [moduleNumber]);
 
   useEffect(() => {

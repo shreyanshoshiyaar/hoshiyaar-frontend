@@ -15,6 +15,8 @@ import ProtectedRoute from './components/layout/ProtectedRoute.jsx';
 import AdminProtectedRoute from './components/layout/AdminProtectedRoute.jsx';
 import AdminViewSwitcher from './components/admin/AdminViewSwitcher.jsx';
 import ErrorBoundary from './components/ui/ErrorBoundary.jsx';
+import MicSettingsPrompt from './components/common/MicSettingsPrompt.jsx';
+import PaymentReturnNotice from './components/features/Subscription/PaymentReturnNotice.jsx';
 import { stopAllAudio } from './utils/audioPreloadService.js';
 
 
@@ -361,6 +363,8 @@ function App() {
             <MaintenancePrompt />
             <UpdatePrompt />
             <NotificationPrompt />
+            <MicSettingsPrompt />
+            <PaymentReturnNotice />
             {/* Exam Mode Promo hidden per user request */}
             {/* <ExamModePromo /> */}
             <NavigationController />

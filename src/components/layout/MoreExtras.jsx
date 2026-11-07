@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { isVibrationEnabled, setVibrationEnabled, vibrateMedium } from '../../utils/vibrationService.js';
+import { getMicStatus, requestMic, openAppSettings, micRemindersOff, setMicRemindersOff } from '../../utils/micPermission.js';
 
 // HoshiYaar's WhatsApp support line
 export const SUPPORT_WHATSAPP = '918310532323';
@@ -72,5 +73,82 @@ export function VibrationRow({ className = '' }) {
         <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${on ? 'translate-x-5' : 'translate-x-0.5'}`} />
       </span>
     </button>
+  );
+}
+
+const Switch = ({ on }) => (
+  <span className={`relative inline-flex h-6 w-11 shrink-0 rounded-full transition-colors ${on ? 'bg-green-500' : 'bg-slate-300'}`}>
+    <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${on ? 'translate-x-5' : 'translate-x-0.5'}`} />
+  </span>
+);
+
+/**
+ * Microphone permission for "say the word" questions. The switch shows the real permission:
+ * turning it on asks (or opens phone Settings once Android has stopped asking); turning it off
+ * opens Settings, since an app can't take back its own permission, and stops the reminders.
+ */
+export function MicrophoneRow({ className = '' }) {
+  const [status, setStatus] = useState('prompt');
+  const [hint, setHint] = useState('');
+
+  useEffect(() => {
+    const refresh = () => getMicStatus().then(setStatus);
+    refresh();
+    const onVisible = () => { if (document.visibilityState === 'visible') refresh(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, []);
+
+  if (status === 'unsupported') return null;
+  const on = status === 'granted';
+
+  const toggle = async () => {
+    setHint('');
+    if (on) {
+      setMicRemindersOff(true);
+      if (!openAppSettings()) setHint('To turn the microphone off, change it in your browser or phone settings.');
+      return;
+    }
+    setMicRemindersOff(false);
+    if (status === 'blocked') {
+      if (!openAppSettings()) setHint('Allow it in phone Settings → Apps → HoshiYaar → Permissions → Microphone.');
+      return;
+    }
+    const next = await requestMic();
+    setStatus(next);
+    if (next === 'blocked') setHint("Android won't ask again. Tap once more to open Settings and allow the microphone.");
+  };
+
+  const subtitle = on
+    ? 'On: Hoshi can hear your spoken answers'
+    : status === 'blocked'
+      ? 'Off: tap to allow it in phone Settings'
+      : micRemindersOff() ? 'Off: tap to allow' : "Off: tap to allow (we'll remind you in lessons)";
+
+  return (
+    <div className={className}>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={on}
+        onClick={toggle}
+        className="w-full flex items-center justify-between p-4 hover:bg-blue-50/50 transition-all"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="9" y="3" width="6" height="11" rx="3" strokeWidth={2} />
+              <path strokeLinecap="round" strokeWidth={2} d="M5 11a7 7 0 0014 0M12 18v3" />
+            </svg>
+          </div>
+          <div className="text-left">
+            <span className="block text-sm font-bold text-blue-900">Microphone</span>
+            <span className="block text-[11px] font-semibold text-slate-500">{subtitle}</span>
+          </div>
+        </div>
+        <Switch on={on} />
+      </button>
+      {hint && <p className="px-4 pb-3 -mt-1 text-[11px] font-semibold text-amber-700">{hint}</p>}
+    </div>
   );
 }

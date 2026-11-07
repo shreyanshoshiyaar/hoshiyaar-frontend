@@ -8,7 +8,7 @@ import SimpleLoading from '../ui/SimpleLoading.jsx';
 import { isUserAdmin } from '../../utils/adminCheck.js';
 import ProPlanCard from '../features/Subscription/ProPlanCard.jsx';
 import TrialTestToggle from '../features/Subscription/TrialTestToggle.jsx';
-import { RefundRow, VibrationRow } from './MoreExtras.jsx';
+import { RefundRow, VibrationRow, MicrophoneRow } from './MoreExtras.jsx';
 import { 
   AreaChart, 
   Area, 
@@ -457,6 +457,7 @@ const MobileMore = ({ stars, weeklyStars }) => {
             </Link>
             <RefundRow />
             <VibrationRow />
+            <MicrophoneRow />
             <Link 
               to="/contact"
               className="w-full flex items-center justify-between p-4 hover:bg-blue-50/50 transition-all group block"
