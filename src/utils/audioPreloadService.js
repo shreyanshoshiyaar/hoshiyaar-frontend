@@ -82,7 +82,52 @@ export const stopAllAudio = (exceptElement = null) => {
   } catch (_) {}
 };
 
+// One shared player for lesson narration (story and board lines). Safari only lets a player
+// make sound if that same player was started during a tap, and a new player per line was
+// blocked at every new lesson until the learner touched the screen. This one is unlocked on
+// every tap (see below) and reused for each line.
+const SILENT_WAV = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+const narrationAudio = typeof Audio !== 'undefined' ? new Audio() : null;
+let narrationTurn = 0;
+
+/**
+ * The shared narration player, cleared of the previous line's handlers. `audio._hyTurn` changes
+ * on every claim: a line whose download finished late compares it to know it's been replaced.
+ */
+export const claimNarrationAudio = () => {
+  if (!narrationAudio) return new Audio();
+  try { narrationAudio.pause(); } catch (_) {}
+  narrationAudio.onplay = null;
+  narrationAudio.onended = null;
+  narrationAudio.onerror = null;
+  narrationAudio.ontimeupdate = null;
+  narrationAudio.preload = 'auto';
+  narrationTurn += 1;
+  narrationAudio._hyTurn = narrationTurn;
+  return narrationAudio;
+};
+
+// Quietly start the shared player inside a tap, unless it's narrating right now
+const primeNarration = () => {
+  if (!narrationAudio) return;
+  const busy = !narrationAudio.paused || (narrationAudio.src && narrationAudio.src !== SILENT_WAV && !narrationAudio.ended && narrationAudio.currentTime > 0);
+  if (busy) return;
+  try {
+    narrationAudio.muted = true;
+    narrationAudio.src = SILENT_WAV;
+    const p = narrationAudio.play();
+    const done = () => { try { narrationAudio.pause(); } catch (_) {} narrationAudio.muted = false; };
+    if (p && typeof p.then === 'function') p.then(done, done); else done();
+  } catch (_) { narrationAudio.muted = false; }
+};
+if (typeof window !== 'undefined') {
+  // Every tap counts, including the one that opens the next lesson
+  window.addEventListener('pointerdown', primeNarration, { capture: true, passive: true });
+  window.addEventListener('touchend', primeNarration, { capture: true, passive: true });
+}
+
 export const unlockMobileAudio = () => {
+  primeNarration();
   if (isUnlocked || typeof window === 'undefined') return;
   try {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
