@@ -8,6 +8,7 @@ import SimpleLoading from '../ui/SimpleLoading.jsx';
 import { isUserAdmin } from '../../utils/adminCheck.js';
 import ProPlanCard from '../features/Subscription/ProPlanCard.jsx';
 import TrialTestToggle from '../features/Subscription/TrialTestToggle.jsx';
+import { RefundRow, VibrationRow } from './MoreExtras.jsx';
 import { 
   AreaChart, 
   Area, 
@@ -438,6 +439,24 @@ const MobileMore = ({ stars, weeklyStars }) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </Link>
+            <Link 
+              to="/refund-policy"
+              className="w-full flex items-center justify-between p-4 hover:bg-blue-50/50 transition-all group block"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                  </svg>
+                </div>
+                <span className="text-sm font-bold text-blue-900">Refund Policy</span>
+              </div>
+              <svg className="w-4 h-4 text-blue-200 group-hover:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+            <RefundRow />
+            <VibrationRow />
             <Link 
               to="/contact"
               className="w-full flex items-center justify-between p-4 hover:bg-blue-50/50 transition-all group block"

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAccess, trialMsLeft } from '../../../context/AccessContext.jsx';
+import { useAccess, trialMsLeft, passTimeLeft } from '../../../context/AccessContext.jsx';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import GuestVerifyModal from '../../forms/GuestVerifyModal.jsx';
 import PaywallModal from './PaywallModal.jsx';
@@ -117,6 +117,9 @@ export default function TrialBanner() {
   let right = goPro();
 
   if (access.state === 'pass') {
+    const left6 = passTimeLeft(access, now);
+    // Last week of the pass: rose instead of white, so a renewal doesn't come as a surprise
+    const endingSoon = left6 && left6.days <= 7;
     left = (
       <div className="flex items-center gap-3 min-w-0">
         <span className="text-4xl shrink-0" aria-hidden="true">👑</span>
@@ -127,7 +130,16 @@ export default function TrialBanner() {
         </div>
       </div>
     );
-    right = null;
+    right = left6 && (
+      <div className="flex flex-col items-center shrink-0 pr-1">
+        <span className={`font-black leading-none tabular-nums text-[2rem] min-[380px]:text-[2.4rem] ${endingSoon ? 'text-[#FDA4AF]' : 'text-white'}`}>
+          {left6.days > 0 ? left6.days : left6.hours}
+        </span>
+        <span className="text-[11px] min-[380px]:text-[12px] font-black uppercase tracking-wider text-[#FCD34D] whitespace-nowrap">
+          {left6.days > 0 ? (left6.days === 1 ? 'day left' : 'days left') : (left6.hours === 1 ? 'hour left' : 'hours left')}
+        </span>
+      </div>
+    );
   } else if (access.state === 'trial_ended') {
     left = (
       <div className="flex items-center gap-3 min-w-0">
@@ -170,7 +182,9 @@ export default function TrialBanner() {
     );
   } else {
     const notStarted = access.state === 'trial_not_started';
-    const clock = notStarted ? { h: access.trialHours || 48, m: 0, s: 0 } : clockParts(msLeft);
+    // Not started: the server's running pre-trial clock (older servers send none: show the full trial)
+    const clock = msLeft != null ? clockParts(msLeft) : { h: access.trialHours || 48, m: 0, s: 0 };
+    const ticking = msLeft != null;
     left = (
       <div className="flex items-center gap-2 min-[380px]:gap-3 shrink-0">
         <Stopwatch className="w-11 h-11 min-[380px]:w-[56px] min-[380px]:h-[56px] shrink-0" />
@@ -184,9 +198,9 @@ export default function TrialBanner() {
             )}
             <span key={`m${clock.m}`} className="hy-tick inline-block">{String(clock.m).padStart(clock.h > 0 ? 2 : 1, '0')}</span><span className="text-[0.52em] font-black text-indigo-200 ml-0.5 mr-1">m</span>
             {/* Re-keyed every second, so each new value pops in */}
-            <span key={`s${clock.s}`} className={`${notStarted ? '' : 'hy-tick'} inline-block text-[#FCD34D]`}>{String(clock.s ?? 0).padStart(2, '0')}</span><span className="text-[0.52em] font-black text-indigo-200 ml-0.5">s</span>
+            <span key={`s${clock.s}`} className={`${ticking ? 'hy-tick' : ''} inline-block text-[#FCD34D]`}>{String(clock.s ?? 0).padStart(2, '0')}</span><span className="text-[0.52em] font-black text-indigo-200 ml-0.5">s</span>
           </p>
-          <p className="text-[12px] min-[380px]:text-[14px] font-bold text-indigo-200 leading-tight whitespace-nowrap mt-0.5">{notStarted ? '48 hours free' : 'left'}</p>
+          <p className="text-[12px] min-[380px]:text-[14px] font-bold text-indigo-200 leading-tight whitespace-nowrap mt-0.5">{notStarted && !ticking ? `${access.trialHours || 48} hours free` : 'left'}</p>
         </div>
       </div>
     );

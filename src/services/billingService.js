@@ -32,19 +32,37 @@ export const playBillingAvailable = () =>
 
 export const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.hoshiyaarlearning.app';
 
-/** Play's localised price for the pass (e.g. "₹99.00"), or null if the store is unavailable */
-export async function getPassPrice() {
-  if (!isNativeAndroid()) return null;
+/**
+ * Every price option Google Play returns for the pass (one per purchase option / offer),
+ * as { label: "₹99", price: 99, currency, purchaseOptionId, offerId, offerToken }.
+ * Empty if the store is unavailable.
+ */
+export async function getPassOffers() {
+  if (!isNativeAndroid()) return [];
   try {
-    const { product } = await NativePurchases.getProduct({
-      productIdentifier: PASS_PRODUCT_ID,
+    const { products } = await NativePurchases.getProducts({
+      productIdentifiers: [PASS_PRODUCT_ID],
       productType: PURCHASE_TYPE.INAPP
     });
-    return product?.priceString || null;
+    return (products || [])
+      .filter((p) => p?.identifier === PASS_PRODUCT_ID || !p?.identifier)
+      .map((p) => ({
+        // Play sends a localised string such as "₹99.00"; whole rupees read better without the paise
+        label: String(p.priceString || '').replace(/[.,]00$/, ''),
+        price: Number(p.price),
+        currency: p.currencyCode || '',
+        purchaseOptionId: p.purchaseOptionId || '',
+        offerId: p.offerId || '',
+        offerToken: p.offerToken || ''
+      }));
   } catch (_) {
-    return null;
+    return [];
   }
 }
+
+/** The option to sell: the one priced like our own plan if Google has it, else Play's first */
+export const pickPassOffer = (offers, planAmount) =>
+  offers.find((o) => o.price === Number(planAmount)) || offers[0] || null;
 
 // The server verifies with Google and consumes; if it could not consume, the app does it
 // so the pass can be bought again after 6 months
@@ -60,7 +78,7 @@ async function verifyWithServer(purchaseToken) {
  * Opens the Google Play purchase sheet for the 6-month pass.
  * Resolves { status: 'success' | 'pending' | 'cancelled' | 'error', message }
  */
-export async function buyPassWithPlay(userId) {
+export async function buyPassWithPlay(userId, { offerToken = '', onProcessing } = {}) {
   if (!isNativeAndroid()) {
     return { status: 'pending', message: 'Preview only: in the Android app this opens the Google Play payment sheet.' };
   }
@@ -69,6 +87,8 @@ export async function buyPassWithPlay(userId) {
     transaction = await NativePurchases.purchaseProduct({
       productIdentifier: PASS_PRODUCT_ID,
       productType: PURCHASE_TYPE.INAPP,
+      // The exact Play option shown in the pop-up, so the learner pays the price they saw
+      ...(offerToken ? { offerToken } : {}),
       // Becomes obfuscatedAccountId, which the server checks so a token cannot move between accounts
       appAccountToken: String(userId),
       isConsumable: false,
@@ -95,6 +115,8 @@ export async function buyPassWithPlay(userId) {
     return { status: 'error', message: 'Google Play did not return a purchase.' };
   }
 
+  // Paid in the Play sheet; the server now confirms it with Google
+  onProcessing?.();
   try {
     const result = await verifyWithServer(transaction.purchaseToken);
     if (result.success) return { status: 'success', message: result.message };

@@ -21,6 +21,7 @@ import { getStageInfoForIndex } from '../../../utils/moduleStages.js';
 import { isNewStyleStory } from '../../../utils/comicStyleHelper.js';
 import { isMissionCompleteItem } from '../../../utils/missionCompleteHelper.js';
 import { getCharacterImage, useCharacterImages } from '../../../utils/characterImages.js';
+import { vibrateLight } from '../../../utils/vibrationService.js';
 // Large Lottie files are now fetched from the public folder to avoid build issues
 
 const ComicLightbox = ({ src, alt, onClose }) => {
@@ -1056,36 +1057,58 @@ export default function ConceptPage() {
           </div>
         ) : (
           <>
-            {/* Character Avatar at top - Hoshi image in every concept card (as requested) */}
-            <div className="flex justify-center mb-3 sm:mb-4 mt-2 sm:mt-3">
-              <div className="w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 rounded-[30px] sm:rounded-[38px] md:rounded-[44px] p-1.5 bg-white/90 backdrop-blur-xs shadow-lg border-[3px] border-white overflow-hidden flex items-center justify-center flex-shrink-0 transition-transform duration-200 hover:scale-105">
-                <img
-                  src={getCharacterImage(item.speaker || 'hoshi', 'hoshi')}
-                  alt={item.speaker || "Hoshi"}
-                  className="w-full h-full object-cover rounded-[25px] sm:rounded-[33px] md:rounded-[39px]"
-                />
-              </div>
-            </div>
+            {(() => {
+              const html = String(item.text || item.content || '');
+              const textLength = html.replace(/<[^>]*>/g, '').trim().length;
+              const imageCount = (Array.isArray(item.images) ? item.images : [item.images]).filter(Boolean).length + (item.imageUrl ? 1 : 0);
+              const hasVisual = Boolean(item.glyphCode || actualType === 'blackboard' || actualType === 'blackboard-step' || item.inputJson?.actions || imageCount > 0);
+              // Text-only cards fill the screen: centred, with the text as large as its length allows
+              const textSize = hasVisual
+                ? 'text-[1.375rem] sm:text-xl md:text-xl lg:text-2xl xl:text-3xl'
+                : textLength <= 60
+                  ? 'text-[2.6rem] sm:text-5xl lg:text-6xl'
+                  : textLength <= 110
+                    ? 'text-[2.2rem] sm:text-4xl lg:text-5xl'
+                    : textLength <= 180
+                      ? 'text-[1.85rem] sm:text-3xl lg:text-4xl'
+                      : textLength <= 280
+                        ? 'text-[1.6rem] sm:text-2xl lg:text-3xl'
+                        : 'text-[1.375rem] sm:text-xl lg:text-2xl';
+              return (
+                <div className={hasVisual ? 'contents' : 'flex-1 w-full flex flex-col items-center justify-center pb-4 sm:pb-8'}>
+                  {/* Character Avatar at top - Hoshi image in every concept card (as requested) */}
+                  <div className="flex justify-center mb-3 sm:mb-4 mt-2 sm:mt-3">
+                    <div className={`${hasVisual ? 'w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44' : 'w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48'} rounded-[30px] sm:rounded-[38px] md:rounded-[44px] p-1.5 bg-white/90 backdrop-blur-xs shadow-lg border-[3px] border-white overflow-hidden flex items-center justify-center flex-shrink-0 transition-transform duration-200 hover:scale-105`}>
+                      <img
+                        src={getCharacterImage(item.speaker || 'hoshi', 'hoshi')}
+                        alt={item.speaker || "Hoshi"}
+                        className="w-full h-full object-cover rounded-[25px] sm:rounded-[33px] md:rounded-[39px]"
+                      />
+                    </div>
+                  </div>
 
-            {/* Title if present */}
-            {item.title && (
-              <h2 className="text-2xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-extrabold text-gray-900 text-center mt-1 sm:mt-2 text-overflow-fix px-1 sm:px-2">
-                {item.title}
-              </h2>
-            )}
-            <div className="w-full max-w-2xl sm:max-w-3xl md:max-w-4xl mt-2 sm:mt-4 md:mt-4 lg:mt-6">
-              <p
-                className="text-lg sm:text-base md:text-lg lg:text-xl xl:text-2xl font-extrabold text-gray-900 leading-relaxed whitespace-pre-wrap text-center text-overflow-fix px-1 sm:px-2"
-                dangerouslySetInnerHTML={{ __html: String(item.text || item.content || '') }}
-              />
-            </div>
+                  {/* Title if present */}
+                  {item.title && (
+                    <h2 className="text-[1.7rem] sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-extrabold text-gray-900 text-center mt-1 sm:mt-2 text-overflow-fix px-1 sm:px-2 leading-tight">
+                      {item.title}
+                    </h2>
+                  )}
+                  <div className="w-full max-w-2xl sm:max-w-3xl md:max-w-4xl mt-2 sm:mt-4 md:mt-4 lg:mt-6">
+                    <p
+                      className={`${textSize} font-extrabold text-gray-900 ${hasVisual ? 'leading-relaxed' : 'leading-snug'} whitespace-pre-wrap text-center text-overflow-fix px-1 sm:px-2`}
+                      dangerouslySetInnerHTML={{ __html: html }}
+                    />
+                  </div>
 
-            {/* Speaker name label at bottom (like second screenshot) */}
-            <div className="flex items-center justify-center mt-3 sm:mt-4 mb-1">
-              <span className="text-xs sm:text-sm font-black text-slate-600 uppercase tracking-wider">
-                {item.speaker || 'Hoshi'}
-              </span>
-            </div>
+                  {/* Speaker name label at bottom (like second screenshot) */}
+                  <div className="flex items-center justify-center mt-3 sm:mt-4 mb-1">
+                    <span className="text-sm sm:text-base font-black text-slate-600 uppercase tracking-wider">
+                      {item.speaker || 'Hoshi'}
+                    </span>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Visual Chalkboard Drawing if available */}
             {(item.glyphCode || actualType === 'blackboard' || actualType === 'blackboard-step' || item.inputJson?.actions) && (
@@ -1145,6 +1168,7 @@ export default function ConceptPage() {
         <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative z-10">
           <button
             onClick={() => {
+              vibrateLight();
               if (shouldShowComic) {
                 if (comicSlideIndex < introComicUrls.length - 1) {
                   setComicSlideIndex(prev => prev + 1);
