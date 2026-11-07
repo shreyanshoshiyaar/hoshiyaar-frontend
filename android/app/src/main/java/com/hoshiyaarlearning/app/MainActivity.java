@@ -6,8 +6,6 @@ import com.getcapacitor.BridgeActivity;
 import com.microsoft.clarity.Clarity;
 import com.microsoft.clarity.ClarityConfig;
 import com.microsoft.clarity.models.LogLevel;
-import com.facebook.FacebookSdk;
-import com.facebook.appevents.AppEventsLogger;
 import com.android.installreferrer.api.InstallReferrerClient;
 import com.android.installreferrer.api.InstallReferrerStateListener;
 import com.android.installreferrer.api.ReferrerDetails;
@@ -24,21 +22,26 @@ public class MainActivity extends BridgeActivity {
         
         super.onCreate(savedInstanceState);
 
-        FacebookSdk.sdkInitialize(getApplicationContext());
         try { this.getBridge().getWebView().getSettings().setMediaPlaybackRequiresUserGesture(false); } catch (Exception e) {}
-        AppEventsLogger.activateApp(this.getApplication());
 
         // Initialize Install Referrer
         initInstallReferrer();
 
-        // Javascript bridge for Facebook App Events
+        // Javascript bridge to open this app's page in phone Settings (to allow the microphone
+        // after Android has stopped showing the permission pop-up)
         this.getBridge().getWebView().addJavascriptInterface(new Object() {
             @android.webkit.JavascriptInterface
-            public void logSignup() {
-                AppEventsLogger logger = AppEventsLogger.newLogger(MainActivity.this);
-                logger.logEvent("fb_mobile_complete_registration");
+            public void openAppSettings() {
+                try {
+                    android.content.Intent intent = new android.content.Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    intent.setData(android.net.Uri.fromParts("package", getPackageName(), null));
+                    intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-        }, "NativeFB");
+        }, "NativeSettings");
 
         // Javascript bridge for FCM direct token fetch
         this.getBridge().getWebView().addJavascriptInterface(new Object() {
