@@ -27,8 +27,10 @@ import ChallengesPage from "./ChallengesPage.jsx";
 import PaywallModal from '../../features/Subscription/PaywallModal.jsx';
 import AllChaptersModal from '../modals/AllChaptersModal.jsx';
 import DuolingoChapterView from "./DuolingoChapterView.jsx";
+import TrialTimerBar from "../../features/Subscription/TrialTimerBar.jsx";
 import paymentService from '../../../services/paymentService.js';
 import { isUserAdmin } from '../../../utils/adminCheck.js';
+import { vibrateLight, vibrateError } from '../../../utils/vibrationService.js';
 const DASHBOARD_VERSION = "V5.1-FREQ-3";
 
 // --- SVG Icons for the Dashboard ---
@@ -2373,8 +2375,11 @@ const LearnDashboard = ({ onboardingData }) => {
           />
         ) : (
           <>
+            {/* Phones: trial countdown pinned above the scrolling map (the map's own unit headers are sticky inside it) */}
+            {isMobileLayout && <TrialTimerBar className="relative shrink-0 z-[120]" />}
             <main className={`flex-grow ${isMobileLayout ? 'p-0' : 'px-3 pb-3'} overflow-y-auto no-scrollbar bg-transparent ${isMobileLayout ? 'mt-0 overflow-x-hidden pb-10' : 'mt-16 md:mt-0 overflow-x-visible'}`}>
             {/* Mobile Score Display removed per request */}
+            {!isMobileLayout && <TrialTimerBar variant="card" className="mt-3 mb-1 max-w-3xl mx-auto" />}
 
           {/* Section Header (hide when viewing chapters list). If units exist, headers are shown per unit below, so hide this top one. */}
 
@@ -2806,6 +2811,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                 (!(user?.role === 'admin' && adminViewMode !== 'student') || access?.testView)
                               )}
                               onModuleClick={(mod, u, status) => {
+                                if (status === 'paywall' || status === 'locked') vibrateError(); else vibrateLight();
                                 if (status === 'paywall') {
                                   setShowPaywallModal(true);
                                   return;

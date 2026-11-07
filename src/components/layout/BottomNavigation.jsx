@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useShowPro } from '../../hooks/useShowPro.js';
+import { vibrateLight } from '../../utils/vibrationService.js';
 
 
 const HomeIcon = ({ active }) => (
@@ -87,7 +88,7 @@ const BottomNavigation = () => {
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 rounded-t-[24px] flex justify-around items-center pb-safe pt-2 pb-2 px-1 h-[70px] z-[2000] shadow-[0_-6px_20px_rgba(109,40,217,0.15)]">
       <button 
-        onClick={() => navigate('/home', { replace: true })}
+        onClick={() => { vibrateLight(); navigate('/home', { replace: true }); }}
         className={`flex flex-col items-center justify-center flex-1 mx-1 py-1.5 rounded-2xl relative transition-all active:scale-95 ${isHome ? 'bg-gradient-to-b from-[#A855F7] to-[#7C3AED] text-white shadow-[0_3px_0_0_#5B21B6]' : 'text-[#475569]'}`}
       >
         <HomeIcon active={isHome} />
@@ -95,7 +96,7 @@ const BottomNavigation = () => {
       </button>
 
       <button 
-        onClick={() => navigate('/learn', { replace: true })}
+        onClick={() => { vibrateLight(); navigate('/learn', { replace: true }); }}
         className={`flex flex-col items-center justify-center flex-1 mx-1 py-1.5 rounded-2xl relative transition-all active:scale-95 ${isLearn ? 'bg-gradient-to-b from-[#A855F7] to-[#7C3AED] text-white shadow-[0_3px_0_0_#5B21B6]' : 'text-[#475569]'}`}
       >
         <LearnIcon active={isLearn} />
@@ -103,7 +104,7 @@ const BottomNavigation = () => {
       </button>
 
       <button 
-        onClick={() => navigate('/ranks', { replace: true })}
+        onClick={() => { vibrateLight(); navigate('/ranks', { replace: true }); }}
         className={`flex flex-col items-center justify-center flex-1 mx-1 py-1.5 rounded-2xl relative transition-all active:scale-95 ${isRanks ? 'bg-gradient-to-b from-[#A855F7] to-[#7C3AED] text-white shadow-[0_3px_0_0_#5B21B6]' : 'text-[#475569]'}`}
       >
         <RanksIcon active={isRanks} />
@@ -112,7 +113,7 @@ const BottomNavigation = () => {
 
       {showProTab && (
         <button 
-          onClick={() => navigate('/subscription')}
+          onClick={() => { vibrateLight(); navigate('/subscription'); }}
           className={`flex flex-col items-center justify-center flex-1 mx-1 py-1.5 rounded-2xl relative transition-all active:scale-95 ${isPro ? 'bg-gradient-to-b from-[#A855F7] to-[#7C3AED] text-white shadow-[0_3px_0_0_#5B21B6]' : 'text-[#B45309]'}`}
         >
           <ProIcon active={isPro} />
@@ -121,7 +122,7 @@ const BottomNavigation = () => {
       )}
 
       <button 
-        onClick={() => navigate('/more', { replace: true })}
+        onClick={() => { vibrateLight(); navigate('/more', { replace: true }); }}
         className={`flex flex-col items-center justify-center flex-1 mx-1 py-1.5 rounded-2xl relative transition-all active:scale-95 ${isMore ? 'bg-gradient-to-b from-[#A855F7] to-[#7C3AED] text-white shadow-[0_3px_0_0_#5B21B6]' : 'text-[#475569]'}`}
       >
         <MoreIcon active={isMore} />

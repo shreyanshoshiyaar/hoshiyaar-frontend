@@ -15,6 +15,8 @@ import {
   Bar
 } from 'recharts';
 import authService from '../../services/authService';
+import paymentService from '../../services/paymentService.js';
+import UserPaymentsPanel from './UserPaymentsPanel.jsx';
 
 // Custom color palette for modern premium look
 const CHART_COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#3b82f6'];
@@ -254,6 +256,13 @@ const UserAnalytics = () => {
 
   // Expanded user detail rows map
   const [expandedUsers, setExpandedUsers] = useState({});
+  // userId -> { passExpiresAt, passSource } for everyone with an active pass
+  const [proUsers, setProUsers] = useState({});
+  useEffect(() => {
+    paymentService.getProUsers()
+      .then((d) => setProUsers(d?.users || {}))
+      .catch(() => {});
+  }, []);
 
   // Sorting state
   const [sortField, setSortField] = useState('lastActive');
@@ -1325,6 +1334,14 @@ const UserAnalytics = () => {
                             <div className="flex items-center gap-2">
                               <span className="font-extrabold text-slate-800 flex items-center gap-1.5">
                                 {user.username}
+                                {proUsers[user._id] && (
+                                  <span
+                                    className="bg-amber-100 text-amber-900 border border-amber-300 text-[9px] font-black px-1.5 py-0.5 rounded-full shrink-0"
+                                    title={`Pro till ${new Date(proUsers[user._id].passExpiresAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}`}
+                                  >
+                                    👑 PRO
+                                  </span>
+                                )}
                                 {user.role === 'teacher' ? (
                                   <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[9px] font-black px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1">
                                     <span>🧑‍🏫</span> Teacher
@@ -1542,6 +1559,7 @@ const UserAnalytics = () => {
                       {isExpanded && (
                         <tr>
                           <td colSpan={15} className="py-4 px-8 bg-slate-50/40 border-t border-b border-slate-100">
+                            <UserPaymentsPanel userId={user._id} />
                             <UserProgressDetails chaptersProgress={user.chaptersProgress} whatsappNudges={user.whatsappNudges} />
                           </td>
                         </tr>

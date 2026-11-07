@@ -22,7 +22,7 @@ const readTestView = (allowed) => {
   try {
     if (import.meta.env.DEV) {
       const param = new URLSearchParams(window.location.search).get('trial');
-      if (param === 'running' || param === 'ended') saveTestView(param);
+      if (param === 'running' || param === 'ended' || param === 'pro') saveTestView(param);
       if (param === 'off') saveTestView('');
     }
     if (!allowed) return '';
@@ -45,8 +45,17 @@ const saveTestView = (view) => {
   } catch (_) {}
 };
 
-const testAccess = (view) => {
+const testAccess = (view, real) => {
   const base = { trialHours: 48, trialLessonLimit: 7, lessonLimit: 7, isGuest: false, hasPass: false, playedModuleIds: [], testView: true };
+  if (view === 'pro') {
+    // An admin who really bought the pass sees their real end date; otherwise a fresh 180-day sample
+    const realEnd = real?.passExpiresAt ? new Date(real.passExpiresAt) : null;
+    const days = real?.plan?.durationDays || 180;
+    return {
+      ...base, state: 'pass', locked: false, hasPass: true, plan: real?.plan,
+      passExpiresAt: realEnd || new Date(Date.now() + days * 86400000), passSource: real?.passSource || ''
+    };
+  }
   if (view === 'ended') {
     return { ...base, state: 'trial_ended', locked: true, trialEndReason: 'time', lessonsUsed: 7, lessonsLeft: 0 };
   }
@@ -139,7 +148,7 @@ export const AccessProvider = ({ children }) => {
     setTestViewState(view);
   }, []);
 
-  const shownAccess = useMemo(() => (testView ? testAccess(testView) : access), [testView, access]);
+  const shownAccess = useMemo(() => (testView ? testAccess(testView, access) : access), [testView, access]);
   const value = useMemo(
     () => ({ access: shownAccess, loading, refresh, now, serverOffset, setAccess, testView, setTestView, canUseTestView }),
     [shownAccess, loading, refresh, now, serverOffset, setAccess, testView, setTestView, canUseTestView]
@@ -147,10 +156,35 @@ export const AccessProvider = ({ children }) => {
   return <AccessContext.Provider value={value}>{children}</AccessContext.Provider>;
 };
 
-/** Milliseconds of trial left, or null when the clock has not started */
+// Pro pass time left: whole days, or hours in the last day. null without a pass.
+export const passTimeLeft = (access, now) => {
+  if (!access?.passExpiresAt) return null;
+  const ms = Math.max(0, new Date(access.passExpiresAt).getTime() - now);
+  const days = Math.ceil(ms / 86400000);
+  if (ms < 86400000) {
+    const hours = Math.max(1, Math.ceil(ms / 3600000));
+    return { days: 0, hours, text: `${hours} ${hours === 1 ? 'hour' : 'hours'} left` };
+  }
+  return { days, hours: null, text: `${days} ${days === 1 ? 'day' : 'days'} left` };
+};
+
+/**
+ * Milliseconds of trial left, or null when there is no clock. Before the first lesson the
+ * server sends a running pre-trial clock that holds at trialHoldMs (half the trial).
+ */
 export const trialMsLeft = (access, now) => {
   if (!access?.trialEndsAt) return null;
-  return Math.max(0, new Date(access.trialEndsAt).getTime() - now);
+  const left = Math.max(0, new Date(access.trialEndsAt).getTime() - now);
+  return access.state === 'trial_not_started' && access.trialHoldMs ? Math.max(access.trialHoldMs, left) : left;
+};
+
+/** "47h 30m 12s" / "38m 20s" */
+export const clockParts = (ms) => {
+  const totalSec = Math.max(0, Math.floor(ms / 1000));
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  return { h, m, s, text: h > 0 ? `${h}h ${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}s` : `${m}m ${String(s).padStart(2, '0')}s` };
 };
 
 export const formatTrialLeft = (ms) => {

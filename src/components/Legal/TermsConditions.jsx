@@ -45,7 +45,7 @@ const TermsConditions = () => {
         <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-xs border border-gray-200 p-6 sm:p-10 md:p-14">
           <div className="mb-8 pb-6 border-b border-gray-100">
             <h2 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">Terms and Conditions</h2>
-            <p className="text-xs text-gray-500 mt-1">Last Updated: October 2026 • Effective Date: October 1, 2026</p>
+            <p className="text-xs text-gray-500 mt-1">Last Updated: November 2026 • Effective Date: November 7, 2026</p>
           </div>
 
         {/* Content */}
@@ -101,21 +101,22 @@ const TermsConditions = () => {
           <section className="space-y-3">
             <h2 className="text-lg font-extrabold text-gray-900 flex items-center gap-2">
               <span className="w-6 h-6 rounded-lg bg-blue-100 text-blue-700 text-xs flex items-center justify-center font-black">4</span>
-              <span>Pricing, Pay Per Chapter Model & 1-Year Pass</span>
+              <span>Free Trial &amp; HoshiYaar Pro Pass</span>
             </h2>
             <div className="bg-indigo-50/70 border border-indigo-200/90 rounded-2xl p-4 space-y-2 text-indigo-950">
               <p className="font-bold text-sm">
-                ⚡ Simple Pay Per Chapter Model — No Recurring Subscriptions
+                ⚡ One simple pass — no subscriptions, no auto-renewal
               </p>
               <p className="text-xs leading-relaxed text-indigo-900">
-                Hoshiyaar operates on a transparent, pay-as-you-study model. You only pay for the specific chapters you wish to unlock.
+                Every learner starts with a free trial. After the trial, a one-time HoshiYaar Pro pass unlocks every lesson for a fixed period.
               </p>
             </div>
             <ul className="list-disc pl-5 space-y-2 text-gray-600">
-              <li><strong>Free Preview:</strong> The first level/lesson in every single chapter across Class 6, 7, and 8 is completely free to preview and experience with zero obligation.</li>
-              <li><strong>Price per Chapter:</strong> Access to an entire chapter is available at <strong>₹50 per chapter</strong> (or as explicitly displayed at the time of checkout). All subscription and chapter pass prices are subject to change without prior notice; any price change will not affect active passes already purchased.</li>
-              <li><strong>1-Year Access Pass:</strong> Purchasing a chapter unlocks <strong>365 days (1 Full Year)</strong> of unrestricted access to all lessons in that chapter and full Chapter Exam Mode from the timestamp of payment.</li>
-              <li><strong>Zero Recurring Auto-Debits:</strong> All transactions are one-time charges. Hoshiyaar does not enroll users into automatic renewal debits or recurring subscriptions. Once a 1-year pass concludes, your access expires naturally without any automatic deduction.</li>
+              <li><strong>Free Trial:</strong> The free trial starts with the learner's first lesson and ends after <strong>48 hours or 7 lessons, whichever comes first</strong>. A guest (not signed in) can play up to 5 lessons and then needs to create a free account to continue the trial. One free trial is available per learner and per device. Lessons played during the trial stay open afterwards.</li>
+              <li><strong>HoshiYaar Pro Pass:</strong> A one-time payment of <strong>₹99</strong> (or the price shown at checkout) unlocks every lesson in every chapter for <strong>180 days</strong> from the time of payment. The pass belongs to the learner's account and works on both the website and the Android app.</li>
+              <li><strong>One Pass at a Time:</strong> A new pass can be bought only after the current pass has ended.</li>
+              <li><strong>No Auto-Renewal:</strong> The pass is never renewed or charged again automatically. When it ends, access to lessons not yet played returns to the free state; played lessons stay open.</li>
+              <li><strong>Price Changes:</strong> Prices may change from time to time. A change never affects a pass that has already been bought.</li>
             </ul>
           </section>
 
@@ -142,11 +143,12 @@ const TermsConditions = () => {
               <span>Payment Processing & Security</span>
             </h2>
             <p>
-              All online financial transactions are processed securely through our authorized payment gateway partner, <strong>Razorpay Software Private Limited</strong> ("Razorpay").
+              Payments on the website are processed by our payment gateway partner, <strong>Razorpay Software Private Limited</strong> ("Razorpay"). Purchases in the Android app are processed by <strong>Google Play</strong> under Google Play's terms, and appear on your Google Play order history.
             </p>
             <ul className="list-disc pl-5 space-y-2 text-gray-600">
-              <li>Accepted payment methods include UPI (Google Pay, PhonePe, Paytm, BHIM), Indian Debit & Credit Cards (RuPay, Visa, MasterCard), and Internet Banking.</li>
-              <li>Hoshiyaar does not store, collect, or have access to sensitive payment information, including card numbers, CVV codes, net banking passwords, or UPI PINs. All financial data is encrypted and handled under PCI-DSS Level 1 compliance by Razorpay.</li>
+              <li>Website payment methods include UPI (Google Pay, PhonePe, Paytm, BHIM), Indian Debit & Credit Cards (RuPay, Visa, MasterCard), and Internet Banking. In the app, the methods offered are those available in your Google Play account.</li>
+              <li>The pass is activated only after the payment is confirmed with Razorpay or Google Play. A payment that is still pending (for example a slow UPI payment) activates the pass as soon as it completes.</li>
+              <li>Hoshiyaar does not store, collect, or have access to sensitive payment information, including card numbers, CVV codes, net banking passwords, or UPI PINs. This information is handled entirely by Razorpay or Google Play.</li>
             </ul>
           </section>
 
@@ -158,7 +160,8 @@ const TermsConditions = () => {
             </h2>
             <p>Users and learners agree not to:</p>
             <ul className="list-disc pl-5 space-y-2 text-gray-600">
-              <li>Share, transfer, or resell user accounts or unlocked chapter passes to third parties.</li>
+              <li>Share, transfer, or resell user accounts or Pro passes to third parties.</li>
+              <li>Create multiple accounts or reset devices to obtain additional free trials.</li>
               <li>Record, scrape, crawl, download, or systematically extract question banks, storylines, illustrations, or audio content from the Platform.</li>
               <li>Attempt to bypass security features, payment verification systems, or paywalls.</li>
               <li>Engage in any activity that compromises the stability, performance, or integrity of our servers and services.</li>
@@ -183,7 +186,7 @@ const TermsConditions = () => {
               <span>Limitation of Liability</span>
             </h2>
             <p>
-              To the maximum extent permitted by applicable law, Hoshiyaar and Creative Garage shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising out of your access to or inability to use the Platform, any temporary server downtime, or reliance upon educational feedback. Our total aggregate liability for any claims under these Terms shall not exceed the amount actually paid by you for the specific chapter pass in question.
+              To the maximum extent permitted by applicable law, Hoshiyaar and Creative Garage shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising out of your access to or inability to use the Platform, any temporary server downtime, or reliance upon educational feedback. Our total aggregate liability for any claims under these Terms shall not exceed the amount actually paid by you for the Pro pass in question.
             </p>
           </section>
 
