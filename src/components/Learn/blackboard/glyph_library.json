@@ -326,7 +326,7 @@
   },
   {
     "name": "bolt",
-    "folder": "library",
+    "folder": "basic",
     "draws": "A lightning bolt for energy",
     "size": [
       5,
@@ -438,7 +438,7 @@
   },
   {
     "name": "cross",
-    "folder": "library",
+    "folder": "basic",
     "draws": "A red cross for a wrong idea",
     "size": [
       10,
@@ -3104,7 +3104,7 @@
   },
   {
     "name": "o2",
-    "folder": "v8",
+    "folder": "substances",
     "draws": "An oxygen bubble",
     "size": [
       4,
@@ -3944,7 +3944,7 @@
   },
   {
     "name": "co2",
-    "folder": "v8",
+    "folder": "substances",
     "draws": "A carbon dioxide bubble",
     "size": [
       4,
@@ -6072,11 +6072,11 @@
   },
   {
     "name": "earthworm",
-    "folder": "v8",
+    "folder": "living",
     "draws": "An earthworm (pink, ringed body)",
     "size": [
       34,
-      8
+      6
     ],
     "settings": {
       "pos": "centre [x, y]",
@@ -7056,8 +7056,8 @@
     "folder": "body",
     "draws": "Head with nose, nasal passage, windpipe and two lungs (food pipe behind)",
     "size": [
-      34,
-      64
+      32,
+      60
     ],
     "settings": {
       "pos": "centre [x, y]",
@@ -7530,7 +7530,7 @@
     "folder": "lab",
     "draws": "A plastic bottle with its base cut off",
     "size": [
-      34,
+      32,
       54
     ],
     "settings": {
@@ -7609,11 +7609,11 @@
   },
   {
     "name": "chakki",
-    "folder": "v8",
+    "folder": "objects",
     "draws": "A stone chakki (two round grinding stones)",
     "size": [
-      26,
-      14
+      24,
+      17
     ],
     "settings": {
       "pos": "centre [x, y]",
@@ -7925,7 +7925,7 @@
     "draws": "A frog, front view",
     "size": [
       22,
-      16
+      17
     ],
     "settings": {
       "pos": "centre [x, y]",
@@ -10522,8 +10522,8 @@
     "folder": "living",
     "draws": "A chalk bee",
     "size": [
-      22,
-      16
+      19,
+      15
     ],
     "settings": {
       "pos": "centre [x, y]",
@@ -11702,10 +11702,10 @@
   {
     "name": "candle",
     "folder": "light",
-    "draws": "A white candle with an orange flame",
+    "draws": "A white candle with a small flame (it gets shorter as it burns)",
     "size": [
       4,
-      15
+      17
     ],
     "settings": {
       "pos": "centre [x, y]",
@@ -11719,11 +11719,7 @@
       ],
       "flame": [
         0,
-        -5.5
-      ],
-      "base": [
-        0,
-        7
+        -7
       ]
     },
     "parts": [
@@ -11736,70 +11732,45 @@
           2
         ],
         "w": 4,
-        "h": 10,
-        "fill": 1
+        "h": 12,
+        "fill": 0.95
       },
       {
         "shape": "line",
         "style": "normal",
-        "color": "#3A2A10",
+        "color": "#2E3640",
         "from": [
           0,
-          -3
+          -4
         ],
         "to": [
           0,
-          -4.2
+          -5
         ]
       },
       {
         "shape": "poly",
         "style": "normal",
-        "closed": true,
+        "color": "#FFB347",
         "points": [
           [
             0,
-            -8
+            -9
           ],
           [
-            1.5,
-            -5
+            1.4,
+            -6
           ],
           [
             0,
-            -3.8
+            -5
           ],
           [
-            -1.5,
-            -5
+            -1.4,
+            -6
           ]
         ],
-        "color": "#FF9F43",
-        "fill": 1
-      },
-      {
-        "shape": "poly",
-        "style": "normal",
         "closed": true,
-        "points": [
-          [
-            0,
-            -6.5
-          ],
-          [
-            0.6,
-            -5
-          ],
-          [
-            0,
-            -4.4
-          ],
-          [
-            -0.6,
-            -5
-          ]
-        ],
-        "color": "#FFF3B0",
         "fill": 1
       }
     ]
@@ -12035,7 +12006,7 @@
   },
   {
     "name": "eye",
-    "folder": "light",
+    "folder": "body",
     "draws": "An open eye seen from the side",
     "size": [
       8,
@@ -14390,7 +14361,7 @@
   },
   {
     "name": "tree",
-    "folder": "light",
+    "folder": "living",
     "draws": "A tree with green leaves and a brown trunk",
     "size": [
       14,
@@ -53455,6 +53426,7264 @@
         "w": 12,
         "h": 4,
         "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "aeroplane",
+    "folder": "objects",
+    "draws": "An aeroplane seen from the side, flying right",
+    "size": [
+      24,
+      10
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#E8EEF5",
+        "at": [
+          0,
+          0
+        ],
+        "w": 22,
+        "h": 3.4,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#E8EEF5",
+        "points": [
+          [
+            11,
+            -1.7
+          ],
+          [
+            13,
+            0
+          ],
+          [
+            11,
+            1.7
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "points": [
+          [
+            -2,
+            0
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            -4,
+            5
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "points": [
+          [
+            -11,
+            -1.7
+          ],
+          [
+            -8,
+            -1.7
+          ],
+          [
+            -11,
+            -5
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "arrowhead",
+    "folder": "objects",
+    "draws": "A stone arrowhead (old stone tool)",
+    "size": [
+      5,
+      8
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#9AA3AD",
+        "points": [
+          [
+            0,
+            -4
+          ],
+          [
+            2.5,
+            2
+          ],
+          [
+            1,
+            1.5
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            -1,
+            1.5
+          ],
+          [
+            -2.5,
+            2
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#5E6A76",
+        "from": [
+          0,
+          -2
+        ],
+        "to": [
+          0,
+          2
+        ]
+      }
+    ]
+  },
+  {
+    "name": "auto_rickshaw",
+    "folder": "objects",
+    "draws": "An auto-rickshaw, side view, facing right (green-yellow, CNG)",
+    "size": [
+      16,
+      15
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#2E9E5B",
+        "points": [
+          [
+            -8,
+            4
+          ],
+          [
+            -8,
+            -4
+          ],
+          [
+            -2,
+            -6
+          ],
+          [
+            6,
+            -6
+          ],
+          [
+            8,
+            0
+          ],
+          [
+            8,
+            4
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FFD84D",
+        "at": [
+          1,
+          -6.5
+        ],
+        "w": 13,
+        "h": 1.6,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#9ED8FF",
+        "at": [
+          3,
+          -2
+        ],
+        "w": 6,
+        "h": 4,
+        "fill": 0.6
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          -5,
+          5
+        ],
+        "r": 2,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          6,
+          5
+        ],
+        "r": 2,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "bicycle",
+    "folder": "objects",
+    "draws": "A bicycle, side view",
+    "size": [
+      22,
+      13
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "at": [
+          -7,
+          3
+        ],
+        "r": 4,
+        "fill": 0
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "at": [
+          7,
+          3
+        ],
+        "r": 4,
+        "fill": 0
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FF6B6B",
+        "from": [
+          -7,
+          3
+        ],
+        "to": [
+          -1,
+          -3
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FF6B6B",
+        "from": [
+          -1,
+          -3
+        ],
+        "to": [
+          5,
+          -3
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FF6B6B",
+        "from": [
+          5,
+          -3
+        ],
+        "to": [
+          7,
+          3
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FF6B6B",
+        "from": [
+          -1,
+          -3
+        ],
+        "to": [
+          1,
+          3
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FF6B6B",
+        "from": [
+          1,
+          3
+        ],
+        "to": [
+          -7,
+          3
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          -1,
+          -3
+        ],
+        "to": [
+          -2,
+          -5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          5,
+          -3
+        ],
+        "to": [
+          5,
+          -6
+        ]
+      }
+    ]
+  },
+  {
+    "name": "book_open",
+    "folder": "objects",
+    "draws": "An open book seen from the front, two pages",
+    "size": [
+      22,
+      12
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "page": [
+        6,
+        -2
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "points": [
+          [
+            0,
+            -5
+          ],
+          [
+            -11,
+            -6
+          ],
+          [
+            -11,
+            5
+          ],
+          [
+            0,
+            6
+          ]
+        ],
+        "closed": true,
+        "fill": 0.95
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#E8EEF5",
+        "points": [
+          [
+            0,
+            -5
+          ],
+          [
+            11,
+            -6
+          ],
+          [
+            11,
+            5
+          ],
+          [
+            0,
+            6
+          ]
+        ],
+        "closed": true,
+        "fill": 0.95
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          0,
+          -5
+        ],
+        "to": [
+          0,
+          6
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          -9,
+          -3
+        ],
+        "to": [
+          -2,
+          -2.5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          -9,
+          0
+        ],
+        "to": [
+          -2,
+          0.5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          2,
+          -2.5
+        ],
+        "to": [
+          9,
+          -3
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          2,
+          0.5
+        ],
+        "to": [
+          9,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "book_page",
+    "folder": "objects",
+    "draws": "One loose book page, the right half of an open book (lift it with osc rotate to flutter)",
+    "size": [
+      11,
+      12
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "spine": [
+        -5.5,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "points": [
+          [
+            -5.5,
+            -5
+          ],
+          [
+            5.5,
+            -6
+          ],
+          [
+            5.5,
+            5
+          ],
+          [
+            -5.5,
+            6
+          ]
+        ],
+        "closed": true,
+        "fill": 0.95
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          -3.5,
+          -2.5
+        ],
+        "to": [
+          3.5,
+          -3
+        ]
+      }
+    ]
+  },
+  {
+    "name": "bucket_red",
+    "folder": "objects",
+    "draws": "A red plastic bucket with a handle (empty; draw water separately)",
+    "size": [
+      14,
+      13
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "top": [
+        0,
+        -6
+      ],
+      "bottom": [
+        0,
+        7
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#E8302A",
+        "points": [
+          [
+            -7,
+            -6
+          ],
+          [
+            7,
+            -6
+          ],
+          [
+            5,
+            7
+          ],
+          [
+            -5,
+            7
+          ]
+        ],
+        "closed": true,
+        "fill": 0.35
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FF6B6B",
+        "from": [
+          -7,
+          -6
+        ],
+        "to": [
+          7,
+          -6
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FF6B6B",
+        "from": [
+          -7,
+          -6
+        ],
+        "to": [
+          -5,
+          7
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FF6B6B",
+        "from": [
+          7,
+          -6
+        ],
+        "to": [
+          5,
+          7
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FF6B6B",
+        "from": [
+          -5,
+          7
+        ],
+        "to": [
+          5,
+          7
+        ]
+      },
+      {
+        "shape": "arc",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "at": [
+          0,
+          -6
+        ],
+        "r": 7,
+        "start": 180,
+        "end": 360
+      }
+    ]
+  },
+  {
+    "name": "chair",
+    "folder": "objects",
+    "draws": "A wooden chair (furniture), side view",
+    "size": [
+      7,
+      14
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#A0703F",
+        "from": [
+          -3,
+          -7
+        ],
+        "to": [
+          -3,
+          7
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#A0703F",
+        "from": [
+          -3,
+          1
+        ],
+        "to": [
+          4,
+          1
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#A0703F",
+        "from": [
+          4,
+          1
+        ],
+        "to": [
+          4,
+          7
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#A0703F",
+        "from": [
+          -3,
+          1
+        ],
+        "to": [
+          -3,
+          7
+        ]
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#A0703F",
+        "at": [
+          0.5,
+          1
+        ],
+        "w": 7,
+        "h": 1.4,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "chilli",
+    "folder": "food",
+    "draws": "A fresh red chilli (plump, shiny, green stalk)",
+    "size": [
+      12,
+      4
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#E8302A",
+        "points": [
+          [
+            -5,
+            -1.4
+          ],
+          [
+            3,
+            -1.6
+          ],
+          [
+            5.5,
+            0.2
+          ],
+          [
+            3,
+            1.6
+          ],
+          [
+            -5,
+            1.2
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#5FE08F",
+        "from": [
+          -5,
+          -0.2
+        ],
+        "to": [
+          -6.5,
+          -1.5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FF8F7A",
+        "from": [
+          -3,
+          -0.6
+        ],
+        "to": [
+          1,
+          -0.8
+        ]
+      }
+    ]
+  },
+  {
+    "name": "chilli_dry",
+    "folder": "food",
+    "draws": "A dried red chilli (thin, wrinkled, dark red)",
+    "size": [
+      12,
+      4
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#8A1C14",
+        "points": [
+          [
+            -5,
+            -0.8
+          ],
+          [
+            -2,
+            -1.1
+          ],
+          [
+            0,
+            -0.6
+          ],
+          [
+            3,
+            -0.9
+          ],
+          [
+            5.5,
+            0.1
+          ],
+          [
+            3,
+            0.8
+          ],
+          [
+            0,
+            0.6
+          ],
+          [
+            -2,
+            0.9
+          ],
+          [
+            -5,
+            0.7
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          -5,
+          0
+        ],
+        "to": [
+          -6.5,
+          -1.2
+        ]
+      }
+    ]
+  },
+  {
+    "name": "chulha",
+    "folder": "objects",
+    "draws": "A clay chulha (wood stove) with burning wood and a pot on top",
+    "size": [
+      16,
+      12
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "fire": [
+        0,
+        3
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#B5522B",
+        "points": [
+          [
+            -8,
+            6
+          ],
+          [
+            -6,
+            -2
+          ],
+          [
+            6,
+            -2
+          ],
+          [
+            8,
+            6
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#0B1117",
+        "at": [
+          0,
+          3
+        ],
+        "w": 6,
+        "h": 4,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#FF9F43",
+        "points": [
+          [
+            -2,
+            4
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            4
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#8A96A3",
+        "at": [
+          0,
+          -4
+        ],
+        "w": 10,
+        "h": 4,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "circuit_board",
+    "folder": "objects",
+    "draws": "A phone's circuit board seen up close: green board, tiny gold contacts, copper lines, a battery",
+    "size": [
+      29,
+      19
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "gold": [
+        -8,
+        -5
+      ],
+      "battery": [
+        8,
+        2
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#1E5A36",
+        "at": [
+          0,
+          0
+        ],
+        "w": 29,
+        "h": 19,
+        "fill": 0.95
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#5E6A76",
+        "at": [
+          8,
+          2
+        ],
+        "w": 10,
+        "h": 13,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#D9824A",
+        "from": [
+          -13,
+          5
+        ],
+        "to": [
+          -2,
+          5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#D9824A",
+        "from": [
+          -13,
+          8
+        ],
+        "to": [
+          -2,
+          8
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#D9824A",
+        "from": [
+          -6,
+          -8
+        ],
+        "to": [
+          -6,
+          3
+        ]
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FFC24D",
+        "at": [
+          -12,
+          -6
+        ],
+        "w": 1.4,
+        "h": 2.4,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FFC24D",
+        "at": [
+          -9.6,
+          -6
+        ],
+        "w": 1.4,
+        "h": 2.4,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FFC24D",
+        "at": [
+          -7.2,
+          -6
+        ],
+        "w": 1.4,
+        "h": 2.4,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FFC24D",
+        "at": [
+          -4.800000000000001,
+          -6
+        ],
+        "w": 1.4,
+        "h": 2.4,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FFC24D",
+        "at": [
+          -2.4000000000000004,
+          -6
+        ],
+        "w": 1.4,
+        "h": 2.4,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "clay_toy",
+    "folder": "objects",
+    "draws": "A small clay toy (a little clay horse)",
+    "size": [
+      10,
+      9
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#C97A4A",
+        "at": [
+          0,
+          0
+        ],
+        "w": 7,
+        "h": 3.5,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#C97A4A",
+        "at": [
+          4,
+          -2.5
+        ],
+        "r": 1.8,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#C97A4A",
+        "from": [
+          -2.5,
+          1.5
+        ],
+        "to": [
+          -2.5,
+          4
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#C97A4A",
+        "from": [
+          2.5,
+          1.5
+        ],
+        "to": [
+          2.5,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "name": "coal_lump",
+    "folder": "substances",
+    "draws": "A lump of black coal",
+    "size": [
+      7,
+      5
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#1E2228",
+        "points": [
+          [
+            -3.2,
+            1.5
+          ],
+          [
+            -2.5,
+            -2
+          ],
+          [
+            1,
+            -2.4
+          ],
+          [
+            3.4,
+            -0.2
+          ],
+          [
+            2.5,
+            2.2
+          ],
+          [
+            -1,
+            2.4
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#5E6A76",
+        "from": [
+          -1,
+          -1.3
+        ],
+        "to": [
+          1.2,
+          -1.6
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#8A96A3",
+        "points": [
+          [
+            -3.2,
+            1.5
+          ],
+          [
+            -2.5,
+            -2
+          ],
+          [
+            1,
+            -2.4
+          ],
+          [
+            3.4,
+            -0.2
+          ],
+          [
+            2.5,
+            2.2
+          ],
+          [
+            -1,
+            2.4
+          ]
+        ],
+        "closed": true,
+        "fill": 0
+      }
+    ]
+  },
+  {
+    "name": "crystal",
+    "folder": "substances",
+    "draws": "A cluster of mineral crystals",
+    "size": [
+      8,
+      9
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#9ED8FF",
+        "points": [
+          [
+            -3,
+            4
+          ],
+          [
+            -2,
+            -3
+          ],
+          [
+            -1,
+            4
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C9B6FF",
+        "points": [
+          [
+            -1,
+            4
+          ],
+          [
+            1,
+            -4.5
+          ],
+          [
+            3,
+            4
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#9ED8FF",
+        "points": [
+          [
+            2,
+            4
+          ],
+          [
+            3.5,
+            -1
+          ],
+          [
+            4.5,
+            4
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "dead_leaf",
+    "folder": "living",
+    "draws": "A fallen brown leaf (dry, decaying)",
+    "size": [
+      7,
+      4
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#9A6A3A",
+        "points": [
+          [
+            -3.5,
+            0
+          ],
+          [
+            -1,
+            -1.8
+          ],
+          [
+            3,
+            -1
+          ],
+          [
+            3.5,
+            0.5
+          ],
+          [
+            0,
+            1.8
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#5A4028",
+        "from": [
+          -3.5,
+          0
+        ],
+        "to": [
+          3.5,
+          0.2
+        ]
+      }
+    ]
+  },
+  {
+    "name": "decomposers",
+    "folder": "living",
+    "draws": "Tiny decomposers seen magnified: round and rod-shaped specks (bacteria) and thread-like fungus",
+    "size": [
+      11,
+      7
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#C9A06B",
+        "at": [
+          -4,
+          -1
+        ],
+        "r": 1,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#C9A06B",
+        "at": [
+          -1,
+          1.5
+        ],
+        "w": 3,
+        "h": 1,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9ED8FF",
+        "at": [
+          2,
+          -2
+        ],
+        "r": 0.9,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#9ED8FF",
+        "at": [
+          4,
+          1
+        ],
+        "w": 2.6,
+        "h": 0.9,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#E8E2D0",
+        "from": [
+          -5,
+          3
+        ],
+        "to": [
+          -2,
+          2
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#E8E2D0",
+        "from": [
+          -2,
+          2
+        ],
+        "to": [
+          1,
+          3.5
+        ]
+      }
+    ]
+  },
+  {
+    "name": "dupatta",
+    "folder": "objects",
+    "draws": "A long light dupatta (scarf) hanging from one peg, edges with a border",
+    "size": [
+      6,
+      21
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "top": [
+        0,
+        -10
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FF6BB5",
+        "at": [
+          0,
+          0
+        ],
+        "w": 6,
+        "h": 19,
+        "fill": 0.85
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FFD84D",
+        "from": [
+          -3,
+          -9.5
+        ],
+        "to": [
+          -3,
+          9.5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FFD84D",
+        "from": [
+          3,
+          -9.5
+        ],
+        "to": [
+          3,
+          9.5
+        ]
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#E0A458",
+        "at": [
+          0,
+          -10
+        ],
+        "w": 1.4,
+        "h": 2.4,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "e_scooter",
+    "folder": "objects",
+    "draws": "An electric scooter with a plug sign (no exhaust pipe)",
+    "size": [
+      17,
+      14
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          -6,
+          4
+        ],
+        "r": 2.4,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          6,
+          4
+        ],
+        "r": 2.4,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#5FE08F",
+        "points": [
+          [
+            -8,
+            2
+          ],
+          [
+            -3,
+            -1
+          ],
+          [
+            3,
+            -1
+          ],
+          [
+            5,
+            2
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          5,
+          2
+        ],
+        "to": [
+          6,
+          -5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          4,
+          -5
+        ],
+        "to": [
+          8,
+          -5
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#FFD84D",
+        "points": [
+          [
+            -2,
+            -4
+          ],
+          [
+            0,
+            -7
+          ],
+          [
+            -0.5,
+            -5
+          ],
+          [
+            1.5,
+            -5
+          ],
+          [
+            -0.5,
+            -2
+          ],
+          [
+            0,
+            -4
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "earth_globe",
+    "folder": "basic",
+    "draws": "The Earth seen from space: mostly blue sea with green-brown land (about two-thirds water)",
+    "size": [
+      28,
+      28
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "sea": [
+        8,
+        6
+      ],
+      "land": [
+        -6,
+        -4
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#2E7BD6",
+        "at": [
+          0,
+          0
+        ],
+        "r": 14,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#5FB86F",
+        "points": [
+          [
+            -10,
+            -9
+          ],
+          [
+            -3,
+            -11
+          ],
+          [
+            0,
+            -6
+          ],
+          [
+            -4,
+            0
+          ],
+          [
+            -9,
+            2
+          ],
+          [
+            -12,
+            -3
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C9A06B",
+        "points": [
+          [
+            3,
+            -3
+          ],
+          [
+            9,
+            -6
+          ],
+          [
+            11,
+            0
+          ],
+          [
+            7,
+            4
+          ],
+          [
+            4,
+            2
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#5FB86F",
+        "points": [
+          [
+            -4,
+            6
+          ],
+          [
+            1,
+            5
+          ],
+          [
+            2,
+            10
+          ],
+          [
+            -3,
+            11
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9ED8FF",
+        "at": [
+          0,
+          0
+        ],
+        "r": 14,
+        "fill": 0
+      }
+    ]
+  },
+  {
+    "name": "factory",
+    "folder": "objects",
+    "draws": "A factory with a saw-tooth roof and a tall chimney",
+    "size": [
+      28,
+      20
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "chimney": [
+        9,
+        -11
+      ],
+      "drain": [
+        -14,
+        8
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#8A96A3",
+        "points": [
+          [
+            -14,
+            -2
+          ],
+          [
+            -9,
+            -6
+          ],
+          [
+            -9,
+            -2
+          ],
+          [
+            -4,
+            -6
+          ],
+          [
+            -4,
+            -2
+          ],
+          [
+            1,
+            -6
+          ],
+          [
+            1,
+            -2
+          ],
+          [
+            14,
+            -2
+          ],
+          [
+            14,
+            9
+          ],
+          [
+            -14,
+            9
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#5E6A76",
+        "at": [
+          9,
+          -6
+        ],
+        "w": 3,
+        "h": 10,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FFD84D",
+        "at": [
+          -8,
+          3
+        ],
+        "w": 3,
+        "h": 3,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FFD84D",
+        "at": [
+          -2,
+          3
+        ],
+        "w": 3,
+        "h": 3,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FFD84D",
+        "at": [
+          4,
+          3
+        ],
+        "w": 3,
+        "h": 3,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "firki_wheel",
+    "folder": "objects",
+    "draws": "A paper firki (pinwheel) head: four coloured blades round a pin; spin it; put a stick below",
+    "size": [
+      14,
+      14
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#FF6B6B",
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            -7
+          ],
+          [
+            4.5,
+            -5.5
+          ],
+          [
+            1.2,
+            -1.2
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#FFD84D",
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            7,
+            0
+          ],
+          [
+            5.5,
+            4.5
+          ],
+          [
+            1.2,
+            1.2
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#5FE08F",
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            7
+          ],
+          [
+            -4.5,
+            5.5
+          ],
+          [
+            -1.2,
+            1.2
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#6FB7FF",
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            -7,
+            0
+          ],
+          [
+            -5.5,
+            -4.5
+          ],
+          [
+            -1.2,
+            -1.2
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "at": [
+          0,
+          0
+        ],
+        "r": 0.9,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "flag",
+    "folder": "objects",
+    "draws": "A small triangular cloth flag on a thin pole (wave it with osc)",
+    "size": [
+      9,
+      22
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "base": [
+        0,
+        11
+      ],
+      "tip": [
+        8,
+        -8
+      ]
+    },
+    "parts": [
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          0,
+          -11
+        ],
+        "to": [
+          0,
+          11
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#FF9F43",
+        "points": [
+          [
+            0,
+            -11
+          ],
+          [
+            9,
+            -8
+          ],
+          [
+            0,
+            -5
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "fuel_pump",
+    "folder": "objects",
+    "draws": "A fuel-station pump with a nozzle hose and a display",
+    "size": [
+      11,
+      16
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "nozzle": [
+        6,
+        -1
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FFB347",
+        "at": [
+          0,
+          0
+        ],
+        "w": 8,
+        "h": 16,
+        "fill": 0.9
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#0B1117",
+        "at": [
+          0,
+          -4
+        ],
+        "w": 5,
+        "h": 3,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#2E3640",
+        "from": [
+          4,
+          -3
+        ],
+        "to": [
+          6,
+          0
+        ]
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          6,
+          0
+        ],
+        "w": 1.6,
+        "h": 3,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "fungus",
+    "folder": "living",
+    "draws": "Tiny mushrooms (fungi) that grow on rotting leaves and help them decay",
+    "size": [
+      9,
+      6
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#E8E2D0",
+        "from": [
+          -2,
+          3
+        ],
+        "to": [
+          -2,
+          0
+        ]
+      },
+      {
+        "shape": "arc",
+        "style": "normal",
+        "color": "#C9A06B",
+        "at": [
+          -2,
+          0
+        ],
+        "r": 2.2,
+        "start": 180,
+        "end": 360
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C9A06B",
+        "points": [
+          [
+            -4.2,
+            0
+          ],
+          [
+            0.2,
+            0
+          ],
+          [
+            -2,
+            -2.2
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#E8E2D0",
+        "from": [
+          2.5,
+          3
+        ],
+        "to": [
+          2.5,
+          1
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C9A06B",
+        "points": [
+          [
+            1,
+            1
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            2.5,
+            -0.6
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "gas_cylinder",
+    "folder": "objects",
+    "draws": "A red LPG gas cylinder",
+    "size": [
+      7,
+      15
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "top": [
+        0,
+        -7
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#C0392B",
+        "at": [
+          0,
+          1
+        ],
+        "w": 7,
+        "h": 11,
+        "fill": 1
+      },
+      {
+        "shape": "arc",
+        "style": "normal",
+        "color": "#C0392B",
+        "at": [
+          0,
+          -4.5
+        ],
+        "r": 3.5,
+        "start": 180,
+        "end": 360
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "at": [
+          0,
+          -7
+        ],
+        "w": 2.4,
+        "h": 2,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "gold_nugget",
+    "folder": "substances",
+    "draws": "A lump of naturally occurring gold",
+    "size": [
+      7,
+      5
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#FFC24D",
+        "points": [
+          [
+            -3,
+            1
+          ],
+          [
+            -2,
+            -2
+          ],
+          [
+            1,
+            -2.4
+          ],
+          [
+            3.4,
+            -0.5
+          ],
+          [
+            2.6,
+            2
+          ],
+          [
+            -1,
+            2.4
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FFF2C0",
+        "from": [
+          -1,
+          -1
+        ],
+        "to": [
+          1,
+          -1.5
+        ]
+      }
+    ]
+  },
+  {
+    "name": "gooseberry",
+    "folder": "food",
+    "draws": "A nellikai (Indian gooseberry, amla): a round pale-green fruit with faint lines",
+    "size": [
+      5,
+      5
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#C8E68A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 2.4,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8FB85A",
+        "from": [
+          0,
+          -2.2
+        ],
+        "to": [
+          0,
+          2.2
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8FB85A",
+        "from": [
+          -1.6,
+          -1.6
+        ],
+        "to": [
+          -1.2,
+          1.8
+        ]
+      }
+    ]
+  },
+  {
+    "name": "hair_head",
+    "folder": "body",
+    "draws": "A child's head with hair on top (front view)",
+    "size": [
+      10,
+      13
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "hair": [
+        0,
+        -4
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#F2B47E",
+        "at": [
+          0,
+          1
+        ],
+        "r": 4.6,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#2E1A10",
+        "points": [
+          [
+            -5,
+            -1
+          ],
+          [
+            -4,
+            -5
+          ],
+          [
+            0,
+            -6.5
+          ],
+          [
+            4,
+            -5
+          ],
+          [
+            5,
+            -1
+          ],
+          [
+            3,
+            -3
+          ],
+          [
+            0,
+            -3.6
+          ],
+          [
+            -3,
+            -3
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#0B1117",
+        "at": [
+          -1.6,
+          1
+        ],
+        "r": 0.5,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#0B1117",
+        "at": [
+          1.6,
+          1
+        ],
+        "r": 0.5,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "hand_axe",
+    "folder": "objects",
+    "draws": "A stone hand axe (old stone tool), teardrop shaped with chipped edges",
+    "size": [
+      7,
+      11
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#9AA3AD",
+        "points": [
+          [
+            0,
+            -5.5
+          ],
+          [
+            3.5,
+            -1
+          ],
+          [
+            3,
+            3.5
+          ],
+          [
+            0,
+            5.5
+          ],
+          [
+            -3,
+            3.5
+          ],
+          [
+            -3.5,
+            -1
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#5E6A76",
+        "from": [
+          -2,
+          -2
+        ],
+        "to": [
+          1,
+          0
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#5E6A76",
+        "from": [
+          1,
+          2
+        ],
+        "to": [
+          -1,
+          3.5
+        ]
+      }
+    ]
+  },
+  {
+    "name": "hand_lens",
+    "folder": "lab",
+    "draws": "A hand lens (magnifying glass) with a handle",
+    "size": [
+      19,
+      18
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "glass": [
+        -2,
+        -2
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9ED8FF",
+        "at": [
+          -2,
+          -2
+        ],
+        "r": 7,
+        "fill": 0.15
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#C9D6E6",
+        "at": [
+          -2,
+          -2
+        ],
+        "r": 7
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "from": [
+          3,
+          3
+        ],
+        "to": [
+          9,
+          9
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "from": [
+          3.5,
+          2.5
+        ],
+        "to": [
+          9.5,
+          8.5
+        ]
+      }
+    ]
+  },
+  {
+    "name": "hanging_cloth",
+    "folder": "objects",
+    "draws": "A cloth (towel) hanging from two pegs; top edge at y -6",
+    "size": [
+      11,
+      14
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "top": [
+        0,
+        -6
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FF8FB1",
+        "at": [
+          0,
+          0.5
+        ],
+        "w": 11,
+        "h": 12,
+        "fill": 0.85
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "from": [
+          -5.5,
+          -3
+        ],
+        "to": [
+          5.5,
+          -3
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "from": [
+          -5.5,
+          3
+        ],
+        "to": [
+          5.5,
+          3
+        ]
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#E0A458",
+        "at": [
+          -3.5,
+          -6
+        ],
+        "w": 1.2,
+        "h": 2.4,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#E0A458",
+        "at": [
+          3.5,
+          -6
+        ],
+        "w": 1.2,
+        "h": 2.4,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "herb",
+    "folder": "living",
+    "draws": "A small soft herb with a few leaves, close to the ground",
+    "size": [
+      7,
+      9
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "base": [
+        0,
+        4
+      ]
+    },
+    "parts": [
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#5FE08F",
+        "from": [
+          0,
+          4
+        ],
+        "to": [
+          0,
+          -2
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#5FE08F",
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            -3.5,
+            -2
+          ],
+          [
+            -1,
+            1
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#5FE08F",
+        "points": [
+          [
+            0,
+            -1
+          ],
+          [
+            3.5,
+            -3
+          ],
+          [
+            1,
+            0
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#FFD84D",
+        "at": [
+          0,
+          -3
+        ],
+        "r": 1.2,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "honey_jar",
+    "folder": "food",
+    "draws": "A glass jar of golden honey with a lid",
+    "size": [
+      8,
+      10
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#E8A33D",
+        "at": [
+          0,
+          1
+        ],
+        "w": 7,
+        "h": 8,
+        "fill": 0.9
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "at": [
+          0,
+          -4
+        ],
+        "w": 7.5,
+        "h": 2,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FFD58A",
+        "from": [
+          -2,
+          -1
+        ],
+        "to": [
+          -2,
+          3
+        ]
+      }
+    ]
+  },
+  {
+    "name": "house",
+    "folder": "objects",
+    "draws": "A small house with a sloping roof, seen from the front",
+    "size": [
+      30,
+      24
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "roof_left": [
+        -15,
+        -2
+      ],
+      "roof_right": [
+        15,
+        -2
+      ],
+      "gutter": [
+        15,
+        -1
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#B5522B",
+        "points": [
+          [
+            -15,
+            -2
+          ],
+          [
+            0,
+            -12
+          ],
+          [
+            15,
+            -2
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#E0A458",
+        "at": [
+          0,
+          5
+        ],
+        "w": 24,
+        "h": 14,
+        "fill": 0.85
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "at": [
+          0,
+          8
+        ],
+        "w": 5,
+        "h": 8,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#9ED8FF",
+        "at": [
+          -7,
+          4
+        ],
+        "w": 4,
+        "h": 4,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "kite",
+    "folder": "objects",
+    "draws": "A paper kite (patang) with a tail",
+    "size": [
+      9,
+      13
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#FF6B6B",
+        "points": [
+          [
+            0,
+            -6
+          ],
+          [
+            4.5,
+            -1
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            -4.5,
+            -1
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FFD84D",
+        "from": [
+          0,
+          -6
+        ],
+        "to": [
+          0,
+          4
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FFD84D",
+        "from": [
+          -4.5,
+          -1
+        ],
+        "to": [
+          4.5,
+          -1
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FFD84D",
+        "from": [
+          0,
+          4
+        ],
+        "to": [
+          1,
+          7
+        ]
+      }
+    ]
+  },
+  {
+    "name": "laterite_block",
+    "folder": "substances",
+    "draws": "A red laterite rock block used like a brick (reddish, with small holes)",
+    "size": [
+      11,
+      6
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#B5522B",
+        "at": [
+          0,
+          0
+        ],
+        "w": 11,
+        "h": 6,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#5A2010",
+        "at": [
+          -3,
+          -1
+        ],
+        "r": 0.6,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#5A2010",
+        "at": [
+          1,
+          1
+        ],
+        "r": 0.6,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#5A2010",
+        "at": [
+          3.5,
+          -1.5
+        ],
+        "r": 0.5,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "logs",
+    "folder": "objects",
+    "draws": "A stack of three cut wooden logs (firewood / timber)",
+    "size": [
+      20,
+      7
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "at": [
+          -3.5,
+          2.5
+        ],
+        "w": 9,
+        "h": 3.4,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#A0703F",
+        "at": [
+          3.5,
+          2.5
+        ],
+        "w": 9,
+        "h": 3.4,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "at": [
+          0,
+          -1
+        ],
+        "w": 9,
+        "h": 3.4,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#E0B480",
+        "at": [
+          -8,
+          2.5
+        ],
+        "r": 1.6,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#E0B480",
+        "at": [
+          8,
+          2.5
+        ],
+        "r": 1.6,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#E0B480",
+        "at": [
+          4.5,
+          -1
+        ],
+        "r": 1.6,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "mug",
+    "folder": "objects",
+    "draws": "A small plastic mug for water (bathroom mug)",
+    "size": [
+      7,
+      8
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "top": [
+        0,
+        -4
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#FFD84D",
+        "points": [
+          [
+            -3.5,
+            -4
+          ],
+          [
+            3.5,
+            -4
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            -3,
+            4
+          ]
+        ],
+        "closed": true,
+        "fill": 0.8
+      },
+      {
+        "shape": "arc",
+        "style": "normal",
+        "color": "#FFD84D",
+        "at": [
+          4,
+          0
+        ],
+        "r": 2.2,
+        "start": 270,
+        "end": 450
+      }
+    ]
+  },
+  {
+    "name": "oil_drum",
+    "folder": "objects",
+    "draws": "A barrel of crude oil (petroleum)",
+    "size": [
+      9,
+      13
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "top": [
+        0,
+        -6
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          0,
+          0
+        ],
+        "w": 9,
+        "h": 12,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#8A96A3",
+        "at": [
+          0,
+          0
+        ],
+        "w": 9,
+        "h": 12,
+        "fill": 0
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          -4.5,
+          -3
+        ],
+        "to": [
+          4.5,
+          -3
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          -4.5,
+          3
+        ],
+        "to": [
+          4.5,
+          3
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#8A96A3",
+        "at": [
+          0,
+          -6
+        ],
+        "r": 0.8,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "phone",
+    "folder": "objects",
+    "draws": "A mobile phone (front)",
+    "size": [
+      7,
+      12
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "screen": [
+        0,
+        -0.5
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          0,
+          0
+        ],
+        "w": 6.5,
+        "h": 11.5,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#6FB7FF",
+        "at": [
+          0,
+          -0.5
+        ],
+        "w": 5.4,
+        "h": 8.6,
+        "fill": 0.6
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "at": [
+          0,
+          4.8
+        ],
+        "r": 0.5,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "plastic_bag",
+    "folder": "objects",
+    "draws": "A thrown-away plastic bag (litter)",
+    "size": [
+      8,
+      7
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#E8EEF5",
+        "points": [
+          [
+            -4,
+            -2
+          ],
+          [
+            4,
+            -2
+          ],
+          [
+            3.5,
+            4.5
+          ],
+          [
+            -3.5,
+            4.5
+          ]
+        ],
+        "closed": true,
+        "fill": 0.7
+      },
+      {
+        "shape": "arc",
+        "style": "normal",
+        "color": "#E8EEF5",
+        "at": [
+          -2,
+          -2
+        ],
+        "r": 1.5,
+        "start": 180,
+        "end": 360
+      },
+      {
+        "shape": "arc",
+        "style": "normal",
+        "color": "#E8EEF5",
+        "at": [
+          2,
+          -2
+        ],
+        "r": 1.5,
+        "start": 180,
+        "end": 360
+      }
+    ]
+  },
+  {
+    "name": "rock_granite",
+    "folder": "substances",
+    "draws": "A block of granite: grey with black and pink speckles",
+    "size": [
+      13,
+      8
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#9AA3AD",
+        "at": [
+          0,
+          0
+        ],
+        "w": 13,
+        "h": 8,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          -3,
+          -1
+        ],
+        "r": 0.7,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          2,
+          1.5
+        ],
+        "r": 0.7,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#E8A0A0",
+        "at": [
+          4,
+          -2
+        ],
+        "r": 0.6,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#E8A0A0",
+        "at": [
+          -1,
+          2
+        ],
+        "r": 0.6,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          -5,
+          2
+        ],
+        "r": 0.6,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "rock_marble",
+    "folder": "substances",
+    "draws": "A slab of white marble with faint grey veins",
+    "size": [
+      13,
+      8
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#F2F4F7",
+        "at": [
+          0,
+          0
+        ],
+        "w": 13,
+        "h": 8,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#A8B0BA",
+        "from": [
+          -6,
+          -2
+        ],
+        "to": [
+          -1,
+          1
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#A8B0BA",
+        "from": [
+          -1,
+          1
+        ],
+        "to": [
+          5,
+          -1
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#C0C7D0",
+        "from": [
+          1,
+          3
+        ],
+        "to": [
+          6,
+          2
+        ]
+      }
+    ]
+  },
+  {
+    "name": "rock_sandstone",
+    "folder": "substances",
+    "draws": "A block of sandstone: sandy pink-brown with layers",
+    "size": [
+      13,
+      8
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#D9A070",
+        "at": [
+          0,
+          0
+        ],
+        "w": 13,
+        "h": 8,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B87A4A",
+        "from": [
+          -6.5,
+          -1.5
+        ],
+        "to": [
+          6.5,
+          -1.5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B87A4A",
+        "from": [
+          -6.5,
+          1.5
+        ],
+        "to": [
+          6.5,
+          1.5
+        ]
+      }
+    ]
+  },
+  {
+    "name": "saw",
+    "folder": "objects",
+    "draws": "A hand saw with a wooden handle and a toothed blade",
+    "size": [
+      19,
+      6
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "teeth": [
+        3,
+        2
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "points": [
+          [
+            -4,
+            -2
+          ],
+          [
+            9,
+            -1
+          ],
+          [
+            9,
+            2
+          ],
+          [
+            -4,
+            2
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "at": [
+          -7,
+          0
+        ],
+        "w": 5,
+        "h": 4.5,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          -3,
+          2
+        ],
+        "to": [
+          -2,
+          3
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          -1,
+          2
+        ],
+        "to": [
+          0,
+          3
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          1,
+          2
+        ],
+        "to": [
+          2,
+          3
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          3,
+          2
+        ],
+        "to": [
+          4,
+          3
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          5,
+          2
+        ],
+        "to": [
+          6,
+          3
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          7,
+          2
+        ],
+        "to": [
+          8,
+          3
+        ]
+      }
+    ]
+  },
+  {
+    "name": "scooter",
+    "folder": "objects",
+    "draws": "A scooter, side view, facing right",
+    "size": [
+      17,
+      12
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          -6,
+          4
+        ],
+        "r": 2.4,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          6,
+          4
+        ],
+        "r": 2.4,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#6FB7FF",
+        "points": [
+          [
+            -8,
+            2
+          ],
+          [
+            -3,
+            -1
+          ],
+          [
+            3,
+            -1
+          ],
+          [
+            5,
+            2
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          5,
+          2
+        ],
+        "to": [
+          6,
+          -5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          4,
+          -5
+        ],
+        "to": [
+          8,
+          -5
+        ]
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          -4,
+          -2
+        ],
+        "w": 5,
+        "h": 1.4,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "shrub",
+    "folder": "living",
+    "draws": "A bushy shrub: several woody stems with leafy clumps, about knee to waist high",
+    "size": [
+      18,
+      15
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "base": [
+        0,
+        7
+      ]
+    },
+    "parts": [
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "from": [
+          0,
+          7
+        ],
+        "to": [
+          0,
+          1
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "from": [
+          0,
+          4
+        ],
+        "to": [
+          -4,
+          0
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "from": [
+          0,
+          4
+        ],
+        "to": [
+          4,
+          -1
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3FA35F",
+        "at": [
+          -5,
+          -1
+        ],
+        "r": 4,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#4FC06F",
+        "at": [
+          4,
+          -2
+        ],
+        "r": 4.5,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#5FE08F",
+        "at": [
+          0,
+          -3
+        ],
+        "r": 4.5,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "skeleton_small",
+    "folder": "living",
+    "draws": "The bones of a small dead animal (a little skeleton) lying in the soil",
+    "size": [
+      17,
+      5
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#E8E2D0",
+        "at": [
+          -6.5,
+          0
+        ],
+        "r": 1.6,
+        "fill": 0.9
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#E8E2D0",
+        "from": [
+          -5,
+          0
+        ],
+        "to": [
+          6,
+          0
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#E8E2D0",
+        "from": [
+          -3,
+          0
+        ],
+        "to": [
+          -3.6,
+          -2.2
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#E8E2D0",
+        "from": [
+          -0.7999999999999998,
+          0
+        ],
+        "to": [
+          -1.4,
+          -2.2
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#E8E2D0",
+        "from": [
+          1.4000000000000004,
+          0
+        ],
+        "to": [
+          0.8000000000000003,
+          -2.2
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#E8E2D0",
+        "from": [
+          3.6000000000000005,
+          0
+        ],
+        "to": [
+          3.0000000000000004,
+          -2.2
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#E8E2D0",
+        "from": [
+          5.800000000000001,
+          0
+        ],
+        "to": [
+          5.200000000000001,
+          -2.2
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#E8E2D0",
+        "from": [
+          -3,
+          0
+        ],
+        "to": [
+          -3.6,
+          2.2
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#E8E2D0",
+        "from": [
+          -0.7999999999999998,
+          0
+        ],
+        "to": [
+          -1.4,
+          2.2
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#E8E2D0",
+        "from": [
+          1.4000000000000004,
+          0
+        ],
+        "to": [
+          0.8000000000000003,
+          2.2
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#E8E2D0",
+        "from": [
+          3.6000000000000005,
+          0
+        ],
+        "to": [
+          3.0000000000000004,
+          2.2
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#E8E2D0",
+        "from": [
+          5.800000000000001,
+          0
+        ],
+        "to": [
+          5.200000000000001,
+          2.2
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#E8E2D0",
+        "from": [
+          6,
+          0
+        ],
+        "to": [
+          8,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "name": "slate_roof",
+    "folder": "objects",
+    "draws": "A roof of thin dark-grey slate tiles (slate is a rock)",
+    "size": [
+      24,
+      12
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#4A5560",
+        "points": [
+          [
+            -12,
+            6
+          ],
+          [
+            0,
+            -6
+          ],
+          [
+            12,
+            6
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#2E3640",
+        "from": [
+          -12,
+          6
+        ],
+        "to": [
+          -6,
+          0
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#2E3640",
+        "from": [
+          -8,
+          6
+        ],
+        "to": [
+          -4,
+          0
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#2E3640",
+        "from": [
+          -4,
+          6
+        ],
+        "to": [
+          -2,
+          0
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#2E3640",
+        "from": [
+          0,
+          6
+        ],
+        "to": [
+          0,
+          0
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#2E3640",
+        "from": [
+          4,
+          6
+        ],
+        "to": [
+          2,
+          0
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#2E3640",
+        "from": [
+          8,
+          6
+        ],
+        "to": [
+          4,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "smoke_puff",
+    "folder": "substances",
+    "draws": "A puff of grey smoke",
+    "size": [
+      11,
+      8
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#7A8490",
+        "at": [
+          -2.5,
+          1
+        ],
+        "r": 2.6,
+        "fill": 0.75
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#8A96A3",
+        "at": [
+          1,
+          -0.5
+        ],
+        "r": 3.2,
+        "fill": 0.75
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#7A8490",
+        "at": [
+          3.5,
+          1.5
+        ],
+        "r": 2.2,
+        "fill": 0.75
+      }
+    ]
+  },
+  {
+    "name": "solar_cooker",
+    "folder": "objects",
+    "draws": "A box-type solar cooker: black box, glass lid, shiny mirror lid propped open behind",
+    "size": [
+      22,
+      24
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "pot": [
+        0,
+        2
+      ],
+      "mirror": [
+        0,
+        -8
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#CFE3F4",
+        "points": [
+          [
+            -11,
+            -2
+          ],
+          [
+            11,
+            -2
+          ],
+          [
+            9,
+            -15
+          ],
+          [
+            -9,
+            -15
+          ]
+        ],
+        "closed": true,
+        "fill": 0.9
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          0,
+          4
+        ],
+        "w": 22,
+        "h": 10,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#9ED8FF",
+        "from": [
+          -11,
+          -1
+        ],
+        "to": [
+          11,
+          -1
+        ]
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#0B1117",
+        "at": [
+          0,
+          2.5
+        ],
+        "w": 8,
+        "h": 4,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          -11,
+          9
+        ],
+        "to": [
+          11,
+          9
+        ]
+      }
+    ]
+  },
+  {
+    "name": "solar_heater",
+    "folder": "objects",
+    "draws": "A solar water heater on a roof: a sloping glass panel with a white tank on top",
+    "size": [
+      26,
+      19
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "tank": [
+        6,
+        -6
+      ],
+      "pipe": [
+        -10,
+        8
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#1B4E78",
+        "points": [
+          [
+            -12,
+            8
+          ],
+          [
+            6,
+            -2
+          ],
+          [
+            10,
+            2
+          ],
+          [
+            -8,
+            10
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#E8EEF5",
+        "at": [
+          7,
+          -6
+        ],
+        "w": 14,
+        "h": 6,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          -11,
+          7
+        ],
+        "to": [
+          -11,
+          10
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          9,
+          2
+        ],
+        "to": [
+          9,
+          10
+        ]
+      }
+    ]
+  },
+  {
+    "name": "solar_panel",
+    "folder": "objects",
+    "draws": "A solar panel: a tilted dark-blue panel with a grid of cells, on a stand",
+    "size": [
+      22,
+      19
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "panel": [
+        0,
+        -3
+      ],
+      "wire": [
+        6,
+        8
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#1B4E78",
+        "points": [
+          [
+            -11,
+            -2
+          ],
+          [
+            8,
+            -9
+          ],
+          [
+            11,
+            1
+          ],
+          [
+            -8,
+            7
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#9ED8FF",
+        "from": [
+          -4.7,
+          -4.3
+        ],
+        "to": [
+          -1.8,
+          4.6
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#9ED8FF",
+        "from": [
+          1.6,
+          -6.6
+        ],
+        "to": [
+          4.5,
+          2.6
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#9ED8FF",
+        "from": [
+          -9.5,
+          2.4
+        ],
+        "to": [
+          9.5,
+          -4
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          -0.5,
+          3
+        ],
+        "to": [
+          -0.5,
+          10
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          -5,
+          10
+        ],
+        "to": [
+          4,
+          10
+        ]
+      }
+    ]
+  },
+  {
+    "name": "solar_street_light",
+    "folder": "objects",
+    "draws": "A street light on a pole with a small solar panel at the top",
+    "size": [
+      14,
+      41
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "lamp": [
+        5,
+        -14
+      ],
+      "panel": [
+        -3,
+        -19
+      ],
+      "base": [
+        0,
+        20
+      ]
+    },
+    "parts": [
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          0,
+          -18
+        ],
+        "to": [
+          0,
+          20
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          0,
+          -15
+        ],
+        "to": [
+          5,
+          -15
+        ]
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FFD84D",
+        "at": [
+          5,
+          -13.5
+        ],
+        "w": 4,
+        "h": 2,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#1B4E78",
+        "points": [
+          [
+            -7,
+            -18
+          ],
+          [
+            1,
+            -21
+          ],
+          [
+            2,
+            -18
+          ],
+          [
+            -6,
+            -15
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "square_paper",
+    "folder": "objects",
+    "draws": "A square of paper with its two diagonals cut from the corners towards the centre (step to make a firki)",
+    "size": [
+      13,
+      13
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "at": [
+          0,
+          0
+        ],
+        "w": 13,
+        "h": 13,
+        "fill": 0.9
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FF6B6B",
+        "from": [
+          -6.5,
+          -6.5
+        ],
+        "to": [
+          -1.5,
+          -1.5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FF6B6B",
+        "from": [
+          6.5,
+          -6.5
+        ],
+        "to": [
+          1.5,
+          -1.5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FF6B6B",
+        "from": [
+          -6.5,
+          6.5
+        ],
+        "to": [
+          -1.5,
+          1.5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FF6B6B",
+        "from": [
+          6.5,
+          6.5
+        ],
+        "to": [
+          1.5,
+          1.5
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#8A96A3",
+        "at": [
+          0,
+          0
+        ],
+        "r": 0.6,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "stepwell",
+    "folder": "objects",
+    "draws": "A stepwell (Bawadi / Vav) in cross-section: steps going down both sides to stored water, stone-lined walls",
+    "size": [
+      64,
+      28
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "water": [
+        0,
+        10
+      ],
+      "left_wall": [
+        -13,
+        4
+      ],
+      "right_wall": [
+        13,
+        4
+      ],
+      "ground_left": [
+        -30,
+        -12
+      ],
+      "ground_right": [
+        30,
+        -12
+      ],
+      "steps": [
+        -20,
+        -2
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#7A5A3A",
+        "at": [
+          0,
+          -12.5
+        ],
+        "w": 64,
+        "h": 5,
+        "fill": 0.9
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#C99A6B",
+        "at": [
+          -26,
+          -8
+        ],
+        "w": 8,
+        "h": 3,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#C99A6B",
+        "at": [
+          26,
+          -8
+        ],
+        "w": 8,
+        "h": 3,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#C99A6B",
+        "at": [
+          -22,
+          -5
+        ],
+        "w": 8,
+        "h": 3,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#C99A6B",
+        "at": [
+          22,
+          -5
+        ],
+        "w": 8,
+        "h": 3,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#C99A6B",
+        "at": [
+          -18,
+          -2
+        ],
+        "w": 8,
+        "h": 3,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#C99A6B",
+        "at": [
+          18,
+          -2
+        ],
+        "w": 8,
+        "h": 3,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#C99A6B",
+        "at": [
+          -14,
+          1
+        ],
+        "w": 8,
+        "h": 3,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#C99A6B",
+        "at": [
+          14,
+          1
+        ],
+        "w": 8,
+        "h": 3,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#C99A6B",
+        "at": [
+          -10,
+          4
+        ],
+        "w": 8,
+        "h": 3,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#C99A6B",
+        "at": [
+          10,
+          4
+        ],
+        "w": 8,
+        "h": 3,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#C99A6B",
+        "at": [
+          -6,
+          7
+        ],
+        "w": 8,
+        "h": 3,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#C99A6B",
+        "at": [
+          6,
+          7
+        ],
+        "w": 8,
+        "h": 3,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#2E7BD6",
+        "at": [
+          0,
+          10
+        ],
+        "w": 26,
+        "h": 6,
+        "fill": 0.8
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          -13,
+          -10
+        ],
+        "to": [
+          -13,
+          13
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          13,
+          -10
+        ],
+        "to": [
+          13,
+          13
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          -13,
+          13
+        ],
+        "to": [
+          13,
+          13
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          -14,
+          -6
+        ],
+        "to": [
+          -12,
+          -6
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          12,
+          -6
+        ],
+        "to": [
+          14,
+          -6
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          -14,
+          -1
+        ],
+        "to": [
+          -12,
+          -1
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          12,
+          -1
+        ],
+        "to": [
+          14,
+          -1
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          -14,
+          4
+        ],
+        "to": [
+          -12,
+          4
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          12,
+          4
+        ],
+        "to": [
+          14,
+          4
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          -14,
+          9
+        ],
+        "to": [
+          -12,
+          9
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          12,
+          9
+        ],
+        "to": [
+          14,
+          9
+        ]
+      }
+    ]
+  },
+  {
+    "name": "stone_air",
+    "folder": "objects",
+    "draws": "A smooth glowing pale blue-white quest stone",
+    "size": [
+      9,
+      9
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#CFEFFF",
+        "at": [
+          0,
+          0
+        ],
+        "r": 4.4,
+        "fill": 0.25
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#CFEFFF",
+        "points": [
+          [
+            -3,
+            1.5
+          ],
+          [
+            -2.4,
+            -2
+          ],
+          [
+            0.5,
+            -3
+          ],
+          [
+            3,
+            -1.5
+          ],
+          [
+            3.2,
+            1.6
+          ],
+          [
+            0,
+            3
+          ]
+        ],
+        "closed": true,
+        "fill": 0.95
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FFFFFF",
+        "from": [
+          -1.2,
+          -1.4
+        ],
+        "to": [
+          0.8,
+          -1.9
+        ]
+      }
+    ]
+  },
+  {
+    "name": "stone_earth",
+    "folder": "objects",
+    "draws": "A smooth glowing grey-brown, with a buried ember quest stone",
+    "size": [
+      9,
+      9
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#8A6A4A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 4.4,
+        "fill": 0.25
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#8A6A4A",
+        "points": [
+          [
+            -3,
+            1.5
+          ],
+          [
+            -2.4,
+            -2
+          ],
+          [
+            0.5,
+            -3
+          ],
+          [
+            3,
+            -1.5
+          ],
+          [
+            3.2,
+            1.6
+          ],
+          [
+            0,
+            3
+          ]
+        ],
+        "closed": true,
+        "fill": 0.95
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FFFFFF",
+        "from": [
+          -1.2,
+          -1.4
+        ],
+        "to": [
+          0.8,
+          -1.9
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#FF9F43",
+        "at": [
+          0.5,
+          0.5
+        ],
+        "r": 1,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "stone_forest",
+    "folder": "objects",
+    "draws": "A smooth glowing green quest stone",
+    "size": [
+      9,
+      9
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3FCF6F",
+        "at": [
+          0,
+          0
+        ],
+        "r": 4.4,
+        "fill": 0.25
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#3FCF6F",
+        "points": [
+          [
+            -3,
+            1.5
+          ],
+          [
+            -2.4,
+            -2
+          ],
+          [
+            0.5,
+            -3
+          ],
+          [
+            3,
+            -1.5
+          ],
+          [
+            3.2,
+            1.6
+          ],
+          [
+            0,
+            3
+          ]
+        ],
+        "closed": true,
+        "fill": 0.95
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FFFFFF",
+        "from": [
+          -1.2,
+          -1.4
+        ],
+        "to": [
+          0.8,
+          -1.9
+        ]
+      }
+    ]
+  },
+  {
+    "name": "stone_sun",
+    "folder": "objects",
+    "draws": "A smooth glowing gold quest stone",
+    "size": [
+      9,
+      9
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#FFC24D",
+        "at": [
+          0,
+          0
+        ],
+        "r": 4.4,
+        "fill": 0.25
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#FFC24D",
+        "points": [
+          [
+            -3,
+            1.5
+          ],
+          [
+            -2.4,
+            -2
+          ],
+          [
+            0.5,
+            -3
+          ],
+          [
+            3,
+            -1.5
+          ],
+          [
+            3.2,
+            1.6
+          ],
+          [
+            0,
+            3
+          ]
+        ],
+        "closed": true,
+        "fill": 0.95
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FFFFFF",
+        "from": [
+          -1.2,
+          -1.4
+        ],
+        "to": [
+          0.8,
+          -1.9
+        ]
+      }
+    ]
+  },
+  {
+    "name": "stone_water",
+    "folder": "objects",
+    "draws": "A smooth glowing blue-green quest stone",
+    "size": [
+      9,
+      9
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3FC1B0",
+        "at": [
+          0,
+          0
+        ],
+        "r": 4.4,
+        "fill": 0.25
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#3FC1B0",
+        "points": [
+          [
+            -3,
+            1.5
+          ],
+          [
+            -2.4,
+            -2
+          ],
+          [
+            0.5,
+            -3
+          ],
+          [
+            3,
+            -1.5
+          ],
+          [
+            3.2,
+            1.6
+          ],
+          [
+            0,
+            3
+          ]
+        ],
+        "closed": true,
+        "fill": 0.95
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FFFFFF",
+        "from": [
+          -1.2,
+          -1.4
+        ],
+        "to": [
+          0.8,
+          -1.9
+        ]
+      }
+    ]
+  },
+  {
+    "name": "storage_tank",
+    "folder": "objects",
+    "draws": "A round water storage tank seen from the side (draw the water level separately)",
+    "size": [
+      14,
+      18
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "top": [
+        0,
+        -8
+      ],
+      "inlet": [
+        -7,
+        -6
+      ],
+      "bottom": [
+        0,
+        8
+      ],
+      "inside": [
+        0,
+        1
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          0,
+          0
+        ],
+        "w": 14,
+        "h": 16,
+        "fill": 0.6
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          -7,
+          -8
+        ],
+        "to": [
+          7,
+          -8
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          -7,
+          -8
+        ],
+        "to": [
+          -7,
+          8
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          7,
+          -8
+        ],
+        "to": [
+          7,
+          8
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          -7,
+          8
+        ],
+        "to": [
+          7,
+          8
+        ]
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "at": [
+          0,
+          -9
+        ],
+        "w": 8,
+        "h": 2,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "sunbeam_cell",
+    "folder": "light",
+    "draws": "A zoomed solar cell: a dark-blue square with silver lines where light knocks electricity loose",
+    "size": [
+      19,
+      19
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#1B4E78",
+        "at": [
+          0,
+          0
+        ],
+        "w": 19,
+        "h": 19,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          -9.5,
+          -3
+        ],
+        "to": [
+          9.5,
+          -3
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          -9.5,
+          3
+        ],
+        "to": [
+          9.5,
+          3
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          0,
+          -9.5
+        ],
+        "to": [
+          0,
+          9.5
+        ]
+      }
+    ]
+  },
+  {
+    "name": "tap",
+    "folder": "objects",
+    "draws": "A steel water tap on a wall pipe, spout pointing down",
+    "size": [
+      15,
+      11
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "spout": [
+        5,
+        5
+      ],
+      "handle": [
+        1,
+        -4
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#8A96A3",
+        "at": [
+          -6,
+          0
+        ],
+        "w": 4,
+        "h": 3,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "at": [
+          0,
+          0
+        ],
+        "w": 9,
+        "h": 3,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "at": [
+          5,
+          3
+        ],
+        "w": 2.4,
+        "h": 4,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "at": [
+          1,
+          -3
+        ],
+        "w": 1.2,
+        "h": 3,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FF6B6B",
+        "at": [
+          1,
+          -4.6
+        ],
+        "w": 5,
+        "h": 1.2,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "tiny_life",
+    "folder": "living",
+    "draws": "Tiny water plants and microorganisms (seen magnified): small green and brown specks with tails",
+    "size": [
+      10,
+      5
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#5FE08F",
+        "at": [
+          -3,
+          0
+        ],
+        "r": 1.2,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#5FE08F",
+        "from": [
+          -4.2,
+          0
+        ],
+        "to": [
+          -5.5,
+          1
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#C9A06B",
+        "at": [
+          1,
+          -1
+        ],
+        "r": 1,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#C9A06B",
+        "from": [
+          2,
+          -1
+        ],
+        "to": [
+          3.5,
+          -2
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#5FE08F",
+        "at": [
+          3,
+          2
+        ],
+        "r": 0.9,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9ED8FF",
+        "at": [
+          -0.5,
+          2
+        ],
+        "r": 0.8,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "toothbrush",
+    "folder": "objects",
+    "draws": "A toothbrush",
+    "size": [
+      14,
+      4
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#6FB7FF",
+        "at": [
+          -1,
+          0
+        ],
+        "w": 11,
+        "h": 1.6,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "at": [
+          5.2,
+          -1
+        ],
+        "w": 3,
+        "h": 1.6,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "traffic_signal",
+    "folder": "objects",
+    "draws": "A traffic signal (red, yellow, green lights) on a pole with a small solar panel on top",
+    "size": [
+      10,
+      35
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "panel": [
+        0,
+        -16
+      ]
+    },
+    "parts": [
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          0,
+          -2
+        ],
+        "to": [
+          0,
+          17
+        ]
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          0,
+          -7
+        ],
+        "w": 6,
+        "h": 13,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#FF6B6B",
+        "at": [
+          0,
+          -11
+        ],
+        "r": 1.6,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#FFD84D",
+        "at": [
+          0,
+          -7
+        ],
+        "r": 1.6,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#5FE08F",
+        "at": [
+          0,
+          -3
+        ],
+        "r": 1.6,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#1B4E78",
+        "points": [
+          [
+            -5,
+            -15
+          ],
+          [
+            4,
+            -18
+          ],
+          [
+            5,
+            -15
+          ],
+          [
+            -4,
+            -12
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "tree_roots",
+    "folder": "living",
+    "draws": "A tree above the ground with its roots spreading wide under the ground (cross-section)",
+    "size": [
+      23,
+      42
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "ground": [
+        0,
+        6
+      ],
+      "top": [
+        0,
+        -22
+      ],
+      "roots": [
+        0,
+        14
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "at": [
+          0,
+          -2
+        ],
+        "w": 2.6,
+        "h": 16,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#5FE08F",
+        "at": [
+          0,
+          -13
+        ],
+        "r": 9,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1E5A36",
+        "at": [
+          -4,
+          -15
+        ],
+        "r": 3.5,
+        "fill": 0.5
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#C9A06B",
+        "from": [
+          0,
+          6
+        ],
+        "to": [
+          -8,
+          12
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#C9A06B",
+        "from": [
+          0,
+          6
+        ],
+        "to": [
+          8,
+          13
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#C9A06B",
+        "from": [
+          0,
+          6
+        ],
+        "to": [
+          -2,
+          18
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#C9A06B",
+        "from": [
+          0,
+          6
+        ],
+        "to": [
+          4,
+          20
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#C9A06B",
+        "from": [
+          -8,
+          12
+        ],
+        "to": [
+          -12,
+          14
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#C9A06B",
+        "from": [
+          8,
+          13
+        ],
+        "to": [
+          11,
+          17
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#C9A06B",
+        "from": [
+          -4,
+          9
+        ],
+        "to": [
+          -10,
+          8
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#C9A06B",
+        "from": [
+          4,
+          9
+        ],
+        "to": [
+          11,
+          9
+        ]
+      }
+    ]
+  },
+  {
+    "name": "tree_stump",
+    "folder": "living",
+    "draws": "A cut tree stump (a tree felled at the base)",
+    "size": [
+      10,
+      7
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "top": [
+        0,
+        -3
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "at": [
+          0,
+          1
+        ],
+        "w": 6,
+        "h": 6,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#E0B480",
+        "points": [
+          [
+            -3,
+            -2
+          ],
+          [
+            3,
+            -2
+          ],
+          [
+            3,
+            -3
+          ],
+          [
+            -3,
+            -3
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#5A4028",
+        "from": [
+          -5,
+          4
+        ],
+        "to": [
+          5,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "name": "trowel",
+    "folder": "objects",
+    "draws": "A small garden trowel (digging tool)",
+    "size": [
+      5,
+      14
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "tip": [
+        0,
+        6
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "at": [
+          0,
+          -4
+        ],
+        "w": 1.6,
+        "h": 6,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "points": [
+          [
+            -2.4,
+            -1
+          ],
+          [
+            2.4,
+            -1
+          ],
+          [
+            0,
+            7
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "truck",
+    "folder": "objects",
+    "draws": "A goods truck, side view, facing right",
+    "size": [
+      28,
+      14
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#E0A458",
+        "at": [
+          -4,
+          -1
+        ],
+        "w": 20,
+        "h": 10,
+        "fill": 0.9
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FF8F7A",
+        "at": [
+          10,
+          1
+        ],
+        "w": 7,
+        "h": 7,
+        "fill": 0.9
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#9ED8FF",
+        "at": [
+          11,
+          -0.5
+        ],
+        "w": 3,
+        "h": 2.5,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          -9,
+          5
+        ],
+        "r": 2.4,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          0,
+          5
+        ],
+        "r": 2.4,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          10,
+          5
+        ],
+        "r": 2.4,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "well",
+    "folder": "objects",
+    "draws": "An open village well with a low round wall and a rope pulley",
+    "size": [
+      18,
+      21
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "water": [
+        0,
+        7
+      ],
+      "mouth": [
+        0,
+        2
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#8A96A3",
+        "at": [
+          0,
+          6
+        ],
+        "w": 18,
+        "h": 8,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          -9,
+          2
+        ],
+        "to": [
+          9,
+          2
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "from": [
+          -7,
+          2
+        ],
+        "to": [
+          -7,
+          -9
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "from": [
+          7,
+          2
+        ],
+        "to": [
+          7,
+          -9
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "from": [
+          -8,
+          -9
+        ],
+        "to": [
+          8,
+          -9
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "at": [
+          0,
+          -9
+        ],
+        "r": 1.4,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#E8EEF5",
+        "from": [
+          0,
+          -8
+        ],
+        "to": [
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "windmill_blades",
+    "folder": "objects",
+    "draws": "Three long windmill blades round a hub; spin them on a windmill_tower hub",
+    "size": [
+      27,
+      24
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "points": [
+          [
+            -0.9,
+            0
+          ],
+          [
+            -0.5,
+            -15
+          ],
+          [
+            0.4,
+            -15.5
+          ],
+          [
+            0.9,
+            0
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "points": [
+          [
+            0.45,
+            -0.78
+          ],
+          [
+            13.24,
+            7.07
+          ],
+          [
+            13.22,
+            8.1
+          ],
+          [
+            -0.45,
+            0.78
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "points": [
+          [
+            0.45,
+            0.78
+          ],
+          [
+            -12.74,
+            7.93
+          ],
+          [
+            -13.62,
+            7.4
+          ],
+          [
+            -0.45,
+            -0.78
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "at": [
+          0,
+          0
+        ],
+        "r": 1.4,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "windmill_tower",
+    "folder": "objects",
+    "draws": "A tall white windmill tower; put windmill_blades at its hub",
+    "size": [
+      5,
+      41
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "hub": [
+        0,
+        -19
+      ],
+      "base": [
+        0,
+        20
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#E8EEF5",
+        "points": [
+          [
+            -1.1,
+            -18
+          ],
+          [
+            1.1,
+            -18
+          ],
+          [
+            2.4,
+            20
+          ],
+          [
+            -2.4,
+            20
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "at": [
+          0,
+          -19
+        ],
+        "w": 4,
+        "h": 2.6,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "wrapper",
+    "folder": "objects",
+    "draws": "A shiny chips-packet wrapper (litter)",
+    "size": [
+      8,
+      5
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#FF9F43",
+        "points": [
+          [
+            -4,
+            -2.5
+          ],
+          [
+            4,
+            -2
+          ],
+          [
+            3.5,
+            2.5
+          ],
+          [
+            -4,
+            2
+          ]
+        ],
+        "closed": true,
+        "fill": 0.9
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FFD84D",
+        "from": [
+          -2,
+          -1
+        ],
+        "to": [
+          2,
+          1
+        ]
       }
     ]
   }
