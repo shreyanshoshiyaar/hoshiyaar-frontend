@@ -1737,7 +1737,7 @@
   },
   {
     "name": "torch",
-    "folder": "library",
+    "folder": "light",
     "draws": "A hand torch pointing right",
     "size": [
       30,
@@ -60684,6 +60684,6690 @@
           2,
           1
         ]
+      }
+    ]
+  },
+  {
+    "name": "adult",
+    "folder": "body",
+    "draws": "A grown-up standing, front view (taller than a child)",
+    "size": [
+      12,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "head": [
+        0,
+        -14
+      ],
+      "feet": [
+        0,
+        17
+      ],
+      "hand": [
+        6,
+        1
+      ]
+    },
+    "parts": [
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#3A3F48",
+        "from": [
+          -1.6,
+          6
+        ],
+        "to": [
+          -2.2,
+          17
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#3A3F48",
+        "from": [
+          1.6,
+          6
+        ],
+        "to": [
+          2.2,
+          17
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#5FB86F",
+        "closed": true,
+        "points": [
+          [
+            -4,
+            -10
+          ],
+          [
+            4,
+            -10
+          ],
+          [
+            3.4,
+            6.4
+          ],
+          [
+            -3.4,
+            6.4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#F2B47E",
+        "from": [
+          -4,
+          -9
+        ],
+        "to": [
+          -6,
+          1
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#F2B47E",
+        "from": [
+          4,
+          -9
+        ],
+        "to": [
+          6,
+          1
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#F2B47E",
+        "at": [
+          0,
+          -13.6
+        ],
+        "r": 2.8,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#3A2A10",
+        "closed": true,
+        "points": [
+          [
+            -2.8,
+            -14.4
+          ],
+          [
+            0,
+            -16.8
+          ],
+          [
+            2.8,
+            -14.4
+          ]
+        ],
+        "fill": true
+      }
+    ]
+  },
+  {
+    "name": "asteroid",
+    "folder": "sky",
+    "draws": "An asteroid: a lumpy, irregular grey rock with pits (not round)",
+    "size": [
+      16,
+      10
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#8A8F96",
+        "closed": true,
+        "points": [
+          [
+            -7,
+            -1
+          ],
+          [
+            -5,
+            -4.4
+          ],
+          [
+            -1,
+            -5
+          ],
+          [
+            3,
+            -4
+          ],
+          [
+            6.6,
+            -4.6
+          ],
+          [
+            7.6,
+            -1
+          ],
+          [
+            6,
+            2.6
+          ],
+          [
+            2.4,
+            4.6
+          ],
+          [
+            -2,
+            4
+          ],
+          [
+            -5.6,
+            4.4
+          ],
+          [
+            -7.6,
+            2
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#5E6A76",
+        "at": [
+          -3,
+          -1.4
+        ],
+        "r": 1,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#5E6A76",
+        "at": [
+          2.4,
+          0.6
+        ],
+        "r": 1.4,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#5E6A76",
+        "at": [
+          4.8,
+          -2.6
+        ],
+        "r": 0.6,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "ball_half_lit",
+    "folder": "light",
+    "draws": "A ball lit from the left: the left half bright, the right half dark (it only shines where light falls)",
+    "size": [
+      12,
+      12
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "lit": [
+        -4,
+        0
+      ],
+      "dark": [
+        4,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#2A3A48",
+        "at": [
+          0,
+          0
+        ],
+        "r": 6,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#FFF3B0",
+        "closed": true,
+        "points": [
+          [
+            0,
+            6
+          ],
+          [
+            -0.94,
+            5.93
+          ],
+          [
+            -1.85,
+            5.71
+          ],
+          [
+            -2.72,
+            5.35
+          ],
+          [
+            -3.53,
+            4.85
+          ],
+          [
+            -4.24,
+            4.24
+          ],
+          [
+            -4.85,
+            3.53
+          ],
+          [
+            -5.35,
+            2.72
+          ],
+          [
+            -5.71,
+            1.85
+          ],
+          [
+            -5.93,
+            0.94
+          ],
+          [
+            -6,
+            0
+          ],
+          [
+            -5.93,
+            -0.94
+          ],
+          [
+            -5.71,
+            -1.85
+          ],
+          [
+            -5.35,
+            -2.72
+          ],
+          [
+            -4.85,
+            -3.53
+          ],
+          [
+            -4.24,
+            -4.24
+          ],
+          [
+            -3.53,
+            -4.85
+          ],
+          [
+            -2.72,
+            -5.35
+          ],
+          [
+            -1.85,
+            -5.71
+          ],
+          [
+            -0.94,
+            -5.93
+          ],
+          [
+            0,
+            -6
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#C9D6E6",
+        "at": [
+          0,
+          0
+        ],
+        "r": 6,
+        "fill": 0
+      }
+    ]
+  },
+  {
+    "name": "bear_figure",
+    "folder": "sky",
+    "draws": "A big brown bear walking, side view facing right, with a long tail (the Great Bear, Ursa Major); the Big Dipper's 7 stars sit on its back and tail anchors",
+    "size": [
+      45,
+      29
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "alkaid": [
+        -19,
+        0
+      ],
+      "mizar": [
+        -13,
+        -3
+      ],
+      "alioth": [
+        -7,
+        -3.5
+      ],
+      "megrez": [
+        0,
+        -2.5
+      ],
+      "phecda": [
+        0.5,
+        5
+      ],
+      "merak": [
+        9,
+        5.5
+      ],
+      "dubhe": [
+        9,
+        -3
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#6B4A2A",
+        "closed": true,
+        "points": [
+          [
+            -7,
+            -4.2
+          ],
+          [
+            -19.4,
+            -0.8
+          ],
+          [
+            -19.2,
+            0.9
+          ],
+          [
+            -7,
+            -1.4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#6B4A2A",
+        "closed": true,
+        "points": [
+          [
+            1,
+            8
+          ],
+          [
+            -3.2,
+            8
+          ],
+          [
+            -4,
+            15.4
+          ],
+          [
+            0.4,
+            15.4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#6B4A2A",
+        "closed": true,
+        "points": [
+          [
+            15.4,
+            5
+          ],
+          [
+            11.2,
+            6
+          ],
+          [
+            11.2,
+            15.4
+          ],
+          [
+            15.6,
+            15.4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#9A6A44",
+        "closed": true,
+        "points": [
+          [
+            -7.4,
+            -4.4
+          ],
+          [
+            -2,
+            -8.4
+          ],
+          [
+            6,
+            -9.4
+          ],
+          [
+            13,
+            -8.4
+          ],
+          [
+            16.4,
+            -9.2
+          ],
+          [
+            18.2,
+            -11.6
+          ],
+          [
+            22.2,
+            -10.6
+          ],
+          [
+            24.6,
+            -7.4
+          ],
+          [
+            22.4,
+            -5.2
+          ],
+          [
+            19,
+            -4.2
+          ],
+          [
+            17.4,
+            0.4
+          ],
+          [
+            15.4,
+            6.4
+          ],
+          [
+            9,
+            9.4
+          ],
+          [
+            1,
+            9.4
+          ],
+          [
+            -4.4,
+            8.4
+          ],
+          [
+            -7.4,
+            2.4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#9A6A44",
+        "closed": true,
+        "points": [
+          [
+            3.4,
+            8.4
+          ],
+          [
+            -0.4,
+            8.6
+          ],
+          [
+            -0.6,
+            15.4
+          ],
+          [
+            3.6,
+            15.4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#9A6A44",
+        "closed": true,
+        "points": [
+          [
+            12.2,
+            6.6
+          ],
+          [
+            8.6,
+            8
+          ],
+          [
+            8.4,
+            15.4
+          ],
+          [
+            12.6,
+            15.4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#6B4A2A",
+        "at": [
+          19.2,
+          -11.6
+        ],
+        "r": 1.1,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          21.2,
+          -8.4
+        ],
+        "r": 0.55,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          24.4,
+          -7.2
+        ],
+        "r": 0.7,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "bike_front",
+    "folder": "objects",
+    "draws": "A motorbike seen from the front at night: a bright round headlight, handlebar and front wheel",
+    "size": [
+      16,
+      17
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "light": [
+        0,
+        -1
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#2E3640",
+        "closed": true,
+        "points": [
+          [
+            -1.4,
+            2
+          ],
+          [
+            1.4,
+            2
+          ],
+          [
+            1.4,
+            9
+          ],
+          [
+            -1.4,
+            9
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          -2.4,
+          0
+        ],
+        "to": [
+          -1.6,
+          5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          2.4,
+          0
+        ],
+        "to": [
+          1.6,
+          5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          -6.4,
+          -4.4
+        ],
+        "to": [
+          6.4,
+          -4.4
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          -6.8,
+          -4.4
+        ],
+        "r": 0.9,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          6.8,
+          -4.4
+        ],
+        "r": 0.9,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "at": [
+          -4.6,
+          -6.6
+        ],
+        "r": 0.9,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "at": [
+          4.6,
+          -6.6
+        ],
+        "r": 0.9,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#FFF6CC",
+        "at": [
+          0,
+          -1
+        ],
+        "r": 3,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#FFFFFF",
+        "at": [
+          0,
+          -1
+        ],
+        "r": 1.6,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "binoculars",
+    "folder": "sky",
+    "draws": "A pair of binoculars seen from the front: two barrels with blue glass",
+    "size": [
+      16,
+      9
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#3A3F48",
+        "closed": true,
+        "points": [
+          [
+            -8,
+            -4
+          ],
+          [
+            -1.6,
+            -4
+          ],
+          [
+            -1.6,
+            5
+          ],
+          [
+            -8,
+            5
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#3A3F48",
+        "closed": true,
+        "points": [
+          [
+            1.6,
+            -4
+          ],
+          [
+            8,
+            -4
+          ],
+          [
+            8,
+            5
+          ],
+          [
+            1.6,
+            5
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#5E6A76",
+        "closed": true,
+        "points": [
+          [
+            -1.6,
+            -1.4
+          ],
+          [
+            1.6,
+            -1.4
+          ],
+          [
+            1.6,
+            1.4
+          ],
+          [
+            -1.6,
+            1.4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#6FB7FF",
+        "at": [
+          -4.8,
+          2
+        ],
+        "r": 2.4,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#6FB7FF",
+        "at": [
+          4.8,
+          2
+        ],
+        "r": 2.4,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#C9EBFF",
+        "at": [
+          -4.8,
+          2
+        ],
+        "r": 1,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#C9EBFF",
+        "at": [
+          4.8,
+          2
+        ],
+        "r": 1,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "bull_figure",
+    "folder": "sky",
+    "draws": "A bull's head seen from the front with two long horns (Taurus), filled; its stars sit on the V of the face and the horn tips",
+    "size": [
+      24,
+      28
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "horn_l": [
+        -11,
+        -17
+      ],
+      "v_l": [
+        -5,
+        -4
+      ],
+      "aldebaran": [
+        -3,
+        0
+      ],
+      "nose": [
+        0,
+        6
+      ],
+      "v_r": [
+        5,
+        -4
+      ],
+      "horn_r": [
+        12,
+        -19
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "closed": true,
+        "points": [
+          [
+            -6.4,
+            -5.4
+          ],
+          [
+            -5,
+            -7
+          ],
+          [
+            -8.6,
+            -12
+          ],
+          [
+            -11.6,
+            -17.6
+          ],
+          [
+            -10.6,
+            -12.4
+          ],
+          [
+            -8.4,
+            -7.6
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "closed": true,
+        "points": [
+          [
+            6.4,
+            -5.4
+          ],
+          [
+            5,
+            -7
+          ],
+          [
+            8.8,
+            -12.4
+          ],
+          [
+            12.4,
+            -19.6
+          ],
+          [
+            11.2,
+            -13
+          ],
+          [
+            8.6,
+            -7.6
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#6B4A2A",
+        "closed": true,
+        "points": [
+          [
+            -7.4,
+            -4.6
+          ],
+          [
+            -11,
+            -6.4
+          ],
+          [
+            -8.6,
+            -2.4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#6B4A2A",
+        "closed": true,
+        "points": [
+          [
+            7.4,
+            -4.6
+          ],
+          [
+            11,
+            -6.4
+          ],
+          [
+            8.6,
+            -2.4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "closed": true,
+        "points": [
+          [
+            -7.2,
+            -6.4
+          ],
+          [
+            7.2,
+            -6.4
+          ],
+          [
+            6.2,
+            2
+          ],
+          [
+            3.2,
+            8.4
+          ],
+          [
+            -3.2,
+            8.4
+          ],
+          [
+            -6.2,
+            2
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C99A6B",
+        "closed": true,
+        "points": [
+          [
+            3.6,
+            6
+          ],
+          [
+            3.38,
+            6.79
+          ],
+          [
+            2.76,
+            7.48
+          ],
+          [
+            1.8,
+            7.99
+          ],
+          [
+            0.63,
+            8.27
+          ],
+          [
+            -0.63,
+            8.27
+          ],
+          [
+            -1.8,
+            7.99
+          ],
+          [
+            -2.76,
+            7.48
+          ],
+          [
+            -3.38,
+            6.79
+          ],
+          [
+            -3.6,
+            6
+          ],
+          [
+            -3.38,
+            5.21
+          ],
+          [
+            -2.76,
+            4.52
+          ],
+          [
+            -1.8,
+            4.01
+          ],
+          [
+            -0.63,
+            3.73
+          ],
+          [
+            0.63,
+            3.73
+          ],
+          [
+            1.8,
+            4.01
+          ],
+          [
+            2.76,
+            4.52
+          ],
+          [
+            3.38,
+            5.21
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          -1.3,
+          6.2
+        ],
+        "r": 0.5,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          1.3,
+          6.2
+        ],
+        "r": 0.5,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          -3.4,
+          -1.4
+        ],
+        "r": 0.7,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          3.4,
+          -1.4
+        ],
+        "r": 0.7,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "camel",
+    "folder": "living",
+    "draws": "A camel with one hump, side view, facing right",
+    "size": [
+      24,
+      20
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "head": [
+        11,
+        -8
+      ],
+      "hump": [
+        -1,
+        -7
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#D9A86C",
+        "closed": true,
+        "points": [
+          [
+            -9,
+            0
+          ],
+          [
+            -7,
+            -4
+          ],
+          [
+            -3,
+            -8
+          ],
+          [
+            1,
+            -8
+          ],
+          [
+            4,
+            -4
+          ],
+          [
+            7,
+            -3
+          ],
+          [
+            9,
+            -9
+          ],
+          [
+            12,
+            -10
+          ],
+          [
+            13,
+            -8
+          ],
+          [
+            11,
+            -7
+          ],
+          [
+            10,
+            -1
+          ],
+          [
+            7,
+            2
+          ],
+          [
+            -8,
+            2
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#D9A86C",
+        "from": [
+          -7,
+          2
+        ],
+        "to": [
+          -7,
+          10
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#D9A86C",
+        "from": [
+          -4,
+          2
+        ],
+        "to": [
+          -4,
+          10
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#D9A86C",
+        "from": [
+          4,
+          2
+        ],
+        "to": [
+          4,
+          10
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#D9A86C",
+        "from": [
+          7,
+          2
+        ],
+        "to": [
+          7,
+          10
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#D9A86C",
+        "from": [
+          -9,
+          0
+        ],
+        "to": [
+          -11,
+          4
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          11.5,
+          -8.7
+        ],
+        "r": 0.4,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "charpai",
+    "folder": "objects",
+    "draws": "A woven village cot (charpai) on four legs, seen a little from above",
+    "size": [
+      22,
+      11
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "top": [
+        0,
+        -4
+      ]
+    },
+    "parts": [
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#6B4A2A",
+        "from": [
+          -9.4,
+          2.6
+        ],
+        "to": [
+          -9.4,
+          7
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#6B4A2A",
+        "from": [
+          11.4,
+          2.6
+        ],
+        "to": [
+          11.4,
+          7
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#6B4A2A",
+        "from": [
+          -7.4,
+          -3.6
+        ],
+        "to": [
+          -7.4,
+          4
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#6B4A2A",
+        "from": [
+          9.4,
+          -3.6
+        ],
+        "to": [
+          9.4,
+          4
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#D9B48A",
+        "closed": true,
+        "points": [
+          [
+            -8,
+            -4
+          ],
+          [
+            10,
+            -4
+          ],
+          [
+            12,
+            3
+          ],
+          [
+            -10,
+            3
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "from": [
+          -5,
+          -4
+        ],
+        "to": [
+          -7,
+          3
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "from": [
+          -1,
+          -4
+        ],
+        "to": [
+          -3,
+          3
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "from": [
+          3,
+          -4
+        ],
+        "to": [
+          1,
+          3
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "from": [
+          7,
+          -4
+        ],
+        "to": [
+          5,
+          3
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "from": [
+          -9,
+          -0.5
+        ],
+        "to": [
+          11,
+          -0.5
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "closed": true,
+        "points": [
+          [
+            -8,
+            -4
+          ],
+          [
+            10,
+            -4
+          ],
+          [
+            12,
+            3
+          ],
+          [
+            -10,
+            3
+          ]
+        ],
+        "fill": false
+      }
+    ]
+  },
+  {
+    "name": "city_skyline",
+    "folder": "objects",
+    "draws": "A city at night: tall buildings with lit windows and street lights glowing",
+    "size": [
+      73,
+      36
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "top": [
+        0,
+        -14
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          -28,
+          2
+        ],
+        "w": 10,
+        "h": 24,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#3A4550",
+        "at": [
+          -16,
+          -2
+        ],
+        "w": 10,
+        "h": 32,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          -4,
+          4
+        ],
+        "w": 12,
+        "h": 20,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#3A4550",
+        "at": [
+          9,
+          -4
+        ],
+        "w": 10,
+        "h": 36,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          22,
+          3
+        ],
+        "w": 12,
+        "h": 22,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FFD84D",
+        "at": [
+          -28,
+          -4
+        ],
+        "w": 2,
+        "h": 2,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FFD84D",
+        "at": [
+          -26,
+          4
+        ],
+        "w": 2,
+        "h": 2,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FFD84D",
+        "at": [
+          -16,
+          -10
+        ],
+        "w": 2,
+        "h": 2,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FFD84D",
+        "at": [
+          -14,
+          0
+        ],
+        "w": 2,
+        "h": 2,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FFD84D",
+        "at": [
+          -18,
+          8
+        ],
+        "w": 2,
+        "h": 2,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FFD84D",
+        "at": [
+          -4,
+          0
+        ],
+        "w": 2,
+        "h": 2,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FFD84D",
+        "at": [
+          0,
+          8
+        ],
+        "w": 2,
+        "h": 2,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FFD84D",
+        "at": [
+          9,
+          -14
+        ],
+        "w": 2,
+        "h": 2,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FFD84D",
+        "at": [
+          11,
+          -4
+        ],
+        "w": 2,
+        "h": 2,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FFD84D",
+        "at": [
+          7,
+          6
+        ],
+        "w": 2,
+        "h": 2,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FFD84D",
+        "at": [
+          22,
+          -2
+        ],
+        "w": 2,
+        "h": 2,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FFD84D",
+        "at": [
+          25,
+          6
+        ],
+        "w": 2,
+        "h": 2,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          -34,
+          14
+        ],
+        "to": [
+          -34,
+          4
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#FFE9A8",
+        "at": [
+          -34,
+          3.4
+        ],
+        "r": 2.4,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          34,
+          14
+        ],
+        "to": [
+          34,
+          4
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#FFE9A8",
+        "at": [
+          34,
+          3.4
+        ],
+        "r": 2.4,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "comet_head",
+    "folder": "sky",
+    "draws": "The head of a comet: a small icy-rocky lump in a soft glow (draw its tail separately, pointing away from the Sun)",
+    "size": [
+      7,
+      7
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#2E4A60",
+        "at": [
+          0,
+          0
+        ],
+        "r": 3.4,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9ED8FF",
+        "at": [
+          0,
+          0
+        ],
+        "r": 2.2,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#E8F6FF",
+        "at": [
+          0,
+          0
+        ],
+        "r": 1.2,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "crater_cut",
+    "folder": "sky",
+    "draws": "A cut-away of the ground showing a crater: a round bowl dug in with a raised rim on each side",
+    "size": [
+      40,
+      10
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "bowl": [
+        0,
+        2
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#8A96A3",
+        "closed": true,
+        "points": [
+          [
+            -20,
+            0
+          ],
+          [
+            -11,
+            0
+          ],
+          [
+            -9,
+            -2.4
+          ],
+          [
+            -7,
+            0
+          ],
+          [
+            -6,
+            3
+          ],
+          [
+            -3,
+            5.4
+          ],
+          [
+            3,
+            5.4
+          ],
+          [
+            6,
+            3
+          ],
+          [
+            7,
+            0
+          ],
+          [
+            9,
+            -2.4
+          ],
+          [
+            11,
+            0
+          ],
+          [
+            20,
+            0
+          ],
+          [
+            20,
+            7
+          ],
+          [
+            -20,
+            7
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C9D6E6",
+        "closed": false,
+        "points": [
+          [
+            -20,
+            0
+          ],
+          [
+            -11,
+            0
+          ],
+          [
+            -9,
+            -2.4
+          ],
+          [
+            -7,
+            0
+          ],
+          [
+            -6,
+            3
+          ],
+          [
+            -3,
+            5.4
+          ],
+          [
+            3,
+            5.4
+          ],
+          [
+            6,
+            3
+          ],
+          [
+            7,
+            0
+          ],
+          [
+            9,
+            -2.4
+          ],
+          [
+            11,
+            0
+          ],
+          [
+            20,
+            0
+          ]
+        ],
+        "fill": false
+      }
+    ]
+  },
+  {
+    "name": "dog_figure",
+    "folder": "sky",
+    "draws": "A hunting dog (Canis Major), side view facing right, filled; Sirius sits on its chest anchor",
+    "size": [
+      28,
+      25
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "ear": [
+        2,
+        -8
+      ],
+      "nose": [
+        8,
+        -4
+      ],
+      "sirius": [
+        0,
+        0
+      ],
+      "back": [
+        -10,
+        3
+      ],
+      "tail": [
+        -17,
+        -2
+      ],
+      "front_foot": [
+        1,
+        12
+      ],
+      "hind_foot": [
+        -12,
+        13
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "closed": true,
+        "points": [
+          [
+            -13,
+            3.5
+          ],
+          [
+            -17.6,
+            -2.4
+          ],
+          [
+            -16.6,
+            -2.8
+          ],
+          [
+            -12.4,
+            2.4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C99A6B",
+        "closed": true,
+        "points": [
+          [
+            2.4,
+            -1.2
+          ],
+          [
+            -3,
+            1.2
+          ],
+          [
+            -10,
+            1.6
+          ],
+          [
+            -13.4,
+            3.4
+          ],
+          [
+            -13.4,
+            8
+          ],
+          [
+            -10,
+            9
+          ],
+          [
+            -1,
+            9
+          ],
+          [
+            2.4,
+            6.4
+          ],
+          [
+            3,
+            2
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "closed": true,
+        "points": [
+          [
+            -12.4,
+            7
+          ],
+          [
+            -10.2,
+            7
+          ],
+          [
+            -11.2,
+            13.6
+          ],
+          [
+            -13,
+            13.6
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C99A6B",
+        "closed": true,
+        "points": [
+          [
+            -9.4,
+            8
+          ],
+          [
+            -7.8,
+            8
+          ],
+          [
+            -8.2,
+            13.2
+          ],
+          [
+            -9.8,
+            13.2
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "closed": true,
+        "points": [
+          [
+            -2.8,
+            7.6
+          ],
+          [
+            -1.2,
+            7.6
+          ],
+          [
+            -1.6,
+            12.6
+          ],
+          [
+            -3.2,
+            12.6
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C99A6B",
+        "closed": true,
+        "points": [
+          [
+            0,
+            7
+          ],
+          [
+            2,
+            7
+          ],
+          [
+            2,
+            12.6
+          ],
+          [
+            0.4,
+            12.6
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C99A6B",
+        "closed": true,
+        "points": [
+          [
+            -0.6,
+            -1.4
+          ],
+          [
+            0.8,
+            -7
+          ],
+          [
+            3,
+            -8.6
+          ],
+          [
+            6,
+            -7.2
+          ],
+          [
+            9.4,
+            -4.6
+          ],
+          [
+            8.8,
+            -2.8
+          ],
+          [
+            5,
+            -2.8
+          ],
+          [
+            3,
+            0.4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "closed": true,
+        "points": [
+          [
+            1.2,
+            -7.2
+          ],
+          [
+            1.8,
+            -10.8
+          ],
+          [
+            3.8,
+            -8
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          5.6,
+          -5.6
+        ],
+        "r": 0.55,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          9.2,
+          -4.1
+        ],
+        "r": 0.6,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "dwarf_planet_pluto",
+    "folder": "sky",
+    "draws": "Pluto: a very small dwarf planet, smaller than our Moon (not to scale)",
+    "size": [
+      4,
+      4
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        1.8,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#C9A88A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 1.8,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#F0DCC8",
+        "at": [
+          0.6,
+          0.4
+        ],
+        "r": 0.6,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "earth_half_lit",
+    "folder": "light",
+    "draws": "The Earth lit by the Sun from the left: a blue ball, the sunlit half bright blue with land, the other half dark (night)",
+    "size": [
+      14,
+      14
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "day": [
+        -4,
+        0
+      ],
+      "night": [
+        4,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#0E2440",
+        "at": [
+          0,
+          0
+        ],
+        "r": 7,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#3E8EE6",
+        "closed": true,
+        "points": [
+          [
+            0,
+            7
+          ],
+          [
+            -1,
+            6.93
+          ],
+          [
+            -1.97,
+            6.72
+          ],
+          [
+            -2.91,
+            6.37
+          ],
+          [
+            -3.78,
+            5.89
+          ],
+          [
+            -4.58,
+            5.29
+          ],
+          [
+            -5.29,
+            4.58
+          ],
+          [
+            -5.89,
+            3.78
+          ],
+          [
+            -6.37,
+            2.91
+          ],
+          [
+            -6.72,
+            1.97
+          ],
+          [
+            -6.93,
+            1
+          ],
+          [
+            -7,
+            0
+          ],
+          [
+            -6.93,
+            -1
+          ],
+          [
+            -6.72,
+            -1.97
+          ],
+          [
+            -6.37,
+            -2.91
+          ],
+          [
+            -5.89,
+            -3.78
+          ],
+          [
+            -5.29,
+            -4.58
+          ],
+          [
+            -4.58,
+            -5.29
+          ],
+          [
+            -3.78,
+            -5.89
+          ],
+          [
+            -2.91,
+            -6.37
+          ],
+          [
+            -1.97,
+            -6.72
+          ],
+          [
+            -1,
+            -6.93
+          ],
+          [
+            0,
+            -7
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#5FB86F",
+        "closed": true,
+        "points": [
+          [
+            -5,
+            -3.6
+          ],
+          [
+            -2.4,
+            -4.6
+          ],
+          [
+            -1.2,
+            -2
+          ],
+          [
+            -3.6,
+            0
+          ],
+          [
+            -5.6,
+            -1
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#5FB86F",
+        "closed": true,
+        "points": [
+          [
+            -4.4,
+            2.4
+          ],
+          [
+            -1.6,
+            2
+          ],
+          [
+            -1,
+            4.6
+          ],
+          [
+            -3.4,
+            5
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9ED8FF",
+        "at": [
+          0,
+          0
+        ],
+        "r": 7,
+        "fill": 0
+      }
+    ]
+  },
+  {
+    "name": "elephant_outline",
+    "folder": "living",
+    "draws": "The outline of an elephant facing left (as imagined in a cloud)",
+    "size": [
+      27,
+      17
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#1F4E7A",
+        "closed": true,
+        "points": [
+          [
+            -5,
+            -6.5
+          ],
+          [
+            8,
+            -7
+          ],
+          [
+            12,
+            -3
+          ],
+          [
+            12.4,
+            4
+          ],
+          [
+            12.4,
+            8.6
+          ],
+          [
+            9.4,
+            8.6
+          ],
+          [
+            9.2,
+            4.4
+          ],
+          [
+            1.6,
+            4.6
+          ],
+          [
+            1.4,
+            8.6
+          ],
+          [
+            -1.6,
+            8.6
+          ],
+          [
+            -2,
+            3.4
+          ],
+          [
+            -5.6,
+            2.6
+          ],
+          [
+            -8.4,
+            6.6
+          ],
+          [
+            -10.4,
+            9.4
+          ],
+          [
+            -11.8,
+            8.6
+          ],
+          [
+            -10.4,
+            5
+          ],
+          [
+            -9.6,
+            1
+          ],
+          [
+            -9.2,
+            -3.6
+          ]
+        ],
+        "fill": false
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#1F4E7A",
+        "closed": true,
+        "points": [
+          [
+            -0.6,
+            -1.6
+          ],
+          [
+            -0.8,
+            -0.3
+          ],
+          [
+            -1.36,
+            0.8
+          ],
+          [
+            -2.21,
+            1.54
+          ],
+          [
+            -3.2,
+            1.8
+          ],
+          [
+            -4.19,
+            1.54
+          ],
+          [
+            -5.04,
+            0.8
+          ],
+          [
+            -5.6,
+            -0.3
+          ],
+          [
+            -5.8,
+            -1.6
+          ],
+          [
+            -5.6,
+            -2.9
+          ],
+          [
+            -5.04,
+            -4
+          ],
+          [
+            -4.19,
+            -4.74
+          ],
+          [
+            -3.2,
+            -5
+          ],
+          [
+            -2.21,
+            -4.74
+          ],
+          [
+            -1.36,
+            -4
+          ],
+          [
+            -0.8,
+            -2.9
+          ]
+        ],
+        "fill": false
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#1F4E7A",
+        "from": [
+          12.2,
+          -2.4
+        ],
+        "to": [
+          14.6,
+          1.6
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1F4E7A",
+        "at": [
+          -6.8,
+          -2.6
+        ],
+        "r": 0.5,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "fishing_boat",
+    "folder": "objects",
+    "draws": "A Konkan fishing boat: a wooden hull with a long curved neck rising at the front (left)",
+    "size": [
+      28,
+      12
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "hull": [
+        4,
+        2
+      ],
+      "neck": [
+        -12,
+        -3
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "closed": true,
+        "points": [
+          [
+            -2,
+            -1
+          ],
+          [
+            12,
+            -1
+          ],
+          [
+            10,
+            4
+          ],
+          [
+            0,
+            4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#6B4A2A",
+        "closed": true,
+        "points": [
+          [
+            -2,
+            -1
+          ],
+          [
+            -6,
+            -2
+          ],
+          [
+            -11,
+            -3.4
+          ],
+          [
+            -15,
+            -5.2
+          ],
+          [
+            -15.4,
+            -4
+          ],
+          [
+            -11,
+            -1.8
+          ],
+          [
+            -6,
+            0
+          ],
+          [
+            0,
+            4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#C9A06B",
+        "from": [
+          5,
+          -1
+        ],
+        "to": [
+          5,
+          -8
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "closed": true,
+        "points": [
+          [
+            5.4,
+            -7.6
+          ],
+          [
+            5.4,
+            -1.6
+          ],
+          [
+            10,
+            -1.6
+          ]
+        ],
+        "fill": true
+      }
+    ]
+  },
+  {
+    "name": "galaxy_spiral",
+    "folder": "sky",
+    "draws": "A spiral galaxy: a bright centre with two curling arms of stars",
+    "size": [
+      35,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#9DB8F5",
+        "closed": false,
+        "points": [
+          [
+            1.13,
+            1.77
+          ],
+          [
+            0.91,
+            2.35
+          ],
+          [
+            0.5,
+            2.9
+          ],
+          [
+            -0.1,
+            3.36
+          ],
+          [
+            -0.86,
+            3.68
+          ],
+          [
+            -1.75,
+            3.82
+          ],
+          [
+            -2.72,
+            3.74
+          ],
+          [
+            -3.72,
+            3.4
+          ],
+          [
+            -4.68,
+            2.81
+          ],
+          [
+            -5.54,
+            1.97
+          ],
+          [
+            -6.24,
+            0.89
+          ],
+          [
+            -6.71,
+            -0.39
+          ],
+          [
+            -6.9,
+            -1.82
+          ],
+          [
+            -6.78,
+            -3.35
+          ],
+          [
+            -6.31,
+            -4.88
+          ],
+          [
+            -5.49,
+            -6.36
+          ],
+          [
+            -4.32,
+            -7.69
+          ],
+          [
+            -2.84,
+            -8.79
+          ],
+          [
+            -1.08,
+            -9.6
+          ],
+          [
+            0.88,
+            -10.04
+          ],
+          [
+            2.98,
+            -10.07
+          ],
+          [
+            5.12,
+            -9.65
+          ],
+          [
+            7.2,
+            -8.76
+          ],
+          [
+            9.12,
+            -7.42
+          ],
+          [
+            10.79,
+            -5.66
+          ],
+          [
+            12.1,
+            -3.52
+          ],
+          [
+            12.97,
+            -1.08
+          ],
+          [
+            13.35,
+            1.57
+          ],
+          [
+            13.17,
+            4.32
+          ],
+          [
+            12.41,
+            7.06
+          ],
+          [
+            11.08,
+            9.66
+          ],
+          [
+            9.2,
+            12
+          ],
+          [
+            6.82,
+            13.97
+          ],
+          [
+            4.01,
+            15.45
+          ],
+          [
+            0.88,
+            16.36
+          ],
+          [
+            -2.44,
+            16.62
+          ],
+          [
+            -5.84,
+            16.2
+          ],
+          [
+            -9.16,
+            15.08
+          ],
+          [
+            -12.26,
+            13.26
+          ],
+          [
+            -14.99,
+            10.81
+          ],
+          [
+            -17.22,
+            7.79
+          ]
+        ],
+        "fill": false
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#9DB8F5",
+        "closed": false,
+        "points": [
+          [
+            -1.13,
+            -1.77
+          ],
+          [
+            -0.91,
+            -2.35
+          ],
+          [
+            -0.5,
+            -2.9
+          ],
+          [
+            0.1,
+            -3.36
+          ],
+          [
+            0.86,
+            -3.68
+          ],
+          [
+            1.75,
+            -3.82
+          ],
+          [
+            2.72,
+            -3.74
+          ],
+          [
+            3.72,
+            -3.4
+          ],
+          [
+            4.68,
+            -2.81
+          ],
+          [
+            5.54,
+            -1.97
+          ],
+          [
+            6.24,
+            -0.89
+          ],
+          [
+            6.71,
+            0.39
+          ],
+          [
+            6.9,
+            1.82
+          ],
+          [
+            6.78,
+            3.35
+          ],
+          [
+            6.31,
+            4.88
+          ],
+          [
+            5.49,
+            6.36
+          ],
+          [
+            4.32,
+            7.69
+          ],
+          [
+            2.84,
+            8.79
+          ],
+          [
+            1.08,
+            9.6
+          ],
+          [
+            -0.88,
+            10.04
+          ],
+          [
+            -2.98,
+            10.07
+          ],
+          [
+            -5.12,
+            9.65
+          ],
+          [
+            -7.2,
+            8.76
+          ],
+          [
+            -9.12,
+            7.42
+          ],
+          [
+            -10.79,
+            5.66
+          ],
+          [
+            -12.1,
+            3.52
+          ],
+          [
+            -12.97,
+            1.08
+          ],
+          [
+            -13.35,
+            -1.57
+          ],
+          [
+            -13.17,
+            -4.32
+          ],
+          [
+            -12.41,
+            -7.06
+          ],
+          [
+            -11.08,
+            -9.66
+          ],
+          [
+            -9.2,
+            -12
+          ],
+          [
+            -6.82,
+            -13.97
+          ],
+          [
+            -4.01,
+            -15.45
+          ],
+          [
+            -0.88,
+            -16.36
+          ],
+          [
+            2.44,
+            -16.62
+          ],
+          [
+            5.84,
+            -16.2
+          ],
+          [
+            9.16,
+            -15.08
+          ],
+          [
+            12.26,
+            -13.26
+          ],
+          [
+            14.99,
+            -10.81
+          ],
+          [
+            17.22,
+            -7.79
+          ]
+        ],
+        "fill": false
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#FFE9A8",
+        "at": [
+          0,
+          0
+        ],
+        "r": 3.6,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#FFFFFF",
+        "at": [
+          0,
+          0
+        ],
+        "r": 2,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "hunter_figure",
+    "folder": "sky",
+    "draws": "A hunter (Orion) with a raised club and a round shield, filled; place Orion's stars on its anchors (shoulders, belt, feet)",
+    "size": [
+      32,
+      45
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "head": [
+        0,
+        -19
+      ],
+      "betelgeuse": [
+        -8,
+        -13
+      ],
+      "bellatrix": [
+        7,
+        -12
+      ],
+      "belt_l": [
+        -3.5,
+        0
+      ],
+      "belt_m": [
+        0,
+        -0.9
+      ],
+      "belt_r": [
+        3.5,
+        -1.8
+      ],
+      "saiph": [
+        -6,
+        13
+      ],
+      "rigel": [
+        8,
+        12
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F2B47E",
+        "closed": true,
+        "points": [
+          [
+            -9.2,
+            -12.2
+          ],
+          [
+            -7.2,
+            -14.2
+          ],
+          [
+            -11.2,
+            -22.4
+          ],
+          [
+            -13,
+            -20.8
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "closed": true,
+        "points": [
+          [
+            -13.6,
+            -20.4
+          ],
+          [
+            -10.6,
+            -22
+          ],
+          [
+            -9.2,
+            -30.6
+          ],
+          [
+            -12.8,
+            -31.4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C0573E",
+        "closed": true,
+        "points": [
+          [
+            -8.8,
+            -14.4
+          ],
+          [
+            7.8,
+            -13.2
+          ],
+          [
+            4.8,
+            -1.6
+          ],
+          [
+            -4.6,
+            -0.4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F2B47E",
+        "closed": true,
+        "points": [
+          [
+            6.8,
+            -13
+          ],
+          [
+            8.6,
+            -11.4
+          ],
+          [
+            12.4,
+            -8.4
+          ],
+          [
+            11.6,
+            -6.8
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#9AA3AD",
+        "closed": true,
+        "points": [
+          [
+            18.4,
+            -8
+          ],
+          [
+            18.23,
+            -6.39
+          ],
+          [
+            17.75,
+            -4.94
+          ],
+          [
+            17,
+            -3.79
+          ],
+          [
+            16.05,
+            -3.05
+          ],
+          [
+            15,
+            -2.8
+          ],
+          [
+            13.95,
+            -3.05
+          ],
+          [
+            13,
+            -3.79
+          ],
+          [
+            12.25,
+            -4.94
+          ],
+          [
+            11.77,
+            -6.39
+          ],
+          [
+            11.6,
+            -8
+          ],
+          [
+            11.77,
+            -9.61
+          ],
+          [
+            12.25,
+            -11.06
+          ],
+          [
+            13,
+            -12.21
+          ],
+          [
+            13.95,
+            -12.95
+          ],
+          [
+            15,
+            -13.2
+          ],
+          [
+            16.05,
+            -12.95
+          ],
+          [
+            17,
+            -12.21
+          ],
+          [
+            17.75,
+            -11.06
+          ],
+          [
+            18.23,
+            -9.61
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#5E6A76",
+        "closed": true,
+        "points": [
+          [
+            16.4,
+            -8
+          ],
+          [
+            16.26,
+            -6.96
+          ],
+          [
+            15.87,
+            -6.12
+          ],
+          [
+            15.31,
+            -5.66
+          ],
+          [
+            14.69,
+            -5.66
+          ],
+          [
+            14.13,
+            -6.12
+          ],
+          [
+            13.74,
+            -6.96
+          ],
+          [
+            13.6,
+            -8
+          ],
+          [
+            13.74,
+            -9.04
+          ],
+          [
+            14.13,
+            -9.88
+          ],
+          [
+            14.69,
+            -10.34
+          ],
+          [
+            15.31,
+            -10.34
+          ],
+          [
+            15.87,
+            -9.88
+          ],
+          [
+            16.26,
+            -9.04
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#FFD84D",
+        "closed": true,
+        "points": [
+          [
+            -4.6,
+            -0.6
+          ],
+          [
+            4.8,
+            -2.2
+          ],
+          [
+            5,
+            0.6
+          ],
+          [
+            -4.4,
+            1.8
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#A9472F",
+        "closed": true,
+        "points": [
+          [
+            -4.4,
+            1.8
+          ],
+          [
+            5,
+            0.6
+          ],
+          [
+            6.8,
+            5.6
+          ],
+          [
+            -6.2,
+            6.6
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "closed": true,
+        "points": [
+          [
+            -4.8,
+            5.8
+          ],
+          [
+            -2,
+            5.8
+          ],
+          [
+            -4.8,
+            13.6
+          ],
+          [
+            -7.6,
+            13.6
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "closed": true,
+        "points": [
+          [
+            2,
+            5.2
+          ],
+          [
+            4.8,
+            5.2
+          ],
+          [
+            9.4,
+            12.6
+          ],
+          [
+            6.8,
+            13.4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#F2B47E",
+        "at": [
+          0,
+          -19
+        ],
+        "r": 3.2,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#3A2A10",
+        "closed": true,
+        "points": [
+          [
+            -3.2,
+            -19.8
+          ],
+          [
+            0,
+            -23.2
+          ],
+          [
+            3.2,
+            -19.8
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          1.2,
+          -19.2
+        ],
+        "r": 0.45,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "ladle",
+    "folder": "objects",
+    "draws": "A kitchen ladle (karchi): a deep cup at the right and a long handle to the left (a 'dipper' dips into a pot)",
+    "size": [
+      31,
+      8
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "cup": [
+        8,
+        2.5
+      ],
+      "handle": [
+        -9,
+        -0.3
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C9D6E6",
+        "closed": true,
+        "points": [
+          [
+            -15,
+            -1.6
+          ],
+          [
+            3.6,
+            -0.6
+          ],
+          [
+            3.6,
+            0.6
+          ],
+          [
+            -15,
+            -0.2
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#8A96A3",
+        "at": [
+          -15.4,
+          -0.9
+        ],
+        "r": 1.1,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C9D6E6",
+        "closed": true,
+        "points": [
+          [
+            13.8,
+            0
+          ],
+          [
+            13.72,
+            0.94
+          ],
+          [
+            13.47,
+            1.85
+          ],
+          [
+            13.08,
+            2.7
+          ],
+          [
+            12.54,
+            3.47
+          ],
+          [
+            11.87,
+            4.14
+          ],
+          [
+            11.1,
+            4.68
+          ],
+          [
+            10.25,
+            5.07
+          ],
+          [
+            9.34,
+            5.32
+          ],
+          [
+            8.4,
+            5.4
+          ],
+          [
+            7.46,
+            5.32
+          ],
+          [
+            6.55,
+            5.07
+          ],
+          [
+            5.7,
+            4.68
+          ],
+          [
+            4.93,
+            4.14
+          ],
+          [
+            4.26,
+            3.47
+          ],
+          [
+            3.72,
+            2.7
+          ],
+          [
+            3.33,
+            1.85
+          ],
+          [
+            3.08,
+            0.94
+          ],
+          [
+            3,
+            0
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "from": [
+          3,
+          0
+        ],
+        "to": [
+          13.8,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "magnetic_compass",
+    "folder": "objects",
+    "draws": "A round magnetic compass; the red end of the needle points North",
+    "size": [
+      13,
+      13
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "north": [
+        0,
+        -5
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#C9D6E6",
+        "at": [
+          0,
+          0
+        ],
+        "r": 6.5,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#16324A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 5.6,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#FF5A5F",
+        "closed": true,
+        "points": [
+          [
+            0,
+            -5
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            -1,
+            0
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "closed": true,
+        "points": [
+          [
+            0,
+            5
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            -1,
+            0
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#C9D6E6",
+        "at": [
+          0,
+          0
+        ],
+        "r": 0.7,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "planet_jupiter",
+    "folder": "sky",
+    "draws": "Jupiter: the biggest planet, a gas giant with coloured bands and a faint ring (not to scale)",
+    "size": [
+      30,
+      22
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        11,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "dim",
+        "color": "#C9B79A",
+        "closed": false,
+        "points": [
+          [
+            -15,
+            0
+          ],
+          [
+            -14.92,
+            -0.23
+          ],
+          [
+            -14.67,
+            -0.46
+          ],
+          [
+            -14.27,
+            -0.68
+          ],
+          [
+            -13.7,
+            -0.89
+          ],
+          [
+            -12.99,
+            -1.1
+          ],
+          [
+            -12.14,
+            -1.29
+          ],
+          [
+            -11.15,
+            -1.47
+          ],
+          [
+            -10.04,
+            -1.63
+          ],
+          [
+            -8.82,
+            -1.78
+          ],
+          [
+            -7.5,
+            -1.91
+          ],
+          [
+            -6.1,
+            -2.01
+          ],
+          [
+            -4.64,
+            -2.09
+          ],
+          [
+            -3.12,
+            -2.15
+          ],
+          [
+            -1.57,
+            -2.19
+          ],
+          [
+            0,
+            -2.2
+          ],
+          [
+            1.57,
+            -2.19
+          ],
+          [
+            3.12,
+            -2.15
+          ],
+          [
+            4.64,
+            -2.09
+          ],
+          [
+            6.1,
+            -2.01
+          ],
+          [
+            7.5,
+            -1.91
+          ],
+          [
+            8.82,
+            -1.78
+          ],
+          [
+            10.04,
+            -1.63
+          ],
+          [
+            11.15,
+            -1.47
+          ],
+          [
+            12.14,
+            -1.29
+          ],
+          [
+            12.99,
+            -1.1
+          ],
+          [
+            13.7,
+            -0.89
+          ],
+          [
+            14.27,
+            -0.68
+          ],
+          [
+            14.67,
+            -0.46
+          ],
+          [
+            14.92,
+            -0.23
+          ],
+          [
+            15,
+            0
+          ]
+        ],
+        "fill": false
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#D9B48A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 11,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#B7865A",
+        "closed": true,
+        "points": [
+          [
+            -10.3,
+            -4
+          ],
+          [
+            10.3,
+            -4
+          ],
+          [
+            10.8,
+            -2
+          ],
+          [
+            -10.8,
+            -2
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#B7865A",
+        "closed": true,
+        "points": [
+          [
+            -10.9,
+            1.5
+          ],
+          [
+            10.9,
+            1.5
+          ],
+          [
+            10.4,
+            3.6
+          ],
+          [
+            -10.4,
+            3.6
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C99A6B",
+        "closed": true,
+        "points": [
+          [
+            -8,
+            6.5
+          ],
+          [
+            8,
+            6.5
+          ],
+          [
+            6.5,
+            8
+          ],
+          [
+            -6.5,
+            8
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#C0573E",
+        "at": [
+          4,
+          2.6
+        ],
+        "r": 1.6,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "dim",
+        "color": "#C9B79A",
+        "closed": false,
+        "points": [
+          [
+            15,
+            0
+          ],
+          [
+            14.92,
+            0.23
+          ],
+          [
+            14.67,
+            0.46
+          ],
+          [
+            14.27,
+            0.68
+          ],
+          [
+            13.7,
+            0.89
+          ],
+          [
+            12.99,
+            1.1
+          ],
+          [
+            12.14,
+            1.29
+          ],
+          [
+            11.15,
+            1.47
+          ],
+          [
+            10.04,
+            1.63
+          ],
+          [
+            8.82,
+            1.78
+          ],
+          [
+            7.5,
+            1.91
+          ],
+          [
+            6.1,
+            2.01
+          ],
+          [
+            4.64,
+            2.09
+          ],
+          [
+            3.12,
+            2.15
+          ],
+          [
+            1.57,
+            2.19
+          ],
+          [
+            0,
+            2.2
+          ],
+          [
+            -1.57,
+            2.19
+          ],
+          [
+            -3.12,
+            2.15
+          ],
+          [
+            -4.64,
+            2.09
+          ],
+          [
+            -6.1,
+            2.01
+          ],
+          [
+            -7.5,
+            1.91
+          ],
+          [
+            -8.82,
+            1.78
+          ],
+          [
+            -10.04,
+            1.63
+          ],
+          [
+            -11.15,
+            1.47
+          ],
+          [
+            -12.14,
+            1.29
+          ],
+          [
+            -12.99,
+            1.1
+          ],
+          [
+            -13.7,
+            0.89
+          ],
+          [
+            -14.27,
+            0.68
+          ],
+          [
+            -14.67,
+            0.46
+          ],
+          [
+            -14.92,
+            0.23
+          ],
+          [
+            -15,
+            0
+          ]
+        ],
+        "fill": false
+      }
+    ]
+  },
+  {
+    "name": "planet_mars",
+    "folder": "sky",
+    "draws": "Mars: a red planet with reddish soil (not to scale)",
+    "size": [
+      7,
+      7
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        3.4,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#D2563A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 3.4,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#A33A24",
+        "at": [
+          -1,
+          -1
+        ],
+        "r": 0.8,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#A33A24",
+        "at": [
+          1.4,
+          1.1
+        ],
+        "r": 0.6,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "planet_mercury",
+    "folder": "sky",
+    "draws": "Mercury: a small grey rocky planet with craters (not to scale)",
+    "size": [
+      6,
+      6
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        3,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9AA3AD",
+        "at": [
+          0,
+          0
+        ],
+        "r": 3,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#6E7882",
+        "at": [
+          -1,
+          -0.8
+        ],
+        "r": 0.6,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#6E7882",
+        "at": [
+          1.2,
+          1
+        ],
+        "r": 0.5,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "planet_neptune",
+    "folder": "sky",
+    "draws": "Neptune: a deep blue icy gas giant with a thin ring (not to scale)",
+    "size": [
+      19,
+      13
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        6.3,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "dim",
+        "color": "#9DB8F5",
+        "closed": false,
+        "points": [
+          [
+            -9.5,
+            0
+          ],
+          [
+            -9.45,
+            -0.19
+          ],
+          [
+            -9.29,
+            -0.37
+          ],
+          [
+            -9.04,
+            -0.56
+          ],
+          [
+            -8.68,
+            -0.73
+          ],
+          [
+            -8.23,
+            -0.9
+          ],
+          [
+            -7.69,
+            -1.06
+          ],
+          [
+            -7.06,
+            -1.2
+          ],
+          [
+            -6.36,
+            -1.34
+          ],
+          [
+            -5.58,
+            -1.46
+          ],
+          [
+            -4.75,
+            -1.56
+          ],
+          [
+            -3.86,
+            -1.64
+          ],
+          [
+            -2.94,
+            -1.71
+          ],
+          [
+            -1.98,
+            -1.76
+          ],
+          [
+            -0.99,
+            -1.79
+          ],
+          [
+            0,
+            -1.8
+          ],
+          [
+            0.99,
+            -1.79
+          ],
+          [
+            1.98,
+            -1.76
+          ],
+          [
+            2.94,
+            -1.71
+          ],
+          [
+            3.86,
+            -1.64
+          ],
+          [
+            4.75,
+            -1.56
+          ],
+          [
+            5.58,
+            -1.46
+          ],
+          [
+            6.36,
+            -1.34
+          ],
+          [
+            7.06,
+            -1.2
+          ],
+          [
+            7.69,
+            -1.06
+          ],
+          [
+            8.23,
+            -0.9
+          ],
+          [
+            8.68,
+            -0.73
+          ],
+          [
+            9.04,
+            -0.56
+          ],
+          [
+            9.29,
+            -0.37
+          ],
+          [
+            9.45,
+            -0.19
+          ],
+          [
+            9.5,
+            0
+          ]
+        ],
+        "fill": false
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3E6FE0",
+        "at": [
+          0,
+          0
+        ],
+        "r": 6.3,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#2A4FB0",
+        "at": [
+          1.8,
+          -1.5
+        ],
+        "r": 1.1,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "dim",
+        "color": "#9DB8F5",
+        "closed": false,
+        "points": [
+          [
+            9.5,
+            0
+          ],
+          [
+            9.45,
+            0.19
+          ],
+          [
+            9.29,
+            0.37
+          ],
+          [
+            9.04,
+            0.56
+          ],
+          [
+            8.68,
+            0.73
+          ],
+          [
+            8.23,
+            0.9
+          ],
+          [
+            7.69,
+            1.06
+          ],
+          [
+            7.06,
+            1.2
+          ],
+          [
+            6.36,
+            1.34
+          ],
+          [
+            5.58,
+            1.46
+          ],
+          [
+            4.75,
+            1.56
+          ],
+          [
+            3.86,
+            1.64
+          ],
+          [
+            2.94,
+            1.71
+          ],
+          [
+            1.98,
+            1.76
+          ],
+          [
+            0.99,
+            1.79
+          ],
+          [
+            0,
+            1.8
+          ],
+          [
+            -0.99,
+            1.79
+          ],
+          [
+            -1.98,
+            1.76
+          ],
+          [
+            -2.94,
+            1.71
+          ],
+          [
+            -3.86,
+            1.64
+          ],
+          [
+            -4.75,
+            1.56
+          ],
+          [
+            -5.58,
+            1.46
+          ],
+          [
+            -6.36,
+            1.34
+          ],
+          [
+            -7.06,
+            1.2
+          ],
+          [
+            -7.69,
+            1.06
+          ],
+          [
+            -8.23,
+            0.9
+          ],
+          [
+            -8.68,
+            0.73
+          ],
+          [
+            -9.04,
+            0.56
+          ],
+          [
+            -9.29,
+            0.37
+          ],
+          [
+            -9.45,
+            0.19
+          ],
+          [
+            -9.5,
+            0
+          ]
+        ],
+        "fill": false
+      }
+    ]
+  },
+  {
+    "name": "planet_saturn",
+    "folder": "sky",
+    "draws": "Saturn: a gas giant with bright wide rings (not to scale)",
+    "size": [
+      36,
+      18
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        9,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F2DFA8",
+        "closed": false,
+        "points": [
+          [
+            -18,
+            0
+          ],
+          [
+            -17.9,
+            -0.42
+          ],
+          [
+            -17.61,
+            -0.83
+          ],
+          [
+            -17.12,
+            -1.24
+          ],
+          [
+            -16.44,
+            -1.63
+          ],
+          [
+            -15.59,
+            -2
+          ],
+          [
+            -14.56,
+            -2.35
+          ],
+          [
+            -13.38,
+            -2.68
+          ],
+          [
+            -12.04,
+            -2.97
+          ],
+          [
+            -10.58,
+            -3.24
+          ],
+          [
+            -9,
+            -3.46
+          ],
+          [
+            -7.32,
+            -3.65
+          ],
+          [
+            -5.56,
+            -3.8
+          ],
+          [
+            -3.74,
+            -3.91
+          ],
+          [
+            -1.88,
+            -3.98
+          ],
+          [
+            0,
+            -4
+          ],
+          [
+            1.88,
+            -3.98
+          ],
+          [
+            3.74,
+            -3.91
+          ],
+          [
+            5.56,
+            -3.8
+          ],
+          [
+            7.32,
+            -3.65
+          ],
+          [
+            9,
+            -3.46
+          ],
+          [
+            10.58,
+            -3.24
+          ],
+          [
+            12.04,
+            -2.97
+          ],
+          [
+            13.38,
+            -2.68
+          ],
+          [
+            14.56,
+            -2.35
+          ],
+          [
+            15.59,
+            -2
+          ],
+          [
+            16.44,
+            -1.63
+          ],
+          [
+            17.12,
+            -1.24
+          ],
+          [
+            17.61,
+            -0.83
+          ],
+          [
+            17.9,
+            -0.42
+          ],
+          [
+            18,
+            0
+          ]
+        ],
+        "fill": false
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#E6C77F",
+        "at": [
+          0,
+          0
+        ],
+        "r": 9,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#CFA95E",
+        "closed": true,
+        "points": [
+          [
+            -8.7,
+            -2.5
+          ],
+          [
+            8.7,
+            -2.5
+          ],
+          [
+            9,
+            -1
+          ],
+          [
+            -9,
+            -1
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#CFA95E",
+        "closed": true,
+        "points": [
+          [
+            -8.2,
+            3
+          ],
+          [
+            8.2,
+            3
+          ],
+          [
+            7.6,
+            4.5
+          ],
+          [
+            -7.6,
+            4.5
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F2DFA8",
+        "closed": false,
+        "points": [
+          [
+            18,
+            0
+          ],
+          [
+            17.9,
+            0.42
+          ],
+          [
+            17.61,
+            0.83
+          ],
+          [
+            17.12,
+            1.24
+          ],
+          [
+            16.44,
+            1.63
+          ],
+          [
+            15.59,
+            2
+          ],
+          [
+            14.56,
+            2.35
+          ],
+          [
+            13.38,
+            2.68
+          ],
+          [
+            12.04,
+            2.97
+          ],
+          [
+            10.58,
+            3.24
+          ],
+          [
+            9,
+            3.46
+          ],
+          [
+            7.32,
+            3.65
+          ],
+          [
+            5.56,
+            3.8
+          ],
+          [
+            3.74,
+            3.91
+          ],
+          [
+            1.88,
+            3.98
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            -1.88,
+            3.98
+          ],
+          [
+            -3.74,
+            3.91
+          ],
+          [
+            -5.56,
+            3.8
+          ],
+          [
+            -7.32,
+            3.65
+          ],
+          [
+            -9,
+            3.46
+          ],
+          [
+            -10.58,
+            3.24
+          ],
+          [
+            -12.04,
+            2.97
+          ],
+          [
+            -13.38,
+            2.68
+          ],
+          [
+            -14.56,
+            2.35
+          ],
+          [
+            -15.59,
+            2
+          ],
+          [
+            -16.44,
+            1.63
+          ],
+          [
+            -17.12,
+            1.24
+          ],
+          [
+            -17.61,
+            0.83
+          ],
+          [
+            -17.9,
+            0.42
+          ],
+          [
+            -18,
+            0
+          ]
+        ],
+        "fill": false
+      }
+    ]
+  },
+  {
+    "name": "planet_uranus",
+    "folder": "sky",
+    "draws": "Uranus: an icy blue-green gas giant with a thin ring (not to scale)",
+    "size": [
+      13,
+      19
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        6.5,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "dim",
+        "color": "#BDF2F5",
+        "closed": false,
+        "points": [
+          [
+            -2.2,
+            0
+          ],
+          [
+            -2.19,
+            -0.99
+          ],
+          [
+            -2.15,
+            -1.98
+          ],
+          [
+            -2.09,
+            -2.94
+          ],
+          [
+            -2.01,
+            -3.86
+          ],
+          [
+            -1.91,
+            -4.75
+          ],
+          [
+            -1.78,
+            -5.58
+          ],
+          [
+            -1.63,
+            -6.36
+          ],
+          [
+            -1.47,
+            -7.06
+          ],
+          [
+            -1.29,
+            -7.69
+          ],
+          [
+            -1.1,
+            -8.23
+          ],
+          [
+            -0.89,
+            -8.68
+          ],
+          [
+            -0.68,
+            -9.04
+          ],
+          [
+            -0.46,
+            -9.29
+          ],
+          [
+            -0.23,
+            -9.45
+          ],
+          [
+            0,
+            -9.5
+          ],
+          [
+            0.23,
+            -9.45
+          ],
+          [
+            0.46,
+            -9.29
+          ],
+          [
+            0.68,
+            -9.04
+          ],
+          [
+            0.89,
+            -8.68
+          ],
+          [
+            1.1,
+            -8.23
+          ],
+          [
+            1.29,
+            -7.69
+          ],
+          [
+            1.47,
+            -7.06
+          ],
+          [
+            1.63,
+            -6.36
+          ],
+          [
+            1.78,
+            -5.58
+          ],
+          [
+            1.91,
+            -4.75
+          ],
+          [
+            2.01,
+            -3.86
+          ],
+          [
+            2.09,
+            -2.94
+          ],
+          [
+            2.15,
+            -1.98
+          ],
+          [
+            2.19,
+            -0.99
+          ],
+          [
+            2.2,
+            0
+          ]
+        ],
+        "fill": false
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#8FE0E6",
+        "at": [
+          0,
+          0
+        ],
+        "r": 6.5,
+        "fill": 1
+      },
+      {
+        "shape": "arc",
+        "style": "normal",
+        "color": "#BDF2F5",
+        "at": [
+          0,
+          0
+        ],
+        "r": 4,
+        "start": 200,
+        "end": 340
+      },
+      {
+        "shape": "poly",
+        "style": "dim",
+        "color": "#BDF2F5",
+        "closed": false,
+        "points": [
+          [
+            2.2,
+            0
+          ],
+          [
+            2.19,
+            0.99
+          ],
+          [
+            2.15,
+            1.98
+          ],
+          [
+            2.09,
+            2.94
+          ],
+          [
+            2.01,
+            3.86
+          ],
+          [
+            1.91,
+            4.75
+          ],
+          [
+            1.78,
+            5.58
+          ],
+          [
+            1.63,
+            6.36
+          ],
+          [
+            1.47,
+            7.06
+          ],
+          [
+            1.29,
+            7.69
+          ],
+          [
+            1.1,
+            8.23
+          ],
+          [
+            0.89,
+            8.68
+          ],
+          [
+            0.68,
+            9.04
+          ],
+          [
+            0.46,
+            9.29
+          ],
+          [
+            0.23,
+            9.45
+          ],
+          [
+            0,
+            9.5
+          ],
+          [
+            -0.23,
+            9.45
+          ],
+          [
+            -0.46,
+            9.29
+          ],
+          [
+            -0.68,
+            9.04
+          ],
+          [
+            -0.89,
+            8.68
+          ],
+          [
+            -1.1,
+            8.23
+          ],
+          [
+            -1.29,
+            7.69
+          ],
+          [
+            -1.47,
+            7.06
+          ],
+          [
+            -1.63,
+            6.36
+          ],
+          [
+            -1.78,
+            5.58
+          ],
+          [
+            -1.91,
+            4.75
+          ],
+          [
+            -2.01,
+            3.86
+          ],
+          [
+            -2.09,
+            2.94
+          ],
+          [
+            -2.15,
+            1.98
+          ],
+          [
+            -2.19,
+            0.99
+          ],
+          [
+            -2.2,
+            0
+          ]
+        ],
+        "fill": false
+      }
+    ]
+  },
+  {
+    "name": "planet_venus",
+    "folder": "sky",
+    "draws": "Venus: a pale yellow planet covered in thick cloud (not to scale)",
+    "size": [
+      9,
+      9
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        4.4,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#E8CF8A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 4.4,
+        "fill": 1
+      },
+      {
+        "shape": "arc",
+        "style": "normal",
+        "color": "#F7E7B8",
+        "at": [
+          0,
+          0
+        ],
+        "r": 2.6,
+        "start": 200,
+        "end": 320
+      },
+      {
+        "shape": "arc",
+        "style": "normal",
+        "color": "#C9AE6A",
+        "at": [
+          0,
+          1.2
+        ],
+        "r": 3.2,
+        "start": 20,
+        "end": 150
+      }
+    ]
+  },
+  {
+    "name": "rocket",
+    "folder": "objects",
+    "draws": "A white rocket with red fins and an orange flame",
+    "size": [
+      13,
+      23
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "tip": [
+        0,
+        -11
+      ],
+      "flame": [
+        0,
+        10
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#FF9F43",
+        "closed": true,
+        "points": [
+          [
+            -2,
+            6
+          ],
+          [
+            2,
+            6
+          ],
+          [
+            0,
+            11.4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#FF5A5F",
+        "closed": true,
+        "points": [
+          [
+            3,
+            2.4
+          ],
+          [
+            6.4,
+            8
+          ],
+          [
+            3,
+            6.6
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#FF5A5F",
+        "closed": true,
+        "points": [
+          [
+            -3,
+            2.4
+          ],
+          [
+            -6.4,
+            8
+          ],
+          [
+            -3,
+            6.6
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "closed": true,
+        "points": [
+          [
+            0,
+            -11.4
+          ],
+          [
+            3,
+            -6.4
+          ],
+          [
+            3,
+            6.4
+          ],
+          [
+            -3,
+            6.4
+          ],
+          [
+            -3,
+            -6.4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#4FA3FF",
+        "at": [
+          0,
+          -2.6
+        ],
+        "r": 1.3,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "sage",
+    "folder": "body",
+    "draws": "A seated Indian sage (rishi) with a white beard and a saffron robe",
+    "size": [
+      8,
+      10
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "head": [
+        0,
+        -2.6
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#FF9F43",
+        "closed": true,
+        "points": [
+          [
+            -4,
+            4
+          ],
+          [
+            4,
+            4
+          ],
+          [
+            2,
+            -0.6
+          ],
+          [
+            -2,
+            -0.6
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#F2B47E",
+        "at": [
+          0,
+          -2.6
+        ],
+        "r": 1.7,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "closed": true,
+        "points": [
+          [
+            -1.3,
+            -2.2
+          ],
+          [
+            1.3,
+            -2.2
+          ],
+          [
+            0,
+            0.4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          0,
+          -4.6
+        ],
+        "r": 0.8,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "sail_boat",
+    "folder": "objects",
+    "draws": "A wooden sailing boat with one white sail, side view",
+    "size": [
+      22,
+      19
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "top": [
+        0,
+        -10
+      ],
+      "hull": [
+        0,
+        6
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "closed": true,
+        "points": [
+          [
+            -11,
+            4
+          ],
+          [
+            11,
+            4
+          ],
+          [
+            8,
+            9
+          ],
+          [
+            -8,
+            9
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#C9A06B",
+        "from": [
+          0,
+          4
+        ],
+        "to": [
+          0,
+          -10
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "closed": true,
+        "points": [
+          [
+            0.6,
+            -9.5
+          ],
+          [
+            0.6,
+            3
+          ],
+          [
+            9,
+            3
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#D8E2EC",
+        "closed": true,
+        "points": [
+          [
+            -0.6,
+            -7
+          ],
+          [
+            -0.6,
+            3
+          ],
+          [
+            -7,
+            3
+          ]
+        ],
+        "fill": true
+      }
+    ]
+  },
+  {
+    "name": "spinning_top",
+    "folder": "objects",
+    "draws": "A wooden spinning top (lattu) standing on its point",
+    "size": [
+      10,
+      14
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "tip": [
+        0,
+        7
+      ],
+      "top": [
+        0,
+        -7
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#E0703A",
+        "closed": true,
+        "points": [
+          [
+            -5,
+            -2
+          ],
+          [
+            5,
+            -2
+          ],
+          [
+            0,
+            7
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#FFB347",
+        "closed": true,
+        "points": [
+          [
+            -5,
+            -2
+          ],
+          [
+            5,
+            -2
+          ],
+          [
+            4,
+            -4
+          ],
+          [
+            -4,
+            -4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "from": [
+          0,
+          -4
+        ],
+        "to": [
+          0,
+          -7
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A3A1A",
+        "from": [
+          -4.5,
+          -1
+        ],
+        "to": [
+          4.5,
+          -1
+        ]
+      }
+    ]
+  },
+  {
+    "name": "telescope",
+    "folder": "sky",
+    "draws": "A white telescope on a three-legged stand, pointing up to the right",
+    "size": [
+      28,
+      24
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "eyepiece": [
+        -9,
+        4
+      ],
+      "front": [
+        11,
+        -8
+      ]
+    },
+    "parts": [
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          0,
+          2
+        ],
+        "to": [
+          -7,
+          12
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          0,
+          2
+        ],
+        "to": [
+          0,
+          12.4
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          0,
+          2
+        ],
+        "to": [
+          7,
+          12
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#E8EEF5",
+        "closed": true,
+        "points": [
+          [
+            -11,
+            3
+          ],
+          [
+            10,
+            -9.6
+          ],
+          [
+            12.4,
+            -5.6
+          ],
+          [
+            -8.6,
+            7
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#9AA3AD",
+        "closed": true,
+        "points": [
+          [
+            10,
+            -9.6
+          ],
+          [
+            12,
+            -10.8
+          ],
+          [
+            14.4,
+            -6.8
+          ],
+          [
+            12.4,
+            -5.6
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#5E6A76",
+        "closed": true,
+        "points": [
+          [
+            -11,
+            3
+          ],
+          [
+            -13,
+            4.2
+          ],
+          [
+            -11.4,
+            7
+          ],
+          [
+            -8.6,
+            7
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#5E6A76",
+        "at": [
+          0,
+          2
+        ],
+        "r": 1.2,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "thermometer",
+    "folder": "objects",
+    "draws": "A thermometer: a thin glass tube with a red bulb at the bottom (draw the red level separately as a rectangle)",
+    "size": [
+      6,
+      29
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "bulb": [
+        0,
+        12
+      ],
+      "top": [
+        0,
+        -12
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "closed": true,
+        "points": [
+          [
+            -1.6,
+            -13
+          ],
+          [
+            1.6,
+            -13
+          ],
+          [
+            1.6,
+            11
+          ],
+          [
+            -1.6,
+            11
+          ]
+        ],
+        "fill": false
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#FF5A5F",
+        "at": [
+          0,
+          12.6
+        ],
+        "r": 2.8,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "thief",
+    "folder": "body",
+    "draws": "A tiptoeing thief in dark clothes with a black eye-mask",
+    "size": [
+      9,
+      13
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "head": [
+        0,
+        -4
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#3A3F48",
+        "closed": true,
+        "points": [
+          [
+            -2.2,
+            -2.4
+          ],
+          [
+            2.2,
+            -2.4
+          ],
+          [
+            2.6,
+            3
+          ],
+          [
+            -2.6,
+            3
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#3A3F48",
+        "from": [
+          -1.6,
+          3
+        ],
+        "to": [
+          -3,
+          6.4
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#3A3F48",
+        "from": [
+          1.6,
+          3
+        ],
+        "to": [
+          3,
+          6
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#3A3F48",
+        "from": [
+          -2.2,
+          -1.6
+        ],
+        "to": [
+          -4.4,
+          1
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#3A3F48",
+        "from": [
+          2.2,
+          -1.6
+        ],
+        "to": [
+          4.4,
+          -2.6
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#F2B47E",
+        "at": [
+          0,
+          -4.4
+        ],
+        "r": 1.9,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#0B1117",
+        "closed": true,
+        "points": [
+          [
+            -1.9,
+            -5
+          ],
+          [
+            1.9,
+            -5
+          ],
+          [
+            1.9,
+            -4
+          ],
+          [
+            -1.9,
+            -4
+          ]
+        ],
+        "fill": true
+      }
+    ]
+  },
+  {
+    "name": "train_outline",
+    "folder": "objects",
+    "draws": "The outline of a toy train: an engine and two coaches (as imagined in a cloud)",
+    "size": [
+      26,
+      13
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C0392B",
+        "closed": true,
+        "points": [
+          [
+            -14,
+            -2
+          ],
+          [
+            -6,
+            -2
+          ],
+          [
+            -6,
+            4
+          ],
+          [
+            -14,
+            4
+          ]
+        ],
+        "fill": false
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C0392B",
+        "closed": true,
+        "points": [
+          [
+            -10.6,
+            -6
+          ],
+          [
+            -6,
+            -6
+          ],
+          [
+            -6,
+            -2
+          ],
+          [
+            -10.6,
+            -2
+          ]
+        ],
+        "fill": false
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C0392B",
+        "closed": true,
+        "points": [
+          [
+            -13.4,
+            -5
+          ],
+          [
+            -12,
+            -5
+          ],
+          [
+            -12,
+            -2
+          ],
+          [
+            -13.4,
+            -2
+          ]
+        ],
+        "fill": false
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C0392B",
+        "closed": true,
+        "points": [
+          [
+            -5,
+            -3
+          ],
+          [
+            3,
+            -3
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            -5,
+            4
+          ]
+        ],
+        "fill": false
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C0392B",
+        "closed": true,
+        "points": [
+          [
+            4,
+            -3
+          ],
+          [
+            12,
+            -3
+          ],
+          [
+            12,
+            4
+          ],
+          [
+            4,
+            4
+          ]
+        ],
+        "fill": false
+      },
+      {
+        "shape": "circle",
+        "style": "normal",
+        "color": "#C0392B",
+        "at": [
+          -12,
+          5.4
+        ],
+        "r": 1.4,
+        "fill": 0
+      },
+      {
+        "shape": "circle",
+        "style": "normal",
+        "color": "#C0392B",
+        "at": [
+          -8,
+          5.4
+        ],
+        "r": 1.4,
+        "fill": 0
+      },
+      {
+        "shape": "circle",
+        "style": "normal",
+        "color": "#C0392B",
+        "at": [
+          -2,
+          5.4
+        ],
+        "r": 1.4,
+        "fill": 0
+      },
+      {
+        "shape": "circle",
+        "style": "normal",
+        "color": "#C0392B",
+        "at": [
+          1,
+          5.4
+        ],
+        "r": 1.4,
+        "fill": 0
+      },
+      {
+        "shape": "circle",
+        "style": "normal",
+        "color": "#C0392B",
+        "at": [
+          6,
+          5.4
+        ],
+        "r": 1.4,
+        "fill": 0
+      },
+      {
+        "shape": "circle",
+        "style": "normal",
+        "color": "#C0392B",
+        "at": [
+          10,
+          5.4
+        ],
+        "r": 1.4,
+        "fill": 0
       }
     ]
   }
