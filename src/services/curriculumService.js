@@ -61,7 +61,7 @@ const curriculumService = {
     return cachedGet(`/api/curriculum/exam-chapters`, { bypassCache: true, ...passedOpts });
   },
   toggleChapterPublishStatus(id, isPublished) {
-    // This mutates data on the server, no cache
+    cache.clear();
     return api.patch(`/api/curriculum/chapters/${id}/publish`, { isPublished });
   },
   updateChapterDisplay(id, data) {

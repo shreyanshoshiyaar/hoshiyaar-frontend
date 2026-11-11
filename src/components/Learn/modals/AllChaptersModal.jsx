@@ -63,7 +63,7 @@ const AllChaptersModal = ({
         .sort((a, b) => (Number(classNumber(a.name)) || 0) - (Number(classNumber(b.name)) || 0));
       const groups = await Promise.all(classes.map(async (cls) => {
         const resp = await curriculumService.listChapters(board, subjectName, { classTitle: cls.name });
-        return { name: classNumber(cls.name) || String(cls.name), chapters: (resp?.data || []).filter((c) => c && (c._id || c.id)) };
+        return { name: classNumber(cls.name) || String(cls.name), chapters: (resp?.data || []).filter((c) => c && (c._id || c.id) && c.isPublished !== false) };
       }));
       setOther({
         loading: false,
@@ -133,7 +133,9 @@ const AllChaptersModal = ({
 
   // Compute chapter metadata
   const chaptersWithMeta = useMemo(() => {
-    return chaptersList.map((ch, index) => {
+    return chaptersList
+      .filter((ch) => ch && ch.isPublished !== false)
+      .map((ch, index) => {
       const st = chapterStats[ch._id] || { total: 0, completed: 0 };
       const pct = isAdmin ? 100 : (st.total > 0 ? Math.min(100, Math.round((st.completed / st.total) * 100)) : 0);
       const isCompleted = pct === 100;

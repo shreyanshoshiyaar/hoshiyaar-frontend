@@ -1287,14 +1287,24 @@ const LearnDashboard = ({ onboardingData }) => {
         const toChapter = (raw, index = 0) => {
           if (!raw) return null;
           if (typeof raw === 'string') {
-            return { _id: `str-${index}`, title: String(raw), order: index + 1 };
+            return { _id: `str-${index}`, title: String(raw), order: index + 1, isPublished: true };
           }
           const id = raw._id || raw.id || raw.chapterId;
           const title = raw.title || raw.name || `Chapter ${index + 1}`;
           // Keep the admin's map settings (layout + page background)
-          return id ? { _id: String(id), title, order: raw.order ?? index + 1, mapStyle: raw.mapStyle || 'auto', backgroundImage: raw.backgroundImage || null } : null;
+          return id ? {
+            _id: String(id),
+            title,
+            order: raw.order ?? index + 1,
+            isPublished: raw.isPublished !== false,
+            mapStyle: raw.mapStyle || 'auto',
+            backgroundImage: raw.backgroundImage || null
+          } : null;
         };
-        const normalizedChapters = (listCh || []).map((c, i) => toChapter(c, i)).filter(Boolean);
+        const normalizedChapters = (listCh || [])
+          .filter(c => c && c.isPublished !== false)
+          .map((c, i) => toChapter(c, i))
+          .filter(Boolean);
         normalizedChapters.sort((a, b) => {
           const aSoon = a.title && a.title.includes('(Coming Soon)');
           const bSoon = b.title && b.title.includes('(Coming Soon)');

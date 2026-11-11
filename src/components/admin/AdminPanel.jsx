@@ -365,7 +365,7 @@ const AdminPanel = () => {
       const response = await curriculumService.listChapters(
         selectedBoard,
         selectedSubject,
-        { classTitle: selectedClass }
+        { classTitle: selectedClass, includeDrafts: true }
       );
       setChapters(response.data || []);
     } catch (err) {
