@@ -353,46 +353,41 @@ export default function HomeProgressCards({
   const renderStudyWithFriends = (className) => (
     <button
       onClick={handleShareWhatsApp}
-      className={`relative w-full shrink-0 mt-4 lg:mt-0 mb-1.5 lg:mb-0 overflow-hidden rounded-3xl lg:rounded-2xl bg-gradient-to-b from-[#FDE047] to-[#F59E0B] border-2 border-[#FCD34D] shadow-[0_6px_0_#B45309] active:translate-y-1 active:shadow-[0_2px_0_#B45309] transition-all text-left ${className}`}
+      className={`relative w-full shrink-0 mt-4 lg:mt-0 mb-1.5 lg:mb-0 overflow-hidden rounded-[18px] bg-gradient-to-br from-[#8B3FE8] via-[#7C2FE0] to-[#6A1FD0] border border-[#A78BFA]/40 shadow-[0_4px_0_#4C1D95,0_8px_18px_rgba(109,40,217,0.3)] active:translate-y-0.5 active:shadow-[0_2px_0_#4C1D95] transition-all text-left ${className}`}
     >
-      {/* Faint background silhouette */}
-      <svg
-        className="absolute -right-4 -top-2 h-[125%] text-white/25 pointer-events-none"
-        viewBox="0 0 100 110"
-        fill="currentColor"
-        aria-hidden="true"
-      >
+      {/* Faint person silhouette and bubbles, as in the mobile design */}
+      <svg className="absolute right-6 -bottom-3 h-[115%] text-white/[0.12] pointer-events-none" viewBox="0 0 100 110" fill="currentColor" aria-hidden="true">
         <circle cx="50" cy="34" r="26" />
         <path d="M0 112c0-30 22-48 50-48s50 18 50 48z" />
       </svg>
+      <span className="absolute -top-6 right-16 w-16 h-16 rounded-full bg-white/[0.08] pointer-events-none" aria-hidden="true" />
+      <span className="absolute -top-3 -right-3 w-12 h-12 rounded-full bg-white/[0.08] pointer-events-none" aria-hidden="true" />
 
-      <div className="relative flex items-center gap-4 lg:gap-3 py-4 lg:py-2.5 pl-4 pr-10">
-        <div className="w-14 h-14 lg:w-10 lg:h-10 rounded-2xl lg:rounded-xl bg-[#6D28D9] flex items-center justify-center shrink-0 shadow-sm text-3xl lg:text-2xl">
-          <span aria-hidden="true">🎮</span>
+      <div className="relative flex items-center gap-3.5 py-3.5 pl-3.5 pr-10">
+        <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-sm">
+          <svg viewBox="0 0 24 24" className="w-8 h-8 text-[#6D28D9]" fill="currentColor" aria-hidden="true">
+            <circle cx="12" cy="8.5" r="3.2" />
+            <path d="M5.8 18.5c0-3.2 2.8-5.4 6.2-5.4s6.2 2.2 6.2 5.4v.7H5.8z" />
+            <circle cx="5.6" cy="9.8" r="2.3" opacity="0.75" />
+            <path d="M1.5 18.2c0-2.3 1.8-3.9 4.2-3.9.6 0 1.1.1 1.6.3-1.2 1-1.9 2.4-2 3.9v.6H1.5z" opacity="0.75" />
+            <circle cx="18.4" cy="9.8" r="2.3" opacity="0.75" />
+            <path d="M22.5 18.2c0-2.3-1.8-3.9-4.2-3.9-.6 0-1.1.1-1.6.3 1.2 1 1.9 2.4 2 3.9v.6h3.8z" opacity="0.75" />
+          </svg>
         </div>
         <div className="min-w-0">
           <div
-            className="text-[#3B0764] text-[1.6rem] lg:text-[1.3rem] leading-tight tracking-wide"
+            className="text-white text-[1.55rem] lg:text-[1.35rem] leading-none tracking-wide uppercase"
             style={{ fontFamily: "'Bangers', 'Barlow Condensed', Impact, sans-serif" }}
           >
             Play with Friends
           </div>
-          <div className="font-dialogue text-[0.95rem] lg:text-[0.85rem] text-[#5B21B6] leading-snug mt-0.5">
-            Add friends and see who studies more this week
+          <div className="font-dialogue text-[15px] lg:text-[13.5px] text-white/90 leading-snug mt-1">
+            Share with friends and see who plays more this week
           </div>
         </div>
       </div>
 
-      <svg
-        className="absolute right-3.5 top-1/2 -translate-y-1/2 w-6 h-6 text-[#5B21B6]/70"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden="true"
-      >
+      <svg className="absolute right-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M9 5l7 7-7 7" />
       </svg>
     </button>
