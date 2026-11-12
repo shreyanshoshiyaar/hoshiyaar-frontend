@@ -4,6 +4,9 @@ import curriculumService from '../../services/curriculumService.js';
 import {
   CHARACTERS,
   SETTING_KEY,
+  findCharacter,
+  isNamedCharacter,
+  speakerKey,
   loadCharacterImages,
   setCharacterOverrides,
 } from '../../utils/characterImages.js';
@@ -16,6 +19,35 @@ export default function CharacterImageManager() {
   const [uploading, setUploading] = useState({});
   const [status, setStatus] = useState({ type: '', text: '' });
   const [saving, setSaving] = useState(false);
+  const [speakers, setSpeakers] = useState(null); // [{ speaker, name, count }] from lesson content
+
+  useEffect(() => {
+    http.get('/api/curriculum/speakers')
+      .then((r) => setSpeakers(Array.isArray(r.data) ? r.data : []))
+      .catch(() => setSpeakers([]));
+  }, []);
+
+  // The fixed characters, then one card for every speaker in the lessons who isn't one of them
+  // by name (characters added by new chapters), so new chapters show up here on their own.
+  const cards = useMemo(() => {
+    const list = speakers || [];
+    const linesFor = (c) => list.filter((sp) => isNamedCharacter(sp.speaker) && findCharacter(sp.speaker)?.key === c.key)
+      .reduce((n, sp) => n + sp.count, 0);
+    const fixed = CHARACTERS.map((c) => ({
+      key: c.key, name: c.name, image: c.image, lines: speakers ? linesFor(c) : null,
+      note: `Used for speakers named: ${c.match.join(', ')}`, isNew: false,
+    }));
+    const fallback = CHARACTERS.find((c) => c.key === 'arpit_sir');
+    const discovered = list.filter((sp) => !isNamedCharacter(sp.speaker) && speakerKey(sp.speaker)).map((sp) => {
+      const shared = findCharacter(sp.speaker);
+      const shownAs = shared || fallback;
+      return {
+        key: speakerKey(sp.speaker), name: sp.name, image: shownAs.image, lines: sp.count, isNew: true,
+        note: `No picture of their own yet, so students see ${shownAs.name}'s picture`,
+      };
+    });
+    return [...discovered, ...fixed];
+  }, [speakers]);
 
   useEffect(() => {
     loadCharacterImages({ force: true }).then((current) => {
@@ -88,6 +120,7 @@ export default function CharacterImageManager() {
           <h2 className="text-2xl font-black text-slate-900">Character Images</h2>
           <p className="text-sm text-slate-500 mt-1 max-w-2xl">
             The picture shown next to each character's lines in story, board and engagement questions.
+            New characters from uploaded chapters appear here on their own, marked "Needs picture".
             Upload a new picture or paste an image link, check the preview, then save. A square image looks best.
           </p>
         </div>
@@ -117,7 +150,7 @@ export default function CharacterImageManager() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {CHARACTERS.map((c) => {
+        {cards.map((c) => {
           const current = draft[c.key] || c.image;
           const isCustom = Boolean(draft[c.key]);
           const isChanged = (saved[c.key] || '') !== (draft[c.key] || '');
@@ -133,12 +166,17 @@ export default function CharacterImageManager() {
               <div className="min-w-0 flex-1 space-y-2">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="font-extrabold text-slate-900">{c.name}</h3>
-                  <span className={`text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${isCustom ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-500'}`}>
-                    {isCustom ? 'Custom' : 'Default'}
+                  <span className={`text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${isCustom ? 'bg-indigo-100 text-indigo-700' : c.isNew ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500'}`}>
+                    {isCustom ? 'Custom' : c.isNew ? 'Needs picture' : 'Default'}
                   </span>
+                  {c.lines !== null && (
+                    <span className="text-[10px] font-semibold text-slate-400">
+                      {c.lines ? `${c.lines} line${c.lines > 1 ? 's' : ''} in lessons` : 'Not in any lesson yet'}
+                    </span>
+                  )}
                 </div>
-                <p className="text-[11px] text-slate-400 truncate" title={c.match.join(', ')}>
-                  Used for speakers named: {c.match.join(', ')}
+                <p className="text-[11px] text-slate-400 truncate" title={c.note}>
+                  {isCustom && c.isNew ? 'Uses this picture for every line they speak' : c.note}
                 </p>
                 <input
                   type="url"
