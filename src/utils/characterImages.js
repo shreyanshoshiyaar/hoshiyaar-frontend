@@ -16,7 +16,8 @@ export const CHARACTERS = [
   { key: 'babloo', name: 'Babloo', match: ['babloo'], image: 'https://res.cloudinary.com/imq5966f/image/upload/v1791543789/img-to-link/rqwxrpdymyzbhqd74eiy.webp' },
   { key: 'chinki', name: 'Chinki Didi', match: ['chinki', 'didi'], image: 'https://res.cloudinary.com/imq5966f/image/upload/c_crop,x_25,y_135,w_310,h_310/c_scale,w_300,h_300/v1792740022/img-to-link/bhpngalg3micbma3fjqc.webp' },
   { key: 'hoshi', name: 'Hoshi', match: ['hoshi'], image: 'https://res.cloudinary.com/imq5966f/image/upload/v1791543786/img-to-link/rtyoddo8fjqspbtngsri.webp' },
-  { key: 'dadi', name: 'Dadi', match: ['dadi', 'nani', 'grandma', 'grandmother'], image: 'https://res.cloudinary.com/imq5966f/image/upload/v1792840515/img-to-link/dee69e93.png' },
+  // The old Dadi picture link (img-to-link/dee69e93.png) no longer exists; upload one from Admin
+  { key: 'dadi', name: 'Dadi', match: ['dadi', 'nani', 'grandma', 'grandmother'], image: placeholder('Dadi') },
   { key: 'farmer_lakshmi', name: 'Farmer Lakshmi', match: ['lakshmi', 'farmer'], image: placeholder('Lakshmi') },
   { key: 'captain_anjali', name: 'Captain Anjali', match: ['anjali', 'captain'], image: placeholder('CaptainAnjali') },
   { key: 'narrator', name: 'Narrator', match: ['narrator'], image: placeholder('Narrator') },
@@ -42,6 +43,27 @@ let overrides = (() => {
 let loadPromise = null;
 const listeners = new Set();
 
+/**
+ * Key for a speaker who gets their own picture from Admin → Character Images (characters added by
+ * new chapters). It is checked before the keyword matching below, so e.g. "Sharma Uncle" can have
+ * a picture of his own instead of matching Arpit Sir on "sharma".
+ */
+export const speakerKey = (speaker = '') => {
+  const slug = String(speaker || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  return slug ? `speaker_${slug}` : '';
+};
+
+/**
+ * True when a speaker name is covered by one of the characters above by their own name (its first
+ * match word), not only by a shared word such as "sir" or "sharma". Other speakers get a card of
+ * their own in the admin.
+ */
+export const isNamedCharacter = (speaker = '') => {
+  const s = String(speaker || '').toLowerCase().trim();
+  const c = findCharacter(s);
+  return Boolean(c && s.includes(c.match[0]));
+};
+
 export const findCharacter = (speaker = '') => {
   const s = String(speaker || '').toLowerCase().trim();
   if (!s) return null;
@@ -52,6 +74,8 @@ export const getCharacterImageByKey = (key) => overrides[key] || BY_KEY[key]?.im
 
 /** Picture for a speaker name; unknown speakers get the fallback character's picture. */
 export const getCharacterImage = (speaker, fallbackKey = 'arpit_sir') => {
+  const own = overrides[speakerKey(speaker)];
+  if (own) return own;
   const character = findCharacter(speaker);
   return getCharacterImageByKey(character ? character.key : fallbackKey);
 };
