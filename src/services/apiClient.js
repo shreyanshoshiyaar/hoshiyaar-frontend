@@ -17,7 +17,7 @@ export const api = axios.create({
 // Request interceptor to attach bearer tokens
 api.interceptors.request.use((config) => {
   let token = null;
-  const isAdminRequest = config.url && (config.url.includes('/api/admin') || config.url.includes('/admin') || config.url.includes('/api/curriculum/import'));
+  const isAdminRequest = config.url && (config.url.includes('/api/admin') || config.url.includes('/admin') || config.url.includes('/api/curriculum/import') || config.url.includes('/api/curriculum/speakers') || (config.url.includes('/api/ai/tts-config') && config.method === 'post'));
 
   // Admin requests: a logged-in admin uses their own token. The separate admin login (session
   // token) is only for when the logged-in account isn't an admin. A loose 'token' left on the
