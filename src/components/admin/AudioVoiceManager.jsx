@@ -1,7 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { api } from '../../services/apiClient.js';
+import { getApiBase } from '../../utils/apiBase.js';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+// Same site-wide pace the backend adds on top of each character's rate (SITE_PACE_PERCENT in
+// routes/aiRoutes.js), so a preview sounds like the lesson does.
+const SITE_PACE_PERCENT = 22;
+const withSitePace = (rate) => {
+  const total = (parseInt(String(rate || '+0%'), 10) || 0) + SITE_PACE_PERCENT;
+  return `${total >= 0 ? '+' : ''}${total}%`;
+};
 
 const CHARACTER_META = {
   arpit_sir: { label: 'Arpit Sir (Teacher)', icon: '👨‍🏫', desc: 'Main teacher & mentor voice' },
@@ -11,6 +18,7 @@ const CHARACTER_META = {
   ruhaan: { label: 'Ruhaan', icon: '👦', desc: 'Bright inquisitive student' },
   myra: { label: 'Myra', icon: '👧', desc: 'Sweet & encouraging student' },
   captain_anjali: { label: 'Captain Anjali', icon: '👩‍✈️', desc: 'Space explorer & mission leader' },
+  dadi: { label: 'Dadi', icon: '👵', desc: 'Grandmother' },
   dr_kavita: { label: 'Dr. Kavita', icon: '👩‍⚕️', desc: 'Doctor & science mentor' },
   farmer_lakshmi: { label: 'Farmer Lakshmi', icon: '👩‍🌾', desc: 'Agricultural & nature guide' },
   narrator: { label: 'Narrator', icon: '📖', desc: 'Storyteller & scene narrator' },
@@ -26,6 +34,7 @@ const CHARACTER_META = {
 
 export default function AudioVoiceManager() {
   const [config, setConfig] = useState(null);
+  const [speakers, setSpeakers] = useState([]); // every speaker in the lessons, from the backend
   const [availableVoices, setAvailableVoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -49,10 +58,11 @@ export default function AudioVoiceManager() {
     try {
       setLoading(true);
       setErrorMsg('');
-      const res = await axios.get(`${API_BASE}/api/ai/tts-config`);
+      const res = await api.get('/api/ai/tts-config');
       if (res.data?.success) {
         setConfig(res.data.config);
         setAvailableVoices(res.data.availableVoices || []);
+        setSpeakers(res.data.speakers || []);
       }
     } catch (err) {
       console.error('Failed to load TTS config:', err);
@@ -62,11 +72,17 @@ export default function AudioVoiceManager() {
     }
   };
 
+  // A new speaker starts from the voice they use now, so changing one field keeps the rest
+  const startingVoice = (key) => {
+    const sp = speakers.find((x) => x.key === key);
+    return (sp && config?.[sp.usesKey]) || { voice: 'en-IN-PrabhatNeural', pitch: '+0Hz', rate: '+0%' };
+  };
+
   const handleVoiceChange = (speakerKey, field, val) => {
     setConfig(prev => ({
       ...prev,
       [speakerKey]: {
-        ...(prev[speakerKey] || { voice: 'en-IN-PrabhatNeural', pitch: '+0Hz', rate: '+0%' }),
+        ...(prev[speakerKey] || startingVoice(speakerKey)),
         [field]: val
       }
     }));
@@ -85,7 +101,7 @@ export default function AudioVoiceManager() {
       setErrorMsg('');
       setSaveSuccess(false);
 
-      const res = await axios.post(`${API_BASE}/api/ai/tts-config`, {
+      const res = await api.post('/api/ai/tts-config', {
         config: config,
         voices: config,
         defaultSpeed: config.global_speed_offset
@@ -97,7 +113,8 @@ export default function AudioVoiceManager() {
       }
     } catch (err) {
       console.error('Failed to save TTS config:', err);
-      setErrorMsg('Failed to save changes to backend database.');
+      const denied = [401, 403].includes(err?.response?.status);
+      setErrorMsg(denied ? 'Only admins can save voices. Log in with an admin account and try again.' : 'Failed to save changes to backend database.');
     } finally {
       setSaving(false);
     }
@@ -111,26 +128,48 @@ export default function AudioVoiceManager() {
       }
       setPlayingSpeaker(speakerKey);
 
-      const res = await axios.post(`${API_BASE}/api/ai/narrate`, {
-        text: testText,
-        speaker: speakerKey
+      // Plays the voice as set on this page (saved or not), at the pace students hear
+      const spk = config?.[speakerKey] || startingVoice(speakerKey);
+      const params = new URLSearchParams({
+        text: testText || 'Hello',
+        speaker: speakerKey,
+        customVoice: spk.voice || 'en-IN-PrabhatNeural',
+        pitch: spk.pitch || '+0Hz',
+        rate: withSitePace(spk.rate),
       });
-
-      if (res.data?.audioUrl) {
-        const audio = new Audio(res.data.audioUrl);
-        currentAudioRef.current = audio;
-        audio.onended = () => setPlayingSpeaker(null);
-        audio.onerror = () => setPlayingSpeaker(null);
-        await audio.play();
-      } else {
-        setPlayingSpeaker(null);
-      }
+      const audio = new Audio(`${getApiBase()}/api/ai/tts?${params.toString()}`);
+      currentAudioRef.current = audio;
+      audio.onended = () => setPlayingSpeaker(null);
+      audio.onerror = () => setPlayingSpeaker(null);
+      await audio.play();
     } catch (err) {
       console.error('Failed to play test audio:', err);
       setPlayingSpeaker(null);
       alert('Could not generate voice preview. Please verify backend connection.');
     }
   };
+
+  // Fixed characters, then one card for every speaker in the lessons who isn't one of them by
+  // name (characters added by new chapters), so new chapters show up here on their own.
+  const cards = useMemo(() => {
+    const linesFor = (key) => speakers.filter((sp) => sp.named && sp.usesKey === key).reduce((n, sp) => n + sp.count, 0);
+    const fixed = [
+      'arpit_sir', 'chinki', 'hoshi', 'babloo', 'ruhaan', 'myra', 'dadi', 'narrator',
+      'captain_anjali', 'dr_kavita', 'farmer_lakshmi',
+      'default_male', 'default_female', 'default_fallback', 'sharma'
+    ].map((key) => {
+      const meta = CHARACTER_META[key] || { label: key, icon: '🗣️', desc: 'Character speaker' };
+      return { key, ...meta, lines: speakers.length ? linesFor(key) : null, isNew: false };
+    });
+    const discovered = speakers.filter((sp) => !sp.named && sp.key).map((sp) => {
+      const shownAs = CHARACTER_META[sp.usesKey]?.label || sp.usesKey;
+      return {
+        key: sp.key, label: sp.name, icon: '🆕', lines: sp.count, isNew: true,
+        desc: config?.[sp.key]?.voice ? 'Has a voice of their own' : `New character · uses ${shownAs}'s voice for now`,
+      };
+    });
+    return [...discovered, ...fixed];
+  }, [speakers, config]);
 
   if (loading) {
     return (
@@ -140,11 +179,6 @@ export default function AudioVoiceManager() {
       </div>
     );
   }
-
-  const primarySpeakers = [
-    'arpit_sir', 'chinki', 'hoshi', 'babloo', 'ruhaan', 'myra',
-    'default_male', 'default_female', 'default_fallback', 'sharma'
-  ];
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -156,7 +190,7 @@ export default function AudioVoiceManager() {
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight">Audio & Voice Studio</h2>
           </div>
           <p className="mt-2 text-indigo-200 text-sm sm:text-base max-w-2xl font-medium">
-            Manage Edge-TTS neural voices, speed, and pitch for every character and lesson narration across Hoshiyaar. Changes take effect instantly from the backend without redeploying frontend code.
+            Manage Edge-TTS neural voices, speed, and pitch for every character and lesson narration across Hoshiyaar. New characters from uploaded chapters appear here on their own. Changes take effect instantly from the backend without redeploying frontend code.
           </p>
         </div>
 
@@ -235,15 +269,15 @@ export default function AudioVoiceManager() {
 
       {/* Character Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {primarySpeakers.map(key => {
-          const meta = CHARACTER_META[key] || { label: key, icon: '🗣️', desc: 'Character speaker' };
-          const spk = config?.[key] || { voice: 'en-IN-PrabhatNeural', pitch: '+0Hz', rate: '+0%' };
+        {cards.map(meta => {
+          const key = meta.key;
+          const spk = config?.[key] || startingVoice(key);
           const isPlaying = playingSpeaker === key;
 
           return (
             <div
               key={key}
-              className="bg-white rounded-2xl border-2 border-slate-200 hover:border-indigo-300 transition-all p-5 shadow-sm flex flex-col justify-between"
+              className={`bg-white rounded-2xl border-2 ${meta.isNew && !config?.[key] ? 'border-amber-300' : 'border-slate-200'} hover:border-indigo-300 transition-all p-5 shadow-sm flex flex-col justify-between`}
             >
               <div>
                 <div className="flex items-center justify-between mb-3">
@@ -252,6 +286,11 @@ export default function AudioVoiceManager() {
                     <div>
                       <h4 className="font-black text-slate-800 text-base leading-tight">{meta.label}</h4>
                       <p className="text-xs text-slate-400 font-medium">{meta.desc}</p>
+                      {meta.lines !== null && (
+                        <p className="text-[11px] text-slate-400 font-semibold">
+                          {meta.lines ? `${meta.lines} line${meta.lines > 1 ? 's' : ''} in lessons` : 'Not in any lesson yet'}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -326,7 +365,9 @@ export default function AudioVoiceManager() {
 
               <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-mono">
                 <span>Key: <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-700">{key}</code></span>
-                <span className="text-emerald-600 font-bold">Active in DB</span>
+                {meta.isNew && !config?.[key]
+                  ? <span className="text-amber-600 font-bold">Not set yet</span>
+                  : <span className="text-emerald-600 font-bold">Active in DB</span>}
               </div>
             </div>
           );
