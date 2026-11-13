@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import authService from '../../services/authService.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getSignupSource, setUserProperties } from '../../utils/analytics.js';
+import DeviceLimitPicker from './DeviceLimitPicker.jsx';
 import './RobotAuth.css';
 
 const HoshiyaarLogo = "https://res.cloudinary.com/imq5966f/image/upload/v1791543780/img-to-link/bihseec7aigbmau4amnd.png";
@@ -12,6 +13,17 @@ const UnifiedAuth = () => {
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  // Set when the 3-device limit blocks a sign-in: the picker lets the student sign one out
+  const [deviceLimit, setDeviceLimit] = useState(null);
+  // This device was signed out from another one: say so once
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem('hy_signed_out_notice')) {
+        sessionStorage.removeItem('hy_signed_out_notice');
+        setError('This device was signed out from another device. Please sign in again.');
+      }
+    } catch { /* storage unavailable */ }
+  }, []);
   const [showPassword, setShowPassword] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
   const [resendCount, setResendCount] = useState(0);
@@ -371,44 +383,53 @@ const UnifiedAuth = () => {
         guestUserId: user?.isGuest ? user._id : undefined
       });
 
-      if (response.data && response.data.token) {
-        doneRef.current = true;
-        setIsTurned(false);
-        setIsHyped(false);
-        setMood('success');
-        setIsSuccess(true);
-        setIsSpinning(true);
-        say(`Access granted! Welcome, ${userName?.split(' ')[0] || 'scholar'}!`);
-        fireConfetti();
-
-        const userClass = response?.data?.user?.classLevel ||
-                          response?.data?.user?.class ||
-                          localStorage.getItem("classLevel") ||
-                          "unknown_class";
-
-        window.hyTrack?.("login", {
-          method: "phone_password",
-          user_type: "student",
-          is_new_user: false,
-          source: "robot_login_page",
-          "class": userClass
-        });
-
-        login(response.data);
-        try { sessionStorage.setItem('entryType', 'login'); } catch (_) {}
-
-        setTimeout(() => {
-          navigate('/learn');
-        }, 1200);
-      }
+      if (response.data && response.data.token) completeLogin(response.data);
     } catch (err) {
       const msg = err.response?.data?.message || 'Login failed. Incorrect password.';
       setError(msg);
       triggerCardShake();
-      say("Incorrect password! Give it another shot.");
+      // 3-device limit: the password was right, the account is just on 3 devices already
+      if (err.response?.data?.code === 'DEVICE_LIMIT') {
+        setDeviceLimit(err.response.data);
+        say("You're signed in on 3 devices. Sign one out to continue!");
+      } else {
+        say("Incorrect password! Give it another shot.");
+      }
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // A successful password sign-in, straight away or after signing another device out
+  const completeLogin = (data) => {
+    doneRef.current = true;
+    setIsTurned(false);
+    setIsHyped(false);
+    setMood('success');
+    setIsSuccess(true);
+    setIsSpinning(true);
+    say(`Access granted! Welcome, ${userName?.split(' ')[0] || 'scholar'}!`);
+    fireConfetti();
+
+    const userClass = data?.user?.classLevel ||
+                      data?.user?.class ||
+                      localStorage.getItem("classLevel") ||
+                      "unknown_class";
+
+    window.hyTrack?.("login", {
+      method: "phone_password",
+      user_type: "student",
+      is_new_user: false,
+      source: "robot_login_page",
+      "class": userClass
+    });
+
+    login(data);
+    try { sessionStorage.setItem('entryType', 'login'); } catch (_) {}
+
+    setTimeout(() => {
+      navigate('/learn');
+    }, 1200);
   };
 
   // Step 5: Get Started as a guest (class + name); the number is verified after 3 lessons
@@ -581,6 +602,14 @@ const UnifiedAuth = () => {
 
   return (
     <div className="robot-scene" ref={sceneRef}>
+      {deviceLimit && (
+        <DeviceLimitPicker
+          info={deviceLimit}
+          guestUserId={user?.isGuest ? user._id : undefined}
+          onCancel={() => setDeviceLimit(null)}
+          onSignedIn={(data) => { setDeviceLimit(null); setError(''); completeLogin(data); }}
+        />
+      )}
       {/* Top Brand Header */}
       <header className="robot-header">
         <Link to="/" className="robot-logo-link">

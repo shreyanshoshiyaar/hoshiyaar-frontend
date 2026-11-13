@@ -201,6 +201,36 @@ export const paymentService = {
     return res.data;
   },
 
+  /** Admin: give a learner Pro for `days` days, on top of any time left */
+  async grantPro(userId, days) {
+    const res = await api.post(`/api/payments/admin/users/${userId}/grant-pro`, { days });
+    return res.data;
+  },
+
+  /** Admin: take Pro back. kind: 'google_play' | 'razorpay' (with the purchase/payment id) | 'end_now' */
+  async revokePro(userId, kind, id) {
+    const res = await api.post(`/api/payments/admin/users/${userId}/revoke-pro`, { kind, id });
+    return res.data;
+  },
+
+  /** Admin: sign a learner out of one device ({ deviceId }) or all of them ({ all: true }) */
+  async signOutDevices(userId, body) {
+    const res = await api.post(`/api/payments/admin/users/${userId}/devices/sign-out`, body);
+    return res.data;
+  },
+
+  /** Admin: every refunded purchase and whether the account is still Pro */
+  async getRefunds() {
+    const res = await api.get('/api/payments/admin/refunds');
+    return res.data;
+  },
+
+  /** Admin: ask Google Play for refunds now (the nightly check) */
+  async checkGoogleRefunds() {
+    const res = await api.post('/api/payments/admin/refunds/check-google', {}, { timeout: 120000 });
+    return res.data;
+  },
+
   /** Admin: download every transaction as CSV, signed in like any other admin request */
   async downloadTransactionsCSV() {
     const res = await api.get('/api/payments/admin/transactions/export-csv', { responseType: 'blob', timeout: 300000 });

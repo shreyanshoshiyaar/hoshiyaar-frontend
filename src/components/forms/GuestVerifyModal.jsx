@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import authService from '../../services/authService.js';
 import { useAuth } from '../../context/AuthContext.jsx';
+import DeviceLimitPicker from './DeviceLimitPicker.jsx';
 
 const HOSHI = 'https://res.cloudinary.com/fhscvc7p/image/upload/v1790922377/img-to-link/yiua95vucvhqg1zlfb5d.webp';
 
@@ -16,6 +17,8 @@ function transferGuestLessons(fromUserId, toUserId) {
 }
 
 export default function GuestVerifyModal({ onClose }) {
+  // Set when the 3-device limit blocks the sign-in: the picker lets the student sign one out
+  const [deviceLimit, setDeviceLimit] = useState(null);
   const { user, login } = useAuth();
   const navigate = useNavigate();
   const [phone, setPhone] = useState(user?.pendingPhone || '');
@@ -122,6 +125,18 @@ export default function GuestVerifyModal({ onClose }) {
     }
   };
 
+  // Signed in, from the OTP or from the device picker
+  const finishOtpLogin = (data) => {
+    transferGuestLessons(user?._id, data._id);
+    window.hyTrack?.('login', {
+      method: 'guest_prompt_otp',
+      class: data?.classLevel || user?.classLevel || 'unknown_class',
+    });
+
+    login(data);
+    onClose?.();
+  };
+
   // Step 2B: Existing user logs in with WhatsApp OTP
   const handleOtpLogin = async (e) => {
     e?.preventDefault();
@@ -140,17 +155,12 @@ export default function GuestVerifyModal({ onClose }) {
         guestUserId: user?._id,
       });
 
-      transferGuestLessons(user?._id, data._id);
-      window.hyTrack?.('login', {
-        method: 'guest_prompt_otp',
-        class: data?.classLevel || user?.classLevel || 'unknown_class',
-      });
-
-      login(data);
-      onClose?.();
+      finishOtpLogin(data);
     } catch (err) {
       const msg = err.response?.data?.message || 'Verification failed. Please check the code.';
       setError(msg);
+      // 3-device limit: the code was right, the account is just on 3 devices already
+      if (err.response?.data?.code === 'DEVICE_LIMIT') setDeviceLimit(err.response.data);
     } finally {
       setLoading(false);
     }
@@ -204,6 +214,16 @@ export default function GuestVerifyModal({ onClose }) {
 
   return (
     <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-900/70 backdrop-blur-sm p-3 sm:p-4 font-sans select-none overflow-y-auto overscroll-contain">
+      {deviceLimit && (
+        <div className="relative z-[10001]">
+          <DeviceLimitPicker
+            info={deviceLimit}
+            guestUserId={user?._id}
+            onCancel={() => setDeviceLimit(null)}
+            onSignedIn={(data) => { setDeviceLimit(null); finishOtpLogin(data); }}
+          />
+        </div>
+      )}
       <div className="relative w-full max-w-md bg-white rounded-[28px] shadow-2xl px-5 pt-6 pb-6 border border-slate-100 animate-fade-in my-auto max-h-[calc(100dvh-2rem)] overflow-y-auto mx-auto">
         
         {/* Close Button */}

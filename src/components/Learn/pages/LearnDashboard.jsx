@@ -1,3 +1,4 @@
+import AllChaptersButton from '../../ui/AllChaptersButton.jsx';
 import React, { useEffect, useState, useMemo, useLayoutEffect, useCallback, useRef } from "react";
 import { useAuth } from "../../../context/AuthContext.jsx";
 import { useAccess } from "../../../context/AccessContext.jsx";
@@ -2470,28 +2471,18 @@ const LearnDashboard = ({ onboardingData }) => {
                                       <button
                                         onClick={handleOpenSubjectModal}
                                         disabled={isLoading || subjectChanging}
-                                        className={`flex items-center gap-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 text-xs font-black shadow-inner active:scale-95 transition-all hover:bg-white/20 ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        className={`flex items-center gap-2 h-11 bg-white/10 backdrop-blur-md px-4 rounded-2xl border-2 border-white/25 text-sm font-black shadow-inner active:scale-95 transition-all hover:bg-white/20 ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''}`}
                                       >
-                                        <span className="text-sm">🧪</span>
-                                        <span className="text-white uppercase tracking-wider">{subjectName} <span className="text-[10px] ml-1 opacity-70">▼</span></span>
+                                        <span className="text-white uppercase tracking-wider">{subjectName} <span className="text-[11px] ml-1 opacity-70">▼</span></span>
                                       </button>
                                     ) : (
-                                      <div className="flex items-center gap-2 bg-white/5 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 text-xs font-black shadow-inner opacity-90">
-                                        <span className="text-sm">🧪</span>
+                                      <div className="flex items-center gap-2 h-11 bg-white/5 backdrop-blur-md px-4 rounded-2xl border-2 border-white/15 text-sm font-black shadow-inner opacity-90">
                                         <span className="text-white uppercase tracking-wider">{subjectName}</span>
                                       </div>
                                     )}
                                     
                                     <div className="flex items-center gap-2">
-                                      <button
-                                        onClick={() => setShowChapters(true)}
-                                        className="flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-white hover:bg-slate-50 active:scale-95 transition-all border-2 border-white/90 text-xs font-black text-slate-900 shadow-md cursor-pointer"
-                                      >
-                                        <span className="inline-flex items-center justify-center flex-shrink-0">
-                                          <ChapterNavIcon />
-                                        </span>
-                                        <span className="text-slate-900 font-black">All Chapters</span>
-                                      </button>
+                                      <AllChaptersButton onClick={() => setShowChapters(true)} />
                                     </div>
                                   </div>
                                 </div>
@@ -2520,15 +2511,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <button
-                                    onClick={() => setShowChapters(true)}
-                                    className="flex items-center gap-2.5 py-2 px-4 rounded-xl bg-white hover:bg-slate-50 active:scale-95 transition-all border-2 border-white/90 text-base font-black text-slate-900 shadow-md cursor-pointer"
-                                  >
-                                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-white/20 flex-shrink-0">
-                                      <ChapterNavIcon />
-                                    </span>
-                                    <span className="font-black hidden sm:inline leading-tight self-center text-slate-900">All Chapters</span>
-                                  </button>
+                                  <AllChaptersButton size="md" hideLabelOnMobile onClick={() => setShowChapters(true)} />
                                   {/* Debug button to clear false completions */}
                                   <button
                                     onClick={clearFalseCompletions}
@@ -2909,28 +2892,18 @@ const LearnDashboard = ({ onboardingData }) => {
                                                 <button
                                                   onClick={handleOpenSubjectModal}
                                                   disabled={isLoading || subjectChanging}
-                                                  className={`flex items-center gap-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 text-xs font-black shadow-inner active:scale-95 transition-all hover:bg-white/20 ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                  className={`flex items-center gap-2 h-11 bg-white/10 backdrop-blur-md px-4 rounded-2xl border-2 border-white/25 text-sm font-black shadow-inner active:scale-95 transition-all hover:bg-white/20 ${(isLoading || subjectChanging) ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                 >
-                                                  <span className="text-sm">🧪</span>
-                                                  <span className="text-white uppercase tracking-wider">{subjectName} <span className="text-[10px] ml-1 opacity-70">▼</span></span>
+                                                  <span className="text-white uppercase tracking-wider">{subjectName} <span className="text-[11px] ml-1 opacity-70">▼</span></span>
                                                 </button>
                                               ) : (
-                                                <div className="flex items-center gap-2 bg-white/5 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 text-xs font-black shadow-inner opacity-90">
-                                                  <span className="text-sm">🧪</span>
+                                                <div className="flex items-center gap-2 h-11 bg-white/5 backdrop-blur-md px-4 rounded-2xl border-2 border-white/15 text-sm font-black shadow-inner opacity-90">
                                                   <span className="text-white uppercase tracking-wider">{subjectName}</span>
                                                 </div>
                                               )}
                                               
                                               <div className="flex items-center gap-2">
-                                                <button
-                                                  onClick={() => setShowChapters(true)}
-                                                  className="flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-white hover:bg-slate-50 active:scale-95 transition-all border-2 border-white/90 text-xs font-black text-slate-900 shadow-md cursor-pointer"
-                                                >
-                                                  <span className="inline-flex items-center justify-center flex-shrink-0">
-                                                    <ChapterNavIcon />
-                                                  </span>
-                                                  <span className="text-slate-900 font-black">All Chapters</span>
-                                                </button>
+                                                <AllChaptersButton onClick={() => setShowChapters(true)} />
                                               </div>
                                             </div>
                                           </div>
@@ -2975,15 +2948,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                             </div>
                                           </div>
                                           <div className="flex items-center gap-2 relative z-10">
-                                            <button
-                                              onClick={() => setShowChapters(true)}
-                                              className="flex items-center gap-2.5 py-2 px-4 rounded-xl bg-white hover:bg-slate-50 active:scale-95 transition-all border-2 border-white/90 text-base font-black text-slate-900 shadow-md cursor-pointer"
-                                            >
-                                              <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-white/20 flex-shrink-0">
-                                                <ChapterNavIcon />
-                                              </span>
-                                              <span className="font-black hidden sm:inline leading-tight self-center text-slate-900">All Chapters</span>
-                                            </button>
+                                            <AllChaptersButton size="md" hideLabelOnMobile onClick={() => setShowChapters(true)} />
                                           </div>
                                         </div>
                                       )

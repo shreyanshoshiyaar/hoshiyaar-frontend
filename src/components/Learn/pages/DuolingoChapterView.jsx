@@ -1,3 +1,4 @@
+import AllChaptersButton from '../../ui/AllChaptersButton.jsx';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { progressKey } from '../../../utils/progressKey.js';
 
@@ -89,7 +90,7 @@ export default function DuolingoChapterView({
 
   return (
     <div
-      className="relative isolate w-full min-h-screen pb-28 pt-2 transition-all duration-300"
+      className="relative isolate w-full min-h-screen pb-28 pt-0 transition-all duration-300"
       style={
         chapterBg
           ? { background: '#E0F2FE' }
@@ -128,7 +129,7 @@ export default function DuolingoChapterView({
       {/* Path content container */}
       <div className="relative z-10 w-full max-w-xl mx-auto pl-2 pr-2 sm:pr-3">
         {/* 1. TOP STICKY CHAPTER/UNIT BANNER (Transparent background like earlier) */}
-        <header className="sticky top-0 z-40 mb-6 w-full px-1">
+        <header className="sticky top-0 z-40 mb-2 w-full px-1">
         <div className="rounded-[24px] sm:rounded-3xl px-5 py-4 sm:px-6 sm:py-5 shadow-xl border border-white/20 relative overflow-hidden backdrop-blur-md bg-black/40 text-white transition-all duration-300">
           {/* Sparkling stars effect */}
           <div className="absolute inset-0 opacity-15 pointer-events-none overflow-hidden select-none">
@@ -158,29 +159,19 @@ export default function DuolingoChapterView({
                 <button
                   onClick={onOpenSubjectModal}
                   disabled={isLoading || subjectChanging}
-                  className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-1.5 rounded-full border border-white/20 text-xs font-black tracking-wide text-white transition-all shadow-inner"
+                  className="flex items-center gap-1.5 h-11 bg-white/10 hover:bg-white/20 active:scale-95 px-4 rounded-2xl border-2 border-white/25 text-sm font-black tracking-wide text-white transition-all shadow-inner"
                 >
-                  <span className="text-sm">🧪</span>
                   <span className="uppercase">{subjectName}</span>
                   <span className="text-[10px] opacity-75">▼</span>
                 </button>
               ) : (
-                <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1.5 rounded-full border border-white/20 text-xs font-black tracking-wide text-white shadow-inner">
-                  <span className="text-sm">🧪</span>
+                <div className="flex items-center gap-1.5 h-11 bg-white/10 px-4 rounded-2xl border-2 border-white/25 text-sm font-black tracking-wide text-white shadow-inner">
                   <span className="uppercase">{subjectName}</span>
                 </div>
               )}
 
               {/* All Chapters Button */}
-              <button
-                onClick={onOpenChapters}
-                className="flex items-center gap-2 py-1.5 px-3.5 rounded-2xl bg-white text-slate-900 hover:bg-slate-50 active:scale-95 transition-all border-2 border-white/90 text-xs font-black shadow-md cursor-pointer"
-              >
-                <svg className="w-4 h-4 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
-                </svg>
-                <span className="text-slate-900 font-black">All Chapters</span>
-              </button>
+              <AllChaptersButton onClick={onOpenChapters} />
             </div>
           </div>
         </div>
@@ -212,7 +203,7 @@ export default function DuolingoChapterView({
               className="flex flex-col w-full"
             >
               {/* INLINE UNIT HEADER (Right-aligned over the path, leaving left space for characters) */}
-              <div className="w-full flex justify-end items-center mb-4 select-none pr-0.5 sm:pr-1">
+              <div className="w-full flex justify-end items-center mb-1 select-none pr-0.5 sm:pr-1">
                 <div className="flex items-center justify-end gap-2 sm:gap-3">
                   {/* [Unit X] Pill — Directly above the circular node */}
                   <span className="bg-[#262626] text-white text-[11px] sm:text-xs font-black px-3.5 py-1.5 rounded-full shadow-sm whitespace-nowrap">

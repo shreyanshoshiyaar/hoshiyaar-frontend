@@ -20,6 +20,16 @@ export const StarsProvider = ({ children }) => {
   const [questionLedger, setQuestionLedger] = useState({});
   const [sessionQuestionIds, setSessionQuestionIds] = useState([]);
   const timerRef = useRef(null);
+  // Points the server actually awarded per lesson since the app opened ({ moduleId: net points }).
+  // The lesson complete screen shows this as "+N added"; it's cleared when that screen closes.
+  const lessonEarnedRef = useRef({});
+  const noteLessonPoints = (moduleId, points) => {
+    if (!moduleId || !Number.isFinite(points) || points === 0) return;
+    const key = String(moduleId);
+    lessonEarnedRef.current[key] = (lessonEarnedRef.current[key] || 0) + points;
+  };
+  const getLessonEarned = useCallback((moduleId) => Math.max(0, lessonEarnedRef.current[String(moduleId)] || 0), []);
+  const clearLessonEarned = useCallback((moduleId) => { delete lessonEarnedRef.current[String(moduleId)]; }, []);
 
   const getUserId = useCallback(() => {
     try {
@@ -121,6 +131,7 @@ export const StarsProvider = ({ children }) => {
       const serverTotal = Number(data?.totalPoints || 0);
 
       if (Number.isFinite(serverDelta) && serverDelta !== 0) {
+        noteLessonPoints(moduleId, serverDelta);
         setStars((s) => Math.max(0, s + serverDelta));
         setModuleStars((m) => ({ ...m, [moduleId]: (m[moduleId] || 0) + serverDelta }));
         setDelta(serverDelta);
@@ -150,6 +161,7 @@ export const StarsProvider = ({ children }) => {
       const serverTotal = Number(data?.totalPoints || 0);
 
       if (Number.isFinite(serverDelta) && serverDelta !== 0) {
+        noteLessonPoints(moduleId, serverDelta);
         setStars((s) => Math.max(0, s + serverDelta));
         setModuleStars((m) => ({ ...m, [moduleId]: Math.max(0, (m[moduleId] || 0) + serverDelta) }));
         setDelta(serverDelta);
@@ -303,6 +315,8 @@ export const StarsProvider = ({ children }) => {
     addToSession,
     midLessonStreakEarned,
     dismissMidLessonStreak,
+    getLessonEarned,
+    clearLessonEarned,
     refresh: reloadFromStorage
   }), [stars, delta, moduleStars, questionLedger, sessionQuestionIds, midLessonStreakEarned, reloadFromStorage]);
 

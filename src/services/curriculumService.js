@@ -64,6 +64,11 @@ const curriculumService = {
     cache.clear();
     return api.patch(`/api/curriculum/chapters/${id}/publish`, { isPublished });
   },
+  // Chapters an admin picked for the All Chapters "Young Explorers" space (any class)
+  listYoungExplorers(board, subject, opts) {
+    const passedOpts = passOpts(opts);
+    return api.get('/api/curriculum/young-explorers', { params: { board, subject }, ...passedOpts });
+  },
   updateChapterDisplay(id, data) {
     cache.clear();
     return api.patch(`/api/curriculum/chapters/${id}/display`, data);

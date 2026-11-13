@@ -50,6 +50,8 @@ const AllChaptersModal = ({
   // (one mixed set of topics, no grades or numbers)
   const [view, setView] = useState('mine');
   const [other, setOther] = useState({ loading: false, failed: false, groups: null }); // groups: [{ name, chapters }]
+  // 'young' = Young Explorers: chapters an admin picked for this space, from any class
+  const [young, setYoung] = useState({ loading: false, failed: false, chapters: null });
   const ownClass = classNumber(classLevel);
   const ownNum = Number(ownClass) || 0;
   const higherGroups = (other.groups || []).filter((g) => ownNum && Number(g.name) > ownNum);
@@ -78,15 +80,32 @@ const AllChaptersModal = ({
     }
   };
 
+  const loadYoungExplorers = async () => {
+    setYoung({ loading: true, failed: false, chapters: null });
+    try {
+      const resp = await curriculumService.listYoungExplorers(board, subjectName);
+      const chapters = (resp?.data || []).filter((c) => c && (c._id || c.id) && c.isPublished !== false);
+      setYoung({ loading: false, failed: false, chapters });
+    } catch (_) {
+      setYoung({ loading: false, failed: true, chapters: null });
+    }
+  };
+
   const openExplore = (space) => {
     setView(space);
+    if (space === 'young') {
+      if (!young.chapters && !young.loading) loadYoungExplorers();
+      return;
+    }
     if (!other.groups && !other.loading) loadOtherChapters();
   };
+  const hasYoung = !young.chapters || young.chapters.length > 0;
 
   // Load the other classes as soon as the panel opens, so the explore tabs know whether they
   // have anything to show (Class 8 has no Level Up, Class 6 no Curiosity Corner)
   useEffect(() => {
     if (isOpen && !other.groups && !other.loading) loadOtherChapters();
+    if (isOpen && !young.chapters && !young.loading) loadYoungExplorers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
@@ -232,6 +251,7 @@ const AllChaptersModal = ({
           {[
             { id: 'mine', label: ownClass ? `Class ${ownClass} Chapters` : 'My Chapters', show: true },
             { id: 'levelup', label: '🚀 Level Up', show: !other.groups || higherGroups.length > 0 },
+            { id: 'young', label: '🧭 Young Explorers', show: hasYoung },
             { id: 'curious', label: '🔍 Curiosity Corner', show: !other.groups || lowerGroups.length > 0 }
           ].filter((tab) => tab.show).map((tab) => (
             <button
@@ -434,6 +454,15 @@ const AllChaptersModal = ({
                   <p className="text-[11px] font-semibold text-indigo-700/80 mt-0.5">Sneak a peek at what the next grades discover</p>
                 </button>
               )}
+              {hasYoung && (
+                <button
+                  onClick={() => openExplore('young')}
+                  className="rounded-2xl p-4 border border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100 text-left transition-colors active:scale-[0.99]"
+                >
+                  <p className="text-sm font-black text-emerald-900">🧭 Young Explorers</p>
+                  <p className="text-[11px] font-semibold text-emerald-700/80 mt-0.5">Hand-picked adventures for curious minds</p>
+                </button>
+              )}
               {(!other.groups || lowerGroups.length > 0) && (
                 <button
                   onClick={() => openExplore('curious')}
@@ -467,7 +496,48 @@ const AllChaptersModal = ({
           )}
           </>)}
 
-          {view !== 'mine' && (() => {
+          {view === 'young' && (() => {
+            if (young.loading || !young.chapters) {
+              return young.failed ? (
+                <div className="text-center py-10">
+                  <p className="text-sm font-bold text-slate-700">Couldn't load these topics</p>
+                  <button onClick={loadYoungExplorers} className="mt-3 px-3 py-1 text-xs font-bold text-blue-600 bg-blue-50 rounded-lg">Try again</button>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+                  <div className="animate-spin rounded-full h-8 w-8 border-3 border-emerald-500 border-t-transparent mb-3"></div>
+                  <span className="text-xs font-bold">Finding adventures...</span>
+                </div>
+              );
+            }
+            const q = searchQuery.toLowerCase().trim();
+            const list = young.chapters.filter((c) => !q || topicName(c.title).toLowerCase().includes(q));
+            if (!list.length) return <p className="text-center py-10 text-sm font-bold text-slate-500">{q ? `Nothing matches "${searchQuery}"` : 'More adventures coming soon!'}</p>;
+            return (
+              <div className="space-y-3">
+                <p className="text-xs font-semibold text-slate-500">Hand-picked adventures for curious minds. Jump into any one you like.</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  {list.map((ch, i) => {
+                    const id = String(ch._id || ch.id);
+                    const isHere = id === String(currentChapterId);
+                    return (
+                      <button
+                        key={id}
+                        onClick={() => onSelectChapter({ ...ch, _id: id, classLevel: classNumber(ch.classLevel) || ch.classLevel })}
+                        className={`group rounded-2xl p-3.5 border bg-gradient-to-br ${TILE_COLORS[i % TILE_COLORS.length]} text-left flex flex-col gap-2 min-h-[112px] transition-transform active:scale-[0.98] hover:-translate-y-0.5 ${isHere ? 'ring-2 ring-emerald-500' : ''}`}
+                      >
+                        <span className="text-3xl leading-none" aria-hidden="true">{artFor(ch.title)}</span>
+                        <span className="text-[13px] font-extrabold text-slate-800 leading-snug line-clamp-3">{topicName(ch.title)}</span>
+                        {isHere && <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700">You're here</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
+
+          {view !== 'mine' && view !== 'young' && (() => {
             if (other.loading || !other.groups) {
               return other.failed ? (
                 <div className="text-center py-10">
