@@ -48,7 +48,13 @@ export const AuthProvider = ({ children }) => {
                                     return updated;
                                 });
                             }
-                        }).catch(() => {});
+                        }).catch((err) => {
+                            // Signed out from another device (or by an admin): log out here too
+                            if (err?.response?.data?.code === 'SIGNED_OUT_DEVICE') {
+                                try { sessionStorage.setItem('hy_signed_out_notice', '1'); } catch (_) {}
+                                logout();
+                            }
+                        });
                     }
 
                     // Always hydrate stars from server to ensure cross-device sync
@@ -169,6 +175,13 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = () => {
+        // Free this device's place in the 3-device limit. Sent with the token before it's cleared,
+        // and not awaited, so logging out never waits on the network.
+        try {
+            const stored = JSON.parse(localStorage.getItem('user') || 'null');
+            const token = stored?.token || localStorage.getItem('token') || localStorage.getItem('authToken');
+            if (token && !stored?.isGuest) authService.logoutDevice(token).catch(() => {});
+        } catch (_) {}
         localStorage.removeItem('user');
         try { localStorage.removeItem('token'); } catch (_) {}
         try { localStorage.removeItem('authToken'); } catch (_) {}

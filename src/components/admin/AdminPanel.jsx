@@ -137,20 +137,22 @@ const MAP_STYLES = [
 const ChapterDisplayCard = ({ chapter, onSaved }) => {
   const [mapStyle, setMapStyle] = useState(chapter.mapStyle || 'auto');
   const [bgUrl, setBgUrl] = useState(chapter.backgroundImage || '');
+  const [youngExplorers, setYoungExplorers] = useState(Boolean(chapter.youngExplorers));
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
 
   useEffect(() => {
     setMapStyle(chapter.mapStyle || 'auto');
     setBgUrl(chapter.backgroundImage || '');
+    setYoungExplorers(Boolean(chapter.youngExplorers));
     setMsg('');
-  }, [chapter._id, chapter.mapStyle, chapter.backgroundImage]);
+  }, [chapter._id, chapter.mapStyle, chapter.backgroundImage, chapter.youngExplorers]);
 
   const save = async () => {
     try {
       setSaving(true);
       setMsg('');
-      const res = await curriculumService.updateChapterDisplay(chapter._id, { mapStyle, backgroundImage: bgUrl.trim() });
+      const res = await curriculumService.updateChapterDisplay(chapter._id, { mapStyle, backgroundImage: bgUrl.trim(), youngExplorers });
       onSaved(res.data);
       setMsg('Saved. Students see it the next time they open the chapter.');
     } catch (err) {
@@ -162,7 +164,7 @@ const ChapterDisplayCard = ({ chapter, onSaved }) => {
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-6">
-      <h2 className="text-xl font-semibold text-gray-800 mb-1">Chapter Map Style &amp; Background</h2>
+      <h2 className="text-xl font-semibold text-gray-800 mb-1">Chapter Map Style, Background &amp; Young Explorers</h2>
       <p className="text-xs text-gray-500 mb-4">{chapter.title}</p>
       <div className="flex flex-col lg:flex-row gap-5">
         <div className="lg:w-1/2">
@@ -198,6 +200,18 @@ const ChapterDisplayCard = ({ chapter, onSaved }) => {
           <p className="text-[11px] text-gray-500 mt-1">One image for the whole page; it stays in place while lessons scroll. A tall (portrait) image works best.</p>
         </div>
       </div>
+      <label className="mt-4 flex items-start gap-3 rounded-xl border-2 border-gray-200 px-3 py-2.5 cursor-pointer hover:border-gray-300">
+        <input
+          type="checkbox"
+          checked={youngExplorers}
+          onChange={(e) => setYoungExplorers(e.target.checked)}
+          className="mt-0.5 h-4 w-4 accent-indigo-600"
+        />
+        <span>
+          <span className="block text-sm font-bold text-gray-800">Show in Young Explorers</span>
+          <span className="block text-[11px] text-gray-500 leading-snug">Lists this chapter in the All Chapters panel's Young Explorers space, for students of every class. Only shows once the chapter is published.</span>
+        </span>
+      </label>
       <div className="flex items-center gap-3 mt-4">
         <button
           onClick={save}
@@ -653,7 +667,7 @@ const AdminPanel = () => {
           {selectedChapter && activeTab === 'curriculum' && chapters.find(c => c._id === selectedChapter) && (
             <ChapterDisplayCard
               chapter={chapters.find(c => c._id === selectedChapter)}
-              onSaved={(saved) => setChapters(prev => prev.map(c => c._id === saved._id ? { ...c, mapStyle: saved.mapStyle, backgroundImage: saved.backgroundImage } : c))}
+              onSaved={(saved) => setChapters(prev => prev.map(c => c._id === saved._id ? { ...c, mapStyle: saved.mapStyle, backgroundImage: saved.backgroundImage, youngExplorers: saved.youngExplorers } : c))}
             />
           )}
 

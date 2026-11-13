@@ -67,7 +67,10 @@ const LessonComplete = () => {
   const [isChecking, setIsChecking] = useState(true);
   const { getStagedForModule, clearStagedForModule } = useReview();
   const { user, updateUser } = useAuth();
-  const { stars, moduleStars } = useStars();
+  const { stars, setTotal, getLessonEarned, clearLessonEarned } = useStars();
+  // Real numbers for the points card: what the server awarded in this lesson, and the total after it
+  const [earnedThisLesson, setEarnedThisLesson] = useState(0);
+  const [serverTotal, setServerTotal] = useState(null);
   const [scores, setScores] = useState({ best: 0, last: 0 });
   const [showConfetti, setShowConfetti] = useState(false);
   const [, setCurrentStreakCount] = useState(() => Math.max(1, Number(user?.streak) || 1));
@@ -244,6 +247,18 @@ const LessonComplete = () => {
       } catch (_) {
         fireLevelEnd(0);
       }
+      // Points: answers are awarded while the lesson runs; give the last award a moment to land,
+      // then read the server total so the card never disagrees with the "+N" pill.
+      try {
+        await new Promise((r) => setTimeout(r, 600));
+        setEarnedThisLesson(getLessonEarned(currentModuleId));
+        if (user?._id) {
+          const pointsService = (await import('../../../services/pointsService.js')).default;
+          const resp = await pointsService.summary({ userId: user._id });
+          const total = Number(resp?.data?.totalPoints);
+          if (Number.isFinite(total)) { setServerTotal(total); setTotal(total); }
+        }
+      } catch (_) { /* fall back to the local total */ }
       setIsChecking(false);
     })();
   }, [user, currentModuleId, items]);
@@ -341,10 +356,15 @@ const LessonComplete = () => {
     return () => { isMounted = false; };
   }, [currentModuleId, currentChapterId, currentUnitId]);
 
-  // Points calculation
-  const pointsEarned = Number(scores.last) > 0 ? scores.last : (moduleStars?.[String(currentModuleId)] || 30);
-  const totalUserPoints = (stars !== null && Number.isFinite(stars)) ? stars : (scores.best || 150);
+  // Points calculation: points the server awarded in this lesson, added onto the total before it.
+  // (Replaying a finished lesson earns nothing new, so it shows 0 and the card says so.)
+  const pointsEarned = earnedThisLesson;
+  const totalUserPoints = serverTotal ?? ((stars !== null && Number.isFinite(stars)) ? stars : 0);
   const originalPoints = Math.max(0, totalUserPoints - pointsEarned);
+  const noNewPoints = pointsEarned <= 0;
+
+  // Forget this lesson's tally once the screen closes, so a replay starts from 0
+  useEffect(() => () => clearLessonEarned(currentModuleId), [currentModuleId, clearLessonEarned]);
 
   // Set initial points on mount
   useEffect(() => {
@@ -498,7 +518,7 @@ const LessonComplete = () => {
                   ? 'bg-[#D1FADF] text-[#027A48] shadow-sm scale-100'
                   : 'bg-[#FEF3C7] text-[#92400E] shadow-2xs scale-100'
             }`}>
-              {animationPhase === 'done' ? `+${pointsEarned} added!` : `+${pointsEarned} points`}
+              {noNewPoints ? 'Points already earned' : animationPhase === 'done' ? `+${pointsEarned} added!` : `+${pointsEarned} points`}
               
               {/* Pulse ripple when adding */}
               {animationPhase === 'adding' && (
@@ -555,7 +575,7 @@ const LessonComplete = () => {
                     ? 'bg-emerald-100 text-emerald-700 font-extrabold'
                     : 'bg-slate-100 text-slate-400'
               }`}>
-                {animationPhase === 'done' ? '✓ Added' : `+${pointsEarned}`}
+                {noNewPoints ? 'Saved' : animationPhase === 'done' ? '✓ Added' : `+${pointsEarned}`}
               </div>
             </div>
           </div>

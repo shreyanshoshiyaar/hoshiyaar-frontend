@@ -55,6 +55,13 @@ const resetPassword = (phone, otp, newPassword, opts) => {
   return api.post('/api/auth/reset-password', { phone, otp, newPassword }, opts);
 };
 
+// Frees this device's place in the 3-device limit (token passed in, since logout clears it)
+const logoutDevice = (token) => api.post('/api/auth/logout', {}, { headers: { Authorization: `Bearer ${token}` } });
+
+// Blocked by the 3-device limit: sign one of the other devices out and finish signing in here
+const signOutOtherDeviceAndLogin = ({ ticket, deviceSessionId, guestUserId }, opts) =>
+  api.post('/api/auth/devices/sign-out-and-continue', { ticket, deviceSessionId, guestUserId, platform: getPlatform() }, opts);
+
 const loginWithOtp = ({ phone, otp, newPassword, guestUserId }, opts) => {
   return api.post('/api/auth/login-with-otp', { phone, otp, newPassword, guestUserId, platform: getPlatform() }, opts);
 };
@@ -249,6 +256,8 @@ const authService = {
   verifyOtp,
   resetPassword,
   loginWithOtp,
+  signOutOtherDeviceAndLogin,
+  logoutDevice,
   updateOnboarding,
   updateProfile,
   updateActivity,

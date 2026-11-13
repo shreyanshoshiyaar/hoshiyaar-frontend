@@ -22,6 +22,17 @@ import { isNewStyleStory } from '../../../utils/comicStyleHelper.js';
 import { isMissionCompleteItem } from '../../../utils/missionCompleteHelper.js';
 import { getCharacterImage, useCharacterImages } from '../../../utils/characterImages.js';
 import { vibrateLight } from '../../../utils/vibrationService.js';
+import { playTtsAudio } from '../../../utils/audioPreloadService.js';
+
+// Concept cards read themselves aloud; the mute button turns that off and it stays off
+const CONCEPT_MUTE_KEY = 'concept_audio_muted';
+const plainText = (html = '') => String(html)
+  .replace(/<br\s*\/?>/gi, ' ')
+  .replace(/<[^>]*>/g, ' ')
+  .replace(/&nbsp;/g, ' ')
+  .replace(/&amp;/g, '&')
+  .replace(/\s+/g, ' ')
+  .trim();
 // Large Lottie files are now fetched from the public folder to avoid build issues
 
 const ComicLightbox = ({ src, alt, onClose }) => {
@@ -807,6 +818,45 @@ export default function ConceptPage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [goNext, showExitConfirm, isComicActive, comicReadTimer, shouldShowComic, shouldShowVideo, videoAcknowledged, comicSlideIndex, introComicUrls, actualType]);
 
+  // ── Narration: each concept card is read aloud in its speaker's voice as it opens ──
+  const [audioMuted, setAudioMuted] = useState(() => {
+    try { return localStorage.getItem(CONCEPT_MUTE_KEY) === 'true'; } catch { return false; }
+  });
+  const [speaking, setSpeaking] = useState(false);
+  const narrationRef = useRef(null);
+  const stopNarration = useCallback(() => {
+    const a = narrationRef.current;
+    narrationRef.current = null;
+    if (a) { try { a.onended = null; a.onerror = null; a.pause(); } catch { /* already stopped */ } }
+    try { window.speechSynthesis?.cancel(); } catch { /* not supported */ }
+    setSpeaking(false);
+  }, []);
+  const narrationText = item && !isVideoShowing && !shouldShowComic
+    ? [item.title, plainText(item.text || item.content || '')].filter(Boolean).join('. ')
+    : '';
+  const narrationSpeaker = item?.speaker || 'Hoshi';
+  const speakCard = useCallback(() => {
+    stopNarration();
+    if (!narrationText) return;
+    setSpeaking(true);
+    narrationRef.current = playTtsAudio(narrationText, narrationSpeaker, () => setSpeaking(false));
+  }, [narrationText, narrationSpeaker, stopNarration]);
+  // Plays when a card opens (and stops when it changes or the lesson closes), unless muted
+  useEffect(() => {
+    if (audioMuted || !narrationText) { stopNarration(); return undefined; }
+    const t = setTimeout(speakCard, 350); // let the card animate in first
+    return () => { clearTimeout(t); stopNarration(); };
+  }, [index, narrationText, audioMuted]); // eslint-disable-line react-hooks/exhaustive-deps
+  const toggleMute = () => {
+    vibrateLight();
+    setAudioMuted((m) => {
+      const next = !m;
+      try { localStorage.setItem(CONCEPT_MUTE_KEY, String(next)); } catch { /* storage unavailable */ }
+      if (next) stopNarration();
+      return next;
+    });
+  };
+
   if (loading) return <SimpleLoading />;
   if (error) return (
     <div className="h-screen w-full flex items-center justify-center bg-white">
@@ -1100,11 +1150,34 @@ export default function ConceptPage() {
                     />
                   </div>
 
-                  {/* Speaker name label at bottom (like second screenshot) */}
-                  <div className="flex items-center justify-center mt-3 sm:mt-4 mb-1">
+                  {/* Speaker name label at bottom, with the narration mute button */}
+                  <div className="flex items-center justify-center gap-2.5 mt-3 sm:mt-4 mb-1">
                     <span className="text-sm sm:text-base font-black text-slate-600 uppercase tracking-wider">
                       {item.speaker || 'Hoshi'}
                     </span>
+                    <button
+                      type="button"
+                      onClick={toggleMute}
+                      aria-pressed={audioMuted}
+                      aria-label={audioMuted ? 'Turn voice on' : 'Mute voice'}
+                      title={audioMuted ? 'Turn voice on' : 'Mute voice'}
+                      className={`relative w-10 h-10 rounded-full flex items-center justify-center border-2 shadow-sm active:scale-95 transition-all ${
+                        audioMuted ? 'bg-slate-100 border-slate-200 text-slate-400' : 'bg-white border-blue-200 text-blue-600'
+                      }`}
+                    >
+                      {!audioMuted && speaking && <span className="absolute inset-0 rounded-full ring-2 ring-blue-300 animate-ping" aria-hidden="true" />}
+                      {audioMuted ? (
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M11 5L6 9H3v6h3l5 4V5z" fill="currentColor" />
+                          <path d="M22 9l-6 6M16 9l6 6" />
+                        </svg>
+                      ) : (
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M11 5L6 9H3v6h3l5 4V5z" fill="currentColor" />
+                          <path d="M15.5 8.5a5 5 0 010 7M18.5 5.5a9 9 0 010 13" />
+                        </svg>
+                      )}
+                    </button>
                   </div>
                 </div>
               );
