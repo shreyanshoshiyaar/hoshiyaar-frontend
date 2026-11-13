@@ -12629,7 +12629,7 @@
   },
   {
     "name": "moon",
-    "folder": "light",
+    "folder": "sky",
     "draws": "The full Moon: a pale grey disc with craters",
     "size": [
       12,
@@ -13842,7 +13842,7 @@
   },
   {
     "name": "sun",
-    "folder": "light",
+    "folder": "sky",
     "draws": "The Sun: a round orange-yellow disc with short rays",
     "size": [
       20,
