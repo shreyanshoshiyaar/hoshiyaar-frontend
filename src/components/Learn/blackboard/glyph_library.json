@@ -11386,7 +11386,7 @@
   },
   {
     "name": "candle",
-    "folder": "additions",
+    "folder": "light",
     "draws": "A white candle with an orange flame",
     "size": [
       4,
@@ -12629,7 +12629,7 @@
   },
   {
     "name": "moon",
-    "folder": "additions",
+    "folder": "light",
     "draws": "The full Moon: a pale grey disc with craters",
     "size": [
       12,
@@ -13842,7 +13842,7 @@
   },
   {
     "name": "sun",
-    "folder": "additions",
+    "folder": "light",
     "draws": "The Sun: a round orange-yellow disc with short rays",
     "size": [
       20,
