@@ -65821,10 +65821,10 @@
   {
     "name": "spinning_top",
     "folder": "objects",
-    "draws": "A wooden spinning top (lattu) standing on its point",
+    "draws": "A wooden spinning top (lattu) on its point",
     "size": [
-      10,
-      14
+      9,
+      13
     ],
     "settings": {
       "pos": "centre [x, y]",
@@ -65838,85 +65838,92 @@
       ],
       "tip": [
         0,
-        7
+        6
       ],
       "top": [
         0,
-        -7
+        -6
       ]
     },
     "parts": [
       {
         "shape": "poly",
-        "style": "normal",
-        "color": "#E0703A",
         "closed": true,
+        "color": "#C9733A",
+        "fill": 1,
         "points": [
           [
-            -5,
+            -4.2,
             -2
           ],
           [
-            5,
+            4.2,
             -2
+          ],
+          [
+            3.6,
+            0.4
           ],
           [
             0,
-            7
+            6
+          ],
+          [
+            -3.6,
+            0.4
           ]
         ],
-        "fill": true
+        "style": "normal"
       },
       {
-        "shape": "poly",
-        "style": "normal",
-        "color": "#FFB347",
-        "closed": true,
-        "points": [
-          [
-            -5,
-            -2
-          ],
-          [
-            5,
-            -2
-          ],
-          [
-            4,
-            -4
-          ],
-          [
-            -4,
-            -4
-          ]
-        ],
-        "fill": true
-      },
-      {
-        "shape": "line",
-        "style": "normal",
+        "shape": "rect",
         "color": "#8A5A3A",
-        "from": [
+        "at": [
           0,
-          -4
+          -3.2
         ],
-        "to": [
+        "w": 8.4,
+        "h": 2.4,
+        "fill": 1,
+        "style": "normal"
+      },
+      {
+        "shape": "rect",
+        "color": "#E0A458",
+        "at": [
           0,
-          -7
-        ]
+          -5.2
+        ],
+        "w": 1.4,
+        "h": 2,
+        "fill": 1,
+        "style": "normal"
       },
       {
         "shape": "line",
-        "style": "normal",
-        "color": "#8A3A1A",
+        "color": "#FFD84D",
         "from": [
-          -4.5,
-          -1
+          -3.8,
+          -0.6
         ],
         "to": [
-          4.5,
-          -1
-        ]
+          3.8,
+          -0.6
+        ],
+        "style": "normal"
+      },
+      {
+        "shape": "line",
+        "color": "#F4F8FF",
+        "from": [
+          0,
+          4.6
+        ],
+        "to": [
+          0,
+          6
+        ],
+        "style": "normal"
       }
     ]
   },
@@ -96110,10 +96117,10 @@
   {
     "name": "satellite",
     "folder": "sky",
-    "draws": "An Earth-observation satellite: a box body with two blue solar wings and a camera",
+    "draws": "An Earth-observation satellite: a box body, two blue solar wings, a camera",
     "size": [
       26,
-      8
+      12
     ],
     "settings": {
       "pos": "centre [x, y]",
@@ -96127,82 +96134,274 @@
       ],
       "camera": [
         0,
-        3.5
+        4.6
       ]
     },
     "parts": [
       {
-        "shape": "rect",
-        "style": "normal",
-        "color": "#2E5FA8",
-        "at": [
-          -8.5,
-          0
+        "shape": "line",
+        "color": "#B8C0C8",
+        "points": [
+          [
+            -3.2,
+            0
+          ],
+          [
+            -4.6,
+            0
+          ]
         ],
-        "w": 9,
-        "h": 4,
-        "fill": 1
+        "style": "normal"
       },
       {
         "shape": "rect",
-        "style": "normal",
-        "color": "#2E5FA8",
+        "color": "#2E6FD6",
         "at": [
-          8.5,
+          -8.6,
           0
         ],
-        "w": 9,
-        "h": 4,
-        "fill": 1
+        "w": 8,
+        "h": 4.6,
+        "fill": 1,
+        "style": "normal"
       },
       {
         "shape": "line",
-        "style": "normal",
         "color": "#9ED8FF",
-        "from": [
-          -13,
-          0
+        "points": [
+          [
+            -10.6,
+            -2.3
+          ],
+          [
+            -10.6,
+            2.3
+          ]
         ],
-        "to": [
-          -4,
-          0
-        ]
+        "style": "normal"
       },
       {
         "shape": "line",
-        "style": "normal",
         "color": "#9ED8FF",
-        "from": [
-          4,
-          0
+        "points": [
+          [
+            -8.6,
+            -2.3
+          ],
+          [
+            -8.6,
+            2.3
+          ]
         ],
-        "to": [
-          13,
-          0
-        ]
+        "style": "normal"
+      },
+      {
+        "shape": "line",
+        "color": "#9ED8FF",
+        "points": [
+          [
+            -6.6,
+            -2.3
+          ],
+          [
+            -6.6,
+            2.3
+          ]
+        ],
+        "style": "normal"
+      },
+      {
+        "shape": "line",
+        "color": "#9ED8FF",
+        "points": [
+          [
+            -4.6,
+            0
+          ],
+          [
+            -12.6,
+            0
+          ]
+        ],
+        "style": "normal"
+      },
+      {
+        "shape": "line",
+        "color": "#B8C0C8",
+        "points": [
+          [
+            3.2,
+            0
+          ],
+          [
+            4.6,
+            0
+          ]
+        ],
+        "style": "normal"
       },
       {
         "shape": "rect",
-        "style": "normal",
-        "color": "#D4DCE4",
+        "color": "#2E6FD6",
+        "at": [
+          8.6,
+          0
+        ],
+        "w": 8,
+        "h": 4.6,
+        "fill": 1,
+        "style": "normal"
+      },
+      {
+        "shape": "line",
+        "color": "#9ED8FF",
+        "points": [
+          [
+            6.6,
+            -2.3
+          ],
+          [
+            6.6,
+            2.3
+          ]
+        ],
+        "style": "normal"
+      },
+      {
+        "shape": "line",
+        "color": "#9ED8FF",
+        "points": [
+          [
+            8.6,
+            -2.3
+          ],
+          [
+            8.6,
+            2.3
+          ]
+        ],
+        "style": "normal"
+      },
+      {
+        "shape": "line",
+        "color": "#9ED8FF",
+        "points": [
+          [
+            10.6,
+            -2.3
+          ],
+          [
+            10.6,
+            2.3
+          ]
+        ],
+        "style": "normal"
+      },
+      {
+        "shape": "line",
+        "color": "#9ED8FF",
+        "points": [
+          [
+            4.6,
+            0
+          ],
+          [
+            12.6,
+            0
+          ]
+        ],
+        "style": "normal"
+      },
+      {
+        "shape": "rect",
+        "color": "#D9B44A",
         "at": [
           0,
           0
         ],
-        "w": 6,
-        "h": 6,
-        "fill": 1
+        "w": 6.4,
+        "h": 6.4,
+        "fill": 1,
+        "style": "normal"
+      },
+      {
+        "shape": "line",
+        "color": "#8A6A20",
+        "points": [
+          [
+            -3.2,
+            -1
+          ],
+          [
+            3.2,
+            -1
+          ]
+        ],
+        "style": "normal"
+      },
+      {
+        "shape": "line",
+        "color": "#8A6A20",
+        "points": [
+          [
+            -3.2,
+            1.2
+          ],
+          [
+            3.2,
+            1.2
+          ]
+        ],
+        "style": "normal"
+      },
+      {
+        "shape": "line",
+        "color": "#E8EEF5",
+        "points": [
+          [
+            0,
+            -3.2
+          ],
+          [
+            0,
+            -5.6
+          ]
+        ],
+        "style": "normal"
       },
       {
         "glyph": "circle",
-        "style": "normal",
+        "color": "#E8EEF5",
+        "at": [
+          0,
+          -5.8
+        ],
+        "r": 0.6,
+        "fill": 1,
+        "style": "normal"
+      },
+      {
+        "shape": "rect",
         "color": "#2E3640",
         "at": [
           0,
-          3.6
+          3.9
         ],
-        "r": 1.2,
-        "fill": 1
+        "w": 2.6,
+        "h": 1.6,
+        "fill": 1,
+        "style": "normal"
+      },
+      {
+        "glyph": "circle",
+        "color": "#6FB7FF",
+        "at": [
+          0,
+          4.6
+        ],
+        "r": 0.8,
+        "fill": 1,
+        "style": "normal"
       }
     ]
   },
@@ -98033,6 +98232,5848 @@
           6,
           6.5
         ]
+      }
+    ]
+  },
+  {
+    "name": "ball_lit_right",
+    "folder": "light",
+    "draws": "A ball or the Moon lit from the right: right half pale gold (lit), left half deep navy (dark), light rim; use for top views with the Sun on the right",
+    "size": [
+      6,
+      6
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "lit": [
+        2,
+        0
+      ],
+      "dark": [
+        -2,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "color": "#1B2A4A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 3,
+        "fill": 1,
+        "style": "normal"
+      },
+      {
+        "shape": "poly",
+        "closed": true,
+        "color": "#FFE08A",
+        "fill": 1,
+        "points": [
+          [
+            0,
+            -3
+          ],
+          [
+            0.78,
+            -2.9
+          ],
+          [
+            1.5,
+            -2.6
+          ],
+          [
+            2.12,
+            -2.12
+          ],
+          [
+            2.6,
+            -1.5
+          ],
+          [
+            2.9,
+            -0.78
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            2.9,
+            0.78
+          ],
+          [
+            2.6,
+            1.5
+          ],
+          [
+            2.12,
+            2.12
+          ],
+          [
+            1.5,
+            2.6
+          ],
+          [
+            0.78,
+            2.9
+          ],
+          [
+            0,
+            3
+          ]
+        ],
+        "style": "normal"
+      },
+      {
+        "glyph": "circle",
+        "color": "#9FB6DA",
+        "at": [
+          0,
+          0
+        ],
+        "r": 3,
+        "fill": 0,
+        "style": "normal"
+      }
+    ]
+  },
+  {
+    "name": "child_top",
+    "folder": "body",
+    "draws": "Myra seen from straight above: brown hair with a ponytail, goggles strap across her head, purple jacket shoulders",
+    "size": [
+      12,
+      8
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "head": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#8E5BD6",
+        "fill": 1,
+        "points": [
+          [
+            5.8,
+            0.6
+          ],
+          [
+            5.52,
+            1.59
+          ],
+          [
+            4.69,
+            2.48
+          ],
+          [
+            3.41,
+            3.19
+          ],
+          [
+            1.79,
+            3.64
+          ],
+          [
+            0,
+            3.8
+          ],
+          [
+            -1.79,
+            3.64
+          ],
+          [
+            -3.41,
+            3.19
+          ],
+          [
+            -4.69,
+            2.48
+          ],
+          [
+            -5.52,
+            1.59
+          ],
+          [
+            -5.8,
+            0.6
+          ],
+          [
+            -5.52,
+            -0.39
+          ],
+          [
+            -4.69,
+            -1.28
+          ],
+          [
+            -3.41,
+            -1.99
+          ],
+          [
+            -1.79,
+            -2.44
+          ],
+          [
+            0,
+            -2.6
+          ],
+          [
+            1.79,
+            -2.44
+          ],
+          [
+            3.41,
+            -1.99
+          ],
+          [
+            4.69,
+            -1.28
+          ],
+          [
+            5.52,
+            -0.39
+          ]
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#C9A0E8",
+        "fill": 0,
+        "points": [
+          [
+            5.8,
+            0.6
+          ],
+          [
+            5.52,
+            1.59
+          ],
+          [
+            4.69,
+            2.48
+          ],
+          [
+            3.41,
+            3.19
+          ],
+          [
+            1.79,
+            3.64
+          ],
+          [
+            0,
+            3.8
+          ],
+          [
+            -1.79,
+            3.64
+          ],
+          [
+            -3.41,
+            3.19
+          ],
+          [
+            -4.69,
+            2.48
+          ],
+          [
+            -5.52,
+            1.59
+          ],
+          [
+            -5.8,
+            0.6
+          ],
+          [
+            -5.52,
+            -0.39
+          ],
+          [
+            -4.69,
+            -1.28
+          ],
+          [
+            -3.41,
+            -1.99
+          ],
+          [
+            -1.79,
+            -2.44
+          ],
+          [
+            0,
+            -2.6
+          ],
+          [
+            1.79,
+            -2.44
+          ],
+          [
+            3.41,
+            -1.99
+          ],
+          [
+            4.69,
+            -1.28
+          ],
+          [
+            5.52,
+            -0.39
+          ]
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#5A3418",
+        "at": [
+          0,
+          3.4
+        ],
+        "r": 1.3,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#6B3F1F",
+        "at": [
+          0,
+          0
+        ],
+        "r": 3,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#7FD3FF",
+        "from": [
+          -2.9,
+          -0.6
+        ],
+        "to": [
+          2.9,
+          -0.6
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "at": [
+          0,
+          0
+        ],
+        "r": 3,
+        "fill": 0
+      }
+    ]
+  },
+  {
+    "name": "girl_front",
+    "folder": "body",
+    "draws": "Myra standing, front view: brown hair, goggles on her head, purple jacket, no arms (draw the arm and stick on the board)",
+    "size": [
+      10,
+      29
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "head": [
+        0,
+        -10
+      ],
+      "shoulder_l": [
+        -4,
+        -5
+      ],
+      "shoulder_r": [
+        4,
+        -5
+      ],
+      "feet": [
+        0,
+        14
+      ]
+    },
+    "parts": [
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#3A4A5E",
+        "from": [
+          -2,
+          3
+        ],
+        "to": [
+          -2.5,
+          14
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#3A4A5E",
+        "from": [
+          2,
+          3
+        ],
+        "to": [
+          2.5,
+          14
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#8E5BD6",
+        "fill": 1,
+        "points": [
+          [
+            -4,
+            -6
+          ],
+          [
+            4,
+            -6
+          ],
+          [
+            5,
+            4
+          ],
+          [
+            -5,
+            4
+          ]
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#F2B47E",
+        "at": [
+          0,
+          -10
+        ],
+        "r": 3.3,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#6B3F1F",
+        "fill": 1,
+        "points": [
+          [
+            -3.6,
+            -10
+          ],
+          [
+            -3.2,
+            -13
+          ],
+          [
+            0,
+            -14.2
+          ],
+          [
+            3.2,
+            -13
+          ],
+          [
+            3.6,
+            -10
+          ],
+          [
+            2.6,
+            -12
+          ],
+          [
+            -2.6,
+            -12
+          ]
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#7FD3FF",
+        "from": [
+          -3.2,
+          -12.6
+        ],
+        "to": [
+          3.2,
+          -12.6
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B2A4A",
+        "at": [
+          -1.2,
+          -10
+        ],
+        "r": 0.4,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B2A4A",
+        "at": [
+          1.2,
+          -10
+        ],
+        "r": 0.4,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "glass_table",
+    "folder": "objects",
+    "draws": "A flat glass table top seen at a slant (see-through blue parallelogram), for showing things above, on or below a flat plane",
+    "size": [
+      136,
+      20
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "front_left": [
+        -68,
+        10
+      ],
+      "front_right": [
+        52,
+        10
+      ],
+      "back_left": [
+        -52,
+        -10
+      ],
+      "back_right": [
+        68,
+        -10
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "closed": true,
+        "color": "#9ED8FF",
+        "fill": 0.16,
+        "points": [
+          [
+            -68,
+            10
+          ],
+          [
+            52,
+            10
+          ],
+          [
+            68,
+            -10
+          ],
+          [
+            -52,
+            -10
+          ]
+        ],
+        "style": "normal"
+      },
+      {
+        "shape": "line",
+        "color": "#CFEFFF",
+        "points": [
+          [
+            -68,
+            10
+          ],
+          [
+            52,
+            10
+          ]
+        ],
+        "style": "normal"
+      }
+    ]
+  },
+  {
+    "name": "head_shadow",
+    "folder": "light",
+    "draws": "The shadow of a child's head and shoulders, dark grey with black zig-zag hatching so it shows on a lit ball",
+    "size": [
+      18,
+      19
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "head": [
+        0,
+        -5
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A4350",
+        "at": [
+          0,
+          -5
+        ],
+        "r": 5,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#3A4350",
+        "fill": 1,
+        "points": [
+          [
+            -9,
+            9
+          ],
+          [
+            -7,
+            2
+          ],
+          [
+            -3,
+            0
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            7,
+            2
+          ],
+          [
+            9,
+            9
+          ]
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": false,
+        "color": "#000000",
+        "points": [
+          [
+            -4,
+            -8.8
+          ],
+          [
+            -3,
+            -7.2
+          ],
+          [
+            -2,
+            -8.8
+          ],
+          [
+            -1,
+            -7.2
+          ],
+          [
+            0,
+            -8.8
+          ],
+          [
+            1,
+            -7.2
+          ],
+          [
+            2,
+            -8.8
+          ],
+          [
+            3,
+            -7.2
+          ],
+          [
+            4,
+            -8.8
+          ]
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": false,
+        "color": "#000000",
+        "points": [
+          [
+            -4,
+            -4.8
+          ],
+          [
+            -3,
+            -3.2
+          ],
+          [
+            -2,
+            -4.8
+          ],
+          [
+            -1,
+            -3.2
+          ],
+          [
+            0,
+            -4.8
+          ],
+          [
+            1,
+            -3.2
+          ],
+          [
+            2,
+            -4.8
+          ],
+          [
+            3,
+            -3.2
+          ],
+          [
+            4,
+            -4.8
+          ]
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": false,
+        "color": "#000000",
+        "points": [
+          [
+            -8,
+            -0.8
+          ],
+          [
+            -6,
+            0.8
+          ],
+          [
+            -4,
+            -0.8
+          ],
+          [
+            -2,
+            0.8
+          ],
+          [
+            0,
+            -0.8
+          ],
+          [
+            2,
+            0.8
+          ],
+          [
+            4,
+            -0.8
+          ],
+          [
+            6,
+            0.8
+          ],
+          [
+            8,
+            -0.8
+          ]
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": false,
+        "color": "#000000",
+        "points": [
+          [
+            -8,
+            3.2
+          ],
+          [
+            -6,
+            4.8
+          ],
+          [
+            -4,
+            3.2
+          ],
+          [
+            -2,
+            4.8
+          ],
+          [
+            0,
+            3.2
+          ],
+          [
+            2,
+            4.8
+          ],
+          [
+            4,
+            3.2
+          ],
+          [
+            6,
+            4.8
+          ],
+          [
+            8,
+            3.2
+          ]
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": false,
+        "color": "#000000",
+        "points": [
+          [
+            -8,
+            6.2
+          ],
+          [
+            -6,
+            7.8
+          ],
+          [
+            -4,
+            6.2
+          ],
+          [
+            -2,
+            7.8
+          ],
+          [
+            0,
+            6.2
+          ],
+          [
+            2,
+            7.8
+          ],
+          [
+            4,
+            6.2
+          ],
+          [
+            6,
+            7.8
+          ],
+          [
+            8,
+            6.2
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "moon_bite",
+    "folder": "sky",
+    "draws": "An impossible Moon picture: a bright disc with a round dark bite out of its upper left (never a phase). Base radius 17",
+    "size": [
+      34,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "tip1": [
+        -17,
+        -2
+      ],
+      "tip2": [
+        -2,
+        -17
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#FFE08A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#1B2A4A",
+        "fill": 1,
+        "points": [
+          [
+            -15.87,
+            -6.09
+          ],
+          [
+            -15.34,
+            -7.32
+          ],
+          [
+            -14.72,
+            -8.5
+          ],
+          [
+            -14.01,
+            -9.63
+          ],
+          [
+            -13.21,
+            -10.7
+          ],
+          [
+            -12.33,
+            -11.7
+          ],
+          [
+            -11.38,
+            -12.63
+          ],
+          [
+            -10.35,
+            -13.49
+          ],
+          [
+            -9.26,
+            -14.26
+          ],
+          [
+            -8.11,
+            -14.94
+          ],
+          [
+            -6.91,
+            -15.53
+          ],
+          [
+            -5.67,
+            -16.02
+          ],
+          [
+            -4.4,
+            -16.42
+          ],
+          [
+            -3.1,
+            -16.72
+          ],
+          [
+            -1.78,
+            -16.91
+          ],
+          [
+            -0.45,
+            -16.99
+          ],
+          [
+            0.96,
+            -16.84
+          ],
+          [
+            1.52,
+            -16.01
+          ],
+          [
+            2.01,
+            -15.14
+          ],
+          [
+            2.43,
+            -14.23
+          ],
+          [
+            2.78,
+            -13.29
+          ],
+          [
+            3.05,
+            -12.33
+          ],
+          [
+            3.24,
+            -11.34
+          ],
+          [
+            3.36,
+            -10.35
+          ],
+          [
+            3.4,
+            -9.35
+          ],
+          [
+            3.36,
+            -8.35
+          ],
+          [
+            3.24,
+            -7.36
+          ],
+          [
+            3.05,
+            -6.37
+          ],
+          [
+            2.78,
+            -5.41
+          ],
+          [
+            2.43,
+            -4.47
+          ],
+          [
+            2.01,
+            -3.56
+          ],
+          [
+            1.52,
+            -2.69
+          ],
+          [
+            0.96,
+            -1.86
+          ],
+          [
+            0.35,
+            -1.07
+          ],
+          [
+            -0.33,
+            -0.33
+          ],
+          [
+            -1.07,
+            0.35
+          ],
+          [
+            -1.86,
+            0.96
+          ],
+          [
+            -2.69,
+            1.52
+          ],
+          [
+            -3.56,
+            2.01
+          ],
+          [
+            -4.47,
+            2.43
+          ],
+          [
+            -5.41,
+            2.78
+          ],
+          [
+            -6.37,
+            3.05
+          ],
+          [
+            -7.36,
+            3.24
+          ],
+          [
+            -8.35,
+            3.36
+          ],
+          [
+            -9.35,
+            3.4
+          ],
+          [
+            -10.35,
+            3.36
+          ],
+          [
+            -11.34,
+            3.24
+          ],
+          [
+            -12.33,
+            3.05
+          ],
+          [
+            -13.29,
+            2.78
+          ],
+          [
+            -14.23,
+            2.43
+          ],
+          [
+            -15.14,
+            2.01
+          ],
+          [
+            -16.01,
+            1.52
+          ],
+          [
+            -16.84,
+            0.96
+          ],
+          [
+            -16.99,
+            -0.45
+          ],
+          [
+            -16.91,
+            -1.78
+          ],
+          [
+            -16.72,
+            -3.1
+          ],
+          [
+            -16.42,
+            -4.4
+          ],
+          [
+            -16.02,
+            -5.67
+          ]
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9FB6DA",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 0
+      }
+    ]
+  },
+  {
+    "name": "moon_phase_000",
+    "folder": "sky",
+    "draws": "The Moon (or a ball) as seen from Earth at 0° round its orbit from the Sun's side: new Moon (dark). Base radius 17; scale = r/17; rotate turns the lit side",
+    "size": [
+      34,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        17,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B2A4A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9FB6DA",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 0
+      }
+    ]
+  },
+  {
+    "name": "moon_phase_015",
+    "folder": "sky",
+    "draws": "The Moon (or a ball) as seen from Earth at 15° round its orbit from the Sun's side: Moon phase 15°: 2% lit, lit part on the right. Base radius 17; scale = r/17; rotate turns the lit side",
+    "size": [
+      34,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        17,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B2A4A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9FB6DA",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 0
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#FFE08A",
+        "fill": 1,
+        "points": [
+          [
+            0,
+            -17
+          ],
+          [
+            3.32,
+            -16.67
+          ],
+          [
+            6.51,
+            -15.71
+          ],
+          [
+            9.44,
+            -14.13
+          ],
+          [
+            12.02,
+            -12.02
+          ],
+          [
+            14.13,
+            -9.44
+          ],
+          [
+            15.71,
+            -6.51
+          ],
+          [
+            16.67,
+            -3.32
+          ],
+          [
+            17,
+            0
+          ],
+          [
+            16.67,
+            3.32
+          ],
+          [
+            15.71,
+            6.51
+          ],
+          [
+            14.13,
+            9.44
+          ],
+          [
+            12.02,
+            12.02
+          ],
+          [
+            9.44,
+            14.13
+          ],
+          [
+            6.51,
+            15.71
+          ],
+          [
+            3.32,
+            16.67
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            3.2,
+            16.67
+          ],
+          [
+            6.28,
+            15.71
+          ],
+          [
+            9.12,
+            14.13
+          ],
+          [
+            11.61,
+            12.02
+          ],
+          [
+            13.65,
+            9.44
+          ],
+          [
+            15.17,
+            6.51
+          ],
+          [
+            16.11,
+            3.32
+          ],
+          [
+            16.42,
+            0
+          ],
+          [
+            16.11,
+            -3.32
+          ],
+          [
+            15.17,
+            -6.51
+          ],
+          [
+            13.65,
+            -9.44
+          ],
+          [
+            11.61,
+            -12.02
+          ],
+          [
+            9.12,
+            -14.13
+          ],
+          [
+            6.28,
+            -15.71
+          ],
+          [
+            3.2,
+            -16.67
+          ],
+          [
+            0,
+            -17
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "moon_phase_030",
+    "folder": "sky",
+    "draws": "The Moon (or a ball) as seen from Earth at 30° round its orbit from the Sun's side: Moon phase 30°: 7% lit, lit part on the right. Base radius 17; scale = r/17; rotate turns the lit side",
+    "size": [
+      34,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        17,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B2A4A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9FB6DA",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 0
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#FFE08A",
+        "fill": 1,
+        "points": [
+          [
+            0,
+            -17
+          ],
+          [
+            3.32,
+            -16.67
+          ],
+          [
+            6.51,
+            -15.71
+          ],
+          [
+            9.44,
+            -14.13
+          ],
+          [
+            12.02,
+            -12.02
+          ],
+          [
+            14.13,
+            -9.44
+          ],
+          [
+            15.71,
+            -6.51
+          ],
+          [
+            16.67,
+            -3.32
+          ],
+          [
+            17,
+            0
+          ],
+          [
+            16.67,
+            3.32
+          ],
+          [
+            15.71,
+            6.51
+          ],
+          [
+            14.13,
+            9.44
+          ],
+          [
+            12.02,
+            12.02
+          ],
+          [
+            9.44,
+            14.13
+          ],
+          [
+            6.51,
+            15.71
+          ],
+          [
+            3.32,
+            16.67
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            2.87,
+            16.67
+          ],
+          [
+            5.63,
+            15.71
+          ],
+          [
+            8.18,
+            14.13
+          ],
+          [
+            10.41,
+            12.02
+          ],
+          [
+            12.24,
+            9.44
+          ],
+          [
+            13.6,
+            6.51
+          ],
+          [
+            14.44,
+            3.32
+          ],
+          [
+            14.72,
+            0
+          ],
+          [
+            14.44,
+            -3.32
+          ],
+          [
+            13.6,
+            -6.51
+          ],
+          [
+            12.24,
+            -9.44
+          ],
+          [
+            10.41,
+            -12.02
+          ],
+          [
+            8.18,
+            -14.13
+          ],
+          [
+            5.63,
+            -15.71
+          ],
+          [
+            2.87,
+            -16.67
+          ],
+          [
+            0,
+            -17
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "moon_phase_045",
+    "folder": "sky",
+    "draws": "The Moon (or a ball) as seen from Earth at 45° round its orbit from the Sun's side: Moon phase 45°: 15% lit, lit part on the right. Base radius 17; scale = r/17; rotate turns the lit side",
+    "size": [
+      34,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        17,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B2A4A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9FB6DA",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 0
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#FFE08A",
+        "fill": 1,
+        "points": [
+          [
+            0,
+            -17
+          ],
+          [
+            3.32,
+            -16.67
+          ],
+          [
+            6.51,
+            -15.71
+          ],
+          [
+            9.44,
+            -14.13
+          ],
+          [
+            12.02,
+            -12.02
+          ],
+          [
+            14.13,
+            -9.44
+          ],
+          [
+            15.71,
+            -6.51
+          ],
+          [
+            16.67,
+            -3.32
+          ],
+          [
+            17,
+            0
+          ],
+          [
+            16.67,
+            3.32
+          ],
+          [
+            15.71,
+            6.51
+          ],
+          [
+            14.13,
+            9.44
+          ],
+          [
+            12.02,
+            12.02
+          ],
+          [
+            9.44,
+            14.13
+          ],
+          [
+            6.51,
+            15.71
+          ],
+          [
+            3.32,
+            16.67
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            2.35,
+            16.67
+          ],
+          [
+            4.6,
+            15.71
+          ],
+          [
+            6.68,
+            14.13
+          ],
+          [
+            8.5,
+            12.02
+          ],
+          [
+            9.99,
+            9.44
+          ],
+          [
+            11.11,
+            6.51
+          ],
+          [
+            11.79,
+            3.32
+          ],
+          [
+            12.02,
+            0
+          ],
+          [
+            11.79,
+            -3.32
+          ],
+          [
+            11.11,
+            -6.51
+          ],
+          [
+            9.99,
+            -9.44
+          ],
+          [
+            8.5,
+            -12.02
+          ],
+          [
+            6.68,
+            -14.13
+          ],
+          [
+            4.6,
+            -15.71
+          ],
+          [
+            2.35,
+            -16.67
+          ],
+          [
+            0,
+            -17
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "moon_phase_060",
+    "folder": "sky",
+    "draws": "The Moon (or a ball) as seen from Earth at 60° round its orbit from the Sun's side: Moon phase 60°: 25% lit, lit part on the right. Base radius 17; scale = r/17; rotate turns the lit side",
+    "size": [
+      34,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        17,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B2A4A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9FB6DA",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 0
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#FFE08A",
+        "fill": 1,
+        "points": [
+          [
+            0,
+            -17
+          ],
+          [
+            3.32,
+            -16.67
+          ],
+          [
+            6.51,
+            -15.71
+          ],
+          [
+            9.44,
+            -14.13
+          ],
+          [
+            12.02,
+            -12.02
+          ],
+          [
+            14.13,
+            -9.44
+          ],
+          [
+            15.71,
+            -6.51
+          ],
+          [
+            16.67,
+            -3.32
+          ],
+          [
+            17,
+            0
+          ],
+          [
+            16.67,
+            3.32
+          ],
+          [
+            15.71,
+            6.51
+          ],
+          [
+            14.13,
+            9.44
+          ],
+          [
+            12.02,
+            12.02
+          ],
+          [
+            9.44,
+            14.13
+          ],
+          [
+            6.51,
+            15.71
+          ],
+          [
+            3.32,
+            16.67
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            1.66,
+            16.67
+          ],
+          [
+            3.25,
+            15.71
+          ],
+          [
+            4.72,
+            14.13
+          ],
+          [
+            6.01,
+            12.02
+          ],
+          [
+            7.07,
+            9.44
+          ],
+          [
+            7.85,
+            6.51
+          ],
+          [
+            8.34,
+            3.32
+          ],
+          [
+            8.5,
+            0
+          ],
+          [
+            8.34,
+            -3.32
+          ],
+          [
+            7.85,
+            -6.51
+          ],
+          [
+            7.07,
+            -9.44
+          ],
+          [
+            6.01,
+            -12.02
+          ],
+          [
+            4.72,
+            -14.13
+          ],
+          [
+            3.25,
+            -15.71
+          ],
+          [
+            1.66,
+            -16.67
+          ],
+          [
+            0,
+            -17
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "moon_phase_075",
+    "folder": "sky",
+    "draws": "The Moon (or a ball) as seen from Earth at 75° round its orbit from the Sun's side: Moon phase 75°: 37% lit, lit part on the right. Base radius 17; scale = r/17; rotate turns the lit side",
+    "size": [
+      34,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        17,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B2A4A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9FB6DA",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 0
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#FFE08A",
+        "fill": 1,
+        "points": [
+          [
+            0,
+            -17
+          ],
+          [
+            3.32,
+            -16.67
+          ],
+          [
+            6.51,
+            -15.71
+          ],
+          [
+            9.44,
+            -14.13
+          ],
+          [
+            12.02,
+            -12.02
+          ],
+          [
+            14.13,
+            -9.44
+          ],
+          [
+            15.71,
+            -6.51
+          ],
+          [
+            16.67,
+            -3.32
+          ],
+          [
+            17,
+            0
+          ],
+          [
+            16.67,
+            3.32
+          ],
+          [
+            15.71,
+            6.51
+          ],
+          [
+            14.13,
+            9.44
+          ],
+          [
+            12.02,
+            12.02
+          ],
+          [
+            9.44,
+            14.13
+          ],
+          [
+            6.51,
+            15.71
+          ],
+          [
+            3.32,
+            16.67
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            0.86,
+            16.67
+          ],
+          [
+            1.68,
+            15.71
+          ],
+          [
+            2.44,
+            14.13
+          ],
+          [
+            3.11,
+            12.02
+          ],
+          [
+            3.66,
+            9.44
+          ],
+          [
+            4.06,
+            6.51
+          ],
+          [
+            4.32,
+            3.32
+          ],
+          [
+            4.4,
+            0
+          ],
+          [
+            4.32,
+            -3.32
+          ],
+          [
+            4.06,
+            -6.51
+          ],
+          [
+            3.66,
+            -9.44
+          ],
+          [
+            3.11,
+            -12.02
+          ],
+          [
+            2.44,
+            -14.13
+          ],
+          [
+            1.68,
+            -15.71
+          ],
+          [
+            0.86,
+            -16.67
+          ],
+          [
+            0,
+            -17
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "moon_phase_090",
+    "folder": "sky",
+    "draws": "The Moon (or a ball) as seen from Earth at 90° round its orbit from the Sun's side: half Moon, lit on the right. Base radius 17; scale = r/17; rotate turns the lit side",
+    "size": [
+      34,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        17,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B2A4A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9FB6DA",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 0
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#FFE08A",
+        "fill": 1,
+        "points": [
+          [
+            0,
+            -17
+          ],
+          [
+            3.32,
+            -16.67
+          ],
+          [
+            6.51,
+            -15.71
+          ],
+          [
+            9.44,
+            -14.13
+          ],
+          [
+            12.02,
+            -12.02
+          ],
+          [
+            14.13,
+            -9.44
+          ],
+          [
+            15.71,
+            -6.51
+          ],
+          [
+            16.67,
+            -3.32
+          ],
+          [
+            17,
+            0
+          ],
+          [
+            16.67,
+            3.32
+          ],
+          [
+            15.71,
+            6.51
+          ],
+          [
+            14.13,
+            9.44
+          ],
+          [
+            12.02,
+            12.02
+          ],
+          [
+            9.44,
+            14.13
+          ],
+          [
+            6.51,
+            15.71
+          ],
+          [
+            3.32,
+            16.67
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            0,
+            16.67
+          ],
+          [
+            0,
+            15.71
+          ],
+          [
+            0,
+            14.13
+          ],
+          [
+            0,
+            12.02
+          ],
+          [
+            0,
+            9.44
+          ],
+          [
+            0,
+            6.51
+          ],
+          [
+            0,
+            3.32
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            -3.32
+          ],
+          [
+            0,
+            -6.51
+          ],
+          [
+            0,
+            -9.44
+          ],
+          [
+            0,
+            -12.02
+          ],
+          [
+            0,
+            -14.13
+          ],
+          [
+            0,
+            -15.71
+          ],
+          [
+            0,
+            -16.67
+          ],
+          [
+            0,
+            -17
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "moon_phase_105",
+    "folder": "sky",
+    "draws": "The Moon (or a ball) as seen from Earth at 105° round its orbit from the Sun's side: Moon phase 105°: 63% lit, lit part on the right. Base radius 17; scale = r/17; rotate turns the lit side",
+    "size": [
+      34,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        17,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B2A4A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9FB6DA",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 0
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#FFE08A",
+        "fill": 1,
+        "points": [
+          [
+            0,
+            -17
+          ],
+          [
+            3.32,
+            -16.67
+          ],
+          [
+            6.51,
+            -15.71
+          ],
+          [
+            9.44,
+            -14.13
+          ],
+          [
+            12.02,
+            -12.02
+          ],
+          [
+            14.13,
+            -9.44
+          ],
+          [
+            15.71,
+            -6.51
+          ],
+          [
+            16.67,
+            -3.32
+          ],
+          [
+            17,
+            0
+          ],
+          [
+            16.67,
+            3.32
+          ],
+          [
+            15.71,
+            6.51
+          ],
+          [
+            14.13,
+            9.44
+          ],
+          [
+            12.02,
+            12.02
+          ],
+          [
+            9.44,
+            14.13
+          ],
+          [
+            6.51,
+            15.71
+          ],
+          [
+            3.32,
+            16.67
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            -0.86,
+            16.67
+          ],
+          [
+            -1.68,
+            15.71
+          ],
+          [
+            -2.44,
+            14.13
+          ],
+          [
+            -3.11,
+            12.02
+          ],
+          [
+            -3.66,
+            9.44
+          ],
+          [
+            -4.06,
+            6.51
+          ],
+          [
+            -4.32,
+            3.32
+          ],
+          [
+            -4.4,
+            0
+          ],
+          [
+            -4.32,
+            -3.32
+          ],
+          [
+            -4.06,
+            -6.51
+          ],
+          [
+            -3.66,
+            -9.44
+          ],
+          [
+            -3.11,
+            -12.02
+          ],
+          [
+            -2.44,
+            -14.13
+          ],
+          [
+            -1.68,
+            -15.71
+          ],
+          [
+            -0.86,
+            -16.67
+          ],
+          [
+            0,
+            -17
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "moon_phase_120",
+    "folder": "sky",
+    "draws": "The Moon (or a ball) as seen from Earth at 120° round its orbit from the Sun's side: Moon phase 120°: 75% lit, lit part on the right. Base radius 17; scale = r/17; rotate turns the lit side",
+    "size": [
+      34,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        17,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B2A4A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9FB6DA",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 0
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#FFE08A",
+        "fill": 1,
+        "points": [
+          [
+            0,
+            -17
+          ],
+          [
+            3.32,
+            -16.67
+          ],
+          [
+            6.51,
+            -15.71
+          ],
+          [
+            9.44,
+            -14.13
+          ],
+          [
+            12.02,
+            -12.02
+          ],
+          [
+            14.13,
+            -9.44
+          ],
+          [
+            15.71,
+            -6.51
+          ],
+          [
+            16.67,
+            -3.32
+          ],
+          [
+            17,
+            0
+          ],
+          [
+            16.67,
+            3.32
+          ],
+          [
+            15.71,
+            6.51
+          ],
+          [
+            14.13,
+            9.44
+          ],
+          [
+            12.02,
+            12.02
+          ],
+          [
+            9.44,
+            14.13
+          ],
+          [
+            6.51,
+            15.71
+          ],
+          [
+            3.32,
+            16.67
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            -1.66,
+            16.67
+          ],
+          [
+            -3.25,
+            15.71
+          ],
+          [
+            -4.72,
+            14.13
+          ],
+          [
+            -6.01,
+            12.02
+          ],
+          [
+            -7.07,
+            9.44
+          ],
+          [
+            -7.85,
+            6.51
+          ],
+          [
+            -8.34,
+            3.32
+          ],
+          [
+            -8.5,
+            0
+          ],
+          [
+            -8.34,
+            -3.32
+          ],
+          [
+            -7.85,
+            -6.51
+          ],
+          [
+            -7.07,
+            -9.44
+          ],
+          [
+            -6.01,
+            -12.02
+          ],
+          [
+            -4.72,
+            -14.13
+          ],
+          [
+            -3.25,
+            -15.71
+          ],
+          [
+            -1.66,
+            -16.67
+          ],
+          [
+            0,
+            -17
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "moon_phase_135",
+    "folder": "sky",
+    "draws": "The Moon (or a ball) as seen from Earth at 135° round its orbit from the Sun's side: Moon phase 135°: 85% lit, lit part on the right. Base radius 17; scale = r/17; rotate turns the lit side",
+    "size": [
+      34,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        17,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B2A4A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9FB6DA",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 0
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#FFE08A",
+        "fill": 1,
+        "points": [
+          [
+            0,
+            -17
+          ],
+          [
+            3.32,
+            -16.67
+          ],
+          [
+            6.51,
+            -15.71
+          ],
+          [
+            9.44,
+            -14.13
+          ],
+          [
+            12.02,
+            -12.02
+          ],
+          [
+            14.13,
+            -9.44
+          ],
+          [
+            15.71,
+            -6.51
+          ],
+          [
+            16.67,
+            -3.32
+          ],
+          [
+            17,
+            0
+          ],
+          [
+            16.67,
+            3.32
+          ],
+          [
+            15.71,
+            6.51
+          ],
+          [
+            14.13,
+            9.44
+          ],
+          [
+            12.02,
+            12.02
+          ],
+          [
+            9.44,
+            14.13
+          ],
+          [
+            6.51,
+            15.71
+          ],
+          [
+            3.32,
+            16.67
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            -2.35,
+            16.67
+          ],
+          [
+            -4.6,
+            15.71
+          ],
+          [
+            -6.68,
+            14.13
+          ],
+          [
+            -8.5,
+            12.02
+          ],
+          [
+            -9.99,
+            9.44
+          ],
+          [
+            -11.11,
+            6.51
+          ],
+          [
+            -11.79,
+            3.32
+          ],
+          [
+            -12.02,
+            0
+          ],
+          [
+            -11.79,
+            -3.32
+          ],
+          [
+            -11.11,
+            -6.51
+          ],
+          [
+            -9.99,
+            -9.44
+          ],
+          [
+            -8.5,
+            -12.02
+          ],
+          [
+            -6.68,
+            -14.13
+          ],
+          [
+            -4.6,
+            -15.71
+          ],
+          [
+            -2.35,
+            -16.67
+          ],
+          [
+            0,
+            -17
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "moon_phase_150",
+    "folder": "sky",
+    "draws": "The Moon (or a ball) as seen from Earth at 150° round its orbit from the Sun's side: Moon phase 150°: 93% lit, lit part on the right. Base radius 17; scale = r/17; rotate turns the lit side",
+    "size": [
+      34,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        17,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B2A4A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9FB6DA",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 0
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#FFE08A",
+        "fill": 1,
+        "points": [
+          [
+            0,
+            -17
+          ],
+          [
+            3.32,
+            -16.67
+          ],
+          [
+            6.51,
+            -15.71
+          ],
+          [
+            9.44,
+            -14.13
+          ],
+          [
+            12.02,
+            -12.02
+          ],
+          [
+            14.13,
+            -9.44
+          ],
+          [
+            15.71,
+            -6.51
+          ],
+          [
+            16.67,
+            -3.32
+          ],
+          [
+            17,
+            0
+          ],
+          [
+            16.67,
+            3.32
+          ],
+          [
+            15.71,
+            6.51
+          ],
+          [
+            14.13,
+            9.44
+          ],
+          [
+            12.02,
+            12.02
+          ],
+          [
+            9.44,
+            14.13
+          ],
+          [
+            6.51,
+            15.71
+          ],
+          [
+            3.32,
+            16.67
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            -2.87,
+            16.67
+          ],
+          [
+            -5.63,
+            15.71
+          ],
+          [
+            -8.18,
+            14.13
+          ],
+          [
+            -10.41,
+            12.02
+          ],
+          [
+            -12.24,
+            9.44
+          ],
+          [
+            -13.6,
+            6.51
+          ],
+          [
+            -14.44,
+            3.32
+          ],
+          [
+            -14.72,
+            0
+          ],
+          [
+            -14.44,
+            -3.32
+          ],
+          [
+            -13.6,
+            -6.51
+          ],
+          [
+            -12.24,
+            -9.44
+          ],
+          [
+            -10.41,
+            -12.02
+          ],
+          [
+            -8.18,
+            -14.13
+          ],
+          [
+            -5.63,
+            -15.71
+          ],
+          [
+            -2.87,
+            -16.67
+          ],
+          [
+            0,
+            -17
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "moon_phase_165",
+    "folder": "sky",
+    "draws": "The Moon (or a ball) as seen from Earth at 165° round its orbit from the Sun's side: Moon phase 165°: 98% lit, lit part on the right. Base radius 17; scale = r/17; rotate turns the lit side",
+    "size": [
+      34,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        17,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B2A4A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9FB6DA",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 0
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#FFE08A",
+        "fill": 1,
+        "points": [
+          [
+            0,
+            -17
+          ],
+          [
+            3.32,
+            -16.67
+          ],
+          [
+            6.51,
+            -15.71
+          ],
+          [
+            9.44,
+            -14.13
+          ],
+          [
+            12.02,
+            -12.02
+          ],
+          [
+            14.13,
+            -9.44
+          ],
+          [
+            15.71,
+            -6.51
+          ],
+          [
+            16.67,
+            -3.32
+          ],
+          [
+            17,
+            0
+          ],
+          [
+            16.67,
+            3.32
+          ],
+          [
+            15.71,
+            6.51
+          ],
+          [
+            14.13,
+            9.44
+          ],
+          [
+            12.02,
+            12.02
+          ],
+          [
+            9.44,
+            14.13
+          ],
+          [
+            6.51,
+            15.71
+          ],
+          [
+            3.32,
+            16.67
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            -3.2,
+            16.67
+          ],
+          [
+            -6.28,
+            15.71
+          ],
+          [
+            -9.12,
+            14.13
+          ],
+          [
+            -11.61,
+            12.02
+          ],
+          [
+            -13.65,
+            9.44
+          ],
+          [
+            -15.17,
+            6.51
+          ],
+          [
+            -16.11,
+            3.32
+          ],
+          [
+            -16.42,
+            0
+          ],
+          [
+            -16.11,
+            -3.32
+          ],
+          [
+            -15.17,
+            -6.51
+          ],
+          [
+            -13.65,
+            -9.44
+          ],
+          [
+            -11.61,
+            -12.02
+          ],
+          [
+            -9.12,
+            -14.13
+          ],
+          [
+            -6.28,
+            -15.71
+          ],
+          [
+            -3.2,
+            -16.67
+          ],
+          [
+            0,
+            -17
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "moon_phase_180",
+    "folder": "sky",
+    "draws": "The Moon (or a ball) as seen from Earth at 180° round its orbit from the Sun's side: full Moon. Base radius 17; scale = r/17; rotate turns the lit side",
+    "size": [
+      34,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        17,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B2A4A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9FB6DA",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 0
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#FFE08A",
+        "fill": 1,
+        "points": [
+          [
+            0,
+            -17
+          ],
+          [
+            3.32,
+            -16.67
+          ],
+          [
+            6.51,
+            -15.71
+          ],
+          [
+            9.44,
+            -14.13
+          ],
+          [
+            12.02,
+            -12.02
+          ],
+          [
+            14.13,
+            -9.44
+          ],
+          [
+            15.71,
+            -6.51
+          ],
+          [
+            16.67,
+            -3.32
+          ],
+          [
+            17,
+            0
+          ],
+          [
+            16.67,
+            3.32
+          ],
+          [
+            15.71,
+            6.51
+          ],
+          [
+            14.13,
+            9.44
+          ],
+          [
+            12.02,
+            12.02
+          ],
+          [
+            9.44,
+            14.13
+          ],
+          [
+            6.51,
+            15.71
+          ],
+          [
+            3.32,
+            16.67
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            -3.32,
+            16.67
+          ],
+          [
+            -6.51,
+            15.71
+          ],
+          [
+            -9.44,
+            14.13
+          ],
+          [
+            -12.02,
+            12.02
+          ],
+          [
+            -14.13,
+            9.44
+          ],
+          [
+            -15.71,
+            6.51
+          ],
+          [
+            -16.67,
+            3.32
+          ],
+          [
+            -17,
+            0
+          ],
+          [
+            -16.67,
+            -3.32
+          ],
+          [
+            -15.71,
+            -6.51
+          ],
+          [
+            -14.13,
+            -9.44
+          ],
+          [
+            -12.02,
+            -12.02
+          ],
+          [
+            -9.44,
+            -14.13
+          ],
+          [
+            -6.51,
+            -15.71
+          ],
+          [
+            -3.32,
+            -16.67
+          ],
+          [
+            0,
+            -17
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "moon_phase_195",
+    "folder": "sky",
+    "draws": "The Moon (or a ball) as seen from Earth at 195° round its orbit from the Sun's side: Moon phase 195°: 98% lit, lit part on the left. Base radius 17; scale = r/17; rotate turns the lit side",
+    "size": [
+      34,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        17,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B2A4A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9FB6DA",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 0
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#FFE08A",
+        "fill": 1,
+        "points": [
+          [
+            0,
+            -17
+          ],
+          [
+            3.2,
+            -16.67
+          ],
+          [
+            6.28,
+            -15.71
+          ],
+          [
+            9.12,
+            -14.13
+          ],
+          [
+            11.61,
+            -12.02
+          ],
+          [
+            13.65,
+            -9.44
+          ],
+          [
+            15.17,
+            -6.51
+          ],
+          [
+            16.11,
+            -3.32
+          ],
+          [
+            16.42,
+            0
+          ],
+          [
+            16.11,
+            3.32
+          ],
+          [
+            15.17,
+            6.51
+          ],
+          [
+            13.65,
+            9.44
+          ],
+          [
+            11.61,
+            12.02
+          ],
+          [
+            9.12,
+            14.13
+          ],
+          [
+            6.28,
+            15.71
+          ],
+          [
+            3.2,
+            16.67
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            -3.32,
+            16.67
+          ],
+          [
+            -6.51,
+            15.71
+          ],
+          [
+            -9.44,
+            14.13
+          ],
+          [
+            -12.02,
+            12.02
+          ],
+          [
+            -14.13,
+            9.44
+          ],
+          [
+            -15.71,
+            6.51
+          ],
+          [
+            -16.67,
+            3.32
+          ],
+          [
+            -17,
+            0
+          ],
+          [
+            -16.67,
+            -3.32
+          ],
+          [
+            -15.71,
+            -6.51
+          ],
+          [
+            -14.13,
+            -9.44
+          ],
+          [
+            -12.02,
+            -12.02
+          ],
+          [
+            -9.44,
+            -14.13
+          ],
+          [
+            -6.51,
+            -15.71
+          ],
+          [
+            -3.32,
+            -16.67
+          ],
+          [
+            0,
+            -17
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "moon_phase_210",
+    "folder": "sky",
+    "draws": "The Moon (or a ball) as seen from Earth at 210° round its orbit from the Sun's side: Moon phase 210°: 93% lit, lit part on the left. Base radius 17; scale = r/17; rotate turns the lit side",
+    "size": [
+      34,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        17,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B2A4A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9FB6DA",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 0
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#FFE08A",
+        "fill": 1,
+        "points": [
+          [
+            0,
+            -17
+          ],
+          [
+            2.87,
+            -16.67
+          ],
+          [
+            5.63,
+            -15.71
+          ],
+          [
+            8.18,
+            -14.13
+          ],
+          [
+            10.41,
+            -12.02
+          ],
+          [
+            12.24,
+            -9.44
+          ],
+          [
+            13.6,
+            -6.51
+          ],
+          [
+            14.44,
+            -3.32
+          ],
+          [
+            14.72,
+            0
+          ],
+          [
+            14.44,
+            3.32
+          ],
+          [
+            13.6,
+            6.51
+          ],
+          [
+            12.24,
+            9.44
+          ],
+          [
+            10.41,
+            12.02
+          ],
+          [
+            8.18,
+            14.13
+          ],
+          [
+            5.63,
+            15.71
+          ],
+          [
+            2.87,
+            16.67
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            -3.32,
+            16.67
+          ],
+          [
+            -6.51,
+            15.71
+          ],
+          [
+            -9.44,
+            14.13
+          ],
+          [
+            -12.02,
+            12.02
+          ],
+          [
+            -14.13,
+            9.44
+          ],
+          [
+            -15.71,
+            6.51
+          ],
+          [
+            -16.67,
+            3.32
+          ],
+          [
+            -17,
+            0
+          ],
+          [
+            -16.67,
+            -3.32
+          ],
+          [
+            -15.71,
+            -6.51
+          ],
+          [
+            -14.13,
+            -9.44
+          ],
+          [
+            -12.02,
+            -12.02
+          ],
+          [
+            -9.44,
+            -14.13
+          ],
+          [
+            -6.51,
+            -15.71
+          ],
+          [
+            -3.32,
+            -16.67
+          ],
+          [
+            0,
+            -17
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "moon_phase_225",
+    "folder": "sky",
+    "draws": "The Moon (or a ball) as seen from Earth at 225° round its orbit from the Sun's side: Moon phase 225°: 85% lit, lit part on the left. Base radius 17; scale = r/17; rotate turns the lit side",
+    "size": [
+      34,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        17,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B2A4A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9FB6DA",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 0
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#FFE08A",
+        "fill": 1,
+        "points": [
+          [
+            0,
+            -17
+          ],
+          [
+            2.35,
+            -16.67
+          ],
+          [
+            4.6,
+            -15.71
+          ],
+          [
+            6.68,
+            -14.13
+          ],
+          [
+            8.5,
+            -12.02
+          ],
+          [
+            9.99,
+            -9.44
+          ],
+          [
+            11.11,
+            -6.51
+          ],
+          [
+            11.79,
+            -3.32
+          ],
+          [
+            12.02,
+            0
+          ],
+          [
+            11.79,
+            3.32
+          ],
+          [
+            11.11,
+            6.51
+          ],
+          [
+            9.99,
+            9.44
+          ],
+          [
+            8.5,
+            12.02
+          ],
+          [
+            6.68,
+            14.13
+          ],
+          [
+            4.6,
+            15.71
+          ],
+          [
+            2.35,
+            16.67
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            -3.32,
+            16.67
+          ],
+          [
+            -6.51,
+            15.71
+          ],
+          [
+            -9.44,
+            14.13
+          ],
+          [
+            -12.02,
+            12.02
+          ],
+          [
+            -14.13,
+            9.44
+          ],
+          [
+            -15.71,
+            6.51
+          ],
+          [
+            -16.67,
+            3.32
+          ],
+          [
+            -17,
+            0
+          ],
+          [
+            -16.67,
+            -3.32
+          ],
+          [
+            -15.71,
+            -6.51
+          ],
+          [
+            -14.13,
+            -9.44
+          ],
+          [
+            -12.02,
+            -12.02
+          ],
+          [
+            -9.44,
+            -14.13
+          ],
+          [
+            -6.51,
+            -15.71
+          ],
+          [
+            -3.32,
+            -16.67
+          ],
+          [
+            0,
+            -17
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "moon_phase_240",
+    "folder": "sky",
+    "draws": "The Moon (or a ball) as seen from Earth at 240° round its orbit from the Sun's side: Moon phase 240°: 75% lit, lit part on the left. Base radius 17; scale = r/17; rotate turns the lit side",
+    "size": [
+      34,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        17,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B2A4A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9FB6DA",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 0
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#FFE08A",
+        "fill": 1,
+        "points": [
+          [
+            0,
+            -17
+          ],
+          [
+            1.66,
+            -16.67
+          ],
+          [
+            3.25,
+            -15.71
+          ],
+          [
+            4.72,
+            -14.13
+          ],
+          [
+            6.01,
+            -12.02
+          ],
+          [
+            7.07,
+            -9.44
+          ],
+          [
+            7.85,
+            -6.51
+          ],
+          [
+            8.34,
+            -3.32
+          ],
+          [
+            8.5,
+            0
+          ],
+          [
+            8.34,
+            3.32
+          ],
+          [
+            7.85,
+            6.51
+          ],
+          [
+            7.07,
+            9.44
+          ],
+          [
+            6.01,
+            12.02
+          ],
+          [
+            4.72,
+            14.13
+          ],
+          [
+            3.25,
+            15.71
+          ],
+          [
+            1.66,
+            16.67
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            -3.32,
+            16.67
+          ],
+          [
+            -6.51,
+            15.71
+          ],
+          [
+            -9.44,
+            14.13
+          ],
+          [
+            -12.02,
+            12.02
+          ],
+          [
+            -14.13,
+            9.44
+          ],
+          [
+            -15.71,
+            6.51
+          ],
+          [
+            -16.67,
+            3.32
+          ],
+          [
+            -17,
+            0
+          ],
+          [
+            -16.67,
+            -3.32
+          ],
+          [
+            -15.71,
+            -6.51
+          ],
+          [
+            -14.13,
+            -9.44
+          ],
+          [
+            -12.02,
+            -12.02
+          ],
+          [
+            -9.44,
+            -14.13
+          ],
+          [
+            -6.51,
+            -15.71
+          ],
+          [
+            -3.32,
+            -16.67
+          ],
+          [
+            0,
+            -17
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "moon_phase_255",
+    "folder": "sky",
+    "draws": "The Moon (or a ball) as seen from Earth at 255° round its orbit from the Sun's side: Moon phase 255°: 63% lit, lit part on the left. Base radius 17; scale = r/17; rotate turns the lit side",
+    "size": [
+      34,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        17,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B2A4A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9FB6DA",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 0
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#FFE08A",
+        "fill": 1,
+        "points": [
+          [
+            0,
+            -17
+          ],
+          [
+            0.86,
+            -16.67
+          ],
+          [
+            1.68,
+            -15.71
+          ],
+          [
+            2.44,
+            -14.13
+          ],
+          [
+            3.11,
+            -12.02
+          ],
+          [
+            3.66,
+            -9.44
+          ],
+          [
+            4.06,
+            -6.51
+          ],
+          [
+            4.32,
+            -3.32
+          ],
+          [
+            4.4,
+            0
+          ],
+          [
+            4.32,
+            3.32
+          ],
+          [
+            4.06,
+            6.51
+          ],
+          [
+            3.66,
+            9.44
+          ],
+          [
+            3.11,
+            12.02
+          ],
+          [
+            2.44,
+            14.13
+          ],
+          [
+            1.68,
+            15.71
+          ],
+          [
+            0.86,
+            16.67
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            -3.32,
+            16.67
+          ],
+          [
+            -6.51,
+            15.71
+          ],
+          [
+            -9.44,
+            14.13
+          ],
+          [
+            -12.02,
+            12.02
+          ],
+          [
+            -14.13,
+            9.44
+          ],
+          [
+            -15.71,
+            6.51
+          ],
+          [
+            -16.67,
+            3.32
+          ],
+          [
+            -17,
+            0
+          ],
+          [
+            -16.67,
+            -3.32
+          ],
+          [
+            -15.71,
+            -6.51
+          ],
+          [
+            -14.13,
+            -9.44
+          ],
+          [
+            -12.02,
+            -12.02
+          ],
+          [
+            -9.44,
+            -14.13
+          ],
+          [
+            -6.51,
+            -15.71
+          ],
+          [
+            -3.32,
+            -16.67
+          ],
+          [
+            0,
+            -17
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "moon_phase_270",
+    "folder": "sky",
+    "draws": "The Moon (or a ball) as seen from Earth at 270° round its orbit from the Sun's side: half Moon, lit on the left. Base radius 17; scale = r/17; rotate turns the lit side",
+    "size": [
+      34,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        17,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B2A4A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9FB6DA",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 0
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#FFE08A",
+        "fill": 1,
+        "points": [
+          [
+            0,
+            -17
+          ],
+          [
+            0,
+            -16.67
+          ],
+          [
+            0,
+            -15.71
+          ],
+          [
+            0,
+            -14.13
+          ],
+          [
+            0,
+            -12.02
+          ],
+          [
+            0,
+            -9.44
+          ],
+          [
+            0,
+            -6.51
+          ],
+          [
+            0,
+            -3.32
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            3.32
+          ],
+          [
+            0,
+            6.51
+          ],
+          [
+            0,
+            9.44
+          ],
+          [
+            0,
+            12.02
+          ],
+          [
+            0,
+            14.13
+          ],
+          [
+            0,
+            15.71
+          ],
+          [
+            0,
+            16.67
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            -3.32,
+            16.67
+          ],
+          [
+            -6.51,
+            15.71
+          ],
+          [
+            -9.44,
+            14.13
+          ],
+          [
+            -12.02,
+            12.02
+          ],
+          [
+            -14.13,
+            9.44
+          ],
+          [
+            -15.71,
+            6.51
+          ],
+          [
+            -16.67,
+            3.32
+          ],
+          [
+            -17,
+            0
+          ],
+          [
+            -16.67,
+            -3.32
+          ],
+          [
+            -15.71,
+            -6.51
+          ],
+          [
+            -14.13,
+            -9.44
+          ],
+          [
+            -12.02,
+            -12.02
+          ],
+          [
+            -9.44,
+            -14.13
+          ],
+          [
+            -6.51,
+            -15.71
+          ],
+          [
+            -3.32,
+            -16.67
+          ],
+          [
+            0,
+            -17
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "moon_phase_285",
+    "folder": "sky",
+    "draws": "The Moon (or a ball) as seen from Earth at 285° round its orbit from the Sun's side: Moon phase 285°: 37% lit, lit part on the left. Base radius 17; scale = r/17; rotate turns the lit side",
+    "size": [
+      34,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        17,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B2A4A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9FB6DA",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 0
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#FFE08A",
+        "fill": 1,
+        "points": [
+          [
+            0,
+            -17
+          ],
+          [
+            -0.86,
+            -16.67
+          ],
+          [
+            -1.68,
+            -15.71
+          ],
+          [
+            -2.44,
+            -14.13
+          ],
+          [
+            -3.11,
+            -12.02
+          ],
+          [
+            -3.66,
+            -9.44
+          ],
+          [
+            -4.06,
+            -6.51
+          ],
+          [
+            -4.32,
+            -3.32
+          ],
+          [
+            -4.4,
+            0
+          ],
+          [
+            -4.32,
+            3.32
+          ],
+          [
+            -4.06,
+            6.51
+          ],
+          [
+            -3.66,
+            9.44
+          ],
+          [
+            -3.11,
+            12.02
+          ],
+          [
+            -2.44,
+            14.13
+          ],
+          [
+            -1.68,
+            15.71
+          ],
+          [
+            -0.86,
+            16.67
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            -3.32,
+            16.67
+          ],
+          [
+            -6.51,
+            15.71
+          ],
+          [
+            -9.44,
+            14.13
+          ],
+          [
+            -12.02,
+            12.02
+          ],
+          [
+            -14.13,
+            9.44
+          ],
+          [
+            -15.71,
+            6.51
+          ],
+          [
+            -16.67,
+            3.32
+          ],
+          [
+            -17,
+            0
+          ],
+          [
+            -16.67,
+            -3.32
+          ],
+          [
+            -15.71,
+            -6.51
+          ],
+          [
+            -14.13,
+            -9.44
+          ],
+          [
+            -12.02,
+            -12.02
+          ],
+          [
+            -9.44,
+            -14.13
+          ],
+          [
+            -6.51,
+            -15.71
+          ],
+          [
+            -3.32,
+            -16.67
+          ],
+          [
+            0,
+            -17
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "moon_phase_300",
+    "folder": "sky",
+    "draws": "The Moon (or a ball) as seen from Earth at 300° round its orbit from the Sun's side: Moon phase 300°: 25% lit, lit part on the left. Base radius 17; scale = r/17; rotate turns the lit side",
+    "size": [
+      34,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        17,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B2A4A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9FB6DA",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 0
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#FFE08A",
+        "fill": 1,
+        "points": [
+          [
+            0,
+            -17
+          ],
+          [
+            -1.66,
+            -16.67
+          ],
+          [
+            -3.25,
+            -15.71
+          ],
+          [
+            -4.72,
+            -14.13
+          ],
+          [
+            -6.01,
+            -12.02
+          ],
+          [
+            -7.07,
+            -9.44
+          ],
+          [
+            -7.85,
+            -6.51
+          ],
+          [
+            -8.34,
+            -3.32
+          ],
+          [
+            -8.5,
+            0
+          ],
+          [
+            -8.34,
+            3.32
+          ],
+          [
+            -7.85,
+            6.51
+          ],
+          [
+            -7.07,
+            9.44
+          ],
+          [
+            -6.01,
+            12.02
+          ],
+          [
+            -4.72,
+            14.13
+          ],
+          [
+            -3.25,
+            15.71
+          ],
+          [
+            -1.66,
+            16.67
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            -3.32,
+            16.67
+          ],
+          [
+            -6.51,
+            15.71
+          ],
+          [
+            -9.44,
+            14.13
+          ],
+          [
+            -12.02,
+            12.02
+          ],
+          [
+            -14.13,
+            9.44
+          ],
+          [
+            -15.71,
+            6.51
+          ],
+          [
+            -16.67,
+            3.32
+          ],
+          [
+            -17,
+            0
+          ],
+          [
+            -16.67,
+            -3.32
+          ],
+          [
+            -15.71,
+            -6.51
+          ],
+          [
+            -14.13,
+            -9.44
+          ],
+          [
+            -12.02,
+            -12.02
+          ],
+          [
+            -9.44,
+            -14.13
+          ],
+          [
+            -6.51,
+            -15.71
+          ],
+          [
+            -3.32,
+            -16.67
+          ],
+          [
+            0,
+            -17
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "moon_phase_315",
+    "folder": "sky",
+    "draws": "The Moon (or a ball) as seen from Earth at 315° round its orbit from the Sun's side: Moon phase 315°: 15% lit, lit part on the left. Base radius 17; scale = r/17; rotate turns the lit side",
+    "size": [
+      34,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        17,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B2A4A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9FB6DA",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 0
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#FFE08A",
+        "fill": 1,
+        "points": [
+          [
+            0,
+            -17
+          ],
+          [
+            -2.35,
+            -16.67
+          ],
+          [
+            -4.6,
+            -15.71
+          ],
+          [
+            -6.68,
+            -14.13
+          ],
+          [
+            -8.5,
+            -12.02
+          ],
+          [
+            -9.99,
+            -9.44
+          ],
+          [
+            -11.11,
+            -6.51
+          ],
+          [
+            -11.79,
+            -3.32
+          ],
+          [
+            -12.02,
+            0
+          ],
+          [
+            -11.79,
+            3.32
+          ],
+          [
+            -11.11,
+            6.51
+          ],
+          [
+            -9.99,
+            9.44
+          ],
+          [
+            -8.5,
+            12.02
+          ],
+          [
+            -6.68,
+            14.13
+          ],
+          [
+            -4.6,
+            15.71
+          ],
+          [
+            -2.35,
+            16.67
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            -3.32,
+            16.67
+          ],
+          [
+            -6.51,
+            15.71
+          ],
+          [
+            -9.44,
+            14.13
+          ],
+          [
+            -12.02,
+            12.02
+          ],
+          [
+            -14.13,
+            9.44
+          ],
+          [
+            -15.71,
+            6.51
+          ],
+          [
+            -16.67,
+            3.32
+          ],
+          [
+            -17,
+            0
+          ],
+          [
+            -16.67,
+            -3.32
+          ],
+          [
+            -15.71,
+            -6.51
+          ],
+          [
+            -14.13,
+            -9.44
+          ],
+          [
+            -12.02,
+            -12.02
+          ],
+          [
+            -9.44,
+            -14.13
+          ],
+          [
+            -6.51,
+            -15.71
+          ],
+          [
+            -3.32,
+            -16.67
+          ],
+          [
+            0,
+            -17
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "moon_phase_330",
+    "folder": "sky",
+    "draws": "The Moon (or a ball) as seen from Earth at 330° round its orbit from the Sun's side: Moon phase 330°: 7% lit, lit part on the left. Base radius 17; scale = r/17; rotate turns the lit side",
+    "size": [
+      34,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        17,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B2A4A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9FB6DA",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 0
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#FFE08A",
+        "fill": 1,
+        "points": [
+          [
+            0,
+            -17
+          ],
+          [
+            -2.87,
+            -16.67
+          ],
+          [
+            -5.63,
+            -15.71
+          ],
+          [
+            -8.18,
+            -14.13
+          ],
+          [
+            -10.41,
+            -12.02
+          ],
+          [
+            -12.24,
+            -9.44
+          ],
+          [
+            -13.6,
+            -6.51
+          ],
+          [
+            -14.44,
+            -3.32
+          ],
+          [
+            -14.72,
+            0
+          ],
+          [
+            -14.44,
+            3.32
+          ],
+          [
+            -13.6,
+            6.51
+          ],
+          [
+            -12.24,
+            9.44
+          ],
+          [
+            -10.41,
+            12.02
+          ],
+          [
+            -8.18,
+            14.13
+          ],
+          [
+            -5.63,
+            15.71
+          ],
+          [
+            -2.87,
+            16.67
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            -3.32,
+            16.67
+          ],
+          [
+            -6.51,
+            15.71
+          ],
+          [
+            -9.44,
+            14.13
+          ],
+          [
+            -12.02,
+            12.02
+          ],
+          [
+            -14.13,
+            9.44
+          ],
+          [
+            -15.71,
+            6.51
+          ],
+          [
+            -16.67,
+            3.32
+          ],
+          [
+            -17,
+            0
+          ],
+          [
+            -16.67,
+            -3.32
+          ],
+          [
+            -15.71,
+            -6.51
+          ],
+          [
+            -14.13,
+            -9.44
+          ],
+          [
+            -12.02,
+            -12.02
+          ],
+          [
+            -9.44,
+            -14.13
+          ],
+          [
+            -6.51,
+            -15.71
+          ],
+          [
+            -3.32,
+            -16.67
+          ],
+          [
+            0,
+            -17
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "moon_phase_345",
+    "folder": "sky",
+    "draws": "The Moon (or a ball) as seen from Earth at 345° round its orbit from the Sun's side: Moon phase 345°: 2% lit, lit part on the left. Base radius 17; scale = r/17; rotate turns the lit side",
+    "size": [
+      34,
+      34
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        17,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B2A4A",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9FB6DA",
+        "at": [
+          0,
+          0
+        ],
+        "r": 17,
+        "fill": 0
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "closed": true,
+        "color": "#FFE08A",
+        "fill": 1,
+        "points": [
+          [
+            0,
+            -17
+          ],
+          [
+            -3.2,
+            -16.67
+          ],
+          [
+            -6.28,
+            -15.71
+          ],
+          [
+            -9.12,
+            -14.13
+          ],
+          [
+            -11.61,
+            -12.02
+          ],
+          [
+            -13.65,
+            -9.44
+          ],
+          [
+            -15.17,
+            -6.51
+          ],
+          [
+            -16.11,
+            -3.32
+          ],
+          [
+            -16.42,
+            0
+          ],
+          [
+            -16.11,
+            3.32
+          ],
+          [
+            -15.17,
+            6.51
+          ],
+          [
+            -13.65,
+            9.44
+          ],
+          [
+            -11.61,
+            12.02
+          ],
+          [
+            -9.12,
+            14.13
+          ],
+          [
+            -6.28,
+            15.71
+          ],
+          [
+            -3.2,
+            16.67
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            -3.32,
+            16.67
+          ],
+          [
+            -6.51,
+            15.71
+          ],
+          [
+            -9.44,
+            14.13
+          ],
+          [
+            -12.02,
+            12.02
+          ],
+          [
+            -14.13,
+            9.44
+          ],
+          [
+            -15.71,
+            6.51
+          ],
+          [
+            -16.67,
+            3.32
+          ],
+          [
+            -17,
+            0
+          ],
+          [
+            -16.67,
+            -3.32
+          ],
+          [
+            -15.71,
+            -6.51
+          ],
+          [
+            -14.13,
+            -9.44
+          ],
+          [
+            -12.02,
+            -12.02
+          ],
+          [
+            -9.44,
+            -14.13
+          ],
+          [
+            -6.51,
+            -15.71
+          ],
+          [
+            -3.32,
+            -16.67
+          ],
+          [
+            0,
+            -17
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "night_half",
+    "folder": "light",
+    "draws": "A see-through dark half-disc (radius 10) to lay over the right half of a planet or ball: its night side",
+    "size": [
+      10,
+      20
+    ],
+    "settings": {
+      "pos": "centre [x, y] of the full disc",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "night": [
+        5,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "closed": true,
+        "color": "#05080F",
+        "fill": 0.72,
+        "points": [
+          [
+            0,
+            -10
+          ],
+          [
+            1.045,
+            -9.945
+          ],
+          [
+            2.079,
+            -9.781
+          ],
+          [
+            3.09,
+            -9.511
+          ],
+          [
+            4.067,
+            -9.135
+          ],
+          [
+            5,
+            -8.66
+          ],
+          [
+            5.878,
+            -8.09
+          ],
+          [
+            6.691,
+            -7.431
+          ],
+          [
+            7.431,
+            -6.691
+          ],
+          [
+            8.09,
+            -5.878
+          ],
+          [
+            8.66,
+            -5
+          ],
+          [
+            9.135,
+            -4.067
+          ],
+          [
+            9.511,
+            -3.09
+          ],
+          [
+            9.781,
+            -2.079
+          ],
+          [
+            9.945,
+            -1.045
+          ],
+          [
+            10,
+            0
+          ],
+          [
+            9.945,
+            1.045
+          ],
+          [
+            9.781,
+            2.079
+          ],
+          [
+            9.511,
+            3.09
+          ],
+          [
+            9.135,
+            4.067
+          ],
+          [
+            8.66,
+            5
+          ],
+          [
+            8.09,
+            5.878
+          ],
+          [
+            7.431,
+            6.691
+          ],
+          [
+            6.691,
+            7.431
+          ],
+          [
+            5.878,
+            8.09
+          ],
+          [
+            5,
+            8.66
+          ],
+          [
+            4.067,
+            9.135
+          ],
+          [
+            3.09,
+            9.511
+          ],
+          [
+            2.079,
+            9.781
+          ],
+          [
+            1.045,
+            9.945
+          ],
+          [
+            0,
+            10
+          ]
+        ],
+        "style": "normal"
       }
     ]
   }
