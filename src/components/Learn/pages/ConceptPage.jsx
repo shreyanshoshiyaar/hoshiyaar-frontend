@@ -1047,8 +1047,9 @@ export default function ConceptPage() {
         }
       />
 
-      {/* Main Content - stable height to prevent background moving */}
-      <div className={`flex-1 flex flex-col items-center px-2 sm:px-4 md:px-6 pb-24 sm:pb-16 md:pb-0 md:justify-start mt-2 md:mt-4 overflow-hidden`} style={{ maxHeight: 'calc(100vh - 80px)' }}>
+      {/* Main Content - stable height to prevent background moving; scrolls when a card is taller
+          than the screen (long text + board on a short window), so nothing is cut off */}
+      <div className={`flex-1 min-h-0 flex flex-col items-center px-2 sm:px-4 md:px-6 pb-24 sm:pb-16 md:pb-0 md:justify-start mt-2 md:mt-4 overflow-y-auto overflow-x-hidden overscroll-contain`} style={{ maxHeight: 'calc(100dvh - 80px)' }}>
         {isVideoShowing ? (
           <div className="flex-1 flex flex-col items-center justify-center p-4 w-full">
             <div 
@@ -1188,8 +1189,9 @@ export default function ConceptPage() {
               <div className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-3xl mt-3 sm:mt-6">
                 <GlyphBoard 
                   noShadow
-                  // Desktop: never taller than the space between the title and the Continue button
-                  cardClassName="lg:!max-h-[calc(100dvh-330px)] lg:!min-h-[240px]"
+                  // Tablet and desktop: fits the space between the text and the Continue button
+                  // (the page scrolls if the text above it is long)
+                  cardClassName="md:!max-h-[calc(100dvh-330px)] md:!min-h-[240px]"
                   currentLine={item} 
                   stepJson={item.inputJson}
                   cardTitle={item.title || item.cardTitle || ''} 
