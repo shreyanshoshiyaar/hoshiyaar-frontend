@@ -138,6 +138,7 @@ const ChapterDisplayCard = ({ chapter, onSaved }) => {
   const [mapStyle, setMapStyle] = useState(chapter.mapStyle || 'auto');
   const [bgUrl, setBgUrl] = useState(chapter.backgroundImage || '');
   const [youngExplorers, setYoungExplorers] = useState(Boolean(chapter.youngExplorers));
+  const [homePin, setHomePin] = useState(chapter.homePin ? String(chapter.homePin) : '');
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
 
@@ -145,14 +146,15 @@ const ChapterDisplayCard = ({ chapter, onSaved }) => {
     setMapStyle(chapter.mapStyle || 'auto');
     setBgUrl(chapter.backgroundImage || '');
     setYoungExplorers(Boolean(chapter.youngExplorers));
+    setHomePin(chapter.homePin ? String(chapter.homePin) : '');
     setMsg('');
-  }, [chapter._id, chapter.mapStyle, chapter.backgroundImage, chapter.youngExplorers]);
+  }, [chapter._id, chapter.mapStyle, chapter.backgroundImage, chapter.youngExplorers, chapter.homePin]);
 
   const save = async () => {
     try {
       setSaving(true);
       setMsg('');
-      const res = await curriculumService.updateChapterDisplay(chapter._id, { mapStyle, backgroundImage: bgUrl.trim(), youngExplorers });
+      const res = await curriculumService.updateChapterDisplay(chapter._id, { mapStyle, backgroundImage: bgUrl.trim(), youngExplorers, homePin: homePin ? Number(homePin) : null });
       onSaved(res.data);
       setMsg('Saved. Students see it the next time they open the chapter.');
     } catch (err) {
@@ -164,7 +166,7 @@ const ChapterDisplayCard = ({ chapter, onSaved }) => {
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-6">
-      <h2 className="text-xl font-semibold text-gray-800 mb-1">Chapter Map Style, Background &amp; Young Explorers</h2>
+      <h2 className="text-xl font-semibold text-gray-800 mb-1">Chapter Map Style, Background, Young Explorers &amp; Home Screen</h2>
       <p className="text-xs text-gray-500 mb-4">{chapter.title}</p>
       <div className="flex flex-col lg:flex-row gap-5">
         <div className="lg:w-1/2">
@@ -212,13 +214,31 @@ const ChapterDisplayCard = ({ chapter, onSaved }) => {
           <span className="block text-[11px] text-gray-500 leading-snug">Lists this chapter in the All Chapters panel's Young Explorers space, for students of every class. Only shows once the chapter is published.</span>
         </span>
       </label>
+      <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border-2 border-gray-200 px-3 py-2.5">
+        <label htmlFor={`home-pin-${chapter._id}`} className="text-sm font-bold text-gray-800">Home screen position</label>
+        <select
+          id={`home-pin-${chapter._id}`}
+          value={homePin}
+          onChange={(e) => setHomePin(e.target.value)}
+          className="px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        >
+          <option value="">Automatic</option>
+          <option value="1">1st card</option>
+          <option value="2">2nd card</option>
+          <option value="3">3rd card</option>
+          <option value="4">4th card</option>
+        </select>
+        <span className="text-[11px] text-gray-500 leading-snug basis-full">
+          The home screen shows 4 chapter cards. Pick a spot to always show this chapter there, for every student in this class. Spots left on Automatic show the student's in-progress and next chapters. Pinning a spot frees it from any other chapter.
+        </span>
+      </div>
       <div className="flex items-center gap-3 mt-4">
         <button
           onClick={save}
           disabled={saving}
           className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-sm font-bold rounded-md shadow transition-colors"
         >
-          {saving ? 'Saving...' : 'Save Map Settings'}
+          {saving ? 'Saving...' : 'Save Chapter Settings'}
         </button>
         {msg && <span className="text-xs font-semibold text-gray-600">{msg}</span>}
       </div>
@@ -667,7 +687,11 @@ const AdminPanel = () => {
           {selectedChapter && activeTab === 'curriculum' && chapters.find(c => c._id === selectedChapter) && (
             <ChapterDisplayCard
               chapter={chapters.find(c => c._id === selectedChapter)}
-              onSaved={(saved) => setChapters(prev => prev.map(c => c._id === saved._id ? { ...c, mapStyle: saved.mapStyle, backgroundImage: saved.backgroundImage, youngExplorers: saved.youngExplorers } : c))}
+              onSaved={(saved) => setChapters(prev => prev.map(c => {
+                if (c._id === saved._id) return { ...c, mapStyle: saved.mapStyle, backgroundImage: saved.backgroundImage, youngExplorers: saved.youngExplorers, homePin: saved.homePin ?? null };
+                // The server frees the spot from any other chapter in the class
+                return saved.homePin && c.homePin === saved.homePin ? { ...c, homePin: null } : c;
+              }))}
             />
           )}
 

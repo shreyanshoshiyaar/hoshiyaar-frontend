@@ -1124,19 +1124,14 @@ export default function FillupsPage({ onQuestionComplete, isReviewMode = false }
           const imgs = (Array.isArray(item.images) ? item.images : (item.images ? [item.images] : [])).filter(Boolean);
           const primary = item.imageUrl ? [item.imageUrl] : [];
           const list = imgs.length > 0 ? imgs : primary;
-          if (list.length === 0) {
-            return (
-              <div className="w-full max-w-xl sm:max-w-2xl md:max-w-3xl h-32 sm:h-40 md:h-60 rounded-2xl sm:rounded-3xl border-2 border-gray-200 bg-gray-50 flex lg:hidden items-center justify-center mb-1 sm:mb-3 md:mb-4">
-                <span className="text-gray-400 text-sm sm:text-base">Image</span>
-              </div>
-            );
-          }
+          // No picture: show nothing (this used to draw an empty "Image" box)
+          if (list.length === 0) return null;
           return (
             <div className="w-full max-w-xl sm:max-w-2xl md:max-w-3xl mb-1 sm:mb-3 flex justify-center">
               <div className="flex flex-wrap justify-center gap-1 sm:gap-3 md:gap-5">
                 {list.slice(0, 5).map((src, i) => (
                   <div key={i} className="border border-blue-300 rounded-xl sm:rounded-2xl p-1 sm:p-3 bg-white shadow-sm">
-                    <img src={src} alt={`fillup-${i}`} className="h-28 w-24 sm:h-32 sm:w-24 md:h-24 md:w-16 lg:h-28 lg:w-24 object-contain rounded-lg sm:rounded-xl shadow-sm" />
+                    <img src={src} alt={`fillup-${i}`} onError={(e) => { e.currentTarget.parentElement.style.display = 'none'; }} className="h-28 w-24 sm:h-32 sm:w-24 md:h-24 md:w-16 lg:h-28 lg:w-24 object-contain rounded-lg sm:rounded-xl shadow-sm" />
                   </div>
                 ))}
               </div>

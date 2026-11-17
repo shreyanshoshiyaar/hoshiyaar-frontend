@@ -254,7 +254,8 @@ export default function HomeProgressCards({
       } else {
         const stNew = stats[ch._id] || { completed: 0, total: 0 };
         const stOld = stats[existing._id] || { completed: 0, total: 0 };
-        if (ch._id === currentChapterId || stNew.completed > stOld.completed || stNew.total > stOld.total) {
+        if (existing.homePin && !ch.homePin) return; // a chapter pinned from the admin always wins its number
+        if ((ch.homePin && !existing.homePin) || ch._id === currentChapterId || stNew.completed > stOld.completed || stNew.total > stOld.total) {
           uniqueMap.set(chNum, ch);
         }
       }
@@ -328,7 +329,21 @@ export default function HomeProgressCards({
       combined.push(...remaining.slice(0, 4 - combined.length));
     }
 
-    return combined.slice(0, 4);
+    // Chapters pinned from Admin → Content take their spot (1-4); the automatic picks fill the other spots in order
+    const pinned = list
+      .filter((c) => Number.isInteger(c.homePin) && c.homePin >= 1 && c.homePin <= 4)
+      .sort((a, b) => a.homePin - b.homePin);
+    if (pinned.length === 0) return combined.slice(0, 4);
+
+    const pinnedIds = new Set(pinned.map((c) => c._id));
+    const autoPicks = [...combined, ...list].filter((c, i, arr) =>
+      !pinnedIds.has(c._id) && arr.findIndex((x) => x._id === c._id) === i);
+    const slots = [null, null, null, null];
+    pinned.forEach((c) => { if (!slots[c.homePin - 1]) slots[c.homePin - 1] = c; });
+    for (let i = 0; i < 4; i++) {
+      if (!slots[i] && autoPicks.length) slots[i] = autoPicks.shift();
+    }
+    return slots.filter(Boolean);
   }, [chapters, stats, currentChapterId]);
 
   const handleContinue = (ch) => {

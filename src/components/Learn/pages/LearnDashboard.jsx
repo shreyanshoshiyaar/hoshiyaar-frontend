@@ -1292,14 +1292,15 @@ const LearnDashboard = ({ onboardingData }) => {
           }
           const id = raw._id || raw.id || raw.chapterId;
           const title = raw.title || raw.name || `Chapter ${index + 1}`;
-          // Keep the admin's map settings (layout + page background)
+          // Keep the admin's map settings (layout + page background) and home screen spot
           return id ? {
             _id: String(id),
             title,
             order: raw.order ?? index + 1,
             isPublished: raw.isPublished !== false,
             mapStyle: raw.mapStyle || 'auto',
-            backgroundImage: raw.backgroundImage || null
+            backgroundImage: raw.backgroundImage || null,
+            homePin: raw.homePin ?? null
           } : null;
         };
         const normalizedChapters = (listCh || [])

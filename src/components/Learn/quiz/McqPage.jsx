@@ -1253,6 +1253,7 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
               <img 
                 src={imgs[0]} 
                 alt="Question visual" 
+                onError={(e) => { e.currentTarget.parentElement.style.display = 'none'; }}
                 className="max-h-40 lg:max-h-[340px] lgshort:max-h-[200px] lg:max-w-full rounded-2xl border-2 border-slate-100 object-contain shadow-xs"
               />
             </div>
