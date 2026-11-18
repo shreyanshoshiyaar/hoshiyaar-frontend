@@ -13,7 +13,6 @@ export const toggleAssignmentStatus = (assignmentId, status) => api.patch(`/api/
 export const getCurriculumOptions = () => api.get('/api/teacher/curriculum-options');
 export const getSchoolStudents = (classroomId) => api.get(`/api/teacher/classrooms/${classroomId}/school-students`);
 export const bulkAddStudents = (classroomId, studentIds) => api.post(`/api/teacher/classrooms/${classroomId}/bulk-add-students`, { studentIds });
-export const nudgePendingStudents = (assignmentId) => api.post(`/api/teacher/assignments/${assignmentId}/nudge-pending`);
 
 export default {
   createClassroom,
@@ -28,5 +27,4 @@ export default {
   getCurriculumOptions,
   getSchoolStudents,
   bulkAddStudents,
-  nudgePendingStudents,
 };

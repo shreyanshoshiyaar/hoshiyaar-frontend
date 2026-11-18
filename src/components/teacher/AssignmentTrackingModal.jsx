@@ -7,25 +7,6 @@ export default function AssignmentTrackingModal({ assignmentId, isOpen, onClose 
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('pending'); // 'pending' or 'completed'
   const [copied, setCopied] = useState(false);
-  const [nudging, setNudging] = useState(false);
-  const [nudgeMessage, setNudgeMessage] = useState('');
-
-  const handleNudgePending = async () => {
-    if (!assignmentId || nudging) return;
-    try {
-      setNudging(true);
-      setNudgeMessage('');
-      const res = await teacherService.nudgePendingStudents(assignmentId);
-      setNudgeMessage(res.data?.message || 'Push reminder sent to pending students!');
-      setTimeout(() => setNudgeMessage(''), 6000);
-    } catch (err) {
-      console.error('Failed to send nudge:', err);
-      alert(err.response?.data?.message || 'Failed to send push reminder');
-    } finally {
-      setNudging(false);
-    }
-  };
-
   useEffect(() => {
     if (isOpen && assignmentId) {
       loadTracking();
@@ -163,54 +144,6 @@ export default function AssignmentTrackingModal({ assignmentId, isOpen, onClose 
 
             {/* Quick Action Banners */}
             <div className="space-y-3">
-              {/* Push Notification Nudge Banner */}
-              <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xl shadow-sm shrink-0">
-                    🔔
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-black text-blue-950 uppercase tracking-wider">
-                      Send Firebase Push Reminder
-                    </h4>
-                    <p className="text-xs text-blue-800 font-medium">
-                      Notify {pendingStudents.length} pending student{pendingStudents.length === 1 ? '' : 's'} on their phone screens right now.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="w-full sm:w-auto">
-                  <button
-                    onClick={handleNudgePending}
-                    disabled={nudging || pendingStudents.length === 0}
-                    className={`w-full sm:w-auto px-4 py-2.5 text-white text-xs font-black rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 active:scale-95 cursor-pointer ${
-                      pendingStudents.length === 0
-                        ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
-                        : 'bg-blue-600 hover:bg-blue-700'
-                    }`}
-                  >
-                    {nudging ? (
-                      <>
-                        <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        <span>Sending Push...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>🔔 Remind Pending ({pendingStudents.length})</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {/* Nudge Feedback Toast */}
-              {nudgeMessage && (
-                <div className="p-3 bg-blue-600 text-white text-xs font-bold rounded-xl text-center shadow-md animate-fade-in flex items-center justify-center gap-2">
-                  <span>🚀</span>
-                  <span>{nudgeMessage}</span>
-                </div>
-              )}
-
               {/* WhatsApp 1-Click Action Banner */}
               <div className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
