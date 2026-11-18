@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { stopAllAudio } from '../../utils/audioPreloadService.js';
 import {
   getIntroVideoUrl, getIntroVideoElement, preloadIntroVideo, parkIntroVideo,
-  hasSeenIntro, markIntroSeen, INTRO_CLOSED_EVENT,
+  hasSeenIntro, markIntroSeen, checkIntroSeenOnServer, reportIntroSeen, INTRO_CLOSED_EVENT,
 } from '../../utils/onboardingVideo.js';
 
 // Screens where the video may open: the home and learn pages a learner lands on after login, signup or as a guest.
@@ -24,17 +24,31 @@ export default function OnboardingVideo() {
   const closedRef = useRef(false);
   const userId = user?._id ? String(user._id) : '';
 
-  // Start downloading as soon as we know this learner hasn't seen it
+  // Once the learner is known: if they saw it before (this phone or another), make sure the account knows and drop
+  // any preloaded copy; otherwise keep downloading it
   useEffect(() => {
-    if (userId && !hasSeenIntro(userId)) preloadIntroVideo();
+    if (!userId) return undefined;
+    if (hasSeenIntro(userId)) { reportIntroSeen(userId); parkIntroVideo({ release: true }); return undefined; }
+    preloadIntroVideo();
+    let cancelled = false;
+    checkIntroSeenOnServer(userId).then((seen) => {
+      if (cancelled || !seen) return;
+      markIntroSeen(userId);
+      parkIntroVideo({ release: true });
+    });
+    return () => { cancelled = true; };
   }, [userId]);
 
-  // Open on the first allowed screen
+  // Open on the first allowed screen, only when the account confirms it has never been shown
   useEffect(() => {
     if (!userId || open || hasSeenIntro(userId) || !SHOW_ON.has(location.pathname)) return;
     let cancelled = false;
-    getIntroVideoUrl().then((url) => {
-      if (!cancelled && url && !hasSeenIntro(userId)) setOpen(true);
+    Promise.all([getIntroVideoUrl(), checkIntroSeenOnServer(userId)]).then(([url, seen]) => {
+      if (cancelled || !url || seen !== false || hasSeenIntro(userId)) return;
+      // Counted as seen the moment it opens: closing the app halfway never brings it back
+      markIntroSeen(userId);
+      reportIntroSeen(userId);
+      setOpen(true);
     });
     return () => { cancelled = true; };
   }, [userId, location.pathname, open]);
