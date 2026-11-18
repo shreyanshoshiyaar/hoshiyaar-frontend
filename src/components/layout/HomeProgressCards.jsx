@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { chapterName } from '../../utils/chapterName.js';
+import { ChapterArt, HomeTag } from './home/ChaptersGrid.jsx';
 import TrialBanner from '../features/Subscription/TrialBanner.jsx';
 import TrialPromoModal from '../features/Subscription/TrialPromoModal.jsx';
 import { useAccess } from '../../context/AccessContext.jsx';
@@ -600,13 +602,15 @@ export default function HomeProgressCards({
                 {/* Top Row: Icon + Status Badge */}
                 <div className="flex items-center justify-between gap-1 w-full">
                   <div
-                    className={`w-11 h-11 sm:w-12 sm:h-12 lg:w-11 lg:h-11 lg:text-2xl lgshort:w-7 lgshort:h-7 lgshort:text-base rounded-2xl flex items-center justify-center text-2xl sm:text-3xl shadow-xs shrink-0 transition-colors ${palette.iconBg}`}
+                    className={`w-11 h-11 sm:w-12 sm:h-12 lg:w-11 lg:h-11 lg:text-2xl lgshort:w-7 lgshort:h-7 lgshort:text-base rounded-2xl flex items-center justify-center text-2xl sm:text-3xl shadow-xs shrink-0 transition-colors overflow-hidden ${palette.iconBg}`}
                   >
-                    {icon}
+                    {ch.iconUrl ? <ChapterArt chapter={ch} imgClassName="w-8 h-8 sm:w-9 sm:h-9 lgshort:w-5 lgshort:h-5" /> : icon}
                   </div>
 
-                  {/* Status Badge */}
-                  {ch.isCompleted ? (
+                  {/* Status Badge (a tag set from the admin takes this spot) */}
+                  {ch.homeTag?.text ? (
+                    <HomeTag tag={ch.homeTag} className="shrink-0 max-w-[65%] overflow-hidden text-ellipsis" />
+                  ) : ch.isCompleted ? (
                     <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-300 shrink-0">
                       ✓ Done
                     </span>
@@ -629,9 +633,9 @@ export default function HomeProgressCards({
                 <div className="my-auto py-1">
                   <h3
                     className="text-xs sm:text-sm md:text-[14px] lg:text-lg lgshort:text-sm font-black text-slate-900 leading-snug line-clamp-2 sm:line-clamp-3 break-words"
-                    title={ch.title}
+                    title={chapterName(ch.title)}
                   >
-                    {ch.title}
+                    {chapterName(ch.title)}
                   </h3>
                 </div>
 

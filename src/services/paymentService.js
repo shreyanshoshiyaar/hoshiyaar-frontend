@@ -219,6 +219,18 @@ export const paymentService = {
     return res.data;
   },
 
+  /** Admin: every chapter and who may play it */
+  async getChapterAccess() {
+    const res = await api.get('/api/payments/admin/chapter-access');
+    return res.data;
+  },
+
+  /** Admin: set a chapter's access { accessMode: 'trial' | 'free' | 'pro' | 'pro_free_start', proFreeLessons } */
+  async setChapterAccess(chapterId, body) {
+    const res = await api.put(`/api/payments/admin/chapter-access/${chapterId}`, body);
+    return res.data;
+  },
+
   /** Admin: every refunded purchase and whether the account is still Pro */
   async getRefunds() {
     const res = await api.get('/api/payments/admin/refunds');

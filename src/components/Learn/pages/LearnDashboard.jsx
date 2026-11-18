@@ -1,4 +1,5 @@
 import AllChaptersButton from '../../ui/AllChaptersButton.jsx';
+import { chapterName } from '../../../utils/chapterName.js';
 import React, { useEffect, useState, useMemo, useLayoutEffect, useCallback, useRef } from "react";
 import { useAuth } from "../../../context/AuthContext.jsx";
 import { useAccess } from "../../../context/AccessContext.jsx";
@@ -610,6 +611,15 @@ const LearnDashboard = ({ onboardingData }) => {
       return 'admin';
     }
   });
+
+  // Whether a lesson shows the Pro lock: the free trial is over and the lesson was never played. Lessons the
+  // server marks accessFree (Admin → Payments → Chapter Access) stay open for everyone after the trial too.
+  const lessonPaywall = (mod, isCompleted) => {
+    if (!access?.locked || !mod?._id || isCompleted || mod.accessFree) return false;
+    if (playedModuleSet.has(String(mod._id))) return false;
+    if (user?.role === 'admin' && adminViewMode !== 'student' && !access.testView) return false;
+    return true;
+  };
 
   useEffect(() => {
     const handleViewModeChange = () => {
@@ -1300,7 +1310,9 @@ const LearnDashboard = ({ onboardingData }) => {
             isPublished: raw.isPublished !== false,
             mapStyle: raw.mapStyle || 'auto',
             backgroundImage: raw.backgroundImage || null,
-            homePin: raw.homePin ?? null
+            homePin: raw.homePin ?? null,
+            iconUrl: raw.iconUrl || null,
+            homeTag: raw.homeTag?.text ? raw.homeTag : null
           } : null;
         };
         const normalizedChapters = (listCh || [])
@@ -2462,7 +2474,7 @@ const LearnDashboard = ({ onboardingData }) => {
 
                                 <div className="relative z-10 flex flex-col gap-3">
                                   <h2 className="text-[20px] font-extrabold leading-tight text-white drop-shadow-md">
-                                    {chapterTitle || 'Learning Modules'}
+                                    {chapterName(chapterTitle) || 'Learning Modules'}
                                   </h2>
                                   
                                   <div className="w-full h-[1px] bg-white/20 border-t border-dashed border-white/20 my-1" />
@@ -2493,7 +2505,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                 style={{ background: `linear-gradient(90deg, #2C6DEF, #1E4A8C)`, borderColor: 'rgba(44, 109, 239, 0.25)' }}>
                                 <div>
                                   <p className="font-extrabold text-xl md:text-2xl">
-                                    {chapterTitle || 'Learning Modules'}
+                                    {chapterName(chapterTitle) || 'Learning Modules'}
                                   </p>
                                   <div className="flex items-center gap-2 mt-1">
                                     <p className="opacity-95 text-base md:text-lg">
@@ -2560,7 +2572,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                 const isFreeLesson = index < chapterFreeLessons;
                                 const isChapterPurchased = chapterId && purchasedChapterSet.has(String(chapterId));
                                 const isPurchased = (mod?._id && purchasedModuleSet.has(String(mod._id))) || Boolean(isChapterPurchased);
-                                const isPaywallLocked = Boolean(access?.locked && mod?._id && !isCompleted && !playedModuleSet.has(String(mod._id)) && (!isAdmin || access?.testView));
+                                const isPaywallLocked = Boolean(lessonPaywall(mod, isCompleted));
 
                                 let status = "locked";
                                 if (isPaywallLocked) {
@@ -2800,10 +2812,7 @@ const LearnDashboard = ({ onboardingData }) => {
                               isAdmin={user?.role === 'admin' && adminViewMode !== 'student'}
                               isMobileLayout={isMobileLayout}
                               // Same rule as the classic map: once the trial is over, lessons not played need the pass
-                              isPaywallLocked={(mod, isCompleted) => Boolean(
-                                access?.locked && mod?._id && !isCompleted && !playedModuleSet.has(String(mod._id)) &&
-                                (!(user?.role === 'admin' && adminViewMode !== 'student') || access?.testView)
-                              )}
+                              isPaywallLocked={(mod, isCompleted) => Boolean(lessonPaywall(mod, isCompleted))}
                               onModuleClick={(mod, u, status) => {
                                 if (status === 'paywall' || status === 'locked') vibrateError(); else vibrateLight();
                                 if (status === 'paywall') {
@@ -2884,7 +2893,7 @@ const LearnDashboard = ({ onboardingData }) => {
 
                                             {chapterTitle && (
                                               <p className="opacity-90 font-bold text-sm text-blue-50">
-                                                {chapterTitle}
+                                                {chapterName(chapterTitle)}
                                               </p>
                                             )}
 
@@ -2931,7 +2940,7 @@ const LearnDashboard = ({ onboardingData }) => {
 </div>
                                             {chapterTitle && (
                                               <p className="opacity-95 text-base md:text-lg">
-                                                {chapterTitle}
+                                                {chapterName(chapterTitle)}
                                               </p>
                                             )}
                                             <div className="flex items-center gap-2 mt-1">
@@ -2991,7 +3000,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                        const isFreeLesson = index < chapterFreeLessons;
                                        const isChapterPurchased = chapterId && purchasedChapterSet.has(String(chapterId));
                                        const isPurchased = (mod?._id && purchasedModuleSet.has(String(mod._id))) || Boolean(isChapterPurchased);
-                                       const isPaywallLocked = Boolean(access?.locked && mod?._id && !isCompleted && !playedModuleSet.has(String(mod._id)) && (!isAdmin || access?.testView));
+                                       const isPaywallLocked = Boolean(lessonPaywall(mod, isCompleted));
 
                                        let status = "locked";
                                        if (isPaywallLocked) {

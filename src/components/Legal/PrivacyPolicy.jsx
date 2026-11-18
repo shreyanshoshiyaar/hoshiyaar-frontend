@@ -1,8 +1,10 @@
 import React from 'react';
+import { useAccess, trialTerms } from '../../context/AccessContext.jsx';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../ui/BackButton.jsx';
 
 const PrivacyPolicy = () => {
+  const terms = trialTerms(useAccess()?.access);
   const navigate = useNavigate();
 
   const handleBack = () => {
@@ -74,7 +76,7 @@ const PrivacyPolicy = () => {
             <li>Provide, maintain, and improve our gamified curriculum and learning features.</li>
             <li>Personalize the child's learning journey and track mastery over chapters.</li>
             <li>Maintain classroom and global school-specific leaderboards.</li>
-            <li>Run the free trial (48 hours or 7 lessons, whichever comes first), activate the HoshiYaar Pro pass after payment, verify payments with Razorpay or Google Play, and process refunds.</li>
+            <li>Run the free trial ({terms.hours} hours or {terms.lessons} lessons, whichever comes first), activate the HoshiYaar Pro pass after payment, verify payments with Razorpay or Google Play, and process refunds.</li>
             <li>Send learning reminders and service notifications to the app (you can turn notifications off in your phone settings).</li>
             <li>Communicate with parents regarding learning milestones, service updates, billing, and parental consent.</li>
           </ul>

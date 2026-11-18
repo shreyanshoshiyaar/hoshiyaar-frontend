@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import paymentService from '../../services/paymentService.js';
 import SimpleLoading from '../ui/SimpleLoading.jsx';
 import RefundsPanel from './RefundsPanel.jsx';
+import ChapterAccessPanel from './ChapterAccessPanel.jsx';
 
 // Where a payment came from (PaymentTransaction.experimentVariant)
 const SOURCE_LABEL = {
@@ -10,7 +11,7 @@ const SOURCE_LABEL = {
   google_play_test: 'Play (test)',
   mock_sandbox: 'Test checkout'
 };
-const SUB_TABS = ['rules', 'transactions', 'refunds'];
+const SUB_TABS = ['rules', 'access', 'transactions', 'refunds'];
 
 export default function PaymentManager({ subTab = '', onSubTab }) {
   const activeTab = SUB_TABS.includes(subTab) ? subTab : 'rules';
@@ -258,6 +259,7 @@ export default function PaymentManager({ subTab = '', onSubTab }) {
       <div className="flex border-b border-gray-200 mb-6 gap-2 sm:gap-4 overflow-x-auto no-scrollbar">
         {[
           { id: 'rules', label: '⚙️ Trial & Price' },
+          { id: 'access', label: '🔒 Chapter Access' },
           { id: 'transactions', label: '📊 Payments Log' },
           { id: 'refunds', label: '↩️ Refunds' }
         ].map((tab) => (
@@ -620,6 +622,7 @@ export default function PaymentManager({ subTab = '', onSubTab }) {
         </div>
       )}
 
+      {activeTab === 'access' && <ChapterAccessPanel />}
       {activeTab === 'refunds' && <RefundsPanel />}
     </div>
   );

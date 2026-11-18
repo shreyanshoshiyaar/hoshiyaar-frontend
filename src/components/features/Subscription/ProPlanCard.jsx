@@ -1,4 +1,5 @@
 import React from 'react';
+import { trialTerms } from '../../../context/AccessContext.jsx';
 import { useNavigate } from 'react-router-dom';
 import { useAccess, trialMsLeft, passTimeLeft } from '../../../context/AccessContext.jsx';
 import { useShowPro } from '../../../hooks/useShowPro.js';
@@ -23,7 +24,7 @@ export default function ProPlanCard({ className = '' }) {
   else if (access?.state === 'trial_active' || access?.state === 'guest_limit' || (access?.state === 'trial_not_started' && trialMsLeft(access, now) != null)) {
     const ms = trialMsLeft(access, now);
     status = `Free trial · ${ms != null ? hoursLeft(ms) : ''}`;
-  } else if (access?.state === 'trial_not_started') status = 'Free trial: 48 hours, starts with your first lesson';
+  } else if (access?.state === 'trial_not_started') status = `Free trial: ${trialTerms(access).hours} hours, starts with your first lesson`;
 
   return (
     <button

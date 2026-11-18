@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { chapterName } from '../../../utils/chapterName.js';
 import { useNavigate } from 'react-router-dom';
 import curriculumService from '../../../services/curriculumService';
 import SimpleLoading from '../../ui/SimpleLoading';
@@ -436,14 +437,14 @@ const ExamDashboard = ({
                      <optgroup label={activeClass ? `Class ${activeClass} Exams` : "Available Exams"} className="text-gray-700 font-bold">
                        {classExamChapters.map(ch => (
                          <option key={ch._id} value={ch._id} className="text-black bg-white font-medium">
-                           {ch.title}
+                           {chapterName(ch.title)}
                          </option>
                        ))}
                      </optgroup>
                    ) : (
                      availableChapters.map(ch => (
                        <option key={ch._id} value={ch._id} className="text-black bg-white font-medium">
-                         {ch.title}{ch.subjectId?.name && ch.subjectId?.name !== subjectName ? ` (${ch.subjectId.name})` : ''}
+                         {chapterName(ch.title)}{ch.subjectId?.name && ch.subjectId?.name !== subjectName ? ` (${ch.subjectId.name})` : ''}
                        </option>
                      ))
                    )}
@@ -487,7 +488,7 @@ const ExamDashboard = ({
           <div className="flex items-center gap-1.5">
             {isLocked && <span className="text-amber-400 text-xs shrink-0">🔒</span>}
             <p className={`font-bold text-xs sm:text-sm leading-snug truncate ${isSelected ? 'text-cyan-200' : 'text-white'}`}>
-              {ch.title}
+              {chapterName(ch.title)}
             </p>
           </div>
           <p className="text-[10px] text-gray-400 mt-0.5 uppercase tracking-wider font-semibold">
@@ -538,7 +539,7 @@ const ExamDashboard = ({
             </h2>
             <div className="flex flex-col items-center justify-center gap-1.5 mt-1 w-full max-w-lg mx-auto">
               <p className="text-white font-extrabold text-sm sm:text-base tracking-wide text-center leading-snug">
-                {chapterTitle || 'Loading...'}
+                {chapterName(chapterTitle) || 'Loading...'}
               </p>
               {onChangeChapter && (
                 <button
@@ -581,7 +582,7 @@ const ExamDashboard = ({
             </div>
 
             <h3 className="text-lg sm:text-xl font-black text-white mb-1.5 tracking-wide">
-              Unlock Exam Mode for {chapterTitle || 'this Chapter'}
+              Unlock Exam Mode for {chapterName(chapterTitle) || 'this chapter'}
             </h3>
 
             <p className="text-gray-300 text-xs sm:text-sm max-w-md leading-relaxed mb-4">
@@ -852,7 +853,7 @@ const ExamDashboard = ({
                       </div>
                       <div className="min-w-0 flex-1">
                         <h4 className="text-xs sm:text-sm font-black text-white truncate group-hover:text-cyan-200 transition-colors">
-                          {session.chapterTitle || 'Chapter Exam'}
+                          {chapterName(session.chapterTitle) || 'Chapter Exam'}
                         </h4>
                         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] text-cyan-200/70 mt-1">
                           <span>📅 {dateStr}</span>

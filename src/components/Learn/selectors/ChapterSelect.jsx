@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { chapterName } from '../../../utils/chapterName.js';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
 import heroChar from '../../../assets/images/heroChar.png';
@@ -155,7 +156,7 @@ const ChapterSelect = ({ onContinue, onBack, updateData, autoAdvance = false, bo
                             <span className={`font-semibold text-base transition-colors text-left leading-tight ${
                                 selectedChapter === chapter.name ? 'text-blue-600' : 'text-gray-700'
                             }`}>
-                                {chapter.name}
+                                {chapterName(chapter.name)}
                             </span>
                         </button>
                     )})}

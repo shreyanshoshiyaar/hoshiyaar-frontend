@@ -1,8 +1,10 @@
 import React from 'react';
+import { useAccess, trialTerms } from '../../context/AccessContext.jsx';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../ui/BackButton.jsx';
 
 const TermsConditions = () => {
+  const terms = trialTerms(useAccess()?.access);
   const navigate = useNavigate();
 
   const handleBack = () => {
@@ -112,7 +114,7 @@ const TermsConditions = () => {
               </p>
             </div>
             <ul className="list-disc pl-5 space-y-2 text-gray-600">
-              <li><strong>Free Trial:</strong> The free trial starts with the learner's first lesson and ends after <strong>48 hours or 7 lessons, whichever comes first</strong>. A guest (not signed in) can play up to 5 lessons and then needs to create a free account to continue the trial. One free trial is available per learner and per device. Lessons played during the trial stay open afterwards.</li>
+              <li><strong>Free Trial:</strong> The free trial starts with the learner's first lesson and ends after <strong>{terms.hours} hours or {terms.lessons} lessons, whichever comes first</strong>. A guest (not signed in) can play up to {terms.guestLessons} lessons and then needs to create a free account to continue the trial. One free trial is available per learner and per device. Lessons played during the trial stay open afterwards.</li>
               <li><strong>HoshiYaar Pro Pass:</strong> A one-time payment of <strong>₹99</strong> (or the price shown at checkout) unlocks every lesson in every chapter for <strong>180 days</strong> from the time of payment. The pass belongs to the learner's account and works on both the website and the Android app.</li>
               <li><strong>One Pass at a Time:</strong> A new pass can be bought only after the current pass has ended.</li>
               <li><strong>No Auto-Renewal:</strong> The pass is never renewed or charged again automatically. When it ends, access to lessons not yet played returns to the free state; played lessons stay open.</li>

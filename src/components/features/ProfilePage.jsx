@@ -8,6 +8,7 @@ import BackButton from '../ui/BackButton.jsx';
 import ProgressPanel from './ProgressPanel.jsx';
 import { CalendarIcon } from '../ui/Icons';
 import { isUserAdmin } from '../../utils/adminCheck.js';
+import { CLASS_CHOICES, classLabel } from '../../utils/classLevel.js';
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -222,10 +223,10 @@ export default function ProfilePage() {
               className="mt-1 w-full px-4 py-3 rounded-2xl border-2 border-blue-200 focus:outline-none focus:border-blue-400 bg-white text-gray-800"
             >
               <option value="" disabled>Select class</option>
-              {['6', '7', '8']
+              {CLASS_CHOICES
                 .filter(c => !(form.board === 'Eduvate (CBSE)' && (c === '7' || c === '8')))
                 .map(c => (
-                <option key={c} value={c}>{c}</option>
+                <option key={c} value={c}>{classLabel(c)}</option>
               ))}
             </select>
           </label>

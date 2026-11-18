@@ -245,30 +245,7 @@ const MobileLeaderboard = ({
           </div>
         )}
 
-        {/* Metric Filters */}
-        <div className="flex gap-2 mb-2 px-1">
-          <button 
-            onClick={() => {
-              setLeaderboardMetric('points');
-              const school = leaderboardScope === 'global' ? null : (user?.school);
-              fetchLeaderboard(school, leaderboardTimeframe, leaderboardScope, 'points');
-            }}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${leaderboardMetric === 'points' ? 'bg-orange-500 text-white shadow-md' : 'bg-gray-100 text-gray-500'}`}
-          >
-            ⭐ Points
-          </button>
-          <button 
-             onClick={() => {
-               setLeaderboardMetric('streak');
-               const school = leaderboardScope === 'global' ? null : (user?.school);
-               fetchLeaderboard(school, leaderboardTimeframe, leaderboardScope, 'streak');
-             }}
-             className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${leaderboardMetric === 'streak' ? 'bg-orange-500 text-white shadow-md' : 'bg-gray-100 text-gray-500'}`}
-          >
-            🔥 Streaks
-          </button>
-        </div>
-
+        {/* Leaderboard ranks by stars only (the Stars / Streaks switch was removed) */}
         {/* Time Filters */}
         {leaderboardMetric === 'points' && (
           <div className="flex gap-2 mb-4 px-1">

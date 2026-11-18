@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { CLASS_CHOICES, classLabel } from '../../utils/classLevel.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useNavigate, Link } from 'react-router-dom';
 import authService from '../../services/authService.js';
@@ -296,8 +297,8 @@ const DesktopMore = ({ stars, weeklyStars }) => {
                     className="w-full bg-gray-50 border border-transparent rounded-lg p-2.5 text-xs font-bold text-gray-800 focus:outline-none focus:bg-white focus:border-blue-500 transition-all appearance-none cursor-pointer"
                   >
                     <option value="" disabled>Select Class</option>
-                    {['6', '7', '8'].map(c => (
-                      <option key={c} value={c}>Class {c}</option>
+                    {CLASS_CHOICES.map(c => (
+                      <option key={c} value={c}>{classLabel(c)}</option>
                     ))}
                   </select>
                 </div>

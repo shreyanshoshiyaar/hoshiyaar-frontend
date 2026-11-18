@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { chapterName } from '../../../utils/chapterName.js';
 import api from '../../../services/apiClient';
 import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
@@ -371,7 +372,7 @@ const ExamPlay = () => {
 
   const examQuestions = location.state.questions;
   const subjectKnowledge = location.state.subjectKnowledge || '';
-  const chapterTitle = location.state.chapterTitle || 'Exam';
+  const chapterTitle = chapterName(location.state.chapterTitle) || 'Exam';
   const chapterId = location.state.chapterId || null;
 
   const [screen, setScreen] = useState('CHALLENGE');

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { trialTerms } from '../../../context/AccessContext.jsx';
 import { useNavigate } from 'react-router-dom';
 import { useAccess, trialMsLeft, passTimeLeft } from '../../../context/AccessContext.jsx';
 import { useAuth } from '../../../context/AuthContext.jsx';
@@ -147,7 +148,7 @@ export default function TrialBanner() {
         <div className="min-w-0">
           <p className="text-[10px] font-black uppercase tracking-wider text-[#FDA4AF] whitespace-nowrap">Free trial ended</p>
           <p className="font-black text-white text-sm sm:text-base leading-tight">
-            {access.trialEndReason === 'lessons' ? `All ${access.trialLessonLimit} free lessons played` : 'Your 48 hours are over'}
+            {access.trialEndReason === 'lessons' ? `All ${trialTerms(access).lessons} free lessons played` : `Your ${trialTerms(access).hours} hours are over`}
           </p>
           <p className="text-[11px] font-bold text-indigo-200">Played lessons stay open</p>
         </div>

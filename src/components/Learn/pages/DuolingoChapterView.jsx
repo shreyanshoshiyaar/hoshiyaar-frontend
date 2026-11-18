@@ -1,4 +1,5 @@
 import AllChaptersButton from '../../ui/AllChaptersButton.jsx';
+import { chapterName } from '../../../utils/chapterName.js';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { progressKey } from '../../../utils/progressKey.js';
 
@@ -86,7 +87,7 @@ export default function DuolingoChapterView({
   const currentUnit = visibleUnits[activeUnitIdx] || visibleUnits[0];
   const stickyHeaderTitle = currentUnit
     ? currentUnit.title || `Unit ${activeUnitIdx + 1}`
-    : chapterTitle || 'Learning Modules';
+    : chapterName(chapterTitle) || 'Learning Modules';
 
   return (
     <div
@@ -149,7 +150,7 @@ export default function DuolingoChapterView({
 
             {/* Chapter Name */}
             <p className="opacity-90 font-bold text-xs sm:text-sm text-blue-50 truncate">
-              {chapterTitle || 'Learning Modules'}
+              {chapterName(chapterTitle) || 'Learning Modules'}
             </p>
 
             {/* Action Pills Row */}

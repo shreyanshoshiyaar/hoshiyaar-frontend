@@ -4,7 +4,12 @@
  * - Comic sequence = Stage 1 (e.g., "MISSION INTEL")
  * - Blackboard sequence = Stage 2 (e.g., "BOARD TIME")
  * - Practice questions = Stage 3 (e.g., "PRACTICE")
+ * Concept cards (journey map, summary cards, brain breaks) are not stages of their own: they sit between
+ * sections, and counting each one made a lesson look like it had many more stages than it does.
  */
+
+// Board items are C1.B2, C1.B2.1, C1.BQ3 ...; brain-break cards (C1.BR2) are concept cards, not boards
+const BOARD_ID = /\.B\d|\.?BQ\d/;
 
 import { isMissionCompleteItem } from './missionCompleteHelper.js';
 
@@ -14,6 +19,7 @@ export function getModuleStages(items = []) {
   }
 
   const stages = [];
+  const conceptIndices = [];
   let currentStage = null;
   let insideBoard = false;
 
@@ -27,7 +33,7 @@ export function getModuleStages(items = []) {
     let defaultTitle = 'CONCEPT';
 
     // Board detection:
-    const isBoardRoot = itemId.includes('.B') || rawType === 'blackboard' || rawType === 'board' || itemId.includes('BQ') || itemId.includes('.BQ');
+    const isBoardRoot = BOARD_ID.test(itemId) || rawType === 'blackboard' || rawType === 'board';
     const isComicItem = itemId.includes('.P') || rawType === 'comic' || (!insideBoard && rawType === 'story');
     const isPracticeItem = ['multiple-choice', 'fill-in-the-blank', 'rearrange', 'descriptive'].includes(rawType);
 
@@ -35,7 +41,7 @@ export function getModuleStages(items = []) {
       insideBoard = true;
       stageType = 'blackboard';
       defaultTitle = 'BOARD TIME';
-    } else if (insideBoard && (rawType.startsWith('engagement') || rawType === 'story' || itemId.includes('.B') || itemId.includes('EQ') || itemId.includes('.EQ') || itemId.includes('BQ') || itemId.includes('.BQ') || it.inputJson?.options)) {
+    } else if (insideBoard && rawType !== 'concept' && (rawType.startsWith('engagement') || rawType === 'story' || BOARD_ID.test(itemId) || itemId.includes('EQ') || it.inputJson?.options)) {
       // Lines, chants, or engagement questions within the board remain in BOARD TIME
       stageType = 'blackboard';
       defaultTitle = 'BOARD TIME';
@@ -56,9 +62,9 @@ export function getModuleStages(items = []) {
       stageType = 'engagement';
       defaultTitle = 'CHALLENGE';
     } else {
-      insideBoard = false;
-      stageType = 'concept';
-      defaultTitle = 'CONCEPT';
+      // A concept card: not a stage, and it doesn't end the board it sits in
+      conceptIndices.push(idx);
+      return;
     }
 
     // Start a new stage when the group changes
@@ -79,6 +85,7 @@ export function getModuleStages(items = []) {
 
   return {
     stages,
+    conceptIndices,
     totalStages: Math.max(1, stages.length)
   };
 }
@@ -88,7 +95,29 @@ export function getModuleStages(items = []) {
  * and total stages.
  */
 export function getStageInfoForIndex(items = [], currentIndex = 0) {
-  const { stages, totalStages } = getModuleStages(items);
+  const { stages, totalStages, conceptIndices = [] } = getModuleStages(items);
+
+  // A concept card keeps the stage number of the section around it, so the header and progress bar never go
+  // backwards: after a section it shows that section as done; before the first section, the start of it
+  if (stages.length > 0 && conceptIndices.includes(currentIndex)) {
+    let before = -1;
+    stages.forEach((st, i) => { if (st.startIndex < currentIndex) before = i; });
+    const host = before >= 0 ? stages[before] : stages[0];
+    const count = Math.max(1, host.itemCount);
+    return {
+      stageNumber: (before >= 0 ? before : 0) + 1,
+      stageIndex: before >= 0 ? before : 0,
+      stageIndexInStage: before >= 0 ? count - 1 : 0,
+      totalStages,
+      stageTitle: 'CONCEPT',
+      stageType: 'concept',
+      itemCountInStage: count,
+      // LessonHeader works out the position as currentIndex - stageStartIndex
+      stageStartIndex: before >= 0 ? currentIndex - (count - 1) : currentIndex,
+      stageEndIndex: currentIndex
+    };
+  }
+
   if (!stages || stages.length === 0) {
     return {
       stageNumber: 1,

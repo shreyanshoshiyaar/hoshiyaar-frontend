@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext.jsx';
-import { useAccess, trialMsLeft, passTimeLeft } from '../../../context/AccessContext.jsx';
+import { useAccess, trialMsLeft, passTimeLeft, trialTerms } from '../../../context/AccessContext.jsx';
 import paymentService from '../../../services/paymentService.js';
 import { usesPlayBilling } from '../../../services/billingService.js';
 import PaywallModal from './PaywallModal.jsx';
@@ -29,11 +29,15 @@ const historySource = (t) => {
 
 // Dev builds only, when the backend has no trial data: a sample so the page can be checked
 let previewStart = null;
-const previewAccess = (now) => {
+// Dev preview of a running trial, using the real trial settings the server sent (Admin → Payments)
+const previewAccess = (now, real) => {
   previewStart = previewStart || now - 6 * 60000;
+  const hours = Number(real?.trialHours) || 48;
+  const lessons = Number(real?.trialLessonLimit) || 7;
   return {
-    state: 'trial_active', trialHours: 48, trialLessonLimit: 7, lessonLimit: 7, lessonsUsed: 2, lessonsLeft: 5,
-    trialStartedAt: new Date(previewStart), trialEndsAt: new Date(previewStart + 48 * 3600000), isGuest: false
+    state: 'trial_active', trialHours: hours, trialLessonLimit: lessons, lessonLimit: lessons, lessonsUsed: 2,
+    lessonsLeft: Math.max(0, lessons - 2), guestLessonLimit: real?.guestLessonLimit, plan: real?.plan,
+    trialStartedAt: new Date(previewStart), trialEndsAt: new Date(previewStart + hours * 3600000), isGuest: false
   };
 };
 
@@ -88,9 +92,10 @@ const FEATURES = [
   { icon: 'replay', title: 'Replay anytime', text: 'Learn at your own pace' },
 ];
 
-const COMPARE = [
-  ['Lessons', '7 lessons', 'Every lesson'],
-  ['Access time', '48 hours', '6 months'],
+// Free column comes from the trial settings in Admin → Payments, not fixed numbers
+const compareRows = (terms) => [
+  ['Lessons', `${terms.lessons} lessons`, 'Every lesson'],
+  ['Access time', `${terms.hours} hours`, terms.passLabel],
   ['Replay played lessons', true, true],
   ['New chapters as they launch', false, true],
 ];
@@ -110,7 +115,7 @@ export default function SubscriptionPage() {
   // Ticks every second on server time, so the countdown is live
   const now = useServerNow();
   const isPreview = import.meta.env.DEV && (!liveAccess || liveAccess.state === 'open');
-  const access = isPreview ? previewAccess(now) : liveAccess;
+  const access = isPreview ? previewAccess(now, liveAccess) : liveAccess;
 
   const handleBack = () => {
     if (window.history.state && typeof window.history.state.idx === 'number' && window.history.state.idx > 0) {
@@ -343,7 +348,7 @@ export default function SubscriptionPage() {
             <span className="text-center text-slate-500">Free</span>
             <span className="text-center text-[#6D28D9]">Pro</span>
           </div>
-          {COMPARE.map(([label, free, pro]) => (
+          {compareRows(trialTerms(access)).map(([label, free, pro]) => (
             <div key={label} className="grid grid-cols-[1.4fr_1fr_1fr] items-center px-4 py-3 border-b border-slate-100 last:border-0">
               <span className="text-[14px] font-bold text-slate-600">{label}</span>
               {[free, pro].map((v, i) => (

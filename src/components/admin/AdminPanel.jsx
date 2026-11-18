@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import curriculumService from '../../services/curriculumService';
+import http from '../../services/apiClient.js';
+import { artFor, HomeTag, HOME_TAG_PRESETS, HOME_TAG_STYLES } from '../layout/home/ChaptersGrid.jsx';
 
 // Each section loads on its own, so one heavy or broken section can't stop the panel opening
 const ContentEditor = lazy(() => import('./ContentEditor'));
@@ -139,6 +141,11 @@ const ChapterDisplayCard = ({ chapter, onSaved }) => {
   const [bgUrl, setBgUrl] = useState(chapter.backgroundImage || '');
   const [youngExplorers, setYoungExplorers] = useState(Boolean(chapter.youngExplorers));
   const [homePin, setHomePin] = useState(chapter.homePin ? String(chapter.homePin) : '');
+  const [iconUrl, setIconUrl] = useState(chapter.iconUrl || '');
+  const [iconUploading, setIconUploading] = useState(false);
+  const [iconBroken, setIconBroken] = useState(false);
+  const [tagText, setTagText] = useState(chapter.homeTag?.text || '');
+  const [tagColor, setTagColor] = useState(chapter.homeTag?.color || 'amber');
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
 
@@ -147,14 +154,41 @@ const ChapterDisplayCard = ({ chapter, onSaved }) => {
     setBgUrl(chapter.backgroundImage || '');
     setYoungExplorers(Boolean(chapter.youngExplorers));
     setHomePin(chapter.homePin ? String(chapter.homePin) : '');
+    setIconUrl(chapter.iconUrl || '');
+    setIconBroken(false);
+    setTagText(chapter.homeTag?.text || '');
+    setTagColor(chapter.homeTag?.color || 'amber');
     setMsg('');
-  }, [chapter._id, chapter.mapStyle, chapter.backgroundImage, chapter.youngExplorers, chapter.homePin]);
+  }, [chapter._id, chapter.mapStyle, chapter.backgroundImage, chapter.youngExplorers, chapter.homePin, chapter.iconUrl, chapter.homeTag?.text, chapter.homeTag?.color]);
+
+  // Same upload as Admin → Character Images: the server stores it on Cloudinary and returns the link
+  const uploadIcon = async (file) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { setMsg('Choose an image file (PNG, JPG, WebP or SVG).'); return; }
+    setIconUploading(true);
+    setMsg('');
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('folder', 'hoshiyaar/chapter-icons');
+      const res = await http.post('/api/upload/image', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      const url = res.data?.url || res.data?.secure_url;
+      if (!url) throw new Error('The upload did not return an image link.');
+      setIconUrl(url);
+      setIconBroken(false);
+      setMsg('Picture uploaded. Press Save Chapter Settings to use it.');
+    } catch (err) {
+      setMsg(err?.response?.status === 413 ? 'That image is too large.' : `Upload failed: ${err?.response?.data?.message || err.message}`);
+    } finally {
+      setIconUploading(false);
+    }
+  };
 
   const save = async () => {
     try {
       setSaving(true);
       setMsg('');
-      const res = await curriculumService.updateChapterDisplay(chapter._id, { mapStyle, backgroundImage: bgUrl.trim(), youngExplorers, homePin: homePin ? Number(homePin) : null });
+      const res = await curriculumService.updateChapterDisplay(chapter._id, { mapStyle, backgroundImage: bgUrl.trim(), youngExplorers, homePin: homePin ? Number(homePin) : null, iconUrl: iconUrl.trim(), homeTag: tagText.trim() ? { text: tagText.trim(), color: tagColor } : null });
       onSaved(res.data);
       setMsg('Saved. Students see it the next time they open the chapter.');
     } catch (err) {
@@ -166,7 +200,7 @@ const ChapterDisplayCard = ({ chapter, onSaved }) => {
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-6">
-      <h2 className="text-xl font-semibold text-gray-800 mb-1">Chapter Map Style, Background, Young Explorers &amp; Home Screen</h2>
+      <h2 className="text-xl font-semibold text-gray-800 mb-1">Chapter Settings: Map, Background, Icon, Home Tag, Young Explorers &amp; Home Screen</h2>
       <p className="text-xs text-gray-500 mb-4">{chapter.title}</p>
       <div className="flex flex-col lg:flex-row gap-5">
         <div className="lg:w-1/2">
@@ -214,6 +248,96 @@ const ChapterDisplayCard = ({ chapter, onSaved }) => {
           <span className="block text-[11px] text-gray-500 leading-snug">Lists this chapter in the All Chapters panel's Young Explorers space, for students of every class. Only shows once the chapter is published.</span>
         </span>
       </label>
+      <div className="mt-4 flex items-center gap-4 rounded-xl border-2 border-gray-200 px-3 py-3">
+        <span className="w-16 h-16 rounded-2xl bg-slate-50 border-2 border-slate-200 flex items-center justify-center text-4xl shrink-0 overflow-hidden">
+          {iconUrl.trim() && !iconBroken
+            ? <img src={iconUrl.trim()} alt="" className="w-12 h-12 object-contain" onError={() => setIconBroken(true)} />
+            : artFor(chapter.title)}
+        </span>
+        <div className="min-w-0 flex-1 space-y-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm font-bold text-gray-800">Chapter icon</span>
+            <span className={`text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${iconUrl.trim() ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-500'}`}>
+              {iconUrl.trim() ? 'Custom' : 'Default (from the title)'}
+            </span>
+          </div>
+          <input
+            type="url"
+            id={`chapter-icon-${chapter._id}`}
+            value={iconUrl}
+            onChange={(e) => { setIconUrl(e.target.value); setIconBroken(false); }}
+            placeholder="Paste image link, or upload"
+            className="w-full text-xs px-2.5 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          />
+          <div className="flex items-center gap-3">
+            <label htmlFor={`chapter-icon-file-${chapter._id}`} className={`text-xs font-bold px-3 py-1.5 rounded-lg cursor-pointer ${iconUploading ? 'bg-slate-100 text-slate-400' : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100'}`}>
+              {iconUploading ? 'Uploading…' : 'Upload picture'}
+            </label>
+            <input
+              id={`chapter-icon-file-${chapter._id}`}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              disabled={iconUploading}
+              onChange={(e) => { uploadIcon(e.target.files?.[0]); e.target.value = ''; }}
+            />
+            {iconUrl.trim() && (
+              <button type="button" onClick={() => { setIconUrl(''); setIconBroken(false); }} className="text-xs font-bold text-slate-500 hover:text-red-600">
+                Reset to default
+              </button>
+            )}
+            <span className="text-[11px] text-gray-500">Square picture with a plain or clear background works best. Shown in All Chapters and on the home screen.</span>
+          </div>
+        </div>
+      </div>
+      <div className="mt-4 rounded-xl border-2 border-gray-200 px-3 py-3 space-y-2.5">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-sm font-bold text-gray-800">Home screen tag</span>
+          <span className="text-[11px] text-gray-500">A small label on this chapter's card on the home screen.</span>
+          {tagText.trim() && <span className="ml-auto text-[11px] font-semibold text-gray-500 flex items-center gap-1.5">Preview <HomeTag tag={{ text: tagText.trim(), color: tagColor }} /></span>}
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          <button
+            type="button"
+            onClick={() => setTagText('')}
+            className={`rounded-full px-2.5 py-1 text-[11px] font-bold border ${!tagText.trim() ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}
+          >
+            None
+          </button>
+          {HOME_TAG_PRESETS.map((t) => (
+            <button
+              key={t.text}
+              type="button"
+              onClick={() => { setTagText(t.text); setTagColor(t.color); }}
+              className={`rounded-full p-0.5 border-2 ${tagText.trim() === t.text ? 'border-indigo-500' : 'border-transparent'}`}
+              title={`Use "${t.text}"`}
+            >
+              <HomeTag tag={t} />
+            </button>
+          ))}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <input
+            type="text"
+            id={`home-tag-${chapter._id}`}
+            value={tagText}
+            maxLength={14}
+            onChange={(e) => setTagText(e.target.value)}
+            placeholder="Or type your own (max 14)"
+            className="w-48 text-xs px-2.5 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          />
+          <span className="text-[11px] font-semibold text-gray-500">Colour</span>
+          {Object.keys(HOME_TAG_STYLES).map((c) => (
+            <button
+              key={c}
+              type="button"
+              onClick={() => setTagColor(c)}
+              aria-label={`${c} tag`}
+              className={`w-6 h-6 rounded-full ${HOME_TAG_STYLES[c]} ${tagColor === c ? 'ring-2 ring-offset-2 ring-indigo-500' : ''}`}
+            />
+          ))}
+        </div>
+      </div>
       <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border-2 border-gray-200 px-3 py-2.5">
         <label htmlFor={`home-pin-${chapter._id}`} className="text-sm font-bold text-gray-800">Home screen position</label>
         <select
@@ -688,7 +812,7 @@ const AdminPanel = () => {
             <ChapterDisplayCard
               chapter={chapters.find(c => c._id === selectedChapter)}
               onSaved={(saved) => setChapters(prev => prev.map(c => {
-                if (c._id === saved._id) return { ...c, mapStyle: saved.mapStyle, backgroundImage: saved.backgroundImage, youngExplorers: saved.youngExplorers, homePin: saved.homePin ?? null };
+                if (c._id === saved._id) return { ...c, mapStyle: saved.mapStyle, backgroundImage: saved.backgroundImage, youngExplorers: saved.youngExplorers, homePin: saved.homePin ?? null, iconUrl: saved.iconUrl || null, homeTag: saved.homeTag || null };
                 // The server frees the spot from any other chapter in the class
                 return saved.homePin && c.homePin === saved.homePin ? { ...c, homePin: null } : c;
               }))}

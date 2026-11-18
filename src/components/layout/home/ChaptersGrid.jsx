@@ -1,4 +1,5 @@
 import React from 'react';
+import { chapterName } from '../../../utils/chapterName.js';
 
 // Card colours in the order the client's design uses them
 const CARD_THEMES = [
@@ -11,22 +12,63 @@ const CARD_THEMES = [
 // A picture for each chapter, picked from its title
 const CHAPTER_ART = [
   [/water|states of matter|journey/i, '🌍'],
-  [/separat|mixture|substance|acid|base|salt|chemical/i, '🧪'],
+  [/separat|mixture|substance|acid|base|salt|chemical|solut|solvent|dissolv/i, '🧪'],
   [/material|metal|matter|crystal/i, '💎'],
   [/living|diversity|plant|animal|organism|life|biodiversity/i, '🌱'],
   [/light|shadow|reflect/i, '💡'],
   [/electric|circuit|current/i, '⚡'],
   [/magnet/i, '🧲'],
-  [/food|nutrition|eat|diet/i, '🍎'],
+  [/food|nutrition|\beat\b|diet/i, '🍎'],
   [/health|body|adolescen|disease/i, '🩺'],
   [/measure|length|distance/i, '📏'],
   [/heat|temperature/i, '🌡️'],
   [/motion|force|pressure|speed/i, '🚀'],
-  [/air|weather|climate|wind/i, '🌬️'],
-  [/earth|sky|space|star|planet/i, '🪐'],
+  [/\bair\b|weather|climate|wind/i, '🌬️'],
+  [/earth|sky|skies|space|star|planet|moon|sun\b|time/i, '🪐'],
+  [/\bai\b|artificial intelligence|robot|computer|coding/i, '🤖'],
   [/invisible|micro|cell/i, '🔬'],
+  [/nature|harmony|ecosystem/i, '🌿'],
 ];
 export const artFor = (title = '') => (CHAPTER_ART.find(([re]) => re.test(title)) || [null, '🔬'])[1];
+
+// Home screen card tags, set from Admin → Content (Chapter.homeTag). Colours must match HOME_TAG_COLORS on the server.
+export const HOME_TAG_STYLES = {
+  amber: 'bg-gradient-to-r from-amber-400 to-orange-400 text-[#3B2600]',
+  green: 'bg-emerald-500 text-white',
+  blue: 'bg-blue-600 text-white',
+  purple: 'bg-violet-600 text-white',
+  pink: 'bg-pink-500 text-white',
+  red: 'bg-red-500 text-white',
+  slate: 'bg-slate-800 text-white',
+};
+export const HOME_TAG_PRESETS = [
+  { text: '✨ New', color: 'green' },
+  { text: '👑 Pro only', color: 'amber' },
+  { text: '🔥 Popular', color: 'pink' },
+  { text: '🎁 Free', color: 'blue' },
+  { text: '📝 Exam special', color: 'purple' },
+];
+
+/** A chapter's home tag as a small pill, or nothing */
+export function HomeTag({ tag, className = '' }) {
+  const text = String(tag?.text || '').trim();
+  if (!text) return null;
+  return (
+    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[9.5px] font-black uppercase tracking-wide whitespace-nowrap shadow-sm ${HOME_TAG_STYLES[tag.color] || HOME_TAG_STYLES.amber} ${className}`}>
+      {text}
+    </span>
+  );
+}
+
+/** The chapter's picture from Admin → Content (iconUrl), or an emoji picked from its title */
+export function ChapterArt({ chapter, imgClassName = 'w-9 h-9' }) {
+  const [broken, setBroken] = React.useState(false);
+  const url = chapter?.iconUrl;
+  if (url && !broken) {
+    return <img src={url} alt="" className={`${imgClassName} object-contain`} onError={() => setBroken(true)} />;
+  }
+  return artFor(chapter?.title);
+}
 
 export default function ChaptersGrid({ chapters, loading, onContinue, onAllLessons }) {
   return (
@@ -65,14 +107,16 @@ export default function ChaptersGrid({ chapters, loading, onContinue, onAllLesso
                 onClick={() => onContinue(ch)}
                 className={`relative flex flex-col rounded-[20px] p-2.5 shadow-[0_3px_8px_rgba(0,0,0,0.08)] cursor-pointer active:translate-y-px ${theme.bg}`}
               >
-                {ch.isCompleted && (
+                {ch.homeTag?.text ? (
+                  <HomeTag tag={ch.homeTag} className="absolute top-2 right-2 max-w-[60%] overflow-hidden text-ellipsis" />
+                ) : ch.isCompleted && (
                   <span className="absolute top-2 right-2 rounded-full bg-[#22C55E] px-1.5 py-px text-[9px] font-black text-white shadow-sm">✓ DONE</span>
                 )}
-                <span className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-[28px] shadow-sm mb-1.5">
-                  {artFor(ch.title)}
+                <span className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-[28px] shadow-sm mb-1.5 overflow-hidden">
+                  <ChapterArt chapter={ch} imgClassName="w-9 h-9" />
                 </span>
-                <p className="text-[12.5px] font-black text-slate-900 leading-snug line-clamp-2 break-words min-h-[34px]" title={ch.title}>
-                  {ch.title}
+                <p className="text-[12.5px] font-black text-slate-900 leading-snug line-clamp-2 break-words min-h-[34px]" title={chapterName(ch.title)}>
+                  {chapterName(ch.title)}
                 </p>
 
                 <div className="mt-auto pt-1.5">

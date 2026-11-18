@@ -75,8 +75,21 @@ const updateOnboarding = (data, opts) => {
 const updateProfile = (data, opts) => api.put('/api/auth/onboarding', { ...data, platform: getPlatform() }, opts);
 
 // Update user activity and FCM token
-const updateActivity = (userId, fcmToken, opts) => {
-  return api.post('/api/auth/update-activity', { userId, fcmToken, platform: getPlatform() }, opts);
+// The installed Android build (versionCode, e.g. 467), so the server can tell learners on old builds to update
+let appBuildPromise = null;
+const getAppBuild = () => {
+  if (!appBuildPromise) {
+    appBuildPromise = (window.Capacitor?.isNativePlatform?.()
+      ? import('@capacitor/app').then(({ App }) => App.getInfo()).then((i) => parseInt(i.build, 10) || null)
+      : Promise.resolve(null)
+    ).catch(() => null);
+  }
+  return appBuildPromise;
+};
+
+const updateActivity = async (userId, fcmToken, opts) => {
+  const appBuild = await getAppBuild();
+  return api.post('/api/auth/update-activity', { userId, fcmToken, platform: getPlatform(), ...(appBuild ? { appBuild } : {}) }, opts);
 };
 
 // Update user location

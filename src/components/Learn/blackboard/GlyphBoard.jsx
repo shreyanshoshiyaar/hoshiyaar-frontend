@@ -30,6 +30,8 @@ export default function GlyphBoard({
   noShadow = false,
   // Extra classes for the board card, e.g. a height cap from the page around it
   cardClassName = '',
+  // Finish the rest of the drawing quickly (the narration has finished and the lesson is waiting on it)
+  hurry = false,
 }) {
   const svgContainerRef = useRef(null);
   const animFrameRef = useRef(null);
@@ -114,6 +116,8 @@ export default function GlyphBoard({
   // where it is instead of restarting the whole timeline
   const isPausedRef = useRef(isPaused);
   isPausedRef.current = isPaused;
+  const hurryRef = useRef(hurry);
+  hurryRef.current = hurry;
   // When the narration moves to a line before its drawing caught up, the board
   // fast-forwards (still in order) up to here, then plays the new line at normal speed
   const catchUpToRef = useRef(0);
@@ -172,7 +176,7 @@ export default function GlyphBoard({
         // Animate up to the current line's target end time, then pause and hold!
         if (currentTRef.current < targetEnd) {
           const behind = currentTRef.current < catchUpToRef.current;
-          currentTRef.current += dt * (behind ? 3.0 : 0.70);
+          currentTRef.current += dt * (behind || hurryRef.current ? 3.0 : 0.70);
           if (currentTRef.current >= targetEnd) {
             currentTRef.current = targetEnd;
           }

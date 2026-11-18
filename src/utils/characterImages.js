@@ -89,19 +89,35 @@ export const setCharacterOverrides = (next) => {
   listeners.forEach((fn) => fn());
 };
 
+// The app can stay open in the background for days, so the admin's pictures are fetched again when a lesson
+// screen opens or the app comes back to the front, at most every 2 minutes (they used to load once per session,
+// so a picture changed in the admin only showed after the app was fully closed)
+const REFRESH_AFTER_MS = 2 * 60 * 1000;
+let loadedAt = 0;
+
 export const loadCharacterImages = ({ force = false } = {}) => {
-  if (loadPromise && !force) return loadPromise;
+  if (loadPromise && !force && Date.now() - loadedAt < REFRESH_AFTER_MS) return loadPromise;
+  loadedAt = Date.now();
   loadPromise = curriculumService.getSetting(SETTING_KEY)
     .then((resp) => {
       const value = resp?.data?.value;
       if (value && typeof value === 'object') setCharacterOverrides(value);
       return getCharacterOverrides();
     })
-    .catch(() => getCharacterOverrides());
+    .catch(() => {
+      loadedAt = 0; // try again next time instead of waiting out the 2 minutes
+      return getCharacterOverrides();
+    });
   return loadPromise;
 };
 
-/** Loads the admin's pictures once and re-renders the calling component when they change. */
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && listeners.size > 0) loadCharacterImages();
+  });
+}
+
+/** Loads the admin's pictures (refreshing stale ones) and re-renders the calling component when they change. */
 export const useCharacterImages = () => {
   const [, setVersion] = useState(0);
   useEffect(() => {

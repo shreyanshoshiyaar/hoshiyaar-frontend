@@ -46,7 +46,10 @@ const saveTestView = (view) => {
 };
 
 const testAccess = (view, real) => {
-  const base = { trialHours: 48, trialLessonLimit: 7, lessonLimit: 7, isGuest: false, hasPass: false, playedModuleIds: [], testView: true };
+  // Use the real trial settings (Admin → Payments) so the preview matches what students see
+  const hours = Number(real?.trialHours) || 48;
+  const lessons = Number(real?.trialLessonLimit) || 7;
+  const base = { trialHours: hours, trialLessonLimit: lessons, lessonLimit: lessons, guestLessonLimit: real?.guestLessonLimit, plan: real?.plan, isGuest: false, hasPass: false, playedModuleIds: [], testView: true };
   if (view === 'pro') {
     // An admin who really bought the pass sees their real end date; otherwise a fresh 180-day sample
     const realEnd = real?.passExpiresAt ? new Date(real.passExpiresAt) : null;
@@ -57,13 +60,13 @@ const testAccess = (view, real) => {
     };
   }
   if (view === 'ended') {
-    return { ...base, state: 'trial_ended', locked: true, trialEndReason: 'time', lessonsUsed: 7, lessonsLeft: 0 };
+    return { ...base, state: 'trial_ended', locked: true, trialEndReason: 'time', lessonsUsed: lessons, lessonsLeft: 0 };
   }
   let start = Date.now() - 6 * 60000;
   try { start = Number(localStorage.getItem(TEST_START_KEY)) || start; } catch (_) {}
   return {
-    ...base, state: 'trial_active', locked: false, lessonsUsed: 2, lessonsLeft: 5,
-    trialStartedAt: new Date(start), trialEndsAt: new Date(start + 48 * 3600000)
+    ...base, state: 'trial_active', locked: false, lessonsUsed: 2, lessonsLeft: Math.max(0, lessons - 2),
+    trialStartedAt: new Date(start), trialEndsAt: new Date(start + hours * 3600000)
   };
 };
 
@@ -172,6 +175,19 @@ export const passTimeLeft = (access, now) => {
  * Milliseconds of trial left, or null when there is no clock. Before the first lesson the
  * server sends a running pre-trial clock that holds at trialHoldMs (half the trial).
  */
+/**
+ * The free trial's terms as set in Admin → Payments (trial lesson limit, hours, guest limit) and the pass length,
+ * from the access status the server sends. Fallbacks are only used before it arrives.
+ */
+export const trialTerms = (access) => {
+  const lessons = Number(access?.trialLessonLimit) || 7;
+  const hours = Number(access?.trialHours) || 48;
+  const guestLessons = Number(access?.guestLessonLimit) || 5;
+  const passDays = Number(access?.plan?.durationDays) || 180;
+  const passMonths = Math.max(1, Math.round(passDays / 30));
+  return { lessons, hours, guestLessons, passDays, passLabel: `${passMonths} month${passMonths === 1 ? '' : 's'}` };
+};
+
 export const trialMsLeft = (access, now) => {
   if (!access?.trialEndsAt) return null;
   const left = Math.max(0, new Date(access.trialEndsAt).getTime() - now);

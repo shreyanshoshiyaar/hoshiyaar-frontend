@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { chapterName as chapterLabel } from '../../../utils/chapterName.js';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import reviewService from '../../../services/reviewService.js';
@@ -305,7 +306,7 @@ export default function RevisionList() {
             {!chapterId ? 'Select a Chapter to revise' : 'Revision Journey'}
             {chapterId && chapterName && (
               <span className="ml-2 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-2xl bg-purple-100 text-purple-800 font-bold text-sm sm:text-base">
-                {chapterName}
+                {chapterLabel(chapterName)}
               </span>
             )}
           </p>
@@ -329,7 +330,7 @@ export default function RevisionList() {
                 {chapters.map((ch) => (
                   <li key={ch._id} className="w-full p-4 sm:p-6 rounded-3xl border-4 border-purple-300 bg-white shadow-[0_10px_0_0_rgba(147,51,234,0.18)] flex items-center justify-between">
                     <div className="pr-4">
-                      <div className="text-lg sm:text-xl font-extrabold text-purple-800">{ch.title}</div>
+                      <div className="text-lg sm:text-xl font-extrabold text-purple-800">{chapterLabel(ch.title)}</div>
                       <div className="text-sm text-purple-900/70 mt-1">Chapter</div>
                     </div>
                     <div className="flex items-center gap-4">

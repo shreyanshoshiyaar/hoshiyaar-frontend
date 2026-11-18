@@ -832,7 +832,7 @@ export default function ConceptPage() {
     setSpeaking(false);
   }, []);
   const narrationText = item && !isVideoShowing && !shouldShowComic
-    ? [item.title, plainText(item.text || item.content || '')].filter(Boolean).join('. ')
+    ? [item.title, plainText(item.text || item.content || item.concept || item.question || '')].filter(Boolean).join('. ')
     : '';
   const narrationSpeaker = item?.speaker || 'Hoshi';
   const speakCard = useCallback(() => {
@@ -911,7 +911,7 @@ export default function ConceptPage() {
               itemId={item?.itemId || item?._id || `item-${index}`}
               moduleId={moduleNumber}
               chapterId={chapterIdParam}
-              questionText={actualType === 'comic' ? `Comic Slide ${comicSlideIndex + 1}` : (item?.text || item?.title || 'Concept Screen')}
+              questionText={actualType === 'comic' ? `Comic Slide ${comicSlideIndex + 1}` : (item?.text || item?.concept || item?.question || item?.title || 'Concept Screen')}
               screenName={actualType === 'comic' ? `Comic Slide ${comicSlideIndex + 1}` : `Screen ${index + 1}`}
               className="w-8 h-8 sm:w-9 sm:h-9"
             />
@@ -1040,7 +1040,7 @@ export default function ConceptPage() {
             itemId={item?.itemId || item?._id || `item-${index}`}
             moduleId={moduleNumber}
             chapterId={chapterIdParam}
-            questionText={actualType === 'comic' ? `Comic Slide ${comicSlideIndex + 1}` : (item?.text || item?.title || 'Concept Screen')}
+            questionText={actualType === 'comic' ? `Comic Slide ${comicSlideIndex + 1}` : (item?.text || item?.concept || item?.question || item?.title || 'Concept Screen')}
             screenName={actualType === 'comic' ? `Comic Slide ${comicSlideIndex + 1}` : `Screen ${index + 1}`}
             className="w-8 h-8 sm:w-9 sm:h-9"
           />
@@ -1109,7 +1109,7 @@ export default function ConceptPage() {
         ) : (
           <>
             {(() => {
-              const html = String(item.text || item.content || '');
+              const html = String(item.text || item.content || item.concept || item.question || '');
               const textLength = html.replace(/<[^>]*>/g, '').trim().length;
               const imageCount = (Array.isArray(item.images) ? item.images : [item.images]).filter(Boolean).length + (item.imageUrl ? 1 : 0);
               const hasVisual = Boolean(item.glyphCode || actualType === 'blackboard' || actualType === 'blackboard-step' || item.inputJson?.actions || imageCount > 0);

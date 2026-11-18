@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { getSignupSource, setUserProperties } from '../../utils/analytics.js';
 import DeviceLimitPicker from './DeviceLimitPicker.jsx';
 import './RobotAuth.css';
+import { CLASS_CHOICES, classLabel } from '../../utils/classLevel.js';
 
 const HoshiyaarLogo = "https://res.cloudinary.com/imq5966f/image/upload/v1791543780/img-to-link/bihseec7aigbmau4amnd.png";
 
@@ -31,7 +32,7 @@ const UnifiedAuth = () => {
 
   // Mascot & Interaction State
   const [mood, setMood] = useState('idle');
-  const [bubbleText, setBubbleText] = useState("Hi! I'm Hoshi. I guard your account.");
+  const [bubbleText, setBubbleText] = useState("Enter your number to get started!");
   const [isTurned, setIsTurned] = useState(false);
   const [isHyped, setIsHyped] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
@@ -67,7 +68,7 @@ const UnifiedAuth = () => {
   const { login, user } = useAuth();
   // /start and /signup open the same robot screen as Get Started
   const isStartMode = location.pathname === '/start' || location.pathname === '/signup';
-  const CLASSES = ['6', '7', '8'];
+  const CLASSES = CLASS_CHOICES;
 
   // Already signed in (and not mid-celebration): go to lessons
   useEffect(() => {
@@ -1104,7 +1105,7 @@ const UnifiedAuth = () => {
 
               <form onSubmit={handleGuestStart}>
                 <label className="field-label">Which class are you in?</label>
-                <div className="grid grid-cols-3 gap-2 mb-4">
+                <div className="grid grid-cols-2 gap-2 mb-4">
                   {CLASSES.map((c) => (
                     <button
                       key={c}
@@ -1112,7 +1113,7 @@ const UnifiedAuth = () => {
                       onClick={() => {
                         setFormData((prev) => ({ ...prev, classLevel: c }));
                         setMood('happy');
-                        say(`Class ${c}! Great choice.`);
+                        say(`${classLabel(c)}! Great choice.`);
                       }}
                       className={`h-[52px] rounded-[14px] border-2 font-extrabold text-[15px] transition-colors cursor-pointer ${
                         formData.classLevel === c
@@ -1120,7 +1121,7 @@ const UnifiedAuth = () => {
                           : 'bg-[#faf7f0] border-[rgba(35,37,45,0.24)] text-[#23252d] hover:border-[#23252d]'
                       }`}
                     >
-                      Class {c}
+                      {classLabel(c)}
                     </button>
                   ))}
                 </div>

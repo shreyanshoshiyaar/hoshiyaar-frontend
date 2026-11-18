@@ -229,29 +229,7 @@ const DesktopLeaderboard = ({
                 </button>
               </div>
 
-              <div className="flex bg-white p-1 rounded-xl border border-gray-200 shrink-0">
-                <button 
-                  onClick={() => {
-                    setLeaderboardMetric('points');
-                    const school = leaderboardScope === 'global' ? null : (user?.school);
-                    fetchLeaderboard(school, leaderboardTimeframe, leaderboardScope, 'points');
-                  }}
-                  className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${leaderboardMetric === 'points' ? 'bg-orange-500 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-                >
-                  ⭐ Points
-                </button>
-                <button 
-                  onClick={() => {
-                    setLeaderboardMetric('streak');
-                    const school = leaderboardScope === 'global' ? null : (user?.school);
-                    fetchLeaderboard(school, leaderboardTimeframe, leaderboardScope, 'streak');
-                  }}
-                  className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${leaderboardMetric === 'streak' ? 'bg-orange-500 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-                >
-                  🔥 Streaks
-                </button>
-              </div>
-              
+              {/* Ranked by stars only (the Stars / Streaks switch was removed) */}
               {leaderboardMetric === 'points' && (
                 <div className="flex bg-white p-1 rounded-xl border border-gray-200 shrink-0">
                   <button 

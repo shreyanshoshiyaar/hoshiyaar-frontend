@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { CLASS_CHOICES, classLabel } from '../../utils/classLevel.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useNavigate, Link } from 'react-router-dom';
 import authService from '../../services/authService.js';
@@ -340,8 +341,8 @@ const MobileMore = ({ stars, weeklyStars }) => {
                   className="w-full bg-blue-50/30 border-2 border-blue-50 rounded-2xl p-3.5 text-sm font-bold text-blue-900 focus:outline-none focus:border-blue-200 transition-all appearance-none"
                 >
                   <option value="" disabled>Select Class</option>
-                  {['6', '7', '8'].map(c => (
-                    <option key={c} value={c}>Class {c}</option>
+                  {CLASS_CHOICES.map(c => (
+                    <option key={c} value={c}>{classLabel(c)}</option>
                   ))}
                 </select>
               </div>

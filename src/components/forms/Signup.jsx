@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import AuthLayout from './AuthLayout';
 import authService from '../../services/authService.js';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { CLASS_CHOICES, classLabel } from '../../utils/classLevel.js';
 
 const Signup = () => {
   const [step, setStep] = useState(1);
@@ -372,8 +373,8 @@ const Signup = () => {
                   className={`w-full bg-white border border-slate-300 rounded-xl p-3.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm shadow-sm ${formData.classLevel ? 'text-slate-900' : 'text-slate-400'}`}
                 >
                   <option value="" disabled className="text-slate-400">Select class</option>
-                  {['6', '7', '8'].map(c => (
-                    <option key={c} value={c} className="bg-white text-slate-900">Class {c}</option>
+                  {CLASS_CHOICES.map(c => (
+                    <option key={c} value={c} className="bg-white text-slate-900">{classLabel(c)}</option>
                   ))}
                 </select>
               </div>

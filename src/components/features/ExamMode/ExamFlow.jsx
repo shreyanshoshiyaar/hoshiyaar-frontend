@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { chapterName } from '../../../utils/chapterName.js';
 import api from '../../../services/apiClient';
 import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
@@ -965,7 +966,7 @@ const ExamFlow = () => {
       {/* --- FLOW SCREEN --- */}
       {screen === 'FLOW' && currentItem && (
         <div className="flex flex-col h-full relative z-10 animate-fade-in min-h-0 w-full">
-           <TopBar title={chapterTitle} onBack={() => navigate(-1)} />
+           <TopBar title={chapterName(chapterTitle)} onBack={() => navigate(-1)} />
            <ProgressBar />
            
            <div className="flex-1 p-2 sm:px-4 sm:py-3 flex flex-col gap-3 overflow-y-auto min-h-0 max-w-5xl mx-auto w-full">

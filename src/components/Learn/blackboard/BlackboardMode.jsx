@@ -464,6 +464,13 @@ export default function BlackboardMode() {
 
   const audioRef = useRef(null);
   const autoAdvanceTimerRef = useRef(null);
+  // A card moves on only when its last line has been spoken AND its drawing has finished. The drawing runs
+  // slower than the (sped-up) voice, so a short last line used to cut the drawing off. While it waits, the
+  // board speeds the rest of the drawing up; a safety limit keeps a glitch from stalling the lesson.
+  const boardDoneRef = useRef(true);
+  const pendingCardAdvanceRef = useRef(null);
+  const [boardHurry, setBoardHurry] = useState(false);
+  const BOARD_WAIT_LIMIT_MS = 12000;
   const touchListenerRef = useRef(null);
   const isMountedRef = useRef(true);
   const currentLineIndexRef = useRef(currentLineIndex);
@@ -620,6 +627,7 @@ export default function BlackboardMode() {
 
   const stopAudio = () => {
     setIsPaused(false);
+    pendingCardAdvanceRef.current = null;
     if (autoAdvanceTimerRef.current) {
       clearTimeout(autoAdvanceTimerRef.current);
       autoAdvanceTimerRef.current = null;
@@ -644,6 +652,16 @@ export default function BlackboardMode() {
       try { window.speechSynthesis.cancel(); } catch (_) {}
     }
     setIsPlaying(false);
+  };
+
+  const handleBoardStepEnded = () => {
+    boardDoneRef.current = true;
+    const advance = pendingCardAdvanceRef.current;
+    if (!advance) return;
+    if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
+    autoAdvanceTimerRef.current = setTimeout(() => {
+      if (pendingCardAdvanceRef.current === advance) advance();
+    }, 350);
   };
 
   const playLineAudio = (lineText, speakerName) => {
@@ -677,17 +695,27 @@ export default function BlackboardMode() {
         }
         // A slider step waits for the child: it moves on when they reach the target or tap Next
         if (sliderWaitingRef.current) return;
-        autoAdvanceTimerRef.current = setTimeout(() => {
-          if (isMountedRef.current) {
-            if (currentCardIndexRef.current < cardsRef.current.length - 1) {
-              setCurrentCardIndex(prev => prev + 1);
-              setCurrentLineIndex(0);
-              setAnimKey(k => k + 1);
-            } else {
-              handleProceedNext();
-            }
+        const advanceCard = () => {
+          pendingCardAdvanceRef.current = null;
+          if (!isMountedRef.current) return;
+          if (currentCardIndexRef.current < cardsRef.current.length - 1) {
+            setCurrentCardIndex(prev => prev + 1);
+            setCurrentLineIndex(0);
+            setAnimKey(k => k + 1);
+          } else {
+            handleProceedNext();
           }
-        }, 350);
+        };
+        if (boardDoneRef.current) {
+          autoAdvanceTimerRef.current = setTimeout(advanceCard, 350);
+        } else {
+          // Voice finished first: let the drawing finish (faster now), then move on
+          pendingCardAdvanceRef.current = advanceCard;
+          setBoardHurry(true);
+          autoAdvanceTimerRef.current = setTimeout(() => {
+            if (pendingCardAdvanceRef.current === advanceCard) advanceCard();
+          }, BOARD_WAIT_LIMIT_MS);
+        }
       }
     };
 
@@ -901,6 +929,14 @@ export default function BlackboardMode() {
   const currentWidget = currentCard?.inputJson?.widget;
   const isSliderWidget = Boolean(currentWidget && (currentWidget.type === 'slider' || currentWidget.type === 'board_slider'));
   const isButtonWidget = Boolean(currentWidget && (currentWidget.type === 'buttons' || currentWidget.type === 'button'));
+
+  useEffect(() => {
+    const hasTimedDrawing = Boolean(currentCard?.inputJson?.actions?.length) && !isSliderWidget && !isButtonWidget;
+    boardDoneRef.current = !hasTimedDrawing;
+    pendingCardAdvanceRef.current = null;
+    setBoardHurry(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentCardIndex, replayKey, isSliderWidget, isButtonWidget]);
 
   const [selectedWidgetButton, setSelectedWidgetButton] = useState(null);
   const [tappedWidgetButtons, setTappedWidgetButtons] = useState(() => new Set());
@@ -1400,6 +1436,8 @@ export default function BlackboardMode() {
             animKey={`${currentCardIndex}_${replayKey}`}
             isPaused={!!activeEngagement}
             scrubTime={(isSliderWidget || isButtonWidget) ? sliderT : null}
+            onStepEnded={handleBoardStepEnded}
+            hurry={boardHurry}
             fillHeight
           />
         </div>

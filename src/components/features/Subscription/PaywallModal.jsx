@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { trialTerms } from '../../../context/AccessContext.jsx';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import { useAccess } from '../../../context/AccessContext.jsx';
 import paymentService from '../../../services/paymentService.js';
@@ -185,10 +186,11 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
     }
   };
 
+  const terms = trialTerms(access);
   const headline = access?.trialEndReason === 'time'
-    ? 'Your 48-hour free trial has ended'
+    ? `Your ${terms.hours}-hour free trial has ended`
     : access?.trialEndReason === 'lessons'
-      ? `You've played all ${access?.trialLessonLimit || 7} free lessons`
+      ? `You've played all ${terms.lessons} free lessons`
       : 'Unlock every lesson';
   const savePct = original ? Math.round((1 - chargedAmount / plan.discountedFrom) * 100) : 0;
   const perMonth = (chargedAmount / 6).toFixed(chargedAmount % 6 === 0 ? 0 : 1);

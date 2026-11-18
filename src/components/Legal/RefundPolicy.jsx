@@ -1,8 +1,10 @@
 import React from 'react';
+import { useAccess, trialTerms } from '../../context/AccessContext.jsx';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../ui/BackButton.jsx';
 
 const RefundPolicy = () => {
+  const terms = trialTerms(useAccess()?.access);
   const navigate = useNavigate();
 
   const handleBack = () => {
@@ -60,7 +62,7 @@ const RefundPolicy = () => {
               Hoshiyaar Academy provides digital, interactive curriculum content, practice exercises, and Chapter Exam Mode assessments for CBSE Classes 6, 7, and 8. 
             </p>
             <div className="bg-emerald-50/70 border border-emerald-200/90 rounded-2xl p-4 text-emerald-950 text-xs leading-relaxed">
-              <strong>✨ Try before you pay:</strong> Every learner gets a free trial — 48 hours or 7 lessons, whichever comes first — before any payment. We encourage parents and students to experience the teaching style, interface, and questions before buying the Pro pass.
+              <strong>✨ Try before you pay:</strong> Every learner gets a free trial — {terms.hours} hours or {terms.lessons} lessons, whichever comes first — before any payment. We encourage parents and students to experience the teaching style, interface, and questions before buying the Pro pass.
             </div>
           </section>
 
