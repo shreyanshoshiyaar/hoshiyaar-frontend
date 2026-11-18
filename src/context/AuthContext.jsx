@@ -4,6 +4,7 @@ import { logDev } from '../utils/logger.js';
 import pointsService from '../services/pointsService.js';
 import { useStars } from './StarsContext.jsx';
 import { setupPushNotifications } from '../utils/pushNotifications.js';
+import { forgetIntroSeen } from '../utils/onboardingVideo.js';
 
 const AuthContext = createContext(null);
 
@@ -196,7 +197,8 @@ export const AuthProvider = ({ children }) => {
         try { localStorage.removeItem('lesson_progress_v1'); } catch (_) {}
         try { localStorage.removeItem('lesson_completed_ids_v1'); } catch (_) {}
         
-        // Clear onboarding and streak data
+        // Clear onboarding and streak data (the welcome video plays again after the next login)
+        try { forgetIntroSeen(); } catch (_) {}
         try { localStorage.removeItem('learnOnboarded'); } catch (_) {}
         try { localStorage.removeItem('daily_streak_day'); } catch (_) {}
         try { localStorage.removeItem('daily_streak_count'); } catch (_) {}

@@ -43,23 +43,23 @@ export const hasSeenIntro = (userId) => {
 export const markIntroSeen = (userId) => {
   try { if (userId) localStorage.setItem(SEEN_PREFIX + userId, String(Date.now())); } catch { /* storage blocked */ }
 };
-
-// The account remembers it too, so a reinstall, logout or second phone never plays it again.
-// true = seen, false = not yet, null = couldn't ask (offline): treated as "don't show now".
-const serverChecks = new Map();
-export const checkIntroSeenOnServer = (userId) => {
-  if (!serverChecks.has(userId)) {
-    serverChecks.set(userId, api.get(`/api/auth/intro-video/${userId}`)
-      .then((res) => Boolean(res?.data?.seen))
-      .catch(() => { serverChecks.delete(userId); return null; }));
-  }
-  return serverChecks.get(userId);
+/** On logout: the next login plays it again (once) */
+export const forgetIntroSeen = () => {
+  try {
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(SEEN_PREFIX)) keys.push(k);
+    }
+    keys.forEach((k) => localStorage.removeItem(k));
+  } catch { /* storage blocked */ }
 };
+
+// Records on the account when the learner first saw it (for reports only; it doesn't decide whether it plays)
 const reported = new Set();
 export const reportIntroSeen = (userId) => {
   if (!userId || reported.has(userId)) return;
   reported.add(userId);
-  serverChecks.set(userId, Promise.resolve(true));
   api.post('/api/auth/intro-video-seen', { userId }).catch(() => reported.delete(userId));
 };
 

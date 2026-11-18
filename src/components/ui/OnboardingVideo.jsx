@@ -4,14 +4,14 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { stopAllAudio } from '../../utils/audioPreloadService.js';
 import {
   getIntroVideoUrl, getIntroVideoElement, preloadIntroVideo, parkIntroVideo,
-  hasSeenIntro, markIntroSeen, checkIntroSeenOnServer, reportIntroSeen, INTRO_CLOSED_EVENT,
+  hasSeenIntro, markIntroSeen, reportIntroSeen, INTRO_CLOSED_EVENT,
 } from '../../utils/onboardingVideo.js';
 
 // Screens where the video may open: the home and learn pages a learner lands on after login, signup or as a guest.
 // Not lessons (a notification can open one directly), admin, teacher or legal pages.
 const SHOW_ON = new Set(['/', '/home', '/learn', '/welcome']);
 
-// Full-screen onboarding video, once per account on this device. Autoplays (with sound when the device allows,
+// Full-screen onboarding video, once per login. Autoplays (with sound when the device allows,
 // otherwise muted with a "Tap for sound" button), can be skipped, and closes by itself at the end.
 export default function OnboardingVideo() {
   const { user } = useAuth();
@@ -24,27 +24,19 @@ export default function OnboardingVideo() {
   const closedRef = useRef(false);
   const userId = user?._id ? String(user._id) : '';
 
-  // Once the learner is known: if they saw it before (this phone or another), make sure the account knows and drop
-  // any preloaded copy; otherwise keep downloading it
+  // Once the learner is known: already seen since this login → drop any preloaded copy; otherwise keep downloading
   useEffect(() => {
-    if (!userId) return undefined;
-    if (hasSeenIntro(userId)) { reportIntroSeen(userId); parkIntroVideo({ release: true }); return undefined; }
-    preloadIntroVideo();
-    let cancelled = false;
-    checkIntroSeenOnServer(userId).then((seen) => {
-      if (cancelled || !seen) return;
-      markIntroSeen(userId);
-      parkIntroVideo({ release: true });
-    });
-    return () => { cancelled = true; };
+    if (!userId) return;
+    if (hasSeenIntro(userId)) parkIntroVideo({ release: true });
+    else preloadIntroVideo();
   }, [userId]);
 
-  // Open on the first allowed screen, only when the account confirms it has never been shown
+  // Open on the first allowed screen, once per login (logging out clears the flag)
   useEffect(() => {
     if (!userId || open || hasSeenIntro(userId) || !SHOW_ON.has(location.pathname)) return;
     let cancelled = false;
-    Promise.all([getIntroVideoUrl(), checkIntroSeenOnServer(userId)]).then(([url, seen]) => {
-      if (cancelled || !url || seen !== false || hasSeenIntro(userId)) return;
+    getIntroVideoUrl().then((url) => {
+      if (cancelled || !url || hasSeenIntro(userId)) return;
       // Counted as seen the moment it opens: closing the app halfway never brings it back
       markIntroSeen(userId);
       reportIntroSeen(userId);
