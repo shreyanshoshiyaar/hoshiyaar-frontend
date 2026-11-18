@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { isIntroOpen, INTRO_CLOSED_EVENT } from '../../utils/onboardingVideo.js';
 import { Capacitor } from '@capacitor/core';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { useAuth } from '../../context/AuthContext';
@@ -32,10 +33,15 @@ export default function NotificationPrompt() {
             // Re-check permissions just in case they accepted the system popup during these 10s
             const freshStatus = await PushNotifications.checkPermissions();
             if (freshStatus.receive !== 'granted') {
-              setShowPrompt(true);
-              // Increment the counter when it is actually shown
-              trackingData.count += 1;
-              localStorage.setItem('pushPromptTracking', JSON.stringify(trackingData));
+              const show = () => {
+                setShowPrompt(true);
+                // Increment the counter when it is actually shown
+                trackingData.count += 1;
+                localStorage.setItem('pushPromptTracking', JSON.stringify(trackingData));
+              };
+              // Wait for the onboarding video to close rather than covering it
+              if (isIntroOpen()) window.addEventListener(INTRO_CLOSED_EVENT, () => setTimeout(show, 1500), { once: true });
+              else show();
             }
           }, 60000); // Wait 1 minute so it doesn't overlap with system popup
         }

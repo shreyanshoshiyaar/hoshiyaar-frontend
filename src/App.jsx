@@ -8,6 +8,7 @@ import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import LoadingPage from './components/ui/LoadingPage.jsx';
 import UpdatePrompt from './components/ui/UpdatePrompt.jsx';
+import OnboardingVideo from './components/ui/OnboardingVideo.jsx';
 import MaintenancePrompt from './components/ui/MaintenancePrompt.jsx';
 import NotificationPrompt from './components/ui/NotificationPrompt.jsx';
 import ExamModePromo from './components/ui/ExamModePromo.jsx';
@@ -362,6 +363,7 @@ function App() {
           <Router>
             <MaintenancePrompt />
             <UpdatePrompt />
+            <OnboardingVideo />
             <NotificationPrompt />
             <MicSettingsPrompt />
             <PaymentReturnNotice />

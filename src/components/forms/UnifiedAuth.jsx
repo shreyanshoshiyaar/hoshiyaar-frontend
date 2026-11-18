@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { preloadIntroVideo } from '../../utils/onboardingVideo.js';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import authService from '../../services/authService.js';
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -33,6 +34,9 @@ const UnifiedAuth = () => {
   // Mascot & Interaction State
   const [mood, setMood] = useState('idle');
   const [bubbleText, setBubbleText] = useState("Enter your number to get started!");
+
+  // The onboarding video plays right after login / signup / guest start: start downloading it now
+  useEffect(() => { preloadIntroVideo(); }, []);
   const [isTurned, setIsTurned] = useState(false);
   const [isHyped, setIsHyped] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
