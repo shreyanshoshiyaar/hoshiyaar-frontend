@@ -34,6 +34,11 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
   const [stage, setStage] = useState('');
   const playBilling = usesPlayBilling();
 
+  // The website's card checkout is fetched only when the paywall opens (it used to block every page load)
+  useEffect(() => {
+    if (isOpen && !playBilling) paymentService.loadRazorpayScript();
+  }, [isOpen, playBilling]);
+
   useEffect(() => {
     if (!isOpen) return;
     if (access?.plan?.amount) {

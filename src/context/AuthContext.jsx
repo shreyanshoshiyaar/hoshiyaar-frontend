@@ -58,19 +58,18 @@ export const AuthProvider = ({ children }) => {
                         });
                     }
 
-                    // Always hydrate stars from server to ensure cross-device sync
-                    try {
-                        await hydrateStarsFromServer(parsed?._id);
-                    } catch (error) {
+                    // Refresh stars from the server for cross-device sync. Not awaited: the app opens right away
+                    // with the stars saved on this phone and updates them when the server answers.
+                    hydrateStarsFromServer(parsed?._id).catch((error) => {
                         console.warn('[AuthContext] Failed to sync stars on app load:', error);
-                    }
+                    });
                 }
             } catch (error) {
                 console.error("Failed to parse user from localStorage", error);
             }
             
-            // Add a minimum loading time to show the loading screen
-            await new Promise(resolve => setTimeout(resolve, 800));
+            // A short minimum so the loading screen doesn't flash
+            await new Promise(resolve => setTimeout(resolve, 300));
             setLoading(false);
         };
         

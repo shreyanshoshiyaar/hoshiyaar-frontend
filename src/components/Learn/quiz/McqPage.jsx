@@ -25,7 +25,6 @@ import { useStars, StarCounter } from '../../../context/StarsContext.jsx';
 import pointsService from '../../../services/pointsService.js';
 import curriculumService from '../../../services/curriculumService.js';
 import { progressKey } from '../../../utils/progressKey.js';
-import Lottie from 'lottie-react';
 import LessonHeader from '../LessonHeader.jsx';
 import PlayfulBackground from './PlayfulBackground.jsx';
 import { getStageInfoForIndex } from '../../../utils/moduleStages.js';
@@ -225,16 +224,6 @@ export default function McqPage({ onQuestionComplete, isReviewMode = false }) {
   // The question is read aloud only when the student taps the speaker button (no auto-play)
   const { stars: totalStars, awardCorrect, awardWrong, addToSession, clearSession } = useStars();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [hoshiAnim, setHoshiAnim] = useState(null);
-  const [popAnim, setPopAnim] = useState(null);
-  const [bgAnim, setBgAnim] = useState(null);
-
-  useEffect(() => {
-    fetch('/lottie/Hoshi2.json').then(res => res.json()).then(data => setHoshiAnim(data)).catch(console.error);
-    fetch('/lottie/pop.json').then(res => res.json()).then(data => setPopAnim(data)).catch(console.error);
-    fetch('/lottie/Myra-Background.json').then(res => res.json()).then(data => setBgAnim(data)).catch(console.error);
-  }, []);
-
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);

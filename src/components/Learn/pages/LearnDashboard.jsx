@@ -12,7 +12,8 @@ import { useStars } from '../../../context/StarsContext.jsx';
 
 import authService from "../../../services/authService.js";
 import { progressKey } from "../../../utils/progressKey.js";
-import Lottie from "lottie-react";
+// The animation library is fetched after the home screen is up, not before it
+const Lottie = React.lazy(() => import("lottie-react"));
 import NetworkError from "../../ui/NetworkError.jsx";
 // pathAnimationData will be fetched dynamically to avoid build/performance issues
 import SimpleLoading from '../../ui/SimpleLoading.jsx';
@@ -292,15 +293,17 @@ const PathAnimation = React.memo(({ data, offset, top, isMobileLayout }) => {
         <div className="absolute inset-0 flex items-center justify-center">
           <div className={`${isMobileLayout ? 'w-[190px] h-[190px] -translate-y-[80px]' : 'w-[224px] h-[224px] -translate-y-[94px]'}`}>
             {isVisible && (
-              <Lottie
-                animationData={data}
-                loop={true}
-                style={{ 
-                  width: isMobileLayout ? '190px' : '224px', 
-                  height: isMobileLayout ? '190px' : '224px', 
-                  backgroundColor: 'transparent' 
-                }}
-              />
+              <React.Suspense fallback={null}>
+                <Lottie
+                  animationData={data}
+                  loop={true}
+                  style={{
+                    width: isMobileLayout ? '190px' : '224px',
+                    height: isMobileLayout ? '190px' : '224px',
+                    backgroundColor: 'transparent'
+                  }}
+                />
+              </React.Suspense>
             )}
           </div>
         </div>

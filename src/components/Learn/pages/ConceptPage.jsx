@@ -10,7 +10,6 @@ import { useStars } from '../../../context/StarsContext.jsx';
 import { useReview } from '../../../context/ReviewContext.jsx';
 import ConceptExitConfirm from '../../modals/ConceptExitConfirm.jsx';
 import NoSkipsModal from '../../modals/NoSkipsModal.jsx';
-import Lottie from 'lottie-react';
 import NetworkError from '../../ui/NetworkError.jsx';
 import { trackLevelStart } from '../../../utils/analytics.js';
 import GlyphBoard from '../blackboard/GlyphBoard.jsx';
@@ -33,7 +32,6 @@ const plainText = (html = '') => String(html)
   .replace(/&amp;/g, '&')
   .replace(/\s+/g, ' ')
   .trim();
-// Large Lottie files are now fetched from the public folder to avoid build issues
 
 const ComicLightbox = ({ src, alt, onClose }) => {
   const [scale, setScale] = useState(1);
@@ -192,20 +190,6 @@ export default function ConceptPage() {
   const [isZoomed, setIsZoomed] = useState(false);
   const [comicReadTimer, setComicReadTimer] = useState(0);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  // States for fetched Lottie animations
-  const [hoshiAnim, setHoshiAnim] = useState(null);
-  const [popAnim, setPopAnim] = useState(null);
-  const [bgAnim, setBgAnim] = useState(null);
-  const [myraBgAnim, setMyraBgAnim] = useState(null);
-
-  useEffect(() => {
-    // Fetch large animations from the public folder
-    fetch('/lottie/Hoshi2.json').then(res => res.json()).then(data => setHoshiAnim(data)).catch(console.error);
-    fetch('/lottie/pop.json').then(res => res.json()).then(data => setPopAnim(data)).catch(console.error);
-    fetch('/lottie/Hoshi-Background.json').then(res => res.json()).then(data => setBgAnim(data)).catch(console.error);
-    fetch('/lottie/Myra-Background.json').then(res => res.json()).then(data => setMyraBgAnim(data)).catch(console.error);
-  }, []);
 
   // Dynamically enable native pinch-to-zoom when viewing comic full screen
   useEffect(() => {
