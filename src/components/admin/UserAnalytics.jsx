@@ -593,7 +593,7 @@ const UserAnalytics = () => {
       u.accuracy || 0,
       u.activeDaysCount || 0,
       u.lastActive ? new Date(u.lastActive).toISOString() : '',
-      `"${(u.lastSessionLocation || 'N/A').replace(/"/g, '""')}"`,
+      `"${(u.lastSessionLocation || 'N/A').replace(/"/g, '""')}${u.lastSessionAt ? ` (${new Date(u.lastSessionAt).toISOString().slice(0, 10)})` : ''}"`,
       u.createdAt ? new Date(u.createdAt).toISOString() : ''
     ]);
 
@@ -1515,9 +1515,15 @@ const UserAnalytics = () => {
                             <span className="text-slate-500 font-semibold text-xs whitespace-nowrap">
                               {formatRelativeDate(user.lastActive)}
                             </span>
-                            <span className="text-[11px] text-slate-400 font-medium truncate max-w-[220px]" title={user.lastSessionLocation}>
-                              {user.lastSessionLocation && user.lastSessionLocation !== 'N/A' ? `In: ${user.lastSessionLocation}` : ''}
-                            </span>
+                            {user.lastSessionLocation && user.lastSessionLocation !== 'N/A' && (
+                              <span
+                                className="text-[11px] text-slate-400 font-medium truncate max-w-[220px]"
+                                title={`Last lesson played: ${user.lastSessionLocation}${user.lastSessionAt ? ` on ${new Date(user.lastSessionAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}` : ''}`}
+                              >
+                                Last lesson: {user.lastSessionLocation.replace(/^Chapter\s+\d+\s*:\s*/i, '')}
+                                {user.lastSessionAt ? ` · ${new Date(user.lastSessionAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}` : ''}
+                              </span>
+                            )}
                           </div>
                         </td>
 
