@@ -16,6 +16,8 @@ import { markModuleAsCompleted } from '../../../utils/progressSyncService.js';
 import { getApiBase } from '../../../utils/apiBase.js';
 import { stopAllAudio } from '../../../utils/audioPreloadService.js';
 import TrialTimerBar from '../../features/Subscription/TrialTimerBar.jsx';
+import { useAccess } from '../../../context/AccessContext.jsx';
+import paymentService from '../../../services/paymentService.js';
 import { vibrateSuccess } from '../../../utils/vibrationService.js';
 
 // Sound synthesis for points tally animation
@@ -76,6 +78,8 @@ const LessonComplete = () => {
   const [, setCurrentStreakCount] = useState(() => Math.max(1, Number(user?.streak) || 1));
 
   const [nextModule, setNextModule] = useState(null);
+  const { access } = useAccess();
+  const nextBusy = useRef(false);
   const [currentModuleData, setCurrentModuleData] = useState(null);
 
   // Case Closed summary extraction
@@ -416,7 +420,33 @@ const LessonComplete = () => {
   }, [isChecking, originalPoints, pointsEarned, totalUserPoints]);
 
   // Navigation handlers
-  const handleNext = () => {
+  // Once the free trial is over (and no Pro), Next only opens the next lesson if it is still open for this
+  // learner (played before, or a free lesson); otherwise it goes back to the Learn page
+  const nextIsClosed = async (moduleId) => {
+    if (!access?.locked || access?.hasPass) return false;
+    if ((access.playedModuleIds || []).map(String).includes(String(moduleId))) return false;
+    try {
+      const res = await paymentService.startLesson(moduleId);
+      return res?.hasAccess === false;
+    } catch (_) {
+      return true;
+    }
+  };
+
+  const handleNext = async () => {
+    if (nextBusy.current) return;
+    nextBusy.current = true;
+    try {
+      const nextId = nextModule ? (nextModule.moduleNumber || nextModule._id) : null;
+      if (nextId && await nextIsClosed(nextId)) { handleBackToMap(); return; }
+      if (!nextModule && access?.locked && !access?.hasPass) { handleBackToMap(); return; }
+      goNext();
+    } finally {
+      nextBusy.current = false;
+    }
+  };
+
+  const goNext = () => {
     if (nextModule) {
       const nextModNum = nextModule.moduleNumber || nextModule._id;
       const navParams = new URLSearchParams();
@@ -455,7 +485,7 @@ const LessonComplete = () => {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [nextModule]);
+  }, [nextModule, access]);
 
   if (isChecking) {
     return <SimpleLoading text="Loading completion..." />;

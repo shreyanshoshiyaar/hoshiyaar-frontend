@@ -38,6 +38,8 @@ export default function ModuleEntryRedirect() {
   // Trial / pass gatekeeper: the server counts this lesson against the trial or refuses it
   const [accessChecking, setAccessChecking] = useState(true);
   const [showPaywall, setShowPaywall] = useState(false);
+  // The lesson belongs to a "Pro only" chapter (closed without Pro, also during the trial)
+  const [proOnly, setProOnly] = useState(false);
   const [accessAttempt, setAccessAttempt] = useState(0);
   const { setAccess } = useAccess();
   const { items, loading, error, retry } = useModuleItems(moduleNumber, { enabled: !accessChecking && !showPaywall });
@@ -59,6 +61,7 @@ export default function ModuleEntryRedirect() {
         const res = await paymentService.startLesson(moduleNumber);
         if (!isMounted) return;
         if (res?.access) setAccess(res.access);
+        setProOnly(res?.hasAccess === false && (res?.proOnly === true || res?.reason === 'pro_only'));
         setShowPaywall(res?.hasAccess === false);
       } catch (err) {
         // Network trouble: carry on; the lesson content endpoint still enforces access
@@ -218,6 +221,34 @@ export default function ModuleEntryRedirect() {
   };
 
   if (accessChecking) return <SimpleLoading text="Checking access..." />;
+
+  if (showPaywall && proOnly) {
+    const chapterIdParam = new URLSearchParams(window.location.search).get('chapterId');
+    const backTo = chapterIdParam ? `/learn?chapterId=${encodeURIComponent(chapterIdParam)}` : '/learn';
+    return (
+      <div className="min-h-screen bg-[#F0F6FF] flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-300 to-orange-400 flex items-center justify-center text-4xl mb-5 shadow-[0_8px_24px_rgba(251,146,60,0.35)]">
+          👑
+        </div>
+        <h2 className="text-2xl font-black text-slate-900 mb-2">This is a Pro chapter</h2>
+        <p className="text-sm font-semibold text-slate-500 max-w-xs mb-7">
+          Unlock HoshiYaar Pro to play every lesson in this chapter, and all the other chapters too.
+        </p>
+        <button
+          onClick={() => navigate('/subscription')}
+          className="w-full max-w-xs px-6 py-3.5 rounded-2xl bg-gradient-to-b from-amber-400 to-orange-500 text-[#3B2600] font-black text-base shadow-[0_4px_0_0_#C2410C] active:translate-y-[2px] active:shadow-[0_2px_0_0_#C2410C] transition-all"
+        >
+          Unlock Pro
+        </button>
+        <button
+          onClick={() => navigate(backTo, { replace: true })}
+          className="mt-3 w-full max-w-xs px-6 py-3 rounded-2xl border-2 border-slate-200 bg-white text-slate-700 font-black text-sm active:scale-95 transition-all"
+        >
+          Back to chapters
+        </button>
+      </div>
+    );
+  }
 
   if (showPaywall) {
     const searchParams = new URLSearchParams(window.location.search);

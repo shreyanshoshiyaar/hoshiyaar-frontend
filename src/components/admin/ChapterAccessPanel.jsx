@@ -5,11 +5,13 @@ const MODES = [
   { value: 'trial', label: 'Pro', hint: 'Open during the free trial (48 hours / lesson limit), then Pro only. The default' },
   { value: 'free', label: 'Free for everyone', hint: 'Always open, even for guests and after the trial. Does not use up trial lessons' },
   { value: 'pro_free_start', label: 'Pro, first lessons free', hint: 'The first few lessons stay open for everyone, even after the trial (during the trial they count toward its lesson limit). The rest are Pro after the trial' },
+  { value: 'pro', label: 'Pro only', hint: 'Only students with Pro can play it, also during the free trial. Others see "This is a Pro chapter" with an Unlock Pro button' },
 ];
 const MODE_STYLE = {
   trial: 'bg-amber-100 text-amber-900',
   free: 'bg-green-100 text-green-800',
   pro_free_start: 'bg-blue-100 text-blue-800',
+  pro: 'bg-violet-100 text-violet-800',
 };
 
 // Payments → Chapter Access: who may play each chapter. The server enforces it; the app shows the locks.
