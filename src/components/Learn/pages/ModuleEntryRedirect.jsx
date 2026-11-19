@@ -42,7 +42,20 @@ export default function ModuleEntryRedirect() {
   const [proOnly, setProOnly] = useState(false);
   const [accessAttempt, setAccessAttempt] = useState(0);
   const { setAccess } = useAccess();
-  const { items, loading, error, retry } = useModuleItems(moduleNumber, { enabled: !accessChecking && !showPaywall });
+  // Fetched at the same time as the access check (the server refuses the content of a closed lesson anyway),
+  // so the lesson opens one round trip sooner
+  const { items, loading, error, retry } = useModuleItems(moduleNumber);
+
+  // The content was refused while the access check was still deciding (e.g. a lesson just bought or
+  // a guest who just signed up): load it again once access is confirmed
+  const retriedAfterAccess = React.useRef('');
+  useEffect(() => {
+    if (accessChecking || showPaywall || !error) return;
+    const key = `${moduleNumber}:${accessAttempt}`;
+    if (retriedAfterAccess.current === key) return;
+    retriedAfterAccess.current = key;
+    retry();
+  }, [accessChecking, showPaywall, error, moduleNumber, accessAttempt]);
 
   useEffect(() => {
     // Unlock audio early, and ask for the microphone again if the pop-up was missed or refused

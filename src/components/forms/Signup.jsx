@@ -158,7 +158,7 @@ const Signup = () => {
 
         login(response.data);
         try { sessionStorage.setItem('entryType', 'signup'); } catch (_) {}
-        navigate('/learn');
+        navigate('/home');
       }
       
     } catch (err) {

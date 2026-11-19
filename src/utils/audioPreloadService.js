@@ -102,6 +102,8 @@ export const claimNarrationAudio = () => {
   narrationAudio.onerror = null;
   narrationAudio.ontimeupdate = null;
   narrationAudio.preload = 'auto';
+  // A tap's silent unlock may have left it muted a moment ago
+  narrationAudio.muted = false;
   narrationTurn += 1;
   narrationAudio._hyTurn = narrationTurn;
   return narrationAudio;
@@ -112,13 +114,20 @@ const primeNarration = () => {
   if (!narrationAudio) return;
   const busy = !narrationAudio.paused || (narrationAudio.src && narrationAudio.src !== SILENT_WAV && !narrationAudio.ended && narrationAudio.currentTime > 0);
   if (busy) return;
+  const turn = narrationTurn;
   try {
     narrationAudio.muted = true;
     narrationAudio.src = SILENT_WAV;
     const p = narrationAudio.play();
-    const done = () => { try { narrationAudio.pause(); } catch (_) {} narrationAudio.muted = false; };
+    // Only tidy up if no line has taken the player since. A quick tap (Next, Continue) starts the next line
+    // straight away; pausing then would silence that line and stop the lesson from moving on.
+    const done = () => {
+      if (narrationTurn !== turn) return;
+      try { narrationAudio.pause(); } catch (_) {}
+      narrationAudio.muted = false;
+    };
     if (p && typeof p.then === 'function') p.then(done, done); else done();
-  } catch (_) { narrationAudio.muted = false; }
+  } catch (_) { if (narrationTurn === turn) narrationAudio.muted = false; }
 };
 if (typeof window !== 'undefined') {
   // Every tap counts, including the one that opens the next lesson

@@ -104,22 +104,8 @@ const NavigationController = () => {
       // Track that the app has opened (for Meta Pixel retargeting)
       window.hyTrack?.('app_open');
 
-      const savedPath = localStorage.getItem('hoshiyaar_last_path');
-      
-      if (savedPath && savedPath !== '/') {
-        if (isNative) {
-          // On mobile app, always resume where they left off if it's different
-          if (savedPath !== window.location.pathname) {
-            setTimeout(() => navigate(savedPath, { replace: true }), 100);
-          }
-        } else {
-          // On web, ONLY resume if they explicitly landed on the root page.
-          // This prevents overriding direct links to /learn or /blogs.
-          if (window.location.pathname === '/') {
-            setTimeout(() => navigate(savedPath, { replace: true }), 100);
-          }
-        }
-      }
+      // Opening the app always lands on the home screen (the "/" page sends signed-in learners to /home).
+      // The last screen is no longer reopened; an unfinished lesson offers "Resume" when it is opened again.
     } catch (e) {
       console.warn('Could not read from localStorage', e);
     }

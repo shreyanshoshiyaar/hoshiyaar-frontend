@@ -76,7 +76,7 @@ const UnifiedAuth = () => {
 
   // Already signed in (and not mid-celebration): go to lessons
   useEffect(() => {
-    if (user && !user.isGuest && !doneRef.current) navigate('/learn', { replace: true });
+    if (user && !user.isGuest && !doneRef.current) navigate('/home', { replace: true });
   }, [user, navigate]);
 
   // Helper to trigger speech bubble pop animation
@@ -433,7 +433,7 @@ const UnifiedAuth = () => {
     try { sessionStorage.setItem('entryType', 'login'); } catch (_) {}
 
     setTimeout(() => {
-      navigate('/learn');
+      navigate('/home');
     }, 1200);
   };
 
@@ -477,7 +477,7 @@ const UnifiedAuth = () => {
         try { sessionStorage.setItem('entryType', 'guest_start'); } catch (_) {}
 
         setTimeout(() => {
-          navigate('/learn');
+          navigate('/home');
         }, 1200);
       }
     } catch (err) {
@@ -592,7 +592,7 @@ const UnifiedAuth = () => {
         try { sessionStorage.setItem('entryType', 'signup'); } catch (_) {}
 
         setTimeout(() => {
-          navigate('/learn');
+          navigate('/home');
         }, 1200);
       }
     } catch (err) {

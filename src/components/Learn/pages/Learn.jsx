@@ -82,9 +82,9 @@ const Learn = () => {
         try { localStorage.setItem(keys.local, 'true'); } catch (_) {}
         try { sessionStorage.setItem(keys.session, 'true'); } catch (_) {}
         
-        // Force navigation to /learn so they end up on the "learn" tab, not "home" or "more"
-        if (location.pathname !== '/learn') {
-           navigate('/learn');
+        // Finished onboarding: land on the home screen
+        if (location.pathname !== '/home') {
+           navigate('/home');
         }
       }
       return next;
@@ -186,8 +186,8 @@ const Learn = () => {
               }
               await saveOnboardingData();
               setStep(5);
-              if (location.pathname !== '/learn') {
-                navigate('/learn', { replace: true });
+              if (location.pathname !== '/home') {
+                navigate('/home', { replace: true });
               }
             }} 
           />

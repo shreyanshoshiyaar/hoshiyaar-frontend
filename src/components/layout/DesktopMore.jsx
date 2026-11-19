@@ -272,22 +272,6 @@ const DesktopMore = ({ stars, weeklyStars }) => {
                   />
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-wider">Board</label>
-                  <select
-                    value={form.board}
-                    onChange={e => update('board', e.target.value)}
-                    className="w-full bg-gray-50 border border-transparent rounded-lg p-2.5 text-xs font-bold text-gray-800 focus:outline-none focus:bg-white focus:border-blue-500 transition-all appearance-none cursor-pointer"
-                  >
-                    <option value="" disabled>Select Board</option>
-                    {boards.map(b => (
-                      <option key={b._id} value={b.name}>{b.name}</option>
-                    ))}
-                    {!boards.some(b => b.name === form.board) && form.board && (
-                      <option value={form.board}>{form.board}</option>
-                    )}
-                  </select>
-                </div>
                 
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black text-gray-500 uppercase tracking-wider">Class</label>

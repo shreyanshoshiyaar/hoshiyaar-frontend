@@ -290,10 +290,10 @@ const HomePage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect logged in users to dashboard
+  // Logged in users land on the home screen
   useEffect(() => {
     if (user) {
-      navigate('/learn');
+      navigate('/home', { replace: true });
     }
   }, [user, navigate]);
 

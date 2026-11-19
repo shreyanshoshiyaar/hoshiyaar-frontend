@@ -200,22 +200,6 @@ export default function ProfilePage() {
             />
           </label>
           <label className="block">
-            <span className="text-sm font-bold text-gray-700">Board</span>
-            <select
-              value={form.board === 'Not Defined' ? '' : form.board}
-              onChange={e => update('board', e.target.value)}
-              className="mt-1 w-full px-4 py-3 rounded-2xl border-2 border-blue-200 focus:outline-none focus:border-blue-400 bg-white text-gray-800"
-            >
-              <option value="" disabled>Select board</option>
-              {boards.map(b => (
-                <option key={b._id} value={b.name}>{b.name}</option>
-              ))}
-              {!boards.some(b => b.name === form.board) && form.board && form.board !== 'Not Defined' && (
-                <option value={form.board}>{form.board}</option>
-              )}
-            </select>
-          </label>
-          <label className="block">
             <span className="text-sm font-bold text-gray-700">Class</span>
             <select
               value={form.classLevel === 'Not Defined' ? '' : String(form.classLevel || '')}

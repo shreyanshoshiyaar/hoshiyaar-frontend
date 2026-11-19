@@ -119,6 +119,13 @@ export const CATCHY_PALETTES = [
 
 const ICONS_LIST = ['🧪', '⚡', '🔬', '🌱', '🪐', '🧬', '🔭', '💡'];
 
+// A chapter with a home tag (Admin → Content) gets the tile colour of its tag, e.g. "Pro only" (amber) is orange
+const TAG_PALETTE = { amber: 'amber', green: 'emerald', blue: 'blue', purple: 'purple', pink: 'coral', red: 'coral' };
+const paletteForTag = (tag) => {
+  const id = tag?.text ? TAG_PALETTE[tag.color || 'amber'] : null;
+  return id ? CATCHY_PALETTES.find((p) => p.id === id) : null;
+};
+
 export default function HomeProgressCards({
   user,
   leaderboardData = [],
@@ -590,7 +597,7 @@ export default function HomeProgressCards({
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 lg:gap-3 w-full lg:flex-1">
           {fourChapters.map((ch, idx) => {
-            const palette = CATCHY_PALETTES[(activePaletteIndex + idx) % CATCHY_PALETTES.length];
+            const palette = paletteForTag(ch.homeTag) || CATCHY_PALETTES[(activePaletteIndex + idx) % CATCHY_PALETTES.length];
             const icon = ICONS_LIST[idx % ICONS_LIST.length];
 
             return (

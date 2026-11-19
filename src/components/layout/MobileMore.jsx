@@ -316,23 +316,7 @@ const MobileMore = ({ stars, weeklyStars }) => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-blue-500 uppercase tracking-wider ml-1">Board</label>
-                <select
-                  value={form.board}
-                  onChange={e => update('board', e.target.value)}
-                  className="w-full bg-blue-50/30 border-2 border-blue-50 rounded-2xl p-3.5 text-sm font-bold text-blue-900 focus:outline-none focus:border-blue-200 transition-all appearance-none"
-                >
-                  <option value="" disabled>Select Board</option>
-                  {boards.map(b => (
-                    <option key={b._id} value={b.name}>{b.name}</option>
-                  ))}
-                  {!boards.some(b => b.name === form.board) && form.board && (
-                    <option value={form.board}>{form.board}</option>
-                  )}
-                </select>
-              </div>
+            <div className="grid grid-cols-1 gap-4">
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black text-blue-500 uppercase tracking-wider ml-1">Class</label>
                 <select

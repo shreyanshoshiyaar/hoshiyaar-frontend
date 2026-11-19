@@ -644,7 +644,8 @@ export default function BlackboardMode() {
         audioRef.current.onplay = null;
         audioRef.current.onended = null;
         audioRef.current.onerror = null;
-        audioRef.current.src = '';
+        // Not src = '': the browser reports an empty source as an error a moment later, by which time the
+        // next line owns this shared player and would be cut short
         audioRef.current = null;
       } catch (_) {}
     }

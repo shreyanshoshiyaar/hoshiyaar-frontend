@@ -18,7 +18,7 @@ export default function WelcomeScreen({ onContinue }) {
     } catch { /* storage unavailable */ }
 
     if (onContinue) onContinue();
-    else navigate('/learn', { replace: true });
+    else navigate('/home', { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

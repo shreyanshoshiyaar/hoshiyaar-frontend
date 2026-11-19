@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import curriculumService from '../../../services/curriculumService.js';
-import { ChapterArt } from '../../layout/home/ChaptersGrid.jsx';
+import { ChapterArt, HomeTag } from '../../layout/home/ChaptersGrid.jsx';
 import { isJuniorClass } from '../../../utils/classLevel.js';
 
 const classNumber = (value) => String(value ?? '').replace(/\D/g, '');
@@ -231,11 +231,12 @@ const AllChaptersModal = ({
           </span>
 
           <span className="min-w-0 flex-1">
-            {(eyebrow || isHere || disabled) && (
-              <span className="flex items-center gap-2 mb-1">
+            {(eyebrow || isHere || disabled || ch.homeTag?.text) && (
+              <span className="flex items-center gap-2 mb-1 flex-wrap">
                 {eyebrow && <span className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">{eyebrow}</span>}
                 {isHere && <span className="text-[9px] uppercase tracking-[0.12em] font-black px-1.5 py-px rounded-md bg-amber-400 text-[#3B2600]">Continue</span>}
                 {disabled && <span className="text-[9px] uppercase tracking-[0.12em] font-black px-1.5 py-px rounded-md bg-slate-100 text-slate-500">Coming soon</span>}
+                {!disabled && <HomeTag tag={ch.homeTag} />}
               </span>
             )}
             <span className="block text-[15.5px] sm:text-base font-bold text-[#15172B] leading-snug line-clamp-2" title={ch.title}>
