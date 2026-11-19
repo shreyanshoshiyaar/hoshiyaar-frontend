@@ -54,6 +54,7 @@ const UnifiedAuth = () => {
   const cardRef = useRef(null);
   const btnRef = useRef(null);
   const doneRef = useRef(false);
+  const guestStartRef = useRef(false);
 
   const [formData, setFormData] = useState({
     phone: '',
@@ -440,6 +441,8 @@ const UnifiedAuth = () => {
   // Step 5: Get Started as a guest (class + name); the number is verified after 3 lessons
   const handleGuestStart = async (e) => {
     e.preventDefault();
+    // Already started (or starting): a second tap during "Let's go!" must not make a second guest
+    if (guestStartRef.current || doneRef.current) return;
     if (!formData.classLevel || formData.name.trim().length < 2) {
       setError('Pick your class and enter your name');
       triggerCardShake();
@@ -448,6 +451,7 @@ const UnifiedAuth = () => {
     }
     setError('');
     setIsLoading(true);
+    guestStartRef.current = true;
     try {
       const response = await authService.registerGuest({
         name: formData.name.trim(),
@@ -481,6 +485,7 @@ const UnifiedAuth = () => {
         }, 1200);
       }
     } catch (err) {
+      guestStartRef.current = false;
       setError(err.response?.data?.message || 'Something went wrong. Please try again.');
       triggerCardShake();
       say("Bzzzt! Let's try that again.");
@@ -1157,7 +1162,7 @@ const UnifiedAuth = () => {
                 <button
                   ref={btnRef}
                   type="submit"
-                  disabled={isLoading || !formData.classLevel || formData.name.trim().length < 2}
+                  disabled={isLoading || isSuccess || !formData.classLevel || formData.name.trim().length < 2}
                   className={`btn ${isSuccess ? 'is-success' : ''}`}
                   onMouseEnter={() => handleBtnHype(true)}
                   onMouseLeave={() => handleBtnHype(false)}

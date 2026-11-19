@@ -582,7 +582,7 @@ const UserAnalytics = () => {
       `"${(u.username || '').replace(/"/g, '""')}"`,
       `"${(u.name || '').replace(/"/g, '""')}"`,
       `"${(u.email || '').replace(/"/g, '""')}"`,
-      `"${(u.phone || '').replace(/"/g, '""')}"`,
+      `"${(u.phone || (u.pendingPhone ? `${u.pendingPhone} (not verified)` : '')).replace(/"/g, '""')}"`,
       `"${(u.role === 'teacher' ? 'Teacher' : 'Student')}"`,
       `"${(u.school || '').replace(/"/g, '""')}"`,
       `"${(u.region || '').replace(/"/g, '""')} - ${(u.city || '').replace(/"/g, '""')}"`,
@@ -1421,6 +1421,15 @@ const UserAnalytics = () => {
                             >
                               <span>📞</span>
                               <span>{user.phone}</span>
+                            </a>
+                          ) : user.pendingPhone ? (
+                            <a
+                              href={`tel:${user.pendingPhone}`}
+                              className="flex flex-col text-slate-500 font-semibold hover:underline"
+                              title="Entered at sign-up, not verified with OTP yet"
+                            >
+                              <span className="flex items-center gap-1.5"><span>📞</span><span>{user.pendingPhone}</span></span>
+                              <span className="text-[10px] font-bold uppercase tracking-wide text-amber-600">Not verified</span>
                             </a>
                           ) : (
                             <span className="text-slate-300 font-medium italic">No phone</span>
