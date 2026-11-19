@@ -1315,6 +1315,7 @@ const LearnDashboard = ({ onboardingData }) => {
             backgroundImage: raw.backgroundImage || null,
             homePin: raw.homePin ?? null,
             iconUrl: raw.iconUrl || null,
+            iconEmoji: raw.iconEmoji || null,
             homeTag: raw.homeTag?.text ? raw.homeTag : null
           } : null;
         };

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import curriculumService from '../../services/curriculumService';
 import http from '../../services/apiClient.js';
-import { artFor, HomeTag, HOME_TAG_PRESETS, HOME_TAG_STYLES } from '../layout/home/ChaptersGrid.jsx';
+import { artFor, HomeTag, HOME_TAG_PRESETS, HOME_TAG_STYLES, CHAPTER_EMOJI_CHOICES } from '../layout/home/ChaptersGrid.jsx';
 
 // Each section loads on its own, so one heavy or broken section can't stop the panel opening
 const ContentEditor = lazy(() => import('./ContentEditor'));
@@ -141,9 +141,7 @@ const ChapterDisplayCard = ({ chapter, onSaved }) => {
   const [bgUrl, setBgUrl] = useState(chapter.backgroundImage || '');
   const [youngExplorers, setYoungExplorers] = useState(Boolean(chapter.youngExplorers));
   const [homePin, setHomePin] = useState(chapter.homePin ? String(chapter.homePin) : '');
-  const [iconUrl, setIconUrl] = useState(chapter.iconUrl || '');
-  const [iconUploading, setIconUploading] = useState(false);
-  const [iconBroken, setIconBroken] = useState(false);
+  const [iconEmoji, setIconEmoji] = useState(chapter.iconEmoji || '');
   const [tagText, setTagText] = useState(chapter.homeTag?.text || '');
   const [tagColor, setTagColor] = useState(chapter.homeTag?.color || 'amber');
   const [saving, setSaving] = useState(false);
@@ -154,41 +152,17 @@ const ChapterDisplayCard = ({ chapter, onSaved }) => {
     setBgUrl(chapter.backgroundImage || '');
     setYoungExplorers(Boolean(chapter.youngExplorers));
     setHomePin(chapter.homePin ? String(chapter.homePin) : '');
-    setIconUrl(chapter.iconUrl || '');
-    setIconBroken(false);
+    setIconEmoji(chapter.iconEmoji || '');
     setTagText(chapter.homeTag?.text || '');
     setTagColor(chapter.homeTag?.color || 'amber');
     setMsg('');
-  }, [chapter._id, chapter.mapStyle, chapter.backgroundImage, chapter.youngExplorers, chapter.homePin, chapter.iconUrl, chapter.homeTag?.text, chapter.homeTag?.color]);
-
-  // Same upload as Admin → Character Images: the server stores it on Cloudinary and returns the link
-  const uploadIcon = async (file) => {
-    if (!file) return;
-    if (!file.type.startsWith('image/')) { setMsg('Choose an image file (PNG, JPG, WebP or SVG).'); return; }
-    setIconUploading(true);
-    setMsg('');
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('folder', 'hoshiyaar/chapter-icons');
-      const res = await http.post('/api/upload/image', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-      const url = res.data?.url || res.data?.secure_url;
-      if (!url) throw new Error('The upload did not return an image link.');
-      setIconUrl(url);
-      setIconBroken(false);
-      setMsg('Picture uploaded. Press Save Chapter Settings to use it.');
-    } catch (err) {
-      setMsg(err?.response?.status === 413 ? 'That image is too large.' : `Upload failed: ${err?.response?.data?.message || err.message}`);
-    } finally {
-      setIconUploading(false);
-    }
-  };
+  }, [chapter._id, chapter.mapStyle, chapter.backgroundImage, chapter.youngExplorers, chapter.homePin, chapter.iconEmoji, chapter.homeTag?.text, chapter.homeTag?.color]);
 
   const save = async () => {
     try {
       setSaving(true);
       setMsg('');
-      const res = await curriculumService.updateChapterDisplay(chapter._id, { mapStyle, backgroundImage: bgUrl.trim(), youngExplorers, homePin: homePin ? Number(homePin) : null, iconUrl: iconUrl.trim(), homeTag: tagText.trim() ? { text: tagText.trim(), color: tagColor } : null });
+      const res = await curriculumService.updateChapterDisplay(chapter._id, { mapStyle, backgroundImage: bgUrl.trim(), youngExplorers, homePin: homePin ? Number(homePin) : null, iconEmoji: iconEmoji.trim(), iconUrl: '', homeTag: tagText.trim() ? { text: tagText.trim(), color: tagColor } : null });
       onSaved(res.data);
       setMsg('Saved. Students see it the next time they open the chapter.');
     } catch (err) {
@@ -248,45 +222,47 @@ const ChapterDisplayCard = ({ chapter, onSaved }) => {
           <span className="block text-[11px] text-gray-500 leading-snug">Lists this chapter in the All Chapters panel's Young Explorers space, for students of every class. Only shows once the chapter is published.</span>
         </span>
       </label>
-      <div className="mt-4 flex items-center gap-4 rounded-xl border-2 border-gray-200 px-3 py-3">
-        <span className="w-16 h-16 rounded-2xl bg-slate-50 border-2 border-slate-200 flex items-center justify-center text-4xl shrink-0 overflow-hidden">
-          {iconUrl.trim() && !iconBroken
-            ? <img src={iconUrl.trim()} alt="" className="w-12 h-12 object-contain" onError={() => setIconBroken(true)} />
-            : artFor(chapter.title)}
+      <div className="mt-4 flex items-start gap-4 rounded-xl border-2 border-gray-200 px-3 py-3">
+        <span className="w-16 h-16 rounded-2xl bg-slate-50 border-2 border-slate-200 flex items-center justify-center text-4xl shrink-0">
+          {iconEmoji.trim() || artFor(chapter.title)}
         </span>
         <div className="min-w-0 flex-1 space-y-2">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm font-bold text-gray-800">Chapter icon</span>
-            <span className={`text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${iconUrl.trim() ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-500'}`}>
-              {iconUrl.trim() ? 'Custom' : 'Default (from the title)'}
+            <span className={`text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${iconEmoji.trim() ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-500'}`}>
+              {iconEmoji.trim() ? 'Chosen' : 'Default (from the title)'}
             </span>
+            <span className="text-[11px] text-gray-500">Shown in All Chapters and on the home screen.</span>
           </div>
-          <input
-            type="url"
-            id={`chapter-icon-${chapter._id}`}
-            value={iconUrl}
-            onChange={(e) => { setIconUrl(e.target.value); setIconBroken(false); }}
-            placeholder="Paste image link, or upload"
-            className="w-full text-xs px-2.5 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
-          />
-          <div className="flex items-center gap-3">
-            <label htmlFor={`chapter-icon-file-${chapter._id}`} className={`text-xs font-bold px-3 py-1.5 rounded-lg cursor-pointer ${iconUploading ? 'bg-slate-100 text-slate-400' : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100'}`}>
-              {iconUploading ? 'Uploading…' : 'Upload picture'}
-            </label>
-            <input
-              id={`chapter-icon-file-${chapter._id}`}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              disabled={iconUploading}
-              onChange={(e) => { uploadIcon(e.target.files?.[0]); e.target.value = ''; }}
-            />
-            {iconUrl.trim() && (
-              <button type="button" onClick={() => { setIconUrl(''); setIconBroken(false); }} className="text-xs font-bold text-slate-500 hover:text-red-600">
-                Reset to default
+          <div className="flex flex-wrap gap-1">
+            <button
+              type="button"
+              onClick={() => setIconEmoji('')}
+              title="Pick automatically from the chapter title"
+              className={`h-9 px-2 rounded-lg border-2 text-[11px] font-bold ${!iconEmoji.trim() ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}
+            >
+              Default
+            </button>
+            {CHAPTER_EMOJI_CHOICES.map((e) => (
+              <button
+                key={e}
+                type="button"
+                onClick={() => setIconEmoji(e)}
+                className={`w-9 h-9 rounded-lg border-2 text-xl flex items-center justify-center ${iconEmoji.trim() === e ? 'border-indigo-600 bg-indigo-50' : 'border-transparent hover:border-gray-200 hover:bg-slate-50'}`}
+              >
+                {e}
               </button>
-            )}
-            <span className="text-[11px] text-gray-500">Square picture with a plain or clear background works best. Shown in All Chapters and on the home screen.</span>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <label htmlFor={`chapter-icon-${chapter._id}`} className="text-[11px] font-semibold text-gray-600">Or type / paste any emoji:</label>
+            <input
+              id={`chapter-icon-${chapter._id}`}
+              value={iconEmoji}
+              onChange={(e) => setIconEmoji(e.target.value.replace(/[A-Za-z0-9]/g, '').slice(0, 16))}
+              placeholder="🙂"
+              className="w-20 text-center text-lg px-2 py-0.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            />
           </div>
         </div>
       </div>
@@ -812,7 +788,7 @@ const AdminPanel = () => {
             <ChapterDisplayCard
               chapter={chapters.find(c => c._id === selectedChapter)}
               onSaved={(saved) => setChapters(prev => prev.map(c => {
-                if (c._id === saved._id) return { ...c, mapStyle: saved.mapStyle, backgroundImage: saved.backgroundImage, youngExplorers: saved.youngExplorers, homePin: saved.homePin ?? null, iconUrl: saved.iconUrl || null, homeTag: saved.homeTag || null };
+                if (c._id === saved._id) return { ...c, mapStyle: saved.mapStyle, backgroundImage: saved.backgroundImage, youngExplorers: saved.youngExplorers, homePin: saved.homePin ?? null, iconUrl: saved.iconUrl || null, iconEmoji: saved.iconEmoji || null, homeTag: saved.homeTag || null };
                 // The server frees the spot from any other chapter in the class
                 return saved.homePin && c.homePin === saved.homePin ? { ...c, homePin: null } : c;
               }))}

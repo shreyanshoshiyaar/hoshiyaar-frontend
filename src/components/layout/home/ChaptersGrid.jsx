@@ -31,6 +31,15 @@ const CHAPTER_ART = [
 ];
 export const artFor = (title = '') => (CHAPTER_ART.find(([re]) => re.test(title)) || [null, '🔬'])[1];
 
+// Emojis offered in Admin → Content → Chapter icon (any other emoji can be typed in too)
+export const CHAPTER_EMOJI_CHOICES = [
+  '🤖', '🧠', '💡', '⚡', '🧲', '🔬', '🧪', '🧫', '🧬', '🦠',
+  '🌱', '🌿', '🌳', '🌸', '🍄', '🍎', '🥗', '🩺', '🫀', '🦴',
+  '🦋', '🐝', '🐾', '🐟', '🦁', '🌍', '🪐', '🌙', '☀️', '⭐',
+  '🚀', '🔭', '🌡️', '🔥', '❄️', '💧', '🌊', '🌬️', '☁️', '🌋',
+  '🪨', '💎', '⚙️', '🔧', '📏', '⏱️', '♻️', '💻', '📱', '🧭',
+];
+
 // Home screen card tags, set from Admin → Content (Chapter.homeTag). Colours must match HOME_TAG_COLORS on the server.
 export const HOME_TAG_STYLES = {
   amber: 'bg-gradient-to-r from-amber-400 to-orange-400 text-[#3B2600]',
@@ -60,9 +69,10 @@ export function HomeTag({ tag, className = '' }) {
   );
 }
 
-/** The chapter's picture from Admin → Content (iconUrl), or an emoji picked from its title */
+/** The chapter's emoji from Admin → Content (iconEmoji), an older picture link (iconUrl), or an emoji from its title */
 export function ChapterArt({ chapter, imgClassName = 'w-9 h-9' }) {
   const [broken, setBroken] = React.useState(false);
+  if (chapter?.iconEmoji) return chapter.iconEmoji;
   const url = chapter?.iconUrl;
   if (url && !broken) {
     return <img src={url} alt="" className={`${imgClassName} object-contain`} onError={() => setBroken(true)} />;

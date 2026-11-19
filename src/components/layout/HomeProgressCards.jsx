@@ -604,7 +604,7 @@ export default function HomeProgressCards({
                   <div
                     className={`w-11 h-11 sm:w-12 sm:h-12 lg:w-11 lg:h-11 lg:text-2xl lgshort:w-7 lgshort:h-7 lgshort:text-base rounded-2xl flex items-center justify-center text-2xl sm:text-3xl shadow-xs shrink-0 transition-colors overflow-hidden ${palette.iconBg}`}
                   >
-                    {ch.iconUrl ? <ChapterArt chapter={ch} imgClassName="w-8 h-8 sm:w-9 sm:h-9 lgshort:w-5 lgshort:h-5" /> : icon}
+                    {(ch.iconEmoji || ch.iconUrl) ? <ChapterArt chapter={ch} imgClassName="w-8 h-8 sm:w-9 sm:h-9 lgshort:w-5 lgshort:h-5" /> : icon}
                   </div>
 
                   {/* Status Badge (a tag set from the admin takes this spot) */}
