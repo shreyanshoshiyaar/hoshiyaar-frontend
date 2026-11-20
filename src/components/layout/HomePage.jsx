@@ -10,65 +10,7 @@ import DesktopHome from './DesktopHome';
 const WELCOME_ART = "https://res.cloudinary.com/fpifkjbq/image/upload/v1795157801/img-to-link/znqa0g5xchzxhmtba7ar.webp";
 const WELCOME_ART_RATIO = 841 / 1870; // width / height
 const WELCOME_ART_CONTENT = 0.71; // the cards end here, as a share of the height
-const WELCOME_ART_TOP_CROP = 0.045; // empty window frame above the logo, may slide off the top on short screens
-
-// Space the buttons need under the cards, per layout
-const WELCOME_BUTTONS = { full: 224, medium: 160, compact: 66 };
-
-// The bottom safe area (iPhone home bar) in px, read from CSS
-const safeBottom = () => {
-  try {
-    const el = document.createElement('div');
-    el.style.cssText = 'position:fixed;bottom:0;height:0;padding-bottom:env(safe-area-inset-bottom,0px);visibility:hidden';
-    document.body.appendChild(el);
-    const v = parseFloat(getComputedStyle(el).paddingBottom) || 0;
-    el.remove();
-    return v;
-  } catch (_) { return 0; }
-};
-
-/**
- * Lays out the welcome screen: the artwork always edge to edge, and the page never scrolls.
- * The buttons get the room left under the cards (up to 4.5% of the artwork's empty top frame may slide
- * off to make more): all of them when there is room ("full"), without the tagline ("medium"), or Start
- * and Log in side by side with WhatsApp as a round button in the corner ("compact"). Only on a screen
- * too short even for that does the artwork get smaller (blurred fill at the sides).
- */
-const layoutFor = (vw, vh, sb) => {
-  let h = Math.max(vh, vw / WELCOME_ART_RATIO);
-  const cropMax = h * WELCOME_ART_TOP_CROP;
-  for (const mode of ['full', 'medium', 'compact']) {
-    const over = h * WELCOME_ART_CONTENT + WELCOME_BUTTONS[mode] + sb - vh;
-    if (over <= cropMax) {
-      const crop = Math.max(0, over);
-      return { vw, vh, h, crop, mode, shrunk: false, cardsEnd: h * WELCOME_ART_CONTENT - crop };
-    }
-  }
-  h = (vh - WELCOME_BUTTONS.compact - sb) / (WELCOME_ART_CONTENT - WELCOME_ART_TOP_CROP);
-  const crop = h * WELCOME_ART_TOP_CROP;
-  return { vw, vh, h, crop, mode: 'compact', shrunk: h * WELCOME_ART_RATIO < vw, cardsEnd: h * WELCOME_ART_CONTENT - crop };
-};
-
-const useWelcomeLayout = () => {
-  const measure = () => {
-    const vw = window.innerWidth || 375;
-    const vh = window.visualViewport?.height || window.innerHeight || 700;
-    return layoutFor(vw, vh, safeBottom());
-  };
-  const [lay, setLay] = useState(measure);
-  useEffect(() => {
-    const on = () => setLay(measure());
-    window.addEventListener('resize', on);
-    window.visualViewport?.addEventListener('resize', on);
-    window.addEventListener('orientationchange', on);
-    return () => {
-      window.removeEventListener('resize', on);
-      window.visualViewport?.removeEventListener('resize', on);
-      window.removeEventListener('orientationchange', on);
-    };
-  }, []);
-  return lay;
-};
+const WELCOME_ART_TOP_CROP = 0.03; // empty window frame above the logo, may slide off the top on short screens
 
 const MobileWelcomeScreen = () => {
   const navigate = useNavigate();
@@ -115,122 +57,110 @@ const MobileWelcomeScreen = () => {
     }
   };
 
-  const lay = useWelcomeLayout();
-  const waIcon = (cls) => (
-    <svg className={cls} viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" /></svg>
-  );
-  const startButton = (extra = '') => (
-    <button
-      type="button"
-      onClick={() => navigate('/start')}
-      className={`shrink-0 rounded-full bg-gradient-to-b from-[#2F6BFF] to-[#1743D8] text-white font-dialogue font-bold tracking-tight shadow-[0_5px_0_0_#0F2E9E,0_12px_24px_rgba(23,67,216,0.35)] active:translate-y-[3px] active:shadow-[0_2px_0_0_#0F2E9E] transition-all flex items-center justify-center gap-2.5 cursor-pointer ${extra}`}
-    >
-      <span>Start my adventure</span>
-      <span className="leading-none" aria-hidden="true">→</span>
-    </button>
-  );
-
   return (
-    <div className="relative w-full h-[100dvh] max-h-[100dvh] overflow-hidden select-none overscroll-none bg-[#DCEBFA]">
-      {/* Only when the screen is too short even for the compact buttons: the artwork gets smaller and a
-          soft, blurred copy fills the sides */}
-      {lay.shrunk && (
-        <img src={WELCOME_ART} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-80 pointer-events-none" />
-      )}
+    <div
+      className="relative w-full h-[100dvh] max-h-[100dvh] overflow-hidden select-none overscroll-none bg-gradient-to-b from-[#1F3352] via-[#7FB4DD] to-[#D5E6F7]"
+      style={{
+        // Room for the buttons: 224px, a little less on short screens (phone browsers with toolbars)
+        '--welcome-buttons': 'calc(clamp(184px, 30dvh, 224px) + env(safe-area-inset-bottom, 0px))',
+        '--welcome-room': 'calc(100dvh - var(--welcome-buttons))',
+        // Artwork height: fills the screen, but never so tall that the cards would run under the buttons.
+        // On short screens up to 3% of its top (empty window frame, above the logo) slides off the top, so
+        // the picture can stay bigger
+        '--welcome-art-h': `min(calc(var(--welcome-room) / ${WELCOME_ART_CONTENT - WELCOME_ART_TOP_CROP}), max(100dvh, calc(100vw / ${WELCOME_ART_RATIO})))`,
+        '--welcome-art-top': `max(calc(var(--welcome-art-h) * -${WELCOME_ART_TOP_CROP}), min(0px, calc(var(--welcome-room) - var(--welcome-art-h) * ${WELCOME_ART_CONTENT})))`
+      }}
+    >
+      {/* Side fill for phones shorter than the artwork: a soft, blurred copy of the same picture */}
+      <img
+        src={WELCOME_ART}
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-80 pointer-events-none"
+      />
 
-      {/* The artwork, edge to edge (logo, headline, Hoshi, the 3 cards; its bottom 29% is plain sky).
-          On shorter screens a little of its empty top frame slides off, and the buttons get more compact. */}
+      {/* The artwork (logo, headline, Hoshi, the 3 cards; its bottom 30% is plain sky for the buttons).
+          Fills the screen, but never so tall that the cards would run under the buttons: on short phones
+          it gets a little smaller and the blurred copy shows at the sides. */}
       <img
         src={WELCOME_ART}
         alt="HoshiYaar: Your next science mission starts here. Read the comic, learn on the blackboard, beat the quiz."
         fetchpriority="high"
         draggable="false"
-        className="absolute left-1/2 -translate-x-1/2 max-w-none pointer-events-none"
+        className="absolute left-1/2 -translate-x-1/2 max-w-none w-auto pointer-events-none"
         style={{
-          top: -lay.crop,
-          height: lay.h,
-          width: lay.h * WELCOME_ART_RATIO,
-          ...(lay.shrunk ? {
-            WebkitMaskImage: 'linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%)',
-            maskImage: 'linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%)'
-          } : {})
+          top: 'var(--welcome-art-top)',
+          height: 'var(--welcome-art-h)',
+          // Soft left, right and bottom edges, so on short phones the artwork melts into the blurred fill
+          WebkitMaskImage: 'linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%), linear-gradient(to bottom, #000 86%, transparent 100%)',
+          WebkitMaskComposite: 'source-in',
+          maskImage: 'linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%), linear-gradient(to bottom, #000 86%, transparent 100%)',
+          maskComposite: 'intersect'
         }}
       />
 
-      {/* Soft light sky behind the buttons */}
-      <div className="absolute inset-x-0 bottom-0 pointer-events-none bg-gradient-to-b from-transparent via-[#DCEBFA]/60 to-[#E8F2FC]" style={{ height: Math.max(90, lay.vh - lay.cardsEnd + 30) }} aria-hidden="true" />
+      {/* Soft light sky behind the buttons, over the fill below the artwork */}
+      <div className="absolute inset-x-0 bottom-0 h-[34%] pointer-events-none bg-gradient-to-b from-transparent via-[#DCEBFA]/70 to-[#E8F2FC]" aria-hidden="true" />
 
-      {/* Compact layout: WhatsApp help as a round button in the top corner */}
-      {lay.mode === 'compact' && (
-        <button
-          type="button"
-          onClick={handleWhatsAppClick}
-          aria-label="Need help? Chat on WhatsApp"
-          className="absolute z-20 right-3 w-11 h-11 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-[0_6px_16px_rgba(0,0,0,0.3)] border-2 border-white active:scale-95 cursor-pointer"
-          style={{ top: 'calc(10px + env(safe-area-inset-top, 0px))' }}
-        >
-          {waIcon('w-6 h-6 fill-current')}
-        </button>
-      )}
-
-      {/* Buttons, in the space under the cards */}
+      {/* Buttons, over the plain bottom of the artwork */}
       <div
         className="absolute inset-x-0 bottom-0 z-10 px-5 flex flex-col items-center"
-        style={{ top: lay.cardsEnd, paddingTop: 6, paddingBottom: 'calc(10px + env(safe-area-inset-bottom, 0px))' }}
+        style={{
+          top: `calc(var(--welcome-art-top) + var(--welcome-art-h) * ${WELCOME_ART_CONTENT})`,
+          paddingTop: '6px',
+          paddingBottom: 'calc(14px + env(safe-area-inset-bottom, 0px))'
+        }}
       >
-        {lay.mode === 'compact' ? (
-          <div className="w-full max-w-[380px] h-full flex items-center gap-2.5">
-            {startButton('flex-1 h-[50px] text-[18px] min-[380px]:text-[20px]')}
-            <button
-              type="button"
-              onClick={() => navigate('/login')}
-              className="shrink-0 h-[50px] px-4 rounded-full bg-white/95 border-2 border-[#1743D8]/25 text-[#1743D8] font-dialogue font-bold text-[16px] shadow-[0_4px_12px_rgba(30,58,138,0.15)] active:scale-[0.97] cursor-pointer"
-            >
-              Log in
-            </button>
+        <div className="w-full max-w-[380px] h-full max-h-[300px] flex flex-col items-center justify-evenly">
+          {/* Start my adventure (guest start; verify later) */}
+          <button
+            type="button"
+            onClick={() => navigate('/start')}
+            style={{ height: 'clamp(50px, 7.4dvh, 58px)', fontSize: 'clamp(20px, 3.1dvh, 23px)' }}
+            className="w-full shrink-0 rounded-full bg-gradient-to-b from-[#2F6BFF] to-[#1743D8] text-white font-dialogue font-bold tracking-tight shadow-[0_6px_0_0_#0F2E9E,0_14px_28px_rgba(23,67,216,0.35)] active:translate-y-[3px] active:shadow-[0_3px_0_0_#0F2E9E,0_8px_18px_rgba(23,67,216,0.3)] transition-all flex items-center justify-center gap-3 cursor-pointer"
+          >
+            <span>Start my adventure</span>
+            <span className="text-[22px] leading-none" aria-hidden="true">→</span>
+          </button>
+
+          {/* Log in */}
+          <button
+            type="button"
+            onClick={() => navigate('/login')}
+            className="shrink-0 font-dialogue text-[16.5px] font-medium text-slate-700 cursor-pointer"
+          >
+            Already learning with us? <span className="text-[#1743D8] font-bold">Log in</span>
+          </button>
+
+          {/* WhatsApp help (plays the intro video first when one is set in Admin) */}
+          <button
+            type="button"
+            onClick={handleWhatsAppClick}
+            style={{ height: 'clamp(46px, 6.9dvh, 54px)' }}
+            className="w-full shrink-0 pl-2 pr-3.5 rounded-full bg-white/95 border border-white shadow-[0_6px_18px_rgba(30,58,138,0.14)] active:scale-[0.98] transition-all flex items-center gap-3 cursor-pointer"
+          >
+            <span className="w-9 h-9 rounded-full bg-[#25D366] flex items-center justify-center text-white shrink-0 -mr-0.5">
+              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+              </svg>
+            </span>
+            <span className="h-6 w-px bg-slate-200" aria-hidden="true" />
+            <span className="flex-1 text-left whitespace-nowrap font-dialogue text-[15.5px] min-[385px]:text-[16.5px] font-semibold text-slate-800">Need help? Chat on WhatsApp</span>
+            <span className="text-slate-500 text-lg font-bold" aria-hidden="true">→</span>
+          </button>
+
+          {/* Tagline */}
+          <div className="shrink-0 flex items-center justify-center gap-2.5">
+            <span className="text-[#F5B700] text-sm font-black -rotate-12" aria-hidden="true">⟋</span>
+            <div className="text-center">
+              <p className="font-black italic text-[#1E2A8A] leading-tight tracking-tight" style={{ fontSize: 'clamp(16px, 2.5dvh, 18px)' }}>No ratta. Pure curiosity.</p>
+              <svg className="w-24 h-2 mx-auto text-[#2F6BFF]" viewBox="0 0 100 12" fill="none" aria-hidden="true">
+                <path d="M6 4 Q 50 13 94 4" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+              </svg>
+            </div>
+            <span className="text-[#F5B700] text-sm font-black rotate-12" aria-hidden="true">⟍</span>
           </div>
-        ) : (
-          <div className="w-full max-w-[380px] h-full max-h-[300px] flex flex-col items-center justify-evenly">
-            {startButton(lay.mode === 'full' ? 'w-full h-[58px] text-[23px]' : 'w-full h-[52px] text-[21px]')}
-
-            {/* Log in */}
-            <button
-              type="button"
-              onClick={() => navigate('/login')}
-              className="shrink-0 font-dialogue text-[16px] font-medium text-slate-700 cursor-pointer"
-            >
-              Already learning with us? <span className="text-[#1743D8] font-bold">Log in</span>
-            </button>
-
-            {/* WhatsApp help (plays the intro video first when one is set in Admin) */}
-            <button
-              type="button"
-              onClick={handleWhatsAppClick}
-              className={`w-full ${lay.mode === 'full' ? 'h-[54px]' : 'h-[48px]'} shrink-0 pl-2 pr-3.5 rounded-full bg-white/95 border border-white shadow-[0_6px_18px_rgba(30,58,138,0.14)] active:scale-[0.98] transition-all flex items-center gap-3 cursor-pointer`}
-            >
-              <span className="w-9 h-9 rounded-full bg-[#25D366] flex items-center justify-center text-white shrink-0 -mr-0.5">
-                {waIcon('w-5 h-5 fill-current')}
-              </span>
-              <span className="h-6 w-px bg-slate-200" aria-hidden="true" />
-              <span className="flex-1 text-left whitespace-nowrap font-dialogue text-[15.5px] min-[385px]:text-[16.5px] font-semibold text-slate-800">Need help? Chat on WhatsApp</span>
-              <span className="text-slate-500 text-lg font-bold" aria-hidden="true">→</span>
-            </button>
-
-            {/* Tagline (when there is room) */}
-            {lay.mode === 'full' && (
-              <div className="shrink-0 flex items-center justify-center gap-2.5">
-                <span className="text-[#F5B700] text-sm font-black -rotate-12" aria-hidden="true">⟋</span>
-                <div className="text-center">
-                  <p className="text-[18px] font-black italic text-[#1E2A8A] leading-tight tracking-tight">No ratta. Pure curiosity.</p>
-                  <svg className="w-24 h-2 mx-auto text-[#2F6BFF]" viewBox="0 0 100 12" fill="none" aria-hidden="true">
-                    <path d="M6 4 Q 50 13 94 4" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-                  </svg>
-                </div>
-                <span className="text-[#F5B700] text-sm font-black rotate-12" aria-hidden="true">⟍</span>
-              </div>
-            )}
-          </div>
-        )}
+        </div>
       </div>
 
       {/* Onboarding Video Modal */}
