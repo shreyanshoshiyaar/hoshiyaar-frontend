@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useServerNow } from '../../../hooks/useServerNow.js';
+import { useAuth } from '../../../context/AuthContext.jsx';
+import { getIntroVideoUrl, hasSeenIntro, isIntroOpen, INTRO_CLOSED_EVENT } from '../../../utils/onboardingVideo.js';
 
 const pad = (n) => String(n).padStart(2, '0');
 
@@ -30,24 +32,45 @@ const markNow = () => { try { localStorage.setItem(LAST_KEY, String(Date.now()))
 export function ProOfferHost({ active, access }) {
   const [open, setOpen] = useState(false);
   const running = offerRunning(access);
+  const { user } = useAuth();
+  const userId = user?._id ? String(user._id) : '';
 
   useEffect(() => {
     if (!active || !running || open) return;
     let timer = null;
-    const check = () => {
-      if (timer || document.visibilityState === 'hidden') return;
-      if (Date.now() - lastShown() < EVERY_MS) return;
-      timer = setTimeout(() => { timer = null; markNow(); setOpen(true); }, 900);
+    let stopped = false;
+    // The onboarding video comes first: wait while it plays, or while it is still due to open
+    const videoFirst = async () => {
+      if (isIntroOpen()) return true;
+      if (!userId || hasSeenIntro(userId)) return false;
+      const url = await getIntroVideoUrl().catch(() => '');
+      return Boolean(url) && !hasSeenIntro(userId);
     };
+    const check = async () => {
+      if (timer || stopped || document.visibilityState === 'hidden') return;
+      if (Date.now() - lastShown() < EVERY_MS) return;
+      if (await videoFirst()) return;
+      if (timer || stopped) return;
+      timer = setTimeout(() => {
+        timer = null;
+        if (stopped || isIntroOpen()) return;
+        markNow();
+        setOpen(true);
+      }, 900);
+    };
+    const afterVideo = () => setTimeout(check, 1500);
     check();
     const id = setInterval(check, 20 * 1000);
     document.addEventListener('visibilitychange', check);
+    window.addEventListener(INTRO_CLOSED_EVENT, afterVideo);
     return () => {
+      stopped = true;
       clearInterval(id);
       if (timer) clearTimeout(timer);
       document.removeEventListener('visibilitychange', check);
+      window.removeEventListener(INTRO_CLOSED_EVENT, afterVideo);
     };
-  }, [active, running, open]);
+  }, [active, running, open, userId]);
 
   return <ProOfferModal isOpen={open} onClose={() => { markNow(); setOpen(false); }} access={access} />;
 }

@@ -326,7 +326,7 @@
   },
   {
     "name": "bolt",
-    "folder": "library",
+    "folder": "basic",
     "draws": "A lightning bolt for energy",
     "size": [
       5,
@@ -370,7 +370,7 @@
   },
   {
     "name": "bowl",
-    "folder": "library",
+    "folder": "basic",
     "draws": "A bowl, seen from the side (also a tongue at a small scale)",
     "size": [
       20,
@@ -482,7 +482,7 @@
   },
   {
     "name": "drop",
-    "folder": "library",
+    "folder": "basic",
     "draws": "A small drop of liquid (juice, saliva, blood, water)",
     "size": [
       4,
@@ -7071,8 +7071,8 @@
     "folder": "lab",
     "draws": "A small balloon",
     "size": [
-      12,
-      18
+      10,
+      14
     ],
     "settings": {
       "pos": "centre [x, y]",
@@ -10993,7 +10993,7 @@
   },
   {
     "name": "ball",
-    "folder": "light",
+    "folder": "objects",
     "draws": "A red cricket ball with a seam",
     "size": [
       8,
@@ -125760,6 +125760,10974 @@
           -7.4
         ],
         "r": 0.6,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "bansuri",
+    "folder": "objects",
+    "draws": "A bamboo flute (bansuri) lying flat: blow hole at the left, six finger holes",
+    "size": [
+      40,
+      4
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "left": [
+        -20,
+        0
+      ],
+      "right": [
+        20,
+        0
+      ],
+      "mouth": [
+        -14,
+        0
+      ],
+      "inside": [
+        2,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#D9B26B",
+        "at": [
+          0,
+          0
+        ],
+        "w": 40,
+        "h": 3,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "at": [
+          -19.4,
+          0
+        ],
+        "w": 1.2,
+        "h": 3.4,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "at": [
+          19.4,
+          0
+        ],
+        "w": 1.2,
+        "h": 3.4,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          -14,
+          0
+        ],
+        "r": 0.55,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          -2,
+          0
+        ],
+        "r": 0.55,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          2,
+          0
+        ],
+        "r": 0.55,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          6,
+          0
+        ],
+        "r": 0.55,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          10,
+          0
+        ],
+        "r": 0.55,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          14,
+          0
+        ],
+        "r": 0.55,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          17,
+          0
+        ],
+        "r": 0.55,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "bat",
+    "folder": "living",
+    "draws": "A bat flying, seen from the front: dark brown body, wide pointed wings spread, small ears",
+    "size": [
+      30,
+      10
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "mouth": [
+        0,
+        1.5
+      ],
+      "head": [
+        0,
+        -1
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#4A3A48",
+        "points": [
+          [
+            0,
+            -3
+          ],
+          [
+            -4,
+            -4
+          ],
+          [
+            -9,
+            -6
+          ],
+          [
+            -15,
+            -4
+          ],
+          [
+            -13,
+            0
+          ],
+          [
+            -10,
+            -1
+          ],
+          [
+            -8,
+            2
+          ],
+          [
+            -5,
+            0
+          ],
+          [
+            -2,
+            3
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            5,
+            0
+          ],
+          [
+            8,
+            2
+          ],
+          [
+            10,
+            -1
+          ],
+          [
+            13,
+            0
+          ],
+          [
+            15,
+            -4
+          ],
+          [
+            9,
+            -6
+          ],
+          [
+            4,
+            -4
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#6B5560",
+        "points": [
+          [
+            2.4,
+            0
+          ],
+          [
+            2.16,
+            1.56
+          ],
+          [
+            1.5,
+            2.81
+          ],
+          [
+            0.53,
+            3.51
+          ],
+          [
+            -0.53,
+            3.51
+          ],
+          [
+            -1.5,
+            2.81
+          ],
+          [
+            -2.16,
+            1.56
+          ],
+          [
+            -2.4,
+            0
+          ],
+          [
+            -2.16,
+            -1.56
+          ],
+          [
+            -1.5,
+            -2.81
+          ],
+          [
+            -0.53,
+            -3.51
+          ],
+          [
+            0.53,
+            -3.51
+          ],
+          [
+            1.5,
+            -2.81
+          ],
+          [
+            2.16,
+            -1.56
+          ],
+          [
+            2.4,
+            0
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#6B5560",
+        "points": [
+          [
+            -1.8,
+            -2.8
+          ],
+          [
+            -1.2,
+            -5.4
+          ],
+          [
+            -0.4,
+            -3.2
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#6B5560",
+        "points": [
+          [
+            1.8,
+            -2.8
+          ],
+          [
+            1.2,
+            -5.4
+          ],
+          [
+            0.4,
+            -3.2
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#FFD84D",
+        "at": [
+          -0.8,
+          -1
+        ],
+        "r": 0.4,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#FFD84D",
+        "at": [
+          0.8,
+          -1
+        ],
+        "r": 0.4,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "beater",
+    "folder": "objects",
+    "draws": "A thin wooden drumstick (beater) with a round knob at the top",
+    "size": [
+      4,
+      19
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "tip": [
+        0,
+        -8
+      ],
+      "handle": [
+        0,
+        8
+      ]
+    },
+    "parts": [
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#C08A5A",
+        "from": [
+          0,
+          -7
+        ],
+        "to": [
+          0,
+          9
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#C08A5A",
+        "from": [
+          0.5,
+          -7
+        ],
+        "to": [
+          0.5,
+          9
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#E0A458",
+        "at": [
+          0.2,
+          -8
+        ],
+        "r": 1.6,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "bell_jar",
+    "folder": "lab",
+    "draws": "A glass bell jar (a see-through dome) on a flat base plate, a pipe leaving the base on the right",
+    "size": [
+      39,
+      36
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "inside": [
+        0,
+        2
+      ],
+      "base": [
+        0,
+        16
+      ],
+      "pipe": [
+        16,
+        17
+      ],
+      "top": [
+        0,
+        -17
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#9ED8FF",
+        "points": [
+          [
+            -15,
+            2
+          ],
+          [
+            -14.87,
+            -0.35
+          ],
+          [
+            -14.49,
+            -2.66
+          ],
+          [
+            -13.86,
+            -4.89
+          ],
+          [
+            -12.99,
+            -7
+          ],
+          [
+            -11.9,
+            -8.96
+          ],
+          [
+            -10.61,
+            -10.73
+          ],
+          [
+            -9.13,
+            -12.28
+          ],
+          [
+            -7.5,
+            -13.59
+          ],
+          [
+            -5.74,
+            -14.63
+          ],
+          [
+            -3.88,
+            -15.39
+          ],
+          [
+            -1.96,
+            -15.85
+          ],
+          [
+            0,
+            -16
+          ],
+          [
+            1.96,
+            -15.85
+          ],
+          [
+            3.88,
+            -15.39
+          ],
+          [
+            5.74,
+            -14.63
+          ],
+          [
+            7.5,
+            -13.59
+          ],
+          [
+            9.13,
+            -12.28
+          ],
+          [
+            10.61,
+            -10.73
+          ],
+          [
+            11.9,
+            -8.96
+          ],
+          [
+            12.99,
+            -7
+          ],
+          [
+            13.86,
+            -4.89
+          ],
+          [
+            14.49,
+            -2.66
+          ],
+          [
+            14.87,
+            -0.35
+          ],
+          [
+            15,
+            2
+          ]
+        ],
+        "closed": false
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#9ED8FF",
+        "from": [
+          -15,
+          2
+        ],
+        "to": [
+          -15,
+          15
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#9ED8FF",
+        "from": [
+          15,
+          2
+        ],
+        "to": [
+          15,
+          15
+        ]
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#9ED8FF",
+        "at": [
+          0,
+          -16.8
+        ],
+        "w": 4,
+        "h": 2,
+        "fill": 0.5
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#8A96A3",
+        "at": [
+          0,
+          16.3
+        ],
+        "w": 36,
+        "h": 2.6,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "at": [
+          18,
+          17
+        ],
+        "w": 6,
+        "h": 1.6,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "dhol",
+    "folder": "objects",
+    "draws": "A dhol (a two-sided barrel drum) lying on its side: wooden barrel, a skin on each end, criss-cross ropes",
+    "size": [
+      27,
+      16
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "left_skin": [
+        -12,
+        0
+      ],
+      "right_skin": [
+        12,
+        0
+      ],
+      "top": [
+        0,
+        -8
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#B5651D",
+        "points": [
+          [
+            -11,
+            -7
+          ],
+          [
+            11,
+            -7
+          ],
+          [
+            12,
+            0
+          ],
+          [
+            11,
+            7
+          ],
+          [
+            -11,
+            7
+          ],
+          [
+            -12,
+            0
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F2E2C2",
+        "points": [
+          [
+            -9.9,
+            0
+          ],
+          [
+            -10.02,
+            2.98
+          ],
+          [
+            -10.37,
+            5.52
+          ],
+          [
+            -10.89,
+            7.21
+          ],
+          [
+            -11.5,
+            7.8
+          ],
+          [
+            -12.11,
+            7.21
+          ],
+          [
+            -12.63,
+            5.52
+          ],
+          [
+            -12.98,
+            2.98
+          ],
+          [
+            -13.1,
+            0
+          ],
+          [
+            -12.98,
+            -2.98
+          ],
+          [
+            -12.63,
+            -5.52
+          ],
+          [
+            -12.11,
+            -7.21
+          ],
+          [
+            -11.5,
+            -7.8
+          ],
+          [
+            -10.89,
+            -7.21
+          ],
+          [
+            -10.37,
+            -5.52
+          ],
+          [
+            -10.02,
+            -2.98
+          ],
+          [
+            -9.9,
+            0
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F2E2C2",
+        "points": [
+          [
+            13.1,
+            0
+          ],
+          [
+            12.98,
+            2.98
+          ],
+          [
+            12.63,
+            5.52
+          ],
+          [
+            12.11,
+            7.21
+          ],
+          [
+            11.5,
+            7.8
+          ],
+          [
+            10.89,
+            7.21
+          ],
+          [
+            10.37,
+            5.52
+          ],
+          [
+            10.02,
+            2.98
+          ],
+          [
+            9.9,
+            0
+          ],
+          [
+            10.02,
+            -2.98
+          ],
+          [
+            10.37,
+            -5.52
+          ],
+          [
+            10.89,
+            -7.21
+          ],
+          [
+            11.5,
+            -7.8
+          ],
+          [
+            12.11,
+            -7.21
+          ],
+          [
+            12.63,
+            -5.52
+          ],
+          [
+            12.98,
+            -2.98
+          ],
+          [
+            13.1,
+            0
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "from": [
+          -9,
+          -6.5
+        ],
+        "to": [
+          -4,
+          6.5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "from": [
+          -4,
+          6.5
+        ],
+        "to": [
+          1,
+          -6.5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "from": [
+          1,
+          -6.5
+        ],
+        "to": [
+          6,
+          6.5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "from": [
+          6,
+          6.5
+        ],
+        "to": [
+          10,
+          -6.5
+        ]
+      }
+    ]
+  },
+  {
+    "name": "dog_g9ch10",
+    "folder": "living",
+    "draws": "A village dog standing, side view, facing right: light brown, curled tail",
+    "size": [
+      26,
+      21
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "head": [
+        9,
+        -5
+      ],
+      "back": [
+        -2,
+        -3
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C99A6B",
+        "points": [
+          [
+            8,
+            0
+          ],
+          [
+            7.56,
+            1.39
+          ],
+          [
+            6.28,
+            2.65
+          ],
+          [
+            4.29,
+            3.64
+          ],
+          [
+            1.78,
+            4.28
+          ],
+          [
+            -1,
+            4.5
+          ],
+          [
+            -3.78,
+            4.28
+          ],
+          [
+            -6.29,
+            3.64
+          ],
+          [
+            -8.28,
+            2.65
+          ],
+          [
+            -9.56,
+            1.39
+          ],
+          [
+            -10,
+            0
+          ],
+          [
+            -9.56,
+            -1.39
+          ],
+          [
+            -8.28,
+            -2.65
+          ],
+          [
+            -6.29,
+            -3.64
+          ],
+          [
+            -3.78,
+            -4.28
+          ],
+          [
+            -1,
+            -4.5
+          ],
+          [
+            1.78,
+            -4.28
+          ],
+          [
+            4.29,
+            -3.64
+          ],
+          [
+            6.28,
+            -2.65
+          ],
+          [
+            7.56,
+            -1.39
+          ],
+          [
+            8,
+            0
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#C99A6B",
+        "at": [
+          -7,
+          6
+        ],
+        "w": 2.2,
+        "h": 8,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#C99A6B",
+        "at": [
+          -3,
+          6
+        ],
+        "w": 2.2,
+        "h": 8,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#C99A6B",
+        "at": [
+          3,
+          6
+        ],
+        "w": 2.2,
+        "h": 8,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#C99A6B",
+        "at": [
+          6.5,
+          6
+        ],
+        "w": 2.2,
+        "h": 8,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C99A6B",
+        "points": [
+          [
+            13,
+            -5
+          ],
+          [
+            12.7,
+            -3.7
+          ],
+          [
+            11.83,
+            -2.6
+          ],
+          [
+            10.53,
+            -1.86
+          ],
+          [
+            9,
+            -1.6
+          ],
+          [
+            7.47,
+            -1.86
+          ],
+          [
+            6.17,
+            -2.6
+          ],
+          [
+            5.3,
+            -3.7
+          ],
+          [
+            5,
+            -5
+          ],
+          [
+            5.3,
+            -6.3
+          ],
+          [
+            6.17,
+            -7.4
+          ],
+          [
+            7.47,
+            -8.14
+          ],
+          [
+            9,
+            -8.4
+          ],
+          [
+            10.53,
+            -8.14
+          ],
+          [
+            11.83,
+            -7.4
+          ],
+          [
+            12.7,
+            -6.3
+          ],
+          [
+            13,
+            -5
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C99A6B",
+        "points": [
+          [
+            11,
+            -5.5
+          ],
+          [
+            15,
+            -4.2
+          ],
+          [
+            14.6,
+            -2.6
+          ],
+          [
+            11,
+            -2.8
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "points": [
+          [
+            7,
+            -8
+          ],
+          [
+            8.5,
+            -11
+          ],
+          [
+            9.8,
+            -7.8
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B1F3B",
+        "at": [
+          10.6,
+          -6
+        ],
+        "r": 0.55,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B1F3B",
+        "at": [
+          15,
+          -3.6
+        ],
+        "r": 0.6,
+        "fill": 1
+      },
+      {
+        "shape": "arc",
+        "style": "normal",
+        "color": "#C99A6B",
+        "at": [
+          -11,
+          -4
+        ],
+        "r": 2.6,
+        "start": 90,
+        "end": 330
+      }
+    ]
+  },
+  {
+    "name": "dolphin",
+    "folder": "living",
+    "draws": "A grey-blue dolphin, side view, facing right, curved fin on its back",
+    "size": [
+      32,
+      13
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "head": [
+        12,
+        -1
+      ],
+      "mouth": [
+        14.5,
+        0.5
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#6FA8DC",
+        "points": [
+          [
+            -14,
+            -1
+          ],
+          [
+            -10,
+            -3
+          ],
+          [
+            -2,
+            -4.5
+          ],
+          [
+            6,
+            -4
+          ],
+          [
+            11,
+            -2.5
+          ],
+          [
+            14.5,
+            0
+          ],
+          [
+            11,
+            1.5
+          ],
+          [
+            4,
+            2.8
+          ],
+          [
+            -4,
+            2.6
+          ],
+          [
+            -10,
+            1
+          ],
+          [
+            -14,
+            1
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#4F86BC",
+        "points": [
+          [
+            -2,
+            -4.3
+          ],
+          [
+            1,
+            -8
+          ],
+          [
+            3,
+            -4.2
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#4F86BC",
+        "points": [
+          [
+            -14,
+            0
+          ],
+          [
+            -17,
+            -3.5
+          ],
+          [
+            -16,
+            0
+          ],
+          [
+            -17,
+            3.5
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#4F86BC",
+        "points": [
+          [
+            2,
+            2.4
+          ],
+          [
+            0,
+            5
+          ],
+          [
+            5,
+            2.6
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#DCEBF8",
+        "points": [
+          [
+            -10,
+            0.8
+          ],
+          [
+            6,
+            2.6
+          ],
+          [
+            11,
+            1.2
+          ],
+          [
+            4,
+            2
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B1F3B",
+        "at": [
+          9.5,
+          -1.4
+        ],
+        "r": 0.55,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "ear_g9ch10",
+    "folder": "body",
+    "draws": "A human ear seen from the side (skin coloured, opening on the left)",
+    "size": [
+      8,
+      11
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "opening": [
+        -1,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F2B47E",
+        "points": [
+          [
+            -1.3,
+            -4.68
+          ],
+          [
+            -0.46,
+            -5.2
+          ],
+          [
+            0.44,
+            -5.4
+          ],
+          [
+            1.35,
+            -5.25
+          ],
+          [
+            2.2,
+            -4.76
+          ],
+          [
+            2.94,
+            -3.97
+          ],
+          [
+            3.53,
+            -2.92
+          ],
+          [
+            3.92,
+            -1.68
+          ],
+          [
+            4.09,
+            -0.34
+          ],
+          [
+            4.03,
+            1.02
+          ],
+          [
+            3.75,
+            2.32
+          ],
+          [
+            3.26,
+            3.47
+          ],
+          [
+            2.59,
+            4.4
+          ],
+          [
+            1.78,
+            5.04
+          ],
+          [
+            0.9,
+            5.37
+          ],
+          [
+            -0.01,
+            5.35
+          ],
+          [
+            -0.89,
+            4.98
+          ],
+          [
+            -1.68,
+            4.3
+          ],
+          [
+            -2.33,
+            3.34
+          ],
+          [
+            -2.8,
+            2.17
+          ],
+          [
+            -3.05,
+            0.85
+          ],
+          [
+            -3.08,
+            -0.51
+          ],
+          [
+            -2.88,
+            -1.85
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#B5651D",
+        "closed": false,
+        "points": [
+          [
+            1.8,
+            -3
+          ],
+          [
+            -0.6,
+            -3.2
+          ],
+          [
+            -1.6,
+            -0.8
+          ],
+          [
+            0,
+            1.2
+          ],
+          [
+            -0.6,
+            3
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "ektara",
+    "folder": "objects",
+    "draws": "An ektara: a round gourd at the bottom, a long bamboo neck and one string",
+    "size": [
+      10,
+      32
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "string": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C08A5A",
+        "points": [
+          [
+            5,
+            10
+          ],
+          [
+            4.7,
+            11.71
+          ],
+          [
+            3.83,
+            13.21
+          ],
+          [
+            2.5,
+            14.33
+          ],
+          [
+            0.87,
+            14.92
+          ],
+          [
+            -0.87,
+            14.92
+          ],
+          [
+            -2.5,
+            14.33
+          ],
+          [
+            -3.83,
+            13.21
+          ],
+          [
+            -4.7,
+            11.71
+          ],
+          [
+            -5,
+            10
+          ],
+          [
+            -4.7,
+            8.29
+          ],
+          [
+            -3.83,
+            6.79
+          ],
+          [
+            -2.5,
+            5.67
+          ],
+          [
+            -0.87,
+            5.08
+          ],
+          [
+            0.87,
+            5.08
+          ],
+          [
+            2.5,
+            5.67
+          ],
+          [
+            3.83,
+            6.79
+          ],
+          [
+            4.7,
+            8.29
+          ],
+          [
+            5,
+            10
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F2E2C2",
+        "points": [
+          [
+            3.4,
+            9
+          ],
+          [
+            2.94,
+            9.5
+          ],
+          [
+            1.7,
+            9.87
+          ],
+          [
+            0,
+            10
+          ],
+          [
+            -1.7,
+            9.87
+          ],
+          [
+            -2.94,
+            9.5
+          ],
+          [
+            -3.4,
+            9
+          ],
+          [
+            -2.94,
+            8.5
+          ],
+          [
+            -1.7,
+            8.13
+          ],
+          [
+            0,
+            8
+          ],
+          [
+            1.7,
+            8.13
+          ],
+          [
+            2.94,
+            8.5
+          ],
+          [
+            3.4,
+            9
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#D9B26B",
+        "from": [
+          -2.5,
+          8
+        ],
+        "to": [
+          -1,
+          -16
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#D9B26B",
+        "from": [
+          2.5,
+          8
+        ],
+        "to": [
+          1,
+          -16
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "from": [
+          0,
+          9
+        ],
+        "to": [
+          0,
+          -15
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "at": [
+          0,
+          -16
+        ],
+        "r": 1,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "electric_bell",
+    "folder": "lab",
+    "draws": "An electric bell: a round metal gong on a small box (draw its hammer separately)",
+    "size": [
+      10,
+      15
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "gong": [
+        0,
+        -3
+      ],
+      "box": [
+        0,
+        4
+      ],
+      "hit": [
+        -4.6,
+        -3
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#E0A458",
+        "at": [
+          0,
+          -3
+        ],
+        "r": 4.8,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#FFD58A",
+        "at": [
+          0,
+          -3
+        ],
+        "r": 2.2,
+        "fill": 0.8
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#5E6A76",
+        "at": [
+          0,
+          4.5
+        ],
+        "w": 8,
+        "h": 4,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#5E6A76",
+        "from": [
+          0,
+          1.8
+        ],
+        "to": [
+          0,
+          2.5
+        ]
+      }
+    ]
+  },
+  {
+    "name": "elephant_g9ch10",
+    "folder": "living",
+    "draws": "An Indian elephant, side view, facing right: grey body, big ear, trunk down, small tusk",
+    "size": [
+      35,
+      22
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "head": [
+        11,
+        -4
+      ],
+      "trunk": [
+        16,
+        9
+      ],
+      "feet": [
+        0,
+        12
+      ],
+      "back": [
+        -2,
+        -9
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#9AA3AD",
+        "points": [
+          [
+            11,
+            -1
+          ],
+          [
+            10.62,
+            1.03
+          ],
+          [
+            9.51,
+            2.95
+          ],
+          [
+            7.73,
+            4.64
+          ],
+          [
+            5.38,
+            6
+          ],
+          [
+            2.61,
+            6.95
+          ],
+          [
+            -0.43,
+            7.44
+          ],
+          [
+            -3.57,
+            7.44
+          ],
+          [
+            -6.61,
+            6.95
+          ],
+          [
+            -9.38,
+            6
+          ],
+          [
+            -11.73,
+            4.64
+          ],
+          [
+            -13.51,
+            2.95
+          ],
+          [
+            -14.62,
+            1.03
+          ],
+          [
+            -15,
+            -1
+          ],
+          [
+            -14.62,
+            -3.03
+          ],
+          [
+            -13.51,
+            -4.95
+          ],
+          [
+            -11.73,
+            -6.64
+          ],
+          [
+            -9.38,
+            -8
+          ],
+          [
+            -6.61,
+            -8.95
+          ],
+          [
+            -3.57,
+            -9.44
+          ],
+          [
+            -0.43,
+            -9.44
+          ],
+          [
+            2.61,
+            -8.95
+          ],
+          [
+            5.38,
+            -8
+          ],
+          [
+            7.73,
+            -6.64
+          ],
+          [
+            9.51,
+            -4.95
+          ],
+          [
+            10.62,
+            -3.03
+          ],
+          [
+            11,
+            -1
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#9AA3AD",
+        "at": [
+          -11,
+          7
+        ],
+        "w": 4,
+        "h": 10,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#9AA3AD",
+        "at": [
+          -4,
+          7
+        ],
+        "w": 4,
+        "h": 10,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#9AA3AD",
+        "at": [
+          3,
+          7
+        ],
+        "w": 4,
+        "h": 10,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#9AA3AD",
+        "at": [
+          8,
+          7
+        ],
+        "w": 4,
+        "h": 10,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#9AA3AD",
+        "points": [
+          [
+            17.5,
+            -3
+          ],
+          [
+            17.17,
+            -1.12
+          ],
+          [
+            16.21,
+            0.54
+          ],
+          [
+            14.75,
+            1.76
+          ],
+          [
+            12.96,
+            2.42
+          ],
+          [
+            11.04,
+            2.42
+          ],
+          [
+            9.25,
+            1.76
+          ],
+          [
+            7.79,
+            0.54
+          ],
+          [
+            6.83,
+            -1.12
+          ],
+          [
+            6.5,
+            -3
+          ],
+          [
+            6.83,
+            -4.88
+          ],
+          [
+            7.79,
+            -6.54
+          ],
+          [
+            9.25,
+            -7.76
+          ],
+          [
+            11.04,
+            -8.42
+          ],
+          [
+            12.96,
+            -8.42
+          ],
+          [
+            14.75,
+            -7.76
+          ],
+          [
+            16.21,
+            -6.54
+          ],
+          [
+            17.17,
+            -4.88
+          ],
+          [
+            17.5,
+            -3
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#7E8892",
+        "points": [
+          [
+            11.5,
+            -2
+          ],
+          [
+            11.23,
+            -0.16
+          ],
+          [
+            10.47,
+            1.39
+          ],
+          [
+            9.34,
+            2.43
+          ],
+          [
+            8,
+            2.8
+          ],
+          [
+            6.66,
+            2.43
+          ],
+          [
+            5.53,
+            1.39
+          ],
+          [
+            4.77,
+            -0.16
+          ],
+          [
+            4.5,
+            -2
+          ],
+          [
+            4.77,
+            -3.84
+          ],
+          [
+            5.53,
+            -5.39
+          ],
+          [
+            6.66,
+            -6.43
+          ],
+          [
+            8,
+            -6.8
+          ],
+          [
+            9.34,
+            -6.43
+          ],
+          [
+            10.47,
+            -5.39
+          ],
+          [
+            11.23,
+            -3.84
+          ],
+          [
+            11.5,
+            -2
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#9AA3AD",
+        "points": [
+          [
+            15,
+            -1
+          ],
+          [
+            17.5,
+            4
+          ],
+          [
+            17,
+            10
+          ],
+          [
+            15.5,
+            10
+          ],
+          [
+            15.5,
+            4
+          ],
+          [
+            13.5,
+            0
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "points": [
+          [
+            14.5,
+            1.5
+          ],
+          [
+            18,
+            3
+          ],
+          [
+            14.8,
+            2.6
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B1F3B",
+        "at": [
+          14,
+          -4.5
+        ],
+        "r": 0.6,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#7E8892",
+        "from": [
+          -15,
+          -2
+        ],
+        "to": [
+          -17,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "name": "firecracker",
+    "folder": "objects",
+    "draws": "A red firecracker bursting: sparks and a bright flash",
+    "size": [
+      14,
+      16
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#D64545",
+        "at": [
+          0,
+          3
+        ],
+        "w": 3,
+        "h": 8,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FFD84D",
+        "from": [
+          0,
+          -2
+        ],
+        "to": [
+          7,
+          -2
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FFD84D",
+        "from": [
+          0,
+          -2
+        ],
+        "to": [
+          5.4,
+          2.5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FFD84D",
+        "from": [
+          0,
+          -2
+        ],
+        "to": [
+          1.2,
+          4.9
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FFD84D",
+        "from": [
+          0,
+          -2
+        ],
+        "to": [
+          -3.5,
+          4.1
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FFD84D",
+        "from": [
+          0,
+          -2
+        ],
+        "to": [
+          -6.6,
+          0.4
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FFD84D",
+        "from": [
+          0,
+          -2
+        ],
+        "to": [
+          -6.6,
+          -4.4
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FFD84D",
+        "from": [
+          0,
+          -2
+        ],
+        "to": [
+          -3.5,
+          -8.1
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FFD84D",
+        "from": [
+          0,
+          -2
+        ],
+        "to": [
+          1.2,
+          -8.9
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FFD84D",
+        "from": [
+          0,
+          -2
+        ],
+        "to": [
+          5.4,
+          -6.5
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#FFF3B0",
+        "at": [
+          0,
+          -2
+        ],
+        "r": 2,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "foam_panel",
+    "folder": "objects",
+    "draws": "A square grey acoustic foam panel with wedge ridges",
+    "size": [
+      14,
+      14
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#5E6A76",
+        "at": [
+          0,
+          0
+        ],
+        "w": 14,
+        "h": 14,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          -7,
+          -4.5
+        ],
+        "to": [
+          7,
+          -4.5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          -7,
+          -1.5
+        ],
+        "to": [
+          7,
+          -1.5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          -7,
+          1.5
+        ],
+        "to": [
+          7,
+          1.5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          -7,
+          4.5
+        ],
+        "to": [
+          7,
+          4.5
+        ]
+      }
+    ]
+  },
+  {
+    "name": "grasshopper_g9ch10",
+    "folder": "living",
+    "draws": "A green grasshopper, side view, facing right, with long bent back legs and antennae",
+    "size": [
+      22,
+      13
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "head": [
+        8,
+        -2
+      ],
+      "leg": [
+        -2,
+        1
+      ],
+      "wing": [
+        -2,
+        -2
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#5FB86F",
+        "points": [
+          [
+            8,
+            0
+          ],
+          [
+            7.61,
+            0.8
+          ],
+          [
+            6.47,
+            1.53
+          ],
+          [
+            4.7,
+            2.1
+          ],
+          [
+            2.47,
+            2.47
+          ],
+          [
+            0,
+            2.6
+          ],
+          [
+            -2.47,
+            2.47
+          ],
+          [
+            -4.7,
+            2.1
+          ],
+          [
+            -6.47,
+            1.53
+          ],
+          [
+            -7.61,
+            0.8
+          ],
+          [
+            -8,
+            0
+          ],
+          [
+            -7.61,
+            -0.8
+          ],
+          [
+            -6.47,
+            -1.53
+          ],
+          [
+            -4.7,
+            -2.1
+          ],
+          [
+            -2.47,
+            -2.47
+          ],
+          [
+            0,
+            -2.6
+          ],
+          [
+            2.47,
+            -2.47
+          ],
+          [
+            4.7,
+            -2.1
+          ],
+          [
+            6.47,
+            -1.53
+          ],
+          [
+            7.61,
+            -0.8
+          ],
+          [
+            8,
+            0
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#3E8E4F",
+        "points": [
+          [
+            5,
+            -1.6
+          ],
+          [
+            4.54,
+            -1.06
+          ],
+          [
+            3.24,
+            -0.61
+          ],
+          [
+            1.3,
+            -0.31
+          ],
+          [
+            -1,
+            -0.2
+          ],
+          [
+            -3.3,
+            -0.31
+          ],
+          [
+            -5.24,
+            -0.61
+          ],
+          [
+            -6.54,
+            -1.06
+          ],
+          [
+            -7,
+            -1.6
+          ],
+          [
+            -6.54,
+            -2.14
+          ],
+          [
+            -5.24,
+            -2.59
+          ],
+          [
+            -3.3,
+            -2.89
+          ],
+          [
+            -1,
+            -3
+          ],
+          [
+            1.3,
+            -2.89
+          ],
+          [
+            3.24,
+            -2.59
+          ],
+          [
+            4.54,
+            -2.14
+          ],
+          [
+            5,
+            -1.6
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#5FB86F",
+        "at": [
+          8,
+          -1.2
+        ],
+        "r": 2.2,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B1F3B",
+        "at": [
+          8.8,
+          -1.8
+        ],
+        "r": 0.5,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#5FB86F",
+        "from": [
+          8.5,
+          -3
+        ],
+        "to": [
+          12,
+          -7
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#5FB86F",
+        "from": [
+          8,
+          -3.2
+        ],
+        "to": [
+          10.5,
+          -8
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#3E8E4F",
+        "from": [
+          -2,
+          0.5
+        ],
+        "to": [
+          -6,
+          -5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#3E8E4F",
+        "from": [
+          -6,
+          -5
+        ],
+        "to": [
+          -9.5,
+          4
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#3E8E4F",
+        "from": [
+          3,
+          2
+        ],
+        "to": [
+          2,
+          5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#3E8E4F",
+        "from": [
+          5,
+          2
+        ],
+        "to": [
+          6,
+          5
+        ]
+      }
+    ]
+  },
+  {
+    "name": "head_side",
+    "folder": "body",
+    "draws": "A child's head and neck seen from the side, facing right: brown hair, one ear, eye, nose and mouth (Myra)",
+    "size": [
+      14,
+      21
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "ear": [
+        -1.5,
+        -3
+      ],
+      "mouth": [
+        5.6,
+        1.5
+      ],
+      "throat": [
+        1.5,
+        6.5
+      ],
+      "top": [
+        0,
+        -10
+      ],
+      "neck": [
+        0,
+        9
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#F2B47E",
+        "at": [
+          0.5,
+          7.5
+        ],
+        "w": 4.8,
+        "h": 7,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F2B47E",
+        "points": [
+          [
+            6.2,
+            -2
+          ],
+          [
+            5.99,
+            -0.06
+          ],
+          [
+            5.37,
+            1.75
+          ],
+          [
+            4.38,
+            3.3
+          ],
+          [
+            3.1,
+            4.5
+          ],
+          [
+            1.6,
+            5.24
+          ],
+          [
+            0,
+            5.5
+          ],
+          [
+            -1.6,
+            5.24
+          ],
+          [
+            -3.1,
+            4.5
+          ],
+          [
+            -4.38,
+            3.3
+          ],
+          [
+            -5.37,
+            1.75
+          ],
+          [
+            -5.99,
+            -0.06
+          ],
+          [
+            -6.2,
+            -2
+          ],
+          [
+            -5.99,
+            -3.94
+          ],
+          [
+            -5.37,
+            -5.75
+          ],
+          [
+            -4.38,
+            -7.3
+          ],
+          [
+            -3.1,
+            -8.5
+          ],
+          [
+            -1.6,
+            -9.24
+          ],
+          [
+            0,
+            -9.5
+          ],
+          [
+            1.6,
+            -9.24
+          ],
+          [
+            3.1,
+            -8.5
+          ],
+          [
+            4.38,
+            -7.3
+          ],
+          [
+            5.37,
+            -5.75
+          ],
+          [
+            5.99,
+            -3.94
+          ],
+          [
+            6.2,
+            -2
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#6B3F1F",
+        "points": [
+          [
+            -6.4,
+            -2
+          ],
+          [
+            -6,
+            -7
+          ],
+          [
+            -2,
+            -10
+          ],
+          [
+            3,
+            -9.8
+          ],
+          [
+            6,
+            -6.5
+          ],
+          [
+            6.3,
+            -4.6
+          ],
+          [
+            1,
+            -5.6
+          ],
+          [
+            -3,
+            -4
+          ],
+          [
+            -4.6,
+            2
+          ],
+          [
+            -6.2,
+            1
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#E09A66",
+        "points": [
+          [
+            -0.1,
+            -2.5
+          ],
+          [
+            -0.29,
+            -1.4
+          ],
+          [
+            -0.8,
+            -0.59
+          ],
+          [
+            -1.5,
+            -0.3
+          ],
+          [
+            -2.2,
+            -0.59
+          ],
+          [
+            -2.71,
+            -1.4
+          ],
+          [
+            -2.9,
+            -2.5
+          ],
+          [
+            -2.71,
+            -3.6
+          ],
+          [
+            -2.2,
+            -4.41
+          ],
+          [
+            -1.5,
+            -4.7
+          ],
+          [
+            -0.8,
+            -4.41
+          ],
+          [
+            -0.29,
+            -3.6
+          ],
+          [
+            -0.1,
+            -2.5
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1B1F3B",
+        "at": [
+          3.6,
+          -3.3
+        ],
+        "r": 0.6,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F2B47E",
+        "points": [
+          [
+            6.1,
+            -2.4
+          ],
+          [
+            7.6,
+            0
+          ],
+          [
+            6.1,
+            0.4
+          ]
+        ],
+        "closed": false,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B5524A",
+        "from": [
+          4.4,
+          2.2
+        ],
+        "to": [
+          5.8,
+          2
+        ]
+      }
+    ]
+  },
+  {
+    "name": "hearing_aid",
+    "folder": "objects",
+    "draws": "A behind-the-ear hearing aid: a curved beige case with a thin clear tube",
+    "size": [
+      8,
+      12
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#E8D2B0",
+        "points": [
+          [
+            -2,
+            -6
+          ],
+          [
+            2,
+            -6
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            0,
+            6
+          ],
+          [
+            -3,
+            4
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#C9D6E6",
+        "from": [
+          2,
+          -5
+        ],
+        "to": [
+          5,
+          -2
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#C9D6E6",
+        "from": [
+          5,
+          -2
+        ],
+        "to": [
+          4,
+          3
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#8A96A3",
+        "at": [
+          0,
+          2
+        ],
+        "r": 0.8,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "microphone_g9ch10",
+    "folder": "objects",
+    "draws": "A hand-held microphone pointing left: round mesh head, black handle, cable",
+    "size": [
+      20,
+      7
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "head": [
+        -7,
+        0
+      ],
+      "tail": [
+        9,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#8A96A3",
+        "at": [
+          -7,
+          0
+        ],
+        "r": 3.4,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#5E6A76",
+        "from": [
+          -9.5,
+          -1.5
+        ],
+        "to": [
+          -4.5,
+          -1.5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#5E6A76",
+        "from": [
+          -9.8,
+          0.4
+        ],
+        "to": [
+          -4.2,
+          0.4
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#5E6A76",
+        "from": [
+          -9.4,
+          2
+        ],
+        "to": [
+          -4.6,
+          2
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#2E3640",
+        "points": [
+          [
+            -4,
+            -2.2
+          ],
+          [
+            8,
+            -1.2
+          ],
+          [
+            8,
+            1.2
+          ],
+          [
+            -4,
+            2.2
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "at": [
+          8.8,
+          0
+        ],
+        "w": 1.6,
+        "h": 2,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "moth",
+    "folder": "living",
+    "draws": "A small pale moth with its wings open, seen from above",
+    "size": [
+      12,
+      8
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#E8DCC0",
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            -5,
+            -3.5
+          ],
+          [
+            -6,
+            0
+          ],
+          [
+            -4,
+            3
+          ],
+          [
+            0,
+            1
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#E8DCC0",
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            5,
+            -3.5
+          ],
+          [
+            6,
+            0
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            0,
+            1
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#B8A888",
+        "points": [
+          [
+            0.8,
+            0
+          ],
+          [
+            0.65,
+            1.76
+          ],
+          [
+            0.25,
+            2.85
+          ],
+          [
+            -0.25,
+            2.85
+          ],
+          [
+            -0.65,
+            1.76
+          ],
+          [
+            -0.8,
+            0
+          ],
+          [
+            -0.65,
+            -1.76
+          ],
+          [
+            -0.25,
+            -2.85
+          ],
+          [
+            0.25,
+            -2.85
+          ],
+          [
+            0.65,
+            -1.76
+          ],
+          [
+            0.8,
+            0
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8A888",
+        "from": [
+          -0.4,
+          -2.8
+        ],
+        "to": [
+          -1.6,
+          -4.4
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8A888",
+        "from": [
+          0.4,
+          -2.8
+        ],
+        "to": [
+          1.6,
+          -4.4
+        ]
+      }
+    ]
+  },
+  {
+    "name": "rice_grain",
+    "folder": "food",
+    "draws": "A single white grain of uncooked rice (drawn big)",
+    "size": [
+      4,
+      4
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "points": [
+          [
+            1.4,
+            0
+          ],
+          [
+            1.21,
+            0.35
+          ],
+          [
+            0.7,
+            0.61
+          ],
+          [
+            0,
+            0.7
+          ],
+          [
+            -0.7,
+            0.61
+          ],
+          [
+            -1.21,
+            0.35
+          ],
+          [
+            -1.4,
+            0
+          ],
+          [
+            -1.21,
+            -0.35
+          ],
+          [
+            -0.7,
+            -0.61
+          ],
+          [
+            0,
+            -0.7
+          ],
+          [
+            0.7,
+            -0.61
+          ],
+          [
+            1.21,
+            -0.35
+          ],
+          [
+            1.4,
+            0
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "ripple",
+    "folder": "basic",
+    "draws": "A flat oval ripple ring on a water surface (takes the piece's colour)",
+    "size": [
+      12,
+      4
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        6,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "points": [
+          [
+            6,
+            0
+          ],
+          [
+            5.71,
+            0.56
+          ],
+          [
+            4.85,
+            1.06
+          ],
+          [
+            3.53,
+            1.46
+          ],
+          [
+            1.85,
+            1.71
+          ],
+          [
+            0,
+            1.8
+          ],
+          [
+            -1.85,
+            1.71
+          ],
+          [
+            -3.53,
+            1.46
+          ],
+          [
+            -4.85,
+            1.06
+          ],
+          [
+            -5.71,
+            0.56
+          ],
+          [
+            -6,
+            0
+          ],
+          [
+            -5.71,
+            -0.56
+          ],
+          [
+            -4.85,
+            -1.06
+          ],
+          [
+            -3.53,
+            -1.46
+          ],
+          [
+            -1.85,
+            -1.71
+          ],
+          [
+            0,
+            -1.8
+          ],
+          [
+            1.85,
+            -1.71
+          ],
+          [
+            3.53,
+            -1.46
+          ],
+          [
+            4.85,
+            -1.06
+          ],
+          [
+            5.71,
+            -0.56
+          ],
+          [
+            6,
+            0
+          ]
+        ],
+        "closed": false
+      }
+    ]
+  },
+  {
+    "name": "rubber_pad",
+    "folder": "lab",
+    "draws": "A soft dark rubber pad (to strike a tuning fork on)",
+    "size": [
+      10,
+      4
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "top": [
+        0,
+        -1.5
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#3A3F48",
+        "at": [
+          0,
+          0
+        ],
+        "w": 10,
+        "h": 3.2,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#5E6A76",
+        "at": [
+          0,
+          -1.3
+        ],
+        "w": 10,
+        "h": 0.6,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "ship_g9ch10",
+    "folder": "objects",
+    "draws": "A ship on the sea, side view: dark red hull, white cabin and a funnel",
+    "size": [
+      40,
+      18
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "hull": [
+        0,
+        6
+      ],
+      "top": [
+        0,
+        -8
+      ],
+      "bottom": [
+        0,
+        8
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#B03A2E",
+        "points": [
+          [
+            -20,
+            1
+          ],
+          [
+            20,
+            1
+          ],
+          [
+            16,
+            8
+          ],
+          [
+            -17,
+            8
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#1B1F3B",
+        "at": [
+          0,
+          2
+        ],
+        "w": 40,
+        "h": 1.4,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "at": [
+          -4,
+          -2.5
+        ],
+        "w": 16,
+        "h": 6,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#6FA8DC",
+        "at": [
+          -8,
+          -2.5
+        ],
+        "w": 2,
+        "h": 1.6,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#6FA8DC",
+        "at": [
+          -4,
+          -2.5
+        ],
+        "w": 2,
+        "h": 1.6,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#6FA8DC",
+        "at": [
+          0,
+          -2.5
+        ],
+        "w": 2,
+        "h": 1.6,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FFB347",
+        "at": [
+          8,
+          -5
+        ],
+        "w": 3.4,
+        "h": 8,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#1B1F3B",
+        "at": [
+          8,
+          -8.4
+        ],
+        "w": 3.4,
+        "h": 1.4,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "sound_arc",
+    "folder": "basic",
+    "draws": "A sound arc: one curved line opening to the right, like ')' (takes the piece's colour)",
+    "size": [
+      4,
+      10
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "front": [
+        2,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "points": [
+          [
+            -0.56,
+            -4.91
+          ],
+          [
+            0.51,
+            -3.96
+          ],
+          [
+            1.32,
+            -2.77
+          ],
+          [
+            1.83,
+            -1.43
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            1.83,
+            1.43
+          ],
+          [
+            1.32,
+            2.77
+          ],
+          [
+            0.51,
+            3.96
+          ],
+          [
+            -0.56,
+            4.91
+          ]
+        ],
+        "closed": false
+      }
+    ]
+  },
+  {
+    "name": "sound_ring",
+    "folder": "basic",
+    "draws": "A thin full ring for sound spreading in all directions (takes the piece's colour)",
+    "size": [
+      12,
+      12
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        6,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "points": [
+          [
+            6,
+            0
+          ],
+          [
+            5.8,
+            1.55
+          ],
+          [
+            5.2,
+            3
+          ],
+          [
+            4.24,
+            4.24
+          ],
+          [
+            3,
+            5.2
+          ],
+          [
+            1.55,
+            5.8
+          ],
+          [
+            0,
+            6
+          ],
+          [
+            -1.55,
+            5.8
+          ],
+          [
+            -3,
+            5.2
+          ],
+          [
+            -4.24,
+            4.24
+          ],
+          [
+            -5.2,
+            3
+          ],
+          [
+            -5.8,
+            1.55
+          ],
+          [
+            -6,
+            0
+          ],
+          [
+            -5.8,
+            -1.55
+          ],
+          [
+            -5.2,
+            -3
+          ],
+          [
+            -4.24,
+            -4.24
+          ],
+          [
+            -3,
+            -5.2
+          ],
+          [
+            -1.55,
+            -5.8
+          ],
+          [
+            0,
+            -6
+          ],
+          [
+            1.55,
+            -5.8
+          ],
+          [
+            3,
+            -5.2
+          ],
+          [
+            4.24,
+            -4.24
+          ],
+          [
+            5.2,
+            -3
+          ],
+          [
+            5.8,
+            -1.55
+          ],
+          [
+            6,
+            0
+          ]
+        ],
+        "closed": false
+      }
+    ]
+  },
+  {
+    "name": "spanner",
+    "folder": "objects",
+    "draws": "A grey metal spanner (wrench), lying slanted",
+    "size": [
+      14,
+      7
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "head": [
+        5.5,
+        -2
+      ]
+    },
+    "parts": [
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          -6,
+          2.5
+        ],
+        "to": [
+          4.5,
+          -1.6
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          -6,
+          3.2
+        ],
+        "to": [
+          4.5,
+          -0.9
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "points": [
+          [
+            4,
+            -3.6
+          ],
+          [
+            7.2,
+            -3.4
+          ],
+          [
+            6.6,
+            -1.8
+          ],
+          [
+            5.8,
+            -2.4
+          ],
+          [
+            5.3,
+            -1.4
+          ],
+          [
+            6.2,
+            0.2
+          ],
+          [
+            3.6,
+            0.4
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "speaker_box",
+    "folder": "objects",
+    "draws": "A loudspeaker box seen from the front: wooden box with a big round cone",
+    "size": [
+      16,
+      20
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "cone": [
+        0,
+        2
+      ],
+      "top": [
+        0,
+        -9
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          0,
+          0
+        ],
+        "w": 16,
+        "h": 20,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          0,
+          3
+        ],
+        "r": 5.4,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#5E6A76",
+        "at": [
+          0,
+          3
+        ],
+        "r": 2,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          0,
+          -6
+        ],
+        "r": 1.8,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "suited_child_g9ch10",
+    "folder": "body",
+    "draws": "A child in a white space suit with a round glass helmet (an astronaut)",
+    "size": [
+      19,
+      32
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "head": [
+        0,
+        -9
+      ],
+      "feet": [
+        0,
+        14
+      ],
+      "vent": [
+        5,
+        -3
+      ],
+      "hand": [
+        7,
+        1
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#E8EEF5",
+        "at": [
+          0,
+          -9
+        ],
+        "r": 5.2,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#2E7BD6",
+        "at": [
+          0,
+          -9
+        ],
+        "r": 3.6,
+        "fill": 0.9
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#9ED8FF",
+        "at": [
+          -1.2,
+          -10.2
+        ],
+        "r": 0.9,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#E8EEF5",
+        "points": [
+          [
+            -6,
+            -4
+          ],
+          [
+            6,
+            -4
+          ],
+          [
+            6.5,
+            6
+          ],
+          [
+            -6.5,
+            6
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#8A96A3",
+        "at": [
+          0,
+          -1
+        ],
+        "w": 6,
+        "h": 3,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#E8EEF5",
+        "at": [
+          -2.8,
+          10
+        ],
+        "w": 3.4,
+        "h": 8,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#E8EEF5",
+        "at": [
+          2.8,
+          10
+        ],
+        "w": 3.4,
+        "h": 8,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#E8EEF5",
+        "at": [
+          -8,
+          1
+        ],
+        "w": 3,
+        "h": 8,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#E8EEF5",
+        "at": [
+          8,
+          1
+        ],
+        "w": 3,
+        "h": 8,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FF6B6B",
+        "at": [
+          5,
+          -3
+        ],
+        "w": 1.6,
+        "h": 1.6,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "from": [
+          3.2,
+          -13.2
+        ],
+        "to": [
+          4.6,
+          -16.5
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#FF6B6B",
+        "at": [
+          4.6,
+          -16.8
+        ],
+        "r": 0.7,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "tabla",
+    "folder": "objects",
+    "draws": "A tabla set: a small wooden drum and a bigger metal drum, each with a black syaahi patch on top",
+    "size": [
+      29,
+      14
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "top": [
+        -7,
+        -5
+      ],
+      "syaahi": [
+        -7,
+        -5
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "points": [
+          [
+            -13,
+            -4
+          ],
+          [
+            -1,
+            -4
+          ],
+          [
+            -2,
+            7
+          ],
+          [
+            -12,
+            7
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F2E2C2",
+        "points": [
+          [
+            -0.8,
+            -4.5
+          ],
+          [
+            -1.27,
+            -3.89
+          ],
+          [
+            -2.62,
+            -3.37
+          ],
+          [
+            -4.63,
+            -3.02
+          ],
+          [
+            -7,
+            -2.9
+          ],
+          [
+            -9.37,
+            -3.02
+          ],
+          [
+            -11.38,
+            -3.37
+          ],
+          [
+            -12.73,
+            -3.89
+          ],
+          [
+            -13.2,
+            -4.5
+          ],
+          [
+            -12.73,
+            -5.11
+          ],
+          [
+            -11.38,
+            -5.63
+          ],
+          [
+            -9.37,
+            -5.98
+          ],
+          [
+            -7,
+            -6.1
+          ],
+          [
+            -4.63,
+            -5.98
+          ],
+          [
+            -2.62,
+            -5.63
+          ],
+          [
+            -1.27,
+            -5.11
+          ],
+          [
+            -0.8,
+            -4.5
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#1B1F3B",
+        "points": [
+          [
+            -4.8,
+            -4.5
+          ],
+          [
+            -5.09,
+            -4.15
+          ],
+          [
+            -5.9,
+            -3.89
+          ],
+          [
+            -7,
+            -3.8
+          ],
+          [
+            -8.1,
+            -3.89
+          ],
+          [
+            -8.91,
+            -4.15
+          ],
+          [
+            -9.2,
+            -4.5
+          ],
+          [
+            -8.91,
+            -4.85
+          ],
+          [
+            -8.1,
+            -5.11
+          ],
+          [
+            -7,
+            -5.2
+          ],
+          [
+            -5.9,
+            -5.11
+          ],
+          [
+            -5.09,
+            -4.85
+          ],
+          [
+            -4.8,
+            -4.5
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "points": [
+          [
+            2,
+            -2
+          ],
+          [
+            14,
+            -2
+          ],
+          [
+            15,
+            3
+          ],
+          [
+            12,
+            7
+          ],
+          [
+            4,
+            7
+          ],
+          [
+            1,
+            3
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F2E2C2",
+        "points": [
+          [
+            14.2,
+            -2.5
+          ],
+          [
+            13.73,
+            -1.89
+          ],
+          [
+            12.38,
+            -1.37
+          ],
+          [
+            10.37,
+            -1.02
+          ],
+          [
+            8,
+            -0.9
+          ],
+          [
+            5.63,
+            -1.02
+          ],
+          [
+            3.62,
+            -1.37
+          ],
+          [
+            2.27,
+            -1.89
+          ],
+          [
+            1.8,
+            -2.5
+          ],
+          [
+            2.27,
+            -3.11
+          ],
+          [
+            3.62,
+            -3.63
+          ],
+          [
+            5.63,
+            -3.98
+          ],
+          [
+            8,
+            -4.1
+          ],
+          [
+            10.37,
+            -3.98
+          ],
+          [
+            12.38,
+            -3.63
+          ],
+          [
+            13.73,
+            -3.11
+          ],
+          [
+            14.2,
+            -2.5
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#1B1F3B",
+        "points": [
+          [
+            9.2,
+            -2.5
+          ],
+          [
+            8.91,
+            -2.15
+          ],
+          [
+            8.1,
+            -1.89
+          ],
+          [
+            7,
+            -1.8
+          ],
+          [
+            5.9,
+            -1.89
+          ],
+          [
+            5.09,
+            -2.15
+          ],
+          [
+            4.8,
+            -2.5
+          ],
+          [
+            5.09,
+            -2.85
+          ],
+          [
+            5.9,
+            -3.11
+          ],
+          [
+            7,
+            -3.2
+          ],
+          [
+            8.1,
+            -3.11
+          ],
+          [
+            8.91,
+            -2.85
+          ],
+          [
+            9.2,
+            -2.5
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "thali_g9ch10",
+    "folder": "objects",
+    "draws": "A round steel thali (plate) seen a little from above, with a raised rim",
+    "size": [
+      23,
+      7
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "rim": [
+        -11,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C9D6E6",
+        "points": [
+          [
+            11.5,
+            0
+          ],
+          [
+            11.17,
+            0.81
+          ],
+          [
+            10.18,
+            1.58
+          ],
+          [
+            8.61,
+            2.25
+          ],
+          [
+            6.53,
+            2.8
+          ],
+          [
+            4.08,
+            3.18
+          ],
+          [
+            1.39,
+            3.38
+          ],
+          [
+            -1.39,
+            3.38
+          ],
+          [
+            -4.08,
+            3.18
+          ],
+          [
+            -6.53,
+            2.8
+          ],
+          [
+            -8.61,
+            2.25
+          ],
+          [
+            -10.18,
+            1.58
+          ],
+          [
+            -11.17,
+            0.81
+          ],
+          [
+            -11.5,
+            0
+          ],
+          [
+            -11.17,
+            -0.81
+          ],
+          [
+            -10.18,
+            -1.58
+          ],
+          [
+            -8.61,
+            -2.25
+          ],
+          [
+            -6.53,
+            -2.8
+          ],
+          [
+            -4.08,
+            -3.18
+          ],
+          [
+            -1.39,
+            -3.38
+          ],
+          [
+            1.39,
+            -3.38
+          ],
+          [
+            4.08,
+            -3.18
+          ],
+          [
+            6.53,
+            -2.8
+          ],
+          [
+            8.61,
+            -2.25
+          ],
+          [
+            10.18,
+            -1.58
+          ],
+          [
+            11.17,
+            -0.81
+          ],
+          [
+            11.5,
+            0
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#E8EEF5",
+        "points": [
+          [
+            9.4,
+            -0.3
+          ],
+          [
+            9.13,
+            0.27
+          ],
+          [
+            8.32,
+            0.82
+          ],
+          [
+            7.04,
+            1.29
+          ],
+          [
+            5.34,
+            1.68
+          ],
+          [
+            3.33,
+            1.94
+          ],
+          [
+            1.13,
+            2.08
+          ],
+          [
+            -1.13,
+            2.08
+          ],
+          [
+            -3.33,
+            1.94
+          ],
+          [
+            -5.34,
+            1.68
+          ],
+          [
+            -7.04,
+            1.29
+          ],
+          [
+            -8.32,
+            0.82
+          ],
+          [
+            -9.13,
+            0.27
+          ],
+          [
+            -9.4,
+            -0.3
+          ],
+          [
+            -9.13,
+            -0.87
+          ],
+          [
+            -8.32,
+            -1.42
+          ],
+          [
+            -7.04,
+            -1.89
+          ],
+          [
+            -5.34,
+            -2.28
+          ],
+          [
+            -3.33,
+            -2.54
+          ],
+          [
+            -1.13,
+            -2.68
+          ],
+          [
+            1.13,
+            -2.68
+          ],
+          [
+            3.33,
+            -2.54
+          ],
+          [
+            5.34,
+            -2.28
+          ],
+          [
+            7.04,
+            -1.89
+          ],
+          [
+            8.32,
+            -1.42
+          ],
+          [
+            9.13,
+            -0.87
+          ],
+          [
+            9.4,
+            -0.3
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "thermometer_g9ch10",
+    "folder": "objects",
+    "draws": "A thin glass tube with a red bulb (draw the red level separately)",
+    "size": [
+      6,
+      29
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "bulb": [
+        0,
+        12
+      ],
+      "top": [
+        0,
+        -14
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C9D6E6",
+        "points": [
+          [
+            -1.4,
+            -14
+          ],
+          [
+            1.4,
+            -14
+          ],
+          [
+            1.4,
+            10
+          ],
+          [
+            -1.4,
+            10
+          ]
+        ],
+        "closed": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#E05252",
+        "at": [
+          0,
+          12
+        ],
+        "r": 2.6,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "tuning_fork",
+    "folder": "lab",
+    "draws": "A steel tuning fork standing up: two long prongs (a U) on a short stem",
+    "size": [
+      6,
+      25
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "prong_l": [
+        -2.2,
+        -6
+      ],
+      "prong_r": [
+        2.2,
+        -6
+      ],
+      "tip_l": [
+        -2.2,
+        -12
+      ],
+      "tip_r": [
+        2.2,
+        -12
+      ],
+      "stem": [
+        0,
+        11
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#C9D6E6",
+        "at": [
+          -2.2,
+          -4.5
+        ],
+        "w": 1.3,
+        "h": 15,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#C9D6E6",
+        "at": [
+          2.2,
+          -4.5
+        ],
+        "w": 1.3,
+        "h": 15,
+        "fill": 1
+      },
+      {
+        "shape": "arc",
+        "style": "normal",
+        "color": "#C9D6E6",
+        "at": [
+          0,
+          3
+        ],
+        "r": 2.2,
+        "start": 0,
+        "end": 180
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#8A96A3",
+        "at": [
+          0,
+          8.5
+        ],
+        "w": 1.4,
+        "h": 7,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#8A96A3",
+        "at": [
+          0,
+          12
+        ],
+        "w": 2.2,
+        "h": 2,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "ultrasound_probe",
+    "folder": "lab",
+    "draws": "A hand-held ultrasound probe: a white handle with a flat grey tip and a cable",
+    "size": [
+      8,
+      20
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "tip": [
+        0,
+        8
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "points": [
+          [
+            -2.4,
+            -8
+          ],
+          [
+            2.4,
+            -8
+          ],
+          [
+            3.4,
+            6
+          ],
+          [
+            -3.4,
+            6
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#5E6A76",
+        "at": [
+          0,
+          7.4
+        ],
+        "w": 7.4,
+        "h": 2,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          0,
+          -8
+        ],
+        "to": [
+          2,
+          -11
+        ]
+      }
+    ]
+  },
+  {
+    "name": "whistle",
+    "folder": "objects",
+    "draws": "A silver sports whistle on a red cord",
+    "size": [
+      13,
+      9
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "mouth": [
+        -6,
+        -1
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C9D6E6",
+        "points": [
+          [
+            -6,
+            -2.4
+          ],
+          [
+            1,
+            -2.4
+          ],
+          [
+            1,
+            2.6
+          ],
+          [
+            -6,
+            0.4
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#C9D6E6",
+        "at": [
+          3,
+          0.6
+        ],
+        "r": 3.6,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#8A96A3",
+        "at": [
+          3,
+          0.6
+        ],
+        "r": 1.2,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FF6B6B",
+        "from": [
+          5.5,
+          -2
+        ],
+        "to": [
+          7,
+          -4
+        ]
+      }
+    ]
+  },
+  {
+    "name": "wreck",
+    "folder": "objects",
+    "draws": "A sunken shipwreck lying tilted on the sea floor: broken brown hull, a snapped mast, weeds",
+    "size": [
+      39,
+      19
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "top": [
+        0,
+        -6
+      ],
+      "bottom": [
+        0,
+        6
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#7A5A3A",
+        "points": [
+          [
+            -20,
+            7
+          ],
+          [
+            -17,
+            -1
+          ],
+          [
+            14,
+            -6
+          ],
+          [
+            19,
+            -3
+          ],
+          [
+            16,
+            4
+          ],
+          [
+            6,
+            6
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            -3,
+            7
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#5A4028",
+        "from": [
+          -5,
+          -3
+        ],
+        "to": [
+          -1,
+          -12
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#5A4028",
+        "from": [
+          -1,
+          -12
+        ],
+        "to": [
+          3,
+          -10
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#3E8E4F",
+        "points": [
+          [
+            -14,
+            6
+          ],
+          [
+            -13,
+            1
+          ],
+          [
+            -12,
+            6
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#3E8E4F",
+        "points": [
+          [
+            10,
+            4
+          ],
+          [
+            11,
+            -1
+          ],
+          [
+            12.4,
+            4
+          ]
+        ],
+        "closed": true,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          -8,
+          1
+        ],
+        "r": 1.2,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          2,
+          -1
+        ],
+        "r": 1.2,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "hoshi_robot",
+    "folder": "objects",
+    "draws": "Hoshi, the blue turtle-robot with round glasses",
+    "size": [
+      25,
+      15
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "head": [
+        -12,
+        -3
+      ],
+      "shell": [
+        0,
+        -3
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#2C6FB7",
+        "closed": true,
+        "points": [
+          [
+            -9,
+            0
+          ],
+          [
+            -8.92,
+            -0.78
+          ],
+          [
+            -8.69,
+            -1.55
+          ],
+          [
+            -8.31,
+            -2.3
+          ],
+          [
+            -7.79,
+            -3
+          ],
+          [
+            -7.14,
+            -3.65
+          ],
+          [
+            -6.36,
+            -4.24
+          ],
+          [
+            -5.48,
+            -4.76
+          ],
+          [
+            -4.5,
+            -5.2
+          ],
+          [
+            -3.44,
+            -5.54
+          ],
+          [
+            -2.33,
+            -5.8
+          ],
+          [
+            -1.17,
+            -5.95
+          ],
+          [
+            0,
+            -6
+          ],
+          [
+            1.17,
+            -5.95
+          ],
+          [
+            2.33,
+            -5.8
+          ],
+          [
+            3.44,
+            -5.54
+          ],
+          [
+            4.5,
+            -5.2
+          ],
+          [
+            5.48,
+            -4.76
+          ],
+          [
+            6.36,
+            -4.24
+          ],
+          [
+            7.14,
+            -3.65
+          ],
+          [
+            7.79,
+            -3
+          ],
+          [
+            8.31,
+            -2.3
+          ],
+          [
+            8.69,
+            -1.55
+          ],
+          [
+            8.92,
+            -0.78
+          ],
+          [
+            9,
+            0
+          ],
+          [
+            9,
+            0
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#7CC4FF",
+        "closed": true,
+        "points": [
+          [
+            -9,
+            0
+          ],
+          [
+            -8.92,
+            -0.78
+          ],
+          [
+            -8.69,
+            -1.55
+          ],
+          [
+            -8.31,
+            -2.3
+          ],
+          [
+            -7.79,
+            -3
+          ],
+          [
+            -7.14,
+            -3.65
+          ],
+          [
+            -6.36,
+            -4.24
+          ],
+          [
+            -5.48,
+            -4.76
+          ],
+          [
+            -4.5,
+            -5.2
+          ],
+          [
+            -3.44,
+            -5.54
+          ],
+          [
+            -2.33,
+            -5.8
+          ],
+          [
+            -1.17,
+            -5.95
+          ],
+          [
+            0,
+            -6
+          ],
+          [
+            1.17,
+            -5.95
+          ],
+          [
+            2.33,
+            -5.8
+          ],
+          [
+            3.44,
+            -5.54
+          ],
+          [
+            4.5,
+            -5.2
+          ],
+          [
+            5.48,
+            -4.76
+          ],
+          [
+            6.36,
+            -4.24
+          ],
+          [
+            7.14,
+            -3.65
+          ],
+          [
+            7.79,
+            -3
+          ],
+          [
+            8.31,
+            -2.3
+          ],
+          [
+            8.69,
+            -1.55
+          ],
+          [
+            8.92,
+            -0.78
+          ],
+          [
+            9,
+            0
+          ],
+          [
+            9,
+            0
+          ]
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#7CC4FF",
+        "from": [
+          -9,
+          0
+        ],
+        "to": [
+          9,
+          0
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#7CC4FF",
+        "closed": false,
+        "points": [
+          [
+            -5,
+            -2
+          ],
+          [
+            0,
+            -5
+          ],
+          [
+            5,
+            -2
+          ]
+        ]
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#7CC4FF",
+        "at": [
+          -6,
+          2.5
+        ],
+        "w": 3,
+        "h": 4,
+        "fill": 0.6
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#7CC4FF",
+        "at": [
+          6,
+          2.5
+        ],
+        "w": 3,
+        "h": 4,
+        "fill": 0.6
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#2C6FB7",
+        "closed": true,
+        "points": [
+          [
+            -8.4,
+            -3
+          ],
+          [
+            -8.62,
+            -1.91
+          ],
+          [
+            -9.24,
+            -0.94
+          ],
+          [
+            -10.2,
+            -0.23
+          ],
+          [
+            -11.37,
+            0.15
+          ],
+          [
+            -12.63,
+            0.15
+          ],
+          [
+            -13.8,
+            -0.23
+          ],
+          [
+            -14.76,
+            -0.94
+          ],
+          [
+            -15.38,
+            -1.91
+          ],
+          [
+            -15.6,
+            -3
+          ],
+          [
+            -15.38,
+            -4.09
+          ],
+          [
+            -14.76,
+            -5.06
+          ],
+          [
+            -13.8,
+            -5.77
+          ],
+          [
+            -12.63,
+            -6.15
+          ],
+          [
+            -11.37,
+            -6.15
+          ],
+          [
+            -10.2,
+            -5.77
+          ],
+          [
+            -9.24,
+            -5.06
+          ],
+          [
+            -8.62,
+            -4.09
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#7CC4FF",
+        "closed": true,
+        "points": [
+          [
+            -8.4,
+            -3
+          ],
+          [
+            -8.62,
+            -1.91
+          ],
+          [
+            -9.24,
+            -0.94
+          ],
+          [
+            -10.2,
+            -0.23
+          ],
+          [
+            -11.37,
+            0.15
+          ],
+          [
+            -12.63,
+            0.15
+          ],
+          [
+            -13.8,
+            -0.23
+          ],
+          [
+            -14.76,
+            -0.94
+          ],
+          [
+            -15.38,
+            -1.91
+          ],
+          [
+            -15.6,
+            -3
+          ],
+          [
+            -15.38,
+            -4.09
+          ],
+          [
+            -14.76,
+            -5.06
+          ],
+          [
+            -13.8,
+            -5.77
+          ],
+          [
+            -12.63,
+            -6.15
+          ],
+          [
+            -11.37,
+            -6.15
+          ],
+          [
+            -10.2,
+            -5.77
+          ],
+          [
+            -9.24,
+            -5.06
+          ],
+          [
+            -8.62,
+            -4.09
+          ]
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "at": [
+          -13.2,
+          -3.6
+        ],
+        "r": 1.3
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "at": [
+          -10.6,
+          -3.6
+        ],
+        "r": 1.3
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "from": [
+          -11.9,
+          -3.6
+        ],
+        "to": [
+          -11.9,
+          -3.6
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FFD84D",
+        "from": [
+          -12,
+          -6.2
+        ],
+        "to": [
+          -12,
+          -8.5
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#FFD84D",
+        "at": [
+          -12,
+          -9
+        ],
+        "r": 0.8,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "spoon_g9ch10",
+    "folder": "objects",
+    "draws": "A tablespoon seen from the side",
+    "size": [
+      16,
+      4
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "bowl": [
+        -5,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#D4DCE4",
+        "closed": true,
+        "points": [
+          [
+            -8,
+            -1
+          ],
+          [
+            -2,
+            -1
+          ],
+          [
+            -2.5,
+            1
+          ],
+          [
+            -7.5,
+            1
+          ]
+        ],
+        "fill": 0.6
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#D4DCE4",
+        "from": [
+          -2,
+          -0.6
+        ],
+        "to": [
+          8,
+          -1.6
+        ]
+      }
+    ]
+  },
+  {
+    "name": "auto_door",
+    "folder": "objects",
+    "draws": "A shop's automatic glass door with a small sensor box above it",
+    "size": [
+      18,
+      21
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "sensor": [
+        0,
+        -10
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#5E6A76",
+        "at": [
+          0,
+          -10
+        ],
+        "w": 6,
+        "h": 2,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#FF4D4D",
+        "at": [
+          0,
+          -10
+        ],
+        "r": 0.6,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#6FB7FF",
+        "at": [
+          -4.5,
+          1
+        ],
+        "w": 9,
+        "h": 18,
+        "fill": 0.35
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#6FB7FF",
+        "at": [
+          4.5,
+          1
+        ],
+        "w": 9,
+        "h": 18,
+        "fill": 0.35
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#C9D6E6",
+        "at": [
+          0,
+          1
+        ],
+        "w": 18,
+        "h": 18,
+        "fill": 0
+      }
+    ]
+  },
+  {
+    "name": "basket_g7ai2",
+    "folder": "objects",
+    "draws": "An empty woven cane basket, side view",
+    "size": [
+      14,
+      9
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "mouth": [
+        0,
+        -4
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C8913E",
+        "closed": true,
+        "points": [
+          [
+            -7,
+            -4
+          ],
+          [
+            7,
+            -4
+          ],
+          [
+            5.5,
+            5
+          ],
+          [
+            -5.5,
+            5
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A5A22",
+        "from": [
+          -6.5,
+          -1
+        ],
+        "to": [
+          6.5,
+          -1
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A5A22",
+        "from": [
+          -6,
+          2
+        ],
+        "to": [
+          6,
+          2
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A5A22",
+        "from": [
+          -3,
+          -4
+        ],
+        "to": [
+          -2.5,
+          5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A5A22",
+        "from": [
+          0,
+          -4
+        ],
+        "to": [
+          0,
+          5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A5A22",
+        "from": [
+          3,
+          -4
+        ],
+        "to": [
+          2.5,
+          5
+        ]
+      }
+    ]
+  },
+  {
+    "name": "boat",
+    "folder": "objects",
+    "draws": "A small racing speedboat, side view, facing right, with a number on its side",
+    "size": [
+      24,
+      9
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#E53935",
+        "closed": true,
+        "points": [
+          [
+            -11,
+            -1
+          ],
+          [
+            9,
+            -1
+          ],
+          [
+            12,
+            -3
+          ],
+          [
+            10,
+            3
+          ],
+          [
+            -10,
+            3
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C9D6E6",
+        "closed": true,
+        "points": [
+          [
+            -4,
+            -1
+          ],
+          [
+            -2,
+            -5
+          ],
+          [
+            4,
+            -5
+          ],
+          [
+            6,
+            -1
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#4FA3FF",
+        "at": [
+          0,
+          -3.5
+        ],
+        "w": 4,
+        "h": 2,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#4FA3FF",
+        "from": [
+          -12,
+          4
+        ],
+        "to": [
+          11,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "name": "coin",
+    "folder": "objects",
+    "draws": "A gold coin (write a symbol on it on the board if needed)",
+    "size": [
+      8,
+      8
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#F2C14E",
+        "at": [
+          0,
+          0
+        ],
+        "r": 3.6,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#C99A2E",
+        "at": [
+          0,
+          0
+        ],
+        "r": 2.6,
+        "fill": 0
+      }
+    ]
+  },
+  {
+    "name": "dustbin_g7ai2",
+    "folder": "objects",
+    "draws": "A blue dustbin, open at the top, side view",
+    "size": [
+      11,
+      13
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "mouth": [
+        0,
+        -6
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#2E7BD6",
+        "closed": true,
+        "points": [
+          [
+            -5,
+            -6
+          ],
+          [
+            5,
+            -6
+          ],
+          [
+            4,
+            7
+          ],
+          [
+            -4,
+            7
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#C9D6E6",
+        "from": [
+          -5.5,
+          -6
+        ],
+        "to": [
+          5.5,
+          -6
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#6FB7FF",
+        "from": [
+          -2,
+          -3
+        ],
+        "to": [
+          -1.6,
+          5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#6FB7FF",
+        "from": [
+          2,
+          -3
+        ],
+        "to": [
+          1.6,
+          5
+        ]
+      }
+    ]
+  },
+  {
+    "name": "geyser",
+    "folder": "objects",
+    "draws": "A white wall-mounted water geyser with a small red light and two pipes below",
+    "size": [
+      10,
+      17
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "light": [
+        0,
+        -4
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#E8EEF5",
+        "at": [
+          0,
+          -1
+        ],
+        "w": 10,
+        "h": 14,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#8A96A3",
+        "at": [
+          0,
+          -1
+        ],
+        "w": 10,
+        "h": 14,
+        "fill": 0
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#FF4D4D",
+        "at": [
+          0,
+          -4
+        ],
+        "r": 1,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          -2,
+          6
+        ],
+        "to": [
+          -2,
+          9
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          2,
+          6
+        ],
+        "to": [
+          2,
+          9
+        ]
+      }
+    ]
+  },
+  {
+    "name": "mango_g7ai2",
+    "folder": "food",
+    "draws": "A mango (kidney-shaped) with a small stalk and leaf; the body has no colour of its own: boards set color (green raw, yellow ripe)",
+    "size": [
+      12,
+      17
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "top": [
+        0,
+        -7
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "closed": true,
+        "fill": true,
+        "points": [
+          [
+            -1,
+            -6.5
+          ],
+          [
+            3,
+            -6
+          ],
+          [
+            5.5,
+            -3
+          ],
+          [
+            6,
+            1
+          ],
+          [
+            4.5,
+            5
+          ],
+          [
+            1,
+            7
+          ],
+          [
+            -3,
+            6.5
+          ],
+          [
+            -5.5,
+            3.5
+          ],
+          [
+            -6,
+            -0.5
+          ],
+          [
+            -4,
+            -4.5
+          ]
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#6B3F1E",
+        "from": [
+          -1,
+          -6.5
+        ],
+        "to": [
+          -0.5,
+          -8.5
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#4CAF50",
+        "closed": true,
+        "points": [
+          [
+            -0.5,
+            -8
+          ],
+          [
+            3.5,
+            -10
+          ],
+          [
+            2.5,
+            -7
+          ]
+        ],
+        "fill": true
+      }
+    ]
+  },
+  {
+    "name": "paper_ball",
+    "folder": "objects",
+    "draws": "A crumpled white paper ball",
+    "size": [
+      6,
+      6
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#E8EEF5",
+        "at": [
+          0,
+          0
+        ],
+        "r": 2.6,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#9AA3AD",
+        "from": [
+          -1.5,
+          -0.5
+        ],
+        "to": [
+          0.5,
+          0.8
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#9AA3AD",
+        "from": [
+          0,
+          -1.6
+        ],
+        "to": [
+          1.2,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "rice_pot",
+    "folder": "food",
+    "draws": "A steel pot of white rice with steam rising, on a small flame",
+    "size": [
+      18,
+      20
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "top": [
+        0,
+        -5
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "closed": true,
+        "points": [
+          [
+            -7,
+            -4
+          ],
+          [
+            7,
+            -4
+          ],
+          [
+            6,
+            5
+          ],
+          [
+            -6,
+            5
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F4F1E1",
+        "closed": true,
+        "points": [
+          [
+            -6.5,
+            -4
+          ],
+          [
+            -4,
+            -6.5
+          ],
+          [
+            4,
+            -6.5
+          ],
+          [
+            6.5,
+            -4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          -9,
+          -2
+        ],
+        "to": [
+          -7,
+          -2
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          7,
+          -2
+        ],
+        "to": [
+          9,
+          -2
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#FF8C1A",
+        "closed": true,
+        "points": [
+          [
+            -4,
+            6
+          ],
+          [
+            -2,
+            9
+          ],
+          [
+            0,
+            6.5
+          ],
+          [
+            2,
+            9
+          ],
+          [
+            4,
+            6
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#C9D6E6",
+        "from": [
+          -2,
+          -8
+        ],
+        "to": [
+          -2.5,
+          -11
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#C9D6E6",
+        "from": [
+          2,
+          -8
+        ],
+        "to": [
+          2.5,
+          -11
+        ]
+      }
+    ]
+  },
+  {
+    "name": "robot_vacuum",
+    "folder": "objects",
+    "draws": "A round robot vacuum cleaner seen from above: grey disc, dark bumper at the front, a green light",
+    "size": [
+      16,
+      15
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "front": [
+        7,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#8A96A3",
+        "at": [
+          0,
+          0
+        ],
+        "r": 7.5,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#C9D6E6",
+        "at": [
+          0,
+          0
+        ],
+        "r": 7.5,
+        "fill": 0
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#5E6A76",
+        "at": [
+          0,
+          0
+        ],
+        "r": 4.5,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#2E3640",
+        "closed": true,
+        "points": [
+          [
+            5,
+            -5
+          ],
+          [
+            8,
+            0
+          ],
+          [
+            5,
+            5
+          ],
+          [
+            6.5,
+            0
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#5FE08F",
+        "at": [
+          2,
+          -2.5
+        ],
+        "r": 1,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "toy_car",
+    "folder": "objects",
+    "draws": "A small red toy car, side view",
+    "size": [
+      11,
+      7
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#E53935",
+        "closed": true,
+        "points": [
+          [
+            -5.5,
+            1
+          ],
+          [
+            -5,
+            -1
+          ],
+          [
+            -2,
+            -1.5
+          ],
+          [
+            -1,
+            -3
+          ],
+          [
+            2.5,
+            -3
+          ],
+          [
+            3.5,
+            -1
+          ],
+          [
+            5.5,
+            -0.5
+          ],
+          [
+            5.5,
+            1.5
+          ],
+          [
+            -5.5,
+            1.5
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          -3,
+          2
+        ],
+        "r": 1.2,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          3,
+          2
+        ],
+        "r": 1.2,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#6FB7FF",
+        "at": [
+          0.7,
+          -2
+        ],
+        "w": 2.4,
+        "h": 1.4,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "watermelon",
+    "folder": "food",
+    "draws": "A whole watermelon: dark green oval with light green stripes",
+    "size": [
+      20,
+      14
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#2E7D32",
+        "closed": true,
+        "points": [
+          [
+            -10,
+            0
+          ],
+          [
+            -8,
+            -5
+          ],
+          [
+            -3,
+            -7
+          ],
+          [
+            3,
+            -7
+          ],
+          [
+            8,
+            -5
+          ],
+          [
+            10,
+            0
+          ],
+          [
+            8,
+            5
+          ],
+          [
+            3,
+            7
+          ],
+          [
+            -3,
+            7
+          ],
+          [
+            -8,
+            5
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8BC34A",
+        "from": [
+          -6,
+          -5
+        ],
+        "to": [
+          -7,
+          5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8BC34A",
+        "from": [
+          -2,
+          -6.5
+        ],
+        "to": [
+          -2.5,
+          6.5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8BC34A",
+        "from": [
+          2.5,
+          -6.5
+        ],
+        "to": [
+          2.5,
+          6.5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8BC34A",
+        "from": [
+          6.5,
+          -5
+        ],
+        "to": [
+          7,
+          5
+        ]
+      }
+    ]
+  },
+  {
+    "name": "leaf_spotted",
+    "folder": "living",
+    "draws": "The same green leaf (pointing right, midrib) with three brown disease spots, each with a yellow ring",
+    "size": [
+      13,
+      6
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "tip": [
+        7,
+        0
+      ],
+      "base": [
+        -6,
+        0
+      ],
+      "spot": [
+        1,
+        -1
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#1E5A36",
+        "closed": true,
+        "points": [
+          [
+            -6,
+            0
+          ],
+          [
+            -2,
+            -3
+          ],
+          [
+            4,
+            -2.5
+          ],
+          [
+            7,
+            0
+          ],
+          [
+            4,
+            2.5
+          ],
+          [
+            -2,
+            3
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#5FE08F",
+        "closed": true,
+        "points": [
+          [
+            -6,
+            0
+          ],
+          [
+            -2,
+            -3
+          ],
+          [
+            4,
+            -2.5
+          ],
+          [
+            7,
+            0
+          ],
+          [
+            4,
+            2.5
+          ],
+          [
+            -2,
+            3
+          ]
+        ],
+        "fill": false
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#5FE08F",
+        "from": [
+          -6,
+          0
+        ],
+        "to": [
+          6,
+          0
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#E8D24A",
+        "at": [
+          1,
+          -1.2
+        ],
+        "r": 1.15,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#6B3F1E",
+        "at": [
+          1,
+          -1.2
+        ],
+        "r": 0.75,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#E8D24A",
+        "at": [
+          -2.4,
+          1.3
+        ],
+        "r": 0.95,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#6B3F1E",
+        "at": [
+          -2.4,
+          1.3
+        ],
+        "r": 0.6,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#E8D24A",
+        "at": [
+          4,
+          1
+        ],
+        "r": 0.8,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#6B3F1E",
+        "at": [
+          4,
+          1
+        ],
+        "r": 0.5,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "smart_speaker",
+    "folder": "objects",
+    "draws": "A small round smart speaker standing up: dark grey cloth body, a glowing cyan light ring on top",
+    "size": [
+      9,
+      13
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "top": [
+        0,
+        -6
+      ],
+      "ring": [
+        0,
+        -5.5
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#3A4450",
+        "at": [
+          0,
+          0.8
+        ],
+        "w": 9,
+        "h": 11.5,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#55606C",
+        "at": [
+          0,
+          -5.2
+        ],
+        "w": 9,
+        "h": 1.4,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#4FE3FF",
+        "from": [
+          -4.2,
+          -5.6
+        ],
+        "to": [
+          4.2,
+          -5.6
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#55606C",
+        "from": [
+          -3.5,
+          -2
+        ],
+        "to": [
+          3.5,
+          -2
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#55606C",
+        "from": [
+          -3.5,
+          1
+        ],
+        "to": [
+          3.5,
+          1
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#55606C",
+        "from": [
+          -3.5,
+          4
+        ],
+        "to": [
+          3.5,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "name": "microphone_g7ai2",
+    "folder": "objects",
+    "draws": "A hand microphone: round silver mesh head on top, black handle below",
+    "size": [
+      7,
+      16
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "head": [
+        0,
+        -5
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          0,
+          3
+        ],
+        "w": 2.6,
+        "h": 9,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "at": [
+          0,
+          -4.5
+        ],
+        "r": 3.2,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          -2.6,
+          -4.5
+        ],
+        "to": [
+          2.6,
+          -4.5
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          0,
+          -7.4
+        ],
+        "to": [
+          0,
+          -1.6
+        ]
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#55606C",
+        "at": [
+          0,
+          -1.2
+        ],
+        "w": 3.4,
+        "h": 1,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "footprint",
+    "folder": "objects",
+    "draws": "A muddy brown shoe print (a clue on the floor)",
+    "size": [
+      6,
+      11
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#7A5A3A",
+        "closed": true,
+        "points": [
+          [
+            -2,
+            -5.5
+          ],
+          [
+            1.5,
+            -5.5
+          ],
+          [
+            2.8,
+            -2.5
+          ],
+          [
+            2.2,
+            0.5
+          ],
+          [
+            -2.2,
+            0.5
+          ],
+          [
+            -2.8,
+            -2.5
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#7A5A3A",
+        "closed": true,
+        "points": [
+          [
+            -2,
+            1.8
+          ],
+          [
+            2,
+            1.8
+          ],
+          [
+            2.2,
+            5.5
+          ],
+          [
+            -2.2,
+            5.5
+          ]
+        ],
+        "fill": true
+      }
+    ]
+  },
+  {
+    "name": "ticket_torn",
+    "folder": "objects",
+    "draws": "A torn pink bus ticket with a dashed line (a clue)",
+    "size": [
+      10,
+      6
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F49AC2",
+        "closed": true,
+        "points": [
+          [
+            -5,
+            -2.8
+          ],
+          [
+            3.5,
+            -2.8
+          ],
+          [
+            4.5,
+            -1.5
+          ],
+          [
+            3.4,
+            -0.3
+          ],
+          [
+            4.8,
+            1
+          ],
+          [
+            3.6,
+            2.8
+          ],
+          [
+            -5,
+            2.8
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B85A85",
+        "from": [
+          -3,
+          -2.6
+        ],
+        "to": [
+          -3,
+          2.6
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B85A85",
+        "from": [
+          -1.5,
+          -1
+        ],
+        "to": [
+          2.5,
+          -1
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B85A85",
+        "from": [
+          -1.5,
+          1
+        ],
+        "to": [
+          1.5,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "name": "adult_g7ai2",
+    "folder": "body",
+    "draws": "A grown-up standing, front view (taller than a child): white kurta, brown trousers",
+    "size": [
+      15,
+      40
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "head": [
+        0,
+        -15
+      ],
+      "feet": [
+        0,
+        19
+      ],
+      "hand": [
+        7.5,
+        2
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#C98B5B",
+        "at": [
+          0,
+          -15
+        ],
+        "r": 3.8,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#2E2A26",
+        "at": [
+          0,
+          -18
+        ],
+        "r": 2.4,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#EDEFF2",
+        "closed": true,
+        "points": [
+          [
+            -4.5,
+            -10.5
+          ],
+          [
+            4.5,
+            -10.5
+          ],
+          [
+            5.5,
+            6
+          ],
+          [
+            -5.5,
+            6
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#C98B5B",
+        "from": [
+          -4.3,
+          -9.5
+        ],
+        "to": [
+          -7.5,
+          2
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#C98B5B",
+        "from": [
+          4.3,
+          -9.5
+        ],
+        "to": [
+          7.5,
+          2
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#7A5A3A",
+        "from": [
+          -2.5,
+          6
+        ],
+        "to": [
+          -2.5,
+          19
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#7A5A3A",
+        "from": [
+          2.5,
+          6
+        ],
+        "to": [
+          2.5,
+          19
+        ]
+      }
+    ]
+  },
+  {
+    "name": "chaat_plate",
+    "folder": "food",
+    "draws": "A leaf plate of dahi puri: puris with white curd, green and red chutney dots",
+    "size": [
+      16,
+      7
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "top": [
+        0,
+        -3
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#4E8A3A",
+        "closed": true,
+        "points": [
+          [
+            -8,
+            0
+          ],
+          [
+            -6,
+            3
+          ],
+          [
+            6,
+            3
+          ],
+          [
+            8,
+            0
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#D9A55A",
+        "at": [
+          -4,
+          -0.8
+        ],
+        "r": 2.4,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#D9A55A",
+        "at": [
+          0,
+          -1.4
+        ],
+        "r": 2.4,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#D9A55A",
+        "at": [
+          4,
+          -0.8
+        ],
+        "r": 2.4,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "at": [
+          -4,
+          -1.6
+        ],
+        "r": 1.4,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "at": [
+          0,
+          -2.2
+        ],
+        "r": 1.4,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "at": [
+          4,
+          -1.6
+        ],
+        "r": 1.4,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3FA34D",
+        "at": [
+          -3.3,
+          -2.2
+        ],
+        "r": 0.45,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#C0392B",
+        "at": [
+          0.8,
+          -2.8
+        ],
+        "r": 0.45,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3FA34D",
+        "at": [
+          4.6,
+          -2.2
+        ],
+        "r": 0.45,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "potato_g7ai2",
+    "folder": "food",
+    "draws": "A brown potato with small eyes",
+    "size": [
+      10,
+      7
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#B9894E",
+        "closed": true,
+        "points": [
+          [
+            -5,
+            -0.5
+          ],
+          [
+            -3.5,
+            -3
+          ],
+          [
+            1,
+            -3.3
+          ],
+          [
+            4.5,
+            -1.8
+          ],
+          [
+            5,
+            1
+          ],
+          [
+            2.5,
+            3
+          ],
+          [
+            -2.5,
+            3
+          ],
+          [
+            -4.8,
+            1.8
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#7A5A3A",
+        "at": [
+          -1.5,
+          -1
+        ],
+        "r": 0.4,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#7A5A3A",
+        "at": [
+          2,
+          0.5
+        ],
+        "r": 0.4,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#7A5A3A",
+        "at": [
+          -2.5,
+          1.4
+        ],
+        "r": 0.4,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "tomato",
+    "folder": "food",
+    "draws": "A fresh red tomato with a green star of leaves on top",
+    "size": [
+      8,
+      9
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "top": [
+        0,
+        -3.5
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#E0442E",
+        "at": [
+          0,
+          0.4
+        ],
+        "r": 4,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#F07A62",
+        "at": [
+          -1.4,
+          -0.8
+        ],
+        "r": 1,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#3FA34D",
+        "closed": true,
+        "points": [
+          [
+            0,
+            -3.8
+          ],
+          [
+            1.2,
+            -2.6
+          ],
+          [
+            2.8,
+            -3
+          ],
+          [
+            1.6,
+            -1.8
+          ],
+          [
+            0,
+            -2.4
+          ],
+          [
+            -1.6,
+            -1.8
+          ],
+          [
+            -2.8,
+            -3
+          ],
+          [
+            -1.2,
+            -2.6
+          ]
+        ],
+        "fill": true
+      }
+    ]
+  },
+  {
+    "name": "tomato_rotten",
+    "folder": "food",
+    "draws": "A rotten tomato: dull brown-red, wrinkled, with dark mould spots",
+    "size": [
+      8,
+      9
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "top": [
+        0,
+        -3.5
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#8A4A2E",
+        "closed": true,
+        "points": [
+          [
+            -3.8,
+            0
+          ],
+          [
+            -3,
+            -2.8
+          ],
+          [
+            0,
+            -3.4
+          ],
+          [
+            3,
+            -2.6
+          ],
+          [
+            4,
+            0.4
+          ],
+          [
+            2.6,
+            3.4
+          ],
+          [
+            -0.4,
+            4
+          ],
+          [
+            -3.2,
+            2.8
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          -1.2,
+          -0.6
+        ],
+        "r": 0.9,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          1.6,
+          1.2
+        ],
+        "r": 1.1,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#556B2F",
+        "at": [
+          0.4,
+          2.6
+        ],
+        "r": 0.6,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#556B2F",
+        "from": [
+          -0.2,
+          -3.4
+        ],
+        "to": [
+          0.4,
+          -4.6
+        ]
+      }
+    ]
+  },
+  {
+    "name": "jar",
+    "folder": "objects",
+    "draws": "A glass jar with a red lid and a white paper label (write on the label on the board)",
+    "size": [
+      9,
+      12
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "label": [
+        0,
+        1
+      ],
+      "top": [
+        0,
+        -5.5
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#9ED8FF",
+        "at": [
+          0,
+          0.8
+        ],
+        "w": 8,
+        "h": 10,
+        "fill": 0.35
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#D63A3A",
+        "at": [
+          0,
+          -5
+        ],
+        "w": 8.6,
+        "h": 1.8,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "at": [
+          0,
+          1
+        ],
+        "w": 7,
+        "h": 4.4,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#9ED8FF",
+        "closed": true,
+        "points": [
+          [
+            -4,
+            -4.2
+          ],
+          [
+            4,
+            -4.2
+          ],
+          [
+            4,
+            5.8
+          ],
+          [
+            -4,
+            5.8
+          ]
+        ],
+        "fill": false
+      }
+    ]
+  },
+  {
+    "name": "laptop",
+    "folder": "objects",
+    "draws": "An open laptop seen from the front: blue screen on top, grey keyboard base",
+    "size": [
+      23,
+      14
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "screen": [
+        0,
+        -2
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          0,
+          -2
+        ],
+        "w": 17,
+        "h": 10.5,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#2E6FA8",
+        "at": [
+          0,
+          -2
+        ],
+        "w": 15,
+        "h": 8.5,
+        "fill": 0.9
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#8A96A3",
+        "closed": true,
+        "points": [
+          [
+            -10,
+            4
+          ],
+          [
+            10,
+            4
+          ],
+          [
+            11.5,
+            6.5
+          ],
+          [
+            -11.5,
+            6.5
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#55606C",
+        "from": [
+          -3,
+          5.3
+        ],
+        "to": [
+          3,
+          5.3
+        ]
+      }
+    ]
+  },
+  {
+    "name": "cricket_bat",
+    "folder": "objects",
+    "draws": "A wooden cricket bat standing up, handle on top",
+    "size": [
+      5,
+      22
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "handle": [
+        0,
+        -9
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#2E3640",
+        "at": [
+          0,
+          -7.5
+        ],
+        "w": 1.4,
+        "h": 7,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#E0B97A",
+        "closed": true,
+        "points": [
+          [
+            -2,
+            -4
+          ],
+          [
+            2,
+            -4
+          ],
+          [
+            2.2,
+            10
+          ],
+          [
+            0,
+            11
+          ],
+          [
+            -2.2,
+            10
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#B98A4A",
+        "from": [
+          0,
+          -3
+        ],
+        "to": [
+          0,
+          9
+        ]
+      }
+    ]
+  },
+  {
+    "name": "trophy",
+    "folder": "objects",
+    "draws": "A gold trophy cup on a small dark base",
+    "size": [
+      11,
+      12
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "top": [
+        0,
+        -5
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F2C14E",
+        "closed": true,
+        "points": [
+          [
+            -4,
+            -5
+          ],
+          [
+            4,
+            -5
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            0.8,
+            1.5
+          ],
+          [
+            -0.8,
+            1.5
+          ],
+          [
+            -3,
+            0
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#F2C14E",
+        "from": [
+          -4,
+          -4
+        ],
+        "to": [
+          -5.5,
+          -2
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#F2C14E",
+        "from": [
+          4,
+          -4
+        ],
+        "to": [
+          5.5,
+          -2
+        ]
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#F2C14E",
+        "at": [
+          0,
+          3
+        ],
+        "w": 1.4,
+        "h": 3,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          0,
+          5.4
+        ],
+        "w": 6,
+        "h": 1.8,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "medicine_box",
+    "folder": "objects",
+    "draws": "A medicine box with a white label panel (the 'label' idea for a model card)",
+    "size": [
+      13,
+      9
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "label": [
+        0,
+        0.5
+      ]
+    },
+    "parts": [
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#4F7FD8",
+        "at": [
+          0,
+          0
+        ],
+        "w": 13,
+        "h": 9,
+        "fill": 1
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "at": [
+          0,
+          0.5
+        ],
+        "w": 10,
+        "h": 5.5,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          -3.5,
+          -0.8
+        ],
+        "to": [
+          3.5,
+          -0.8
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          -3.5,
+          0.8
+        ],
+        "to": [
+          2.5,
+          0.8
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A96A3",
+        "from": [
+          -3.5,
+          2.2
+        ],
+        "to": [
+          3,
+          2.2
+        ]
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#FF6B6B",
+        "at": [
+          4.6,
+          -3.2
+        ],
+        "w": 2.4,
+        "h": 1.2,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "selector",
+    "folder": "body",
+    "draws": "A cricket selector standing, front view: blue blazer, white shirt collar, cream sun hat, notepad in hand",
+    "size": [
+      18,
+      41
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "head": [
+        0,
+        -15
+      ],
+      "feet": [
+        0,
+        19
+      ],
+      "hand": [
+        7.5,
+        2
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#C98B5B",
+        "at": [
+          0,
+          -15
+        ],
+        "r": 3.8,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#E8D9B0",
+        "closed": true,
+        "points": [
+          [
+            -6.5,
+            -17.5
+          ],
+          [
+            6.5,
+            -17.5
+          ],
+          [
+            5,
+            -18.6
+          ],
+          [
+            -5,
+            -18.6
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#E8D9B0",
+        "closed": true,
+        "points": [
+          [
+            -3.6,
+            -18.6
+          ],
+          [
+            3.6,
+            -18.6
+          ],
+          [
+            3,
+            -22
+          ],
+          [
+            -3,
+            -22
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#2E5FB8",
+        "from": [
+          -3.6,
+          -19.2
+        ],
+        "to": [
+          3.6,
+          -19.2
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#2E5FB8",
+        "closed": true,
+        "points": [
+          [
+            -5,
+            -10.5
+          ],
+          [
+            5,
+            -10.5
+          ],
+          [
+            6,
+            6
+          ],
+          [
+            -6,
+            6
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "closed": true,
+        "points": [
+          [
+            -1.6,
+            -10.5
+          ],
+          [
+            1.6,
+            -10.5
+          ],
+          [
+            0,
+            -7
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#2E5FB8",
+        "from": [
+          -4.8,
+          -9.5
+        ],
+        "to": [
+          -7.5,
+          2
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#2E5FB8",
+        "from": [
+          4.8,
+          -9.5
+        ],
+        "to": [
+          7.5,
+          2
+        ]
+      },
+      {
+        "shape": "rect",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "at": [
+          8.5,
+          2.5
+        ],
+        "w": 3,
+        "h": 4,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#3A4450",
+        "from": [
+          -2.5,
+          6
+        ],
+        "to": [
+          -2.5,
+          19
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#3A4450",
+        "from": [
+          2.5,
+          6
+        ],
+        "to": [
+          2.5,
+          19
+        ]
+      }
+    ]
+  },
+  {
+    "name": "girl",
+    "folder": "body",
+    "draws": "A girl standing, front view: dark hair with a side ponytail, pink frock (same size as child)",
+    "size": [
+      14,
+      30
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "head": [
+        0,
+        -11
+      ],
+      "feet": [
+        0,
+        14
+      ],
+      "hand": [
+        7,
+        2
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#2E2A26",
+        "at": [
+          0,
+          -12
+        ],
+        "r": 3.7,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#2E2A26",
+        "at": [
+          4.6,
+          -10.5
+        ],
+        "r": 1.6,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#F2B47E",
+        "at": [
+          0,
+          -11
+        ],
+        "r": 3.2,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#2E2A26",
+        "closed": true,
+        "points": [
+          [
+            -3.6,
+            -13
+          ],
+          [
+            3.6,
+            -13
+          ],
+          [
+            3,
+            -14.8
+          ],
+          [
+            -3,
+            -14.8
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#FF6FA8",
+        "closed": true,
+        "points": [
+          [
+            -3.5,
+            -7
+          ],
+          [
+            3.5,
+            -7
+          ],
+          [
+            6,
+            5
+          ],
+          [
+            -6,
+            5
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#F2B47E",
+        "from": [
+          -3.5,
+          -6
+        ],
+        "to": [
+          -7,
+          2
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#F2B47E",
+        "from": [
+          3.5,
+          -6
+        ],
+        "to": [
+          7,
+          2
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#F2B47E",
+        "from": [
+          -2,
+          5
+        ],
+        "to": [
+          -2.3,
+          14
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#F2B47E",
+        "from": [
+          2,
+          5
+        ],
+        "to": [
+          2.3,
+          14
+        ]
+      }
+    ]
+  },
+  {
+    "name": "face_short_hair",
+    "folder": "body",
+    "draws": "A simple face with short dark hair, eyes and a smile; the skin has no colour of its own: boards set color",
+    "size": [
+      8,
+      10
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "top": [
+        0,
+        -5
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "closed": true,
+        "fill": true,
+        "points": [
+          [
+            4,
+            0
+          ],
+          [
+            3.6,
+            1.91
+          ],
+          [
+            2.49,
+            3.44
+          ],
+          [
+            0.89,
+            4.29
+          ],
+          [
+            -0.89,
+            4.29
+          ],
+          [
+            -2.49,
+            3.44
+          ],
+          [
+            -3.6,
+            1.91
+          ],
+          [
+            -4,
+            0
+          ],
+          [
+            -3.6,
+            -1.91
+          ],
+          [
+            -2.49,
+            -3.44
+          ],
+          [
+            -0.89,
+            -4.29
+          ],
+          [
+            0.89,
+            -4.29
+          ],
+          [
+            2.49,
+            -3.44
+          ],
+          [
+            3.6,
+            -1.91
+          ]
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#2E2A26",
+        "closed": true,
+        "points": [
+          [
+            -4,
+            -1.5
+          ],
+          [
+            -3.6,
+            -3.8
+          ],
+          [
+            -1.5,
+            -4.8
+          ],
+          [
+            1.5,
+            -4.8
+          ],
+          [
+            3.6,
+            -3.8
+          ],
+          [
+            4,
+            -1.5
+          ],
+          [
+            2.5,
+            -3
+          ],
+          [
+            -2.5,
+            -3
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1A1A1A",
+        "at": [
+          -1.5,
+          0
+        ],
+        "r": 0.5,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1A1A1A",
+        "at": [
+          1.5,
+          0
+        ],
+        "r": 0.5,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "closed": false,
+        "color": "#1A1A1A",
+        "points": [
+          [
+            -1.5,
+            2
+          ],
+          [
+            0,
+            2.8
+          ],
+          [
+            1.5,
+            2
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "face_long_hair",
+    "folder": "body",
+    "draws": "A simple face with long dark hair down both sides, eyes and a smile; boards set the skin color",
+    "size": [
+      11,
+      11
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "top": [
+        0,
+        -5
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#2E2A26",
+        "closed": true,
+        "points": [
+          [
+            -5.2,
+            5
+          ],
+          [
+            -5,
+            -2
+          ],
+          [
+            -3.6,
+            -4.6
+          ],
+          [
+            0,
+            -5.6
+          ],
+          [
+            3.6,
+            -4.6
+          ],
+          [
+            5,
+            -2
+          ],
+          [
+            5.2,
+            5
+          ],
+          [
+            3.5,
+            5
+          ],
+          [
+            3.6,
+            -1
+          ],
+          [
+            -3.6,
+            -1
+          ],
+          [
+            -3.5,
+            5
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "closed": true,
+        "fill": true,
+        "points": [
+          [
+            3.6,
+            0
+          ],
+          [
+            3.24,
+            1.7189999999999999
+          ],
+          [
+            2.241,
+            3.096
+          ],
+          [
+            0.801,
+            3.861
+          ],
+          [
+            -0.801,
+            3.861
+          ],
+          [
+            -2.241,
+            3.096
+          ],
+          [
+            -3.24,
+            1.7189999999999999
+          ],
+          [
+            -3.6,
+            0
+          ],
+          [
+            -3.24,
+            -1.7189999999999999
+          ],
+          [
+            -2.241,
+            -3.096
+          ],
+          [
+            -0.801,
+            -3.861
+          ],
+          [
+            0.801,
+            -3.861
+          ],
+          [
+            2.241,
+            -3.096
+          ],
+          [
+            3.24,
+            -1.7189999999999999
+          ]
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#2E2A26",
+        "closed": true,
+        "points": [
+          [
+            -3.4,
+            -1.2
+          ],
+          [
+            -2.6,
+            -3.6
+          ],
+          [
+            0,
+            -4.4
+          ],
+          [
+            2.6,
+            -3.6
+          ],
+          [
+            3.4,
+            -1.2
+          ],
+          [
+            0,
+            -2.6
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1A1A1A",
+        "at": [
+          -1.4,
+          0.2
+        ],
+        "r": 0.5,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1A1A1A",
+        "at": [
+          1.4,
+          0.2
+        ],
+        "r": 0.5,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "closed": false,
+        "color": "#1A1A1A",
+        "points": [
+          [
+            -1.4,
+            2
+          ],
+          [
+            0,
+            2.7
+          ],
+          [
+            1.4,
+            2
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "knife",
+    "folder": "objects",
+    "draws": "A kitchen knife lying flat: shiny steel blade pointing left, brown wooden handle on the right",
+    "size": [
+      30,
+      5
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "tip": [
+        -15,
+        0.6
+      ],
+      "handle": [
+        9,
+        0
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C9D6E6",
+        "closed": true,
+        "points": [
+          [
+            -15,
+            0.6
+          ],
+          [
+            -12,
+            -2.6
+          ],
+          [
+            3,
+            -2.6
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            -11,
+            2
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "from": [
+          -12,
+          -1.8
+        ],
+        "to": [
+          2.5,
+          -1.8
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "closed": true,
+        "points": [
+          [
+            3,
+            -2.2
+          ],
+          [
+            15,
+            -2
+          ],
+          [
+            15,
+            2
+          ],
+          [
+            3,
+            2
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#E0C27A",
+        "at": [
+          7,
+          0
+        ],
+        "r": 0.6,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#E0C27A",
+        "at": [
+          11.5,
+          0
+        ],
+        "r": 0.6,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "robed_thinker",
+    "folder": "body",
+    "draws": "A thinker of ancient Greece standing in a long white robe, with a short grey beard",
+    "size": [
+      13,
+      31
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "head": [
+        0,
+        -11
+      ],
+      "feet": [
+        0,
+        14
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#E8EEF5",
+        "closed": true,
+        "points": [
+          [
+            -4.5,
+            -7
+          ],
+          [
+            4.5,
+            -7
+          ],
+          [
+            5.5,
+            13.5
+          ],
+          [
+            -5.5,
+            13.5
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#4F7FD8",
+        "from": [
+          -4.5,
+          -7
+        ],
+        "to": [
+          4.8,
+          6
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#F2B47E",
+        "from": [
+          -4,
+          -6
+        ],
+        "to": [
+          -6.5,
+          2
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#F2B47E",
+        "from": [
+          4,
+          -6
+        ],
+        "to": [
+          6.5,
+          2
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#F2B47E",
+        "at": [
+          0,
+          -11
+        ],
+        "r": 3.2,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#8A96A3",
+        "at": [
+          0,
+          -13.4
+        ],
+        "r": 2.2,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#B8C0C8",
+        "closed": true,
+        "points": [
+          [
+            -2.6,
+            -10
+          ],
+          [
+            2.6,
+            -10
+          ],
+          [
+            1.8,
+            -6.5
+          ],
+          [
+            0,
+            -5.6
+          ],
+          [
+            -1.8,
+            -6.5
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          -1.1,
+          -11.6
+        ],
+        "r": 0.35,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          1.1,
+          -11.6
+        ],
+        "r": 0.35,
+        "fill": 1
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "from": [
+          -2,
+          13.5
+        ],
+        "to": [
+          -2,
+          15
+        ]
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#8A5A3A",
+        "from": [
+          2,
+          13.5
+        ],
+        "to": [
+          2,
+          15
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sage_g9ch8",
+    "folder": "body",
+    "draws": "A seated Indian sage (rishi) with a white beard and a saffron robe",
+    "size": [
+      20,
+      22
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "head": [
+        0,
+        -7
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#E8892E",
+        "closed": true,
+        "points": [
+          [
+            -10,
+            5
+          ],
+          [
+            10,
+            5
+          ],
+          [
+            9,
+            9.5
+          ],
+          [
+            -9,
+            9.5
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#FF9F43",
+        "closed": true,
+        "points": [
+          [
+            -5,
+            -3
+          ],
+          [
+            5,
+            -3
+          ],
+          [
+            7.5,
+            6
+          ],
+          [
+            -7.5,
+            6
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#FFD08A",
+        "from": [
+          -5,
+          -3
+        ],
+        "to": [
+          5,
+          6
+        ]
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#F2B47E",
+        "at": [
+          0,
+          -7
+        ],
+        "r": 3.2,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "at": [
+          0,
+          -10.8
+        ],
+        "r": 1.6,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#F4F8FF",
+        "closed": true,
+        "points": [
+          [
+            -2.6,
+            -6
+          ],
+          [
+            2.6,
+            -6
+          ],
+          [
+            1.6,
+            -1.5
+          ],
+          [
+            0,
+            0.5
+          ],
+          [
+            -1.6,
+            -1.5
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          -1.1,
+          -7.6
+        ],
+        "r": 0.35,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#3A2A10",
+        "at": [
+          1.1,
+          -7.6
+        ],
+        "r": 0.35,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#F2B47E",
+        "at": [
+          -3.2,
+          3.2
+        ],
+        "r": 1.1,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#F2B47E",
+        "at": [
+          3.2,
+          3.2
+        ],
+        "r": 1.1,
+        "fill": 1
+      }
+    ]
+  },
+  {
+    "name": "strongman",
+    "folder": "body",
+    "draws": "A strong wrestler (pehelwan), front view: broad shoulders, big upper arms held out wide at the elbows (draw his forearms separately so they can wrap round something in front of him), dark green vest, blue shorts",
+    "size": [
+      34,
+      35
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "head": [
+        0,
+        -13
+      ],
+      "elbow_l": [
+        -16,
+        -1.5
+      ],
+      "elbow_r": [
+        16,
+        -1.5
+      ],
+      "feet": [
+        0,
+        17
+      ]
+    },
+    "parts": [
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#C98A5A",
+        "at": [
+          0,
+          -13
+        ],
+        "r": 3.8,
+        "fill": 1
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#1B1F2A",
+        "closed": true,
+        "points": [
+          [
+            -3.6,
+            -14.5
+          ],
+          [
+            -2.6,
+            -17
+          ],
+          [
+            2.6,
+            -17
+          ],
+          [
+            3.6,
+            -14.5
+          ],
+          [
+            0,
+            -15.6
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "line",
+        "style": "normal",
+        "color": "#1B1F2A",
+        "from": [
+          -2.2,
+          -11.3
+        ],
+        "to": [
+          2.2,
+          -11.3
+        ]
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C98A5A",
+        "closed": true,
+        "points": [
+          [
+            -1.8,
+            -9.6
+          ],
+          [
+            1.8,
+            -9.6
+          ],
+          [
+            1.8,
+            -8
+          ],
+          [
+            -1.8,
+            -8
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C98A5A",
+        "closed": true,
+        "points": [
+          [
+            -8,
+            -8.2
+          ],
+          [
+            -12.5,
+            -8
+          ],
+          [
+            -17,
+            -2.5
+          ],
+          [
+            -14.5,
+            -0.5
+          ],
+          [
+            -10.5,
+            -4.2
+          ],
+          [
+            -8,
+            -4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C98A5A",
+        "closed": true,
+        "points": [
+          [
+            8,
+            -8.2
+          ],
+          [
+            12.5,
+            -8
+          ],
+          [
+            17,
+            -2.5
+          ],
+          [
+            14.5,
+            -0.5
+          ],
+          [
+            10.5,
+            -4.2
+          ],
+          [
+            8,
+            -4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#2E7D4F",
+        "closed": true,
+        "points": [
+          [
+            -8.5,
+            -8.2
+          ],
+          [
+            8.5,
+            -8.2
+          ],
+          [
+            6.5,
+            4
+          ],
+          [
+            -6.5,
+            4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#2C6FB7",
+        "closed": true,
+        "points": [
+          [
+            -6.5,
+            4
+          ],
+          [
+            6.5,
+            4
+          ],
+          [
+            7,
+            9
+          ],
+          [
+            0.8,
+            9
+          ],
+          [
+            0,
+            7
+          ],
+          [
+            -0.8,
+            9
+          ],
+          [
+            -7,
+            9
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C98A5A",
+        "closed": true,
+        "points": [
+          [
+            -6,
+            9
+          ],
+          [
+            -1.5,
+            9
+          ],
+          [
+            -2,
+            16
+          ],
+          [
+            -5.5,
+            16
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#C98A5A",
+        "closed": true,
+        "points": [
+          [
+            1.5,
+            9
+          ],
+          [
+            6,
+            9
+          ],
+          [
+            5.5,
+            16
+          ],
+          [
+            2,
+            16
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#3A2A10",
+        "closed": true,
+        "points": [
+          [
+            -6.5,
+            16
+          ],
+          [
+            -1.5,
+            16
+          ],
+          [
+            -1.5,
+            17.5
+          ],
+          [
+            -6.5,
+            17.5
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#3A2A10",
+        "closed": true,
+        "points": [
+          [
+            1.5,
+            16
+          ],
+          [
+            6.5,
+            16
+          ],
+          [
+            6.5,
+            17.5
+          ],
+          [
+            1.5,
+            17.5
+          ]
+        ],
+        "fill": true
+      }
+    ]
+  },
+  {
+    "name": "watermelon_slice",
+    "folder": "food",
+    "draws": "A half-round slice of watermelon: green rind, red pulp, black seeds spread all through the pulp",
+    "size": [
+      31,
+      16
+    ],
+    "settings": {
+      "pos": "centre [x, y]",
+      "scale": 1,
+      "style": "normal"
+    },
+    "anchors": {
+      "center": [
+        0,
+        0
+      ],
+      "pulp": [
+        0,
+        1
+      ]
+    },
+    "parts": [
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#2E8B4F",
+        "closed": true,
+        "points": [
+          [
+            15.5,
+            -4
+          ],
+          [
+            14.97,
+            0.01
+          ],
+          [
+            13.42,
+            3.75
+          ],
+          [
+            10.96,
+            6.96
+          ],
+          [
+            7.75,
+            9.42
+          ],
+          [
+            4.01,
+            10.97
+          ],
+          [
+            0,
+            11.5
+          ],
+          [
+            -4.01,
+            10.97
+          ],
+          [
+            -7.75,
+            9.42
+          ],
+          [
+            -10.96,
+            6.96
+          ],
+          [
+            -13.42,
+            3.75
+          ],
+          [
+            -14.97,
+            0.01
+          ],
+          [
+            -15.5,
+            -4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#DFF5D0",
+        "closed": true,
+        "points": [
+          [
+            14.2,
+            -4
+          ],
+          [
+            13.72,
+            -0.32
+          ],
+          [
+            12.3,
+            3.1
+          ],
+          [
+            10.04,
+            6.04
+          ],
+          [
+            7.1,
+            8.3
+          ],
+          [
+            3.68,
+            9.72
+          ],
+          [
+            0,
+            10.2
+          ],
+          [
+            -3.68,
+            9.72
+          ],
+          [
+            -7.1,
+            8.3
+          ],
+          [
+            -10.04,
+            6.04
+          ],
+          [
+            -12.3,
+            3.1
+          ],
+          [
+            -13.72,
+            -0.32
+          ],
+          [
+            -14.2,
+            -4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "shape": "poly",
+        "style": "normal",
+        "color": "#FF4D5E",
+        "closed": true,
+        "points": [
+          [
+            13.2,
+            -4
+          ],
+          [
+            12.75,
+            -0.58
+          ],
+          [
+            11.43,
+            2.6
+          ],
+          [
+            9.33,
+            5.33
+          ],
+          [
+            6.6,
+            7.43
+          ],
+          [
+            3.42,
+            8.75
+          ],
+          [
+            0,
+            9.2
+          ],
+          [
+            -3.42,
+            8.75
+          ],
+          [
+            -6.6,
+            7.43
+          ],
+          [
+            -9.33,
+            5.33
+          ],
+          [
+            -11.43,
+            2.6
+          ],
+          [
+            -12.75,
+            -0.58
+          ],
+          [
+            -13.2,
+            -4
+          ]
+        ],
+        "fill": true
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1E1414",
+        "at": [
+          -8,
+          -1
+        ],
+        "r": 0.75,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1E1414",
+        "at": [
+          -3,
+          0
+        ],
+        "r": 0.75,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1E1414",
+        "at": [
+          3,
+          0
+        ],
+        "r": 0.75,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1E1414",
+        "at": [
+          8,
+          -1
+        ],
+        "r": 0.75,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1E1414",
+        "at": [
+          -5,
+          3
+        ],
+        "r": 0.75,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1E1414",
+        "at": [
+          0,
+          3.5
+        ],
+        "r": 0.75,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1E1414",
+        "at": [
+          5,
+          3
+        ],
+        "r": 0.75,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1E1414",
+        "at": [
+          -1.5,
+          6.5
+        ],
+        "r": 0.75,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1E1414",
+        "at": [
+          2.5,
+          6
+        ],
+        "r": 0.75,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1E1414",
+        "at": [
+          -9.5,
+          -3
+        ],
+        "r": 0.75,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1E1414",
+        "at": [
+          9.5,
+          -3
+        ],
+        "r": 0.75,
+        "fill": 1
+      },
+      {
+        "glyph": "circle",
+        "style": "normal",
+        "color": "#1E1414",
+        "at": [
+          0,
+          -2
+        ],
+        "r": 0.75,
         "fill": 1
       }
     ]

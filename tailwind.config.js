@@ -14,6 +14,9 @@ module.exports = {
         '2xl': '1536px',
         // Desktop width but a short window (e.g. 1366x768 laptops): compact lesson screens so nothing scrolls
         'lgshort': { raw: '(min-width: 1024px) and (max-height: 720px)' },
+        // Phones 380px and wider. Arbitrary min-[380px]: variants don't work in this project (the raw 'lgshort'
+        // screen above turns them off), so use ph: instead
+        'ph': '380px',
       },
       colors: {
         'duo-blue': '#1E65FA',
