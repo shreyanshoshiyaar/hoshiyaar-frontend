@@ -22,6 +22,7 @@ export default function GuestVerifyModal({ onClose }) {
   const { user, login } = useAuth();
   const navigate = useNavigate();
   const [phone, setPhone] = useState(user?.pendingPhone || '');
+  const [whatsappOptIn, setWhatsappOptIn] = useState(true);
   // Steps: 'phone' -> 'password' (existing user) | 'code' (new user signup) | 'otp-login' (existing user OTP)
   const [step, setStep] = useState('phone');
   const [existingUserName, setExistingUserName] = useState('');
@@ -175,7 +176,7 @@ export default function GuestVerifyModal({ onClose }) {
     setLoading(true);
 
     try {
-      const { data } = await authService.upgradeGuest({ phone, otp, password });
+      const { data } = await authService.upgradeGuest({ phone, otp, password, whatsappOptIn });
       window.hyTrack?.('sign_up', {
         method: 'guest_upgrade',
         user_type: 'new',
@@ -311,6 +312,16 @@ export default function GuestVerifyModal({ onClose }) {
                   autoFocus
                 />
               </div>
+              {/* WhatsApp consent (saved when the number is verified) */}
+              <label className="mt-2 flex items-center gap-1.5 text-left cursor-pointer select-none w-fit">
+                  <input
+                    type="checkbox"
+                    checked={whatsappOptIn}
+                    onChange={(e) => setWhatsappOptIn(e.target.checked)}
+                    className="h-3.5 w-3.5 shrink-0 cursor-pointer"
+                  />
+                  <span className="text-[11px] leading-tight text-slate-500">Send me learning updates &amp; offers on WhatsApp</span>
+                </label>
             </div>
 
             <button

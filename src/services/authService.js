@@ -23,8 +23,8 @@ const registerGuest = (details = {}, opts) => {
 };
 
 // Guest -> full account once the phone is OTP-verified (keeps the guest's progress)
-const upgradeGuest = ({ phone, otp, password }, opts) => {
-  return api.post('/api/auth/upgrade-guest', { phone, otp, password }, opts);
+const upgradeGuest = ({ phone, otp, password, whatsappOptIn }, opts) => {
+  return api.post('/api/auth/upgrade-guest', { phone, otp, password, whatsappOptIn }, opts);
 };
 
 // Check if user exists by phone

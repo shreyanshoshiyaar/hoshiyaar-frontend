@@ -739,6 +739,17 @@ const UnifiedAuth = () => {
                   />
                 </div>
 
+                {/* WhatsApp consent (saved for new accounts) */}
+                <label className="mt-2 flex items-center gap-1.5 text-left cursor-pointer select-none w-fit">
+                  <input
+                    type="checkbox"
+                    checked={formData.whatsappOptIn !== false}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, whatsappOptIn: e.target.checked }))}
+                    className="h-3.5 w-3.5 shrink-0 cursor-pointer"
+                  />
+                  <span className="text-[11px] leading-tight text-slate-500">Send me learning updates &amp; offers on WhatsApp</span>
+                </label>
+
                 <button
                   ref={btnRef}
                   type="submit"
