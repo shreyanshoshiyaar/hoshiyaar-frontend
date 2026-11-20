@@ -5,12 +5,70 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import curriculumService from '../../services/curriculumService';
 import DesktopHome from './DesktopHome';
 
-// Welcome artwork from the client (841 × 1870, 9:20). Everything in it sits in the top 71%;
-// the rest is plain sky and mountains, where the app draws its buttons.
-const WELCOME_ART = "https://res.cloudinary.com/fpifkjbq/image/upload/v1795157801/img-to-link/znqa0g5xchzxhmtba7ar.webp";
-const WELCOME_ART_RATIO = 841 / 1870; // width / height
-const WELCOME_ART_CONTENT = 0.71; // the cards end here, as a share of the height
-const WELCOME_ART_TOP_CROP = 0.03; // empty window frame above the logo, may slide off the top on short screens
+// Welcome artwork from the client, in two shapes. Everything (logo, headline, Hoshi, the 3 cards) sits in
+// the top part; the rest is plain sky and mountains, where the app draws its buttons.
+//  - tall (841 × 1870, 9:20): tall screens, like the app on most phones
+//  - short (958 × 1641, 9:15.4): shorter screens, like phone browsers with their toolbars
+// content: where the cards end, as a share of the height. topCrop: how much empty frame above the logo
+// may slide off the top to make room
+const WELCOME_ARTS = [
+  { src: "https://res.cloudinary.com/fpifkjbq/image/upload/v1795157801/img-to-link/znqa0g5xchzxhmtba7ar.webp", ratio: 841 / 1870, content: 0.71, topCrop: 0.03 },
+  { src: "https://res.cloudinary.com/fpifkjbq/image/upload/v1795176605/img-to-link/qs7a6wqbxmqzdud1jq9s.webp", ratio: 958 / 1641, content: 0.645, topCrop: 0.01 },
+];
+const WELCOME_BUTTONS_ROOM = 200; // the buttons need about this much under the cards (they shrink a little on short screens)
+const WELCOME_SIDE_CROP = 0.06; // at most this share of the artwork's width may be cut off at each side
+
+// The bottom safe area (iPhone home bar) in px, read from CSS
+const safeBottom = () => {
+  try {
+    const el = document.createElement('div');
+    el.style.cssText = 'position:fixed;bottom:0;height:0;padding-bottom:env(safe-area-inset-bottom,0px);visibility:hidden';
+    document.body.appendChild(el);
+    const v = parseFloat(getComputedStyle(el).paddingBottom) || 0;
+    el.remove();
+    return v;
+  } catch (_) { return 0; }
+};
+
+// Picks the artwork that fills this screen edge to edge with room for the buttons under the cards (the tall
+// one first). If neither fits (a very short or wide screen), the short one gets smaller, with a soft fill
+// at the sides.
+const welcomeLayout = (vw, vh, sb) => {
+  for (const art of WELCOME_ARTS) {
+    const h = Math.max(vh, vw / art.ratio);
+    const w = h * art.ratio;
+    if ((w - vw) / 2 > w * WELCOME_SIDE_CROP) continue;
+    const over = h * art.content + WELCOME_BUTTONS_ROOM + sb - vh;
+    if (over > h * art.topCrop) continue;
+    const crop = Math.max(0, over);
+    return { art, h, w, crop, cardsEnd: h * art.content - crop, shrunk: false };
+  }
+  const art = WELCOME_ARTS[WELCOME_ARTS.length - 1];
+  const h = Math.min(Math.max(vh, vw / art.ratio), (vh - sb - WELCOME_BUTTONS_ROOM) / (art.content - art.topCrop));
+  const crop = h * art.topCrop;
+  return { art, h, w: h * art.ratio, crop, cardsEnd: h * art.content - crop, shrunk: h * art.ratio < vw };
+};
+
+const useWelcomeLayout = () => {
+  const measure = () => welcomeLayout(
+    window.innerWidth || 375,
+    window.visualViewport?.height || window.innerHeight || 700,
+    safeBottom()
+  );
+  const [lay, setLay] = useState(measure);
+  useEffect(() => {
+    const on = () => setLay(measure());
+    window.addEventListener('resize', on);
+    window.visualViewport?.addEventListener('resize', on);
+    window.addEventListener('orientationchange', on);
+    return () => {
+      window.removeEventListener('resize', on);
+      window.visualViewport?.removeEventListener('resize', on);
+      window.removeEventListener('orientationchange', on);
+    };
+  }, []);
+  return lay;
+};
 
 const MobileWelcomeScreen = () => {
   const navigate = useNavigate();
@@ -57,45 +115,37 @@ const MobileWelcomeScreen = () => {
     }
   };
 
-  return (
-    <div
-      className="relative w-full h-[100dvh] max-h-[100dvh] overflow-hidden select-none overscroll-none bg-gradient-to-b from-[#1F3352] via-[#7FB4DD] to-[#D5E6F7]"
-      style={{
-        // Room for the buttons: 224px, a little less on short screens (phone browsers with toolbars)
-        '--welcome-buttons': 'calc(clamp(184px, 30dvh, 224px) + env(safe-area-inset-bottom, 0px))',
-        '--welcome-room': 'calc(100dvh - var(--welcome-buttons))',
-        // Artwork height: fills the screen, but never so tall that the cards would run under the buttons.
-        // On short screens up to 3% of its top (empty window frame, above the logo) slides off the top, so
-        // the picture can stay bigger
-        '--welcome-art-h': `min(calc(var(--welcome-room) / ${WELCOME_ART_CONTENT - WELCOME_ART_TOP_CROP}), max(100dvh, calc(100vw / ${WELCOME_ART_RATIO})))`,
-        '--welcome-art-top': `max(calc(var(--welcome-art-h) * -${WELCOME_ART_TOP_CROP}), min(0px, calc(var(--welcome-room) - var(--welcome-art-h) * ${WELCOME_ART_CONTENT})))`
-      }}
-    >
-      {/* Side fill for phones shorter than the artwork: a soft, blurred copy of the same picture */}
-      <img
-        src={WELCOME_ART}
-        alt=""
-        aria-hidden="true"
-        className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-80 pointer-events-none"
-      />
+  const lay = useWelcomeLayout();
 
-      {/* The artwork (logo, headline, Hoshi, the 3 cards; its bottom 30% is plain sky for the buttons).
-          Fills the screen, but never so tall that the cards would run under the buttons: on short phones
-          it gets a little smaller and the blurred copy shows at the sides. */}
+  return (
+    <div className="relative w-full h-[100dvh] max-h-[100dvh] overflow-hidden select-none overscroll-none bg-gradient-to-b from-[#1F3352] via-[#7FB4DD] to-[#D5E6F7]">
+      {/* Only on screens neither artwork fits: a soft, blurred copy fills the sides */}
+      {lay.shrunk && (
+        <img
+          src={lay.art.src}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-80 pointer-events-none"
+        />
+      )}
+
+      {/* The artwork, edge to edge: the tall or the short version, whichever fits this screen */}
       <img
-        src={WELCOME_ART}
+        key={lay.art.src}
+        src={lay.art.src}
         alt="HoshiYaar: Your next science mission starts here. Read the comic, learn on the blackboard, beat the quiz."
         fetchpriority="high"
         draggable="false"
-        className="absolute left-1/2 -translate-x-1/2 max-w-none w-auto pointer-events-none"
+        className="absolute left-1/2 -translate-x-1/2 max-w-none pointer-events-none"
         style={{
-          top: 'var(--welcome-art-top)',
-          height: 'var(--welcome-art-h)',
-          // Soft left, right and bottom edges, so on short phones the artwork melts into the blurred fill
-          WebkitMaskImage: 'linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%), linear-gradient(to bottom, #000 86%, transparent 100%)',
-          WebkitMaskComposite: 'source-in',
-          maskImage: 'linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%), linear-gradient(to bottom, #000 86%, transparent 100%)',
-          maskComposite: 'intersect'
+          top: -lay.crop,
+          height: lay.h,
+          width: lay.w,
+          // Soft left and right edges when it is narrower than the screen
+          ...(lay.shrunk ? {
+            WebkitMaskImage: 'linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%)',
+            maskImage: 'linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%)'
+          } : {})
         }}
       />
 
@@ -106,7 +156,7 @@ const MobileWelcomeScreen = () => {
       <div
         className="absolute inset-x-0 bottom-0 z-10 px-5 flex flex-col items-center"
         style={{
-          top: `calc(var(--welcome-art-top) + var(--welcome-art-h) * ${WELCOME_ART_CONTENT})`,
+          top: lay.cardsEnd,
           paddingTop: '6px',
           paddingBottom: 'calc(14px + env(safe-area-inset-bottom, 0px))'
         }}
