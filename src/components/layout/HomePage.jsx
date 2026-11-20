@@ -10,6 +10,7 @@ import DesktopHome from './DesktopHome';
 const WELCOME_ART = "https://res.cloudinary.com/fpifkjbq/image/upload/v1795157801/img-to-link/znqa0g5xchzxhmtba7ar.webp";
 const WELCOME_ART_RATIO = 841 / 1870; // width / height
 const WELCOME_ART_CONTENT = 0.71; // the cards end here, as a share of the height
+const WELCOME_ART_TOP_CROP = 0.03; // empty window frame above the logo, may slide off the top on short screens
 
 const MobileWelcomeScreen = () => {
   const navigate = useNavigate();
@@ -60,9 +61,14 @@ const MobileWelcomeScreen = () => {
     <div
       className="relative w-full h-[100dvh] max-h-[100dvh] overflow-hidden select-none overscroll-none bg-gradient-to-b from-[#1F3352] via-[#7FB4DD] to-[#D5E6F7]"
       style={{
-        '--welcome-buttons': 'calc(224px + env(safe-area-inset-bottom, 0px))',
-        // Artwork height: fills the screen, but never so tall that the cards would run under the buttons
-        '--welcome-art-h': `min(calc((100dvh - var(--welcome-buttons)) / ${WELCOME_ART_CONTENT}), max(100dvh, calc(100vw / ${WELCOME_ART_RATIO})))`
+        // Room for the buttons: 224px, a little less on short screens (phone browsers with toolbars)
+        '--welcome-buttons': 'calc(clamp(184px, 30dvh, 224px) + env(safe-area-inset-bottom, 0px))',
+        '--welcome-room': 'calc(100dvh - var(--welcome-buttons))',
+        // Artwork height: fills the screen, but never so tall that the cards would run under the buttons.
+        // On short screens up to 3% of its top (empty window frame, above the logo) slides off the top, so
+        // the picture can stay bigger
+        '--welcome-art-h': `min(calc(var(--welcome-room) / ${WELCOME_ART_CONTENT - WELCOME_ART_TOP_CROP}), max(100dvh, calc(100vw / ${WELCOME_ART_RATIO})))`,
+        '--welcome-art-top': `max(calc(var(--welcome-art-h) * -${WELCOME_ART_TOP_CROP}), min(0px, calc(var(--welcome-room) - var(--welcome-art-h) * ${WELCOME_ART_CONTENT})))`
       }}
     >
       {/* Side fill for phones shorter than the artwork: a soft, blurred copy of the same picture */}
@@ -81,20 +87,26 @@ const MobileWelcomeScreen = () => {
         alt="HoshiYaar: Your next science mission starts here. Read the comic, learn on the blackboard, beat the quiz."
         fetchpriority="high"
         draggable="false"
-        className="absolute top-0 left-1/2 -translate-x-1/2 max-w-none w-auto pointer-events-none"
+        className="absolute left-1/2 -translate-x-1/2 max-w-none w-auto pointer-events-none"
         style={{
+          top: 'var(--welcome-art-top)',
           height: 'var(--welcome-art-h)',
-          // Soft left and right edges, so on short phones the artwork melts into the blurred fill
-          WebkitMaskImage: 'linear-gradient(to right, transparent 0, #000 5%, #000 95%, transparent 100%)',
-          maskImage: 'linear-gradient(to right, transparent 0, #000 5%, #000 95%, transparent 100%)'
+          // Soft left, right and bottom edges, so on short phones the artwork melts into the blurred fill
+          WebkitMaskImage: 'linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%), linear-gradient(to bottom, #000 86%, transparent 100%)',
+          WebkitMaskComposite: 'source-in',
+          maskImage: 'linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%), linear-gradient(to bottom, #000 86%, transparent 100%)',
+          maskComposite: 'intersect'
         }}
       />
+
+      {/* Soft light sky behind the buttons, over the fill below the artwork */}
+      <div className="absolute inset-x-0 bottom-0 h-[34%] pointer-events-none bg-gradient-to-b from-transparent via-[#DCEBFA]/70 to-[#E8F2FC]" aria-hidden="true" />
 
       {/* Buttons, over the plain bottom of the artwork */}
       <div
         className="absolute inset-x-0 bottom-0 z-10 px-5 flex flex-col items-center"
         style={{
-          top: `calc(var(--welcome-art-h) * ${WELCOME_ART_CONTENT})`,
+          top: `calc(var(--welcome-art-top) + var(--welcome-art-h) * ${WELCOME_ART_CONTENT})`,
           paddingTop: '6px',
           paddingBottom: 'calc(14px + env(safe-area-inset-bottom, 0px))'
         }}
@@ -104,7 +116,8 @@ const MobileWelcomeScreen = () => {
           <button
             type="button"
             onClick={() => navigate('/start')}
-            className="w-full h-[58px] shrink-0 rounded-full bg-gradient-to-b from-[#2F6BFF] to-[#1743D8] text-white font-dialogue font-bold text-[23px] tracking-tight shadow-[0_6px_0_0_#0F2E9E,0_14px_28px_rgba(23,67,216,0.35)] active:translate-y-[3px] active:shadow-[0_3px_0_0_#0F2E9E,0_8px_18px_rgba(23,67,216,0.3)] transition-all flex items-center justify-center gap-3 cursor-pointer"
+            style={{ height: 'clamp(50px, 7.4dvh, 58px)', fontSize: 'clamp(20px, 3.1dvh, 23px)' }}
+            className="w-full shrink-0 rounded-full bg-gradient-to-b from-[#2F6BFF] to-[#1743D8] text-white font-dialogue font-bold tracking-tight shadow-[0_6px_0_0_#0F2E9E,0_14px_28px_rgba(23,67,216,0.35)] active:translate-y-[3px] active:shadow-[0_3px_0_0_#0F2E9E,0_8px_18px_rgba(23,67,216,0.3)] transition-all flex items-center justify-center gap-3 cursor-pointer"
           >
             <span>Start my adventure</span>
             <span className="text-[22px] leading-none" aria-hidden="true">→</span>
@@ -123,7 +136,8 @@ const MobileWelcomeScreen = () => {
           <button
             type="button"
             onClick={handleWhatsAppClick}
-            className="w-full h-[54px] shrink-0 pl-2 pr-3.5 rounded-full bg-white/95 border border-white shadow-[0_6px_18px_rgba(30,58,138,0.14)] active:scale-[0.98] transition-all flex items-center gap-3 cursor-pointer"
+            style={{ height: 'clamp(46px, 6.9dvh, 54px)' }}
+            className="w-full shrink-0 pl-2 pr-3.5 rounded-full bg-white/95 border border-white shadow-[0_6px_18px_rgba(30,58,138,0.14)] active:scale-[0.98] transition-all flex items-center gap-3 cursor-pointer"
           >
             <span className="w-9 h-9 rounded-full bg-[#25D366] flex items-center justify-center text-white shrink-0 -mr-0.5">
               <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
@@ -139,7 +153,7 @@ const MobileWelcomeScreen = () => {
           <div className="shrink-0 flex items-center justify-center gap-2.5">
             <span className="text-[#F5B700] text-sm font-black -rotate-12" aria-hidden="true">⟋</span>
             <div className="text-center">
-              <p className="text-[18px] font-black italic text-[#1E2A8A] leading-tight tracking-tight">No ratta. Pure curiosity.</p>
+              <p className="font-black italic text-[#1E2A8A] leading-tight tracking-tight" style={{ fontSize: 'clamp(16px, 2.5dvh, 18px)' }}>No ratta. Pure curiosity.</p>
               <svg className="w-24 h-2 mx-auto text-[#2F6BFF]" viewBox="0 0 100 12" fill="none" aria-hidden="true">
                 <path d="M6 4 Q 50 13 94 4" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
               </svg>
