@@ -442,6 +442,19 @@ async function findChapterInOtherClasses(cur, board, subject, ownClass, wanted) 
   return null;
 }
 
+// Duolingo-style path layout. The admin panel can force it on or off per chapter; on 'auto' it's
+// Chapter 9, Chapter 11, and modern multi-unit chapters
+const isPathChapter = (mapStyle, chapterId, chapterTitle, visibleUnits) => {
+  const title = String(chapterTitle || '').toLowerCase();
+  return mapStyle === 'path' || (mapStyle !== 'classic' && (
+    String(chapterId) === '6ad8be61e323d9a75e28c0d5' || // Chapter 9: Life Processes
+    String(chapterId) === '6ab0db4316293cf7bf7f88bb' || // Chapter 11: Light
+    title.includes('light') ||
+    title.includes('life processes') ||
+    title.includes('v12 test') ||
+    (visibleUnits && visibleUnits.length >= 5)));
+};
+
 const LearnDashboard = ({ onboardingData }) => {
   const { logout, user, loading: authLoading, updateUser } = useAuth();
   // Once the trial is over, lessons the learner has not played yet are locked behind the pass
@@ -2096,6 +2109,23 @@ const LearnDashboard = ({ onboardingData }) => {
     });
   }, [modulesList, chapterId, completedCompositeKeys, completedIdSet]);
 
+  // Desktop: one slim bar flush at the top of the lesson map: the offer and the free trial side by side on wide
+  // screens (one under the other on narrower ones), the same bars phones show
+  const desktopBars = !isMobileLayout ? (
+    <div className="grid grid-cols-1 xl:grid-cols-2 xl:[&:has(>:only-child)]:grid-cols-1 empty:hidden">
+      <OfferTag className="h-full" />
+      <TrialTimerBar className="h-full flex flex-col justify-center" />
+    </div>
+  ) : null;
+  const [barsH, setBarsH] = useState(0);
+  const barsObserver = useRef(null);
+  const barsRef = useCallback((el) => {
+    barsObserver.current?.disconnect();
+    if (!el || typeof ResizeObserver === 'undefined') { setBarsH(el ? el.offsetHeight : 0); return; }
+    barsObserver.current = new ResizeObserver(() => setBarsH(el.offsetHeight));
+    barsObserver.current.observe(el);
+  }, []);
+
   return (
     <ReviewProvider>
       {/* The app's one pop-up: the limited time offer, on Home and Learn, every 15 minutes */}
@@ -2410,10 +2440,14 @@ const LearnDashboard = ({ onboardingData }) => {
             {/* Phones: trial countdown pinned above the scrolling map (the map's own unit headers are sticky inside it) */}
             {isMobileLayout && <OfferTag className="shrink-0 z-[121]" />}
             {isMobileLayout && <TrialTimerBar className="relative shrink-0 z-[120]" />}
-            <main className={`flex-grow ${isMobileLayout ? 'p-0' : 'px-3 pb-3'} overflow-y-auto no-scrollbar bg-transparent ${isMobileLayout ? 'mt-0 overflow-x-hidden pb-10' : 'mt-16 md:mt-0 overflow-x-visible'}`}>
+            <main style={{ '--hy-top-offset': `${desktopBars ? barsH : 0}px` }} className={`flex-grow p-0 overflow-y-auto no-scrollbar bg-transparent ${isMobileLayout ? 'mt-0 overflow-x-hidden pb-10' : 'mt-16 md:mt-0 overflow-x-visible'}`}>
             {/* Mobile Score Display removed per request */}
-            {!isMobileLayout && <OfferTag rounded className="mt-3 max-w-3xl mx-auto block" />}
-            {!isMobileLayout && <TrialTimerBar variant="card" className="mt-3 mb-1 max-w-3xl mx-auto" />}
+            {/* Desktop: offer and free trial in one slim bar, pinned flush at the top while the map scrolls */}
+            {desktopBars && (
+              <div ref={barsRef} className="sticky top-0 z-[150]">
+                {desktopBars}
+              </div>
+            )}
 
           {/* Section Header (hide when viewing chapters list). If units exist, headers are shown per unit below, so hide this top one. */}
 
@@ -2473,7 +2507,7 @@ const LearnDashboard = ({ onboardingData }) => {
                           >
                             {/* Unit header card for direct modules */}
                             {isMobileLayout ? (
-                              <div className="sticky top-0 z-[100] text-white px-5 py-3.5 rounded-[24px] mb-6 shadow-xl w-full border border-white/20 relative overflow-hidden flex flex-col md:flex-row justify-between backdrop-blur-md bg-black/40">
+                              <div className="sticky top-[var(--hy-top-offset,0px)] z-[100] text-white px-5 py-3.5 rounded-[24px] mb-6 shadow-xl w-full border border-white/20 relative overflow-hidden flex flex-col md:flex-row justify-between backdrop-blur-md bg-black/40">
                                 
                                 {/* Sparkling Stars background effect */}
                                 <div className="absolute inset-0 opacity-15 pointer-events-none overflow-hidden select-none">
@@ -2511,7 +2545,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                 </div>
                               </div>
                             ) : (
-                              <div className="sticky top-0 z-[100] text-white px-6 py-5 rounded-3xl flex justify-between items-center mb-8 shadow-[0_10px_0_0_rgba(0,0,0,0.15)] w-full border-4"
+                              <div className="sticky top-[var(--hy-top-offset,0px)] z-[100] text-white px-6 py-5 rounded-3xl flex justify-between items-center mb-8 shadow-[0_10px_0_0_rgba(0,0,0,0.15)] w-full border-4"
                                 style={{ background: `linear-gradient(90deg, #2C6DEF, #1E4A8C)`, borderColor: 'rgba(44, 109, 239, 0.25)' }}>
                                 <div>
                                   <p className="font-extrabold text-xl md:text-2xl">
@@ -2797,14 +2831,7 @@ const LearnDashboard = ({ onboardingData }) => {
                         // Duolingo-style path layout. The admin panel can force it on or off per
                         // chapter; on 'auto' it's Chapter 9, Chapter 11, and modern multi-unit chapters
                         const mapStyle = findActiveChapter()?.mapStyle || 'auto';
-                        const isDuolingoChapter = mapStyle === 'path' || (mapStyle !== 'classic' && (
-                          String(chapterId) === '6ad8be61e323d9a75e28c0d5' || // Chapter 9: Life Processes
-                          String(chapterId) === '6ab0db4316293cf7bf7f88bb' || // Chapter 11: Light
-                          chapterTitle?.toLowerCase()?.includes('light') ||
-                          chapterTitle?.toLowerCase()?.includes('life processes') ||
-                          chapterTitle?.toLowerCase()?.includes('v12 test') ||
-                          chapterTitle?.toLowerCase()?.includes('life processes in animals (v12 test)') ||
-                          (visibleUnits && visibleUnits.length >= 5)));
+                        const isDuolingoChapter = isPathChapter(mapStyle, chapterId, chapterTitle, visibleUnits);
 
                         if (isDuolingoChapter) {
                           const activeChapterObj = findActiveChapter();
@@ -2876,7 +2903,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                   {(() => {
                                     const color = unitPalette[unitIdx % unitPalette.length]; const gradFrom = color; const gradTo = darken(color, 0.15); return (
                                       isMobileLayout ? (
-                                        <div className="sticky top-0 z-[100] text-white px-5 py-5 rounded-[24px] mb-8 shadow-2xl w-full border border-white/20 relative overflow-hidden flex flex-col md:flex-row justify-between backdrop-blur-md bg-black/40">
+                                        <div className="sticky top-[var(--hy-top-offset,0px)] z-[100] text-white px-5 py-5 rounded-[24px] mb-8 shadow-2xl w-full border border-white/20 relative overflow-hidden flex flex-col md:flex-row justify-between backdrop-blur-md bg-black/40">
                                           
                                           {/* Sparkling Stars background effect */}
                                           {!u.headerBgUrl && (
@@ -2929,7 +2956,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                           </div>
                                         </div>
                                       ) : (
-                                        <div className="sticky top-0 z-[100] text-white px-6 py-5 rounded-3xl flex justify-between items-center mb-8 shadow-[0_10px_0_0_rgba(0,0,0,0.15)] w-full border-4 backdrop-blur-md relative overflow-hidden"
+                                        <div className="sticky top-[var(--hy-top-offset,0px)] z-[100] text-white px-6 py-5 rounded-3xl flex justify-between items-center mb-8 shadow-[0_10px_0_0_rgba(0,0,0,0.15)] w-full border-4 backdrop-blur-md relative overflow-hidden"
                                           style={{ 
                                             background: u.headerBgUrl ? `url(${u.headerBgUrl}) center/cover no-repeat` : (u.timelineBgUrl ? `rgba(0, 0, 0, 0.4)` : `linear-gradient(90deg, ${gradFrom}, ${gradTo})`), 
                                             borderColor: withAlpha(color, 0.25) 
@@ -3214,7 +3241,7 @@ const LearnDashboard = ({ onboardingData }) => {
                       // Skeleton unit tree while nothing has loaded
                       return (
                         <div className="relative pt-12 pb-28">
-                          <div className="sticky top-0 z-30 text-white px-6 py-5 rounded-3xl flex justify-between items-center mb-8 shadow-[0_10px_0_0_rgba(0,0,0,0.15)] max-w-3xl mx-auto border-4 animate-pulse"
+                          <div className="sticky top-[var(--hy-top-offset,0px)] z-30 text-white px-6 py-5 rounded-3xl flex justify-between items-center mb-8 shadow-[0_10px_0_0_rgba(0,0,0,0.15)] max-w-3xl mx-auto border-4 animate-pulse"
                             style={{ background: `linear-gradient(90deg, #93C5FD, #60A5FA)`, borderColor: 'rgba(147, 197, 253, 0.35)' }}>
                             <div>
                               <p className="font-extrabold text-xl md:text-2xl">Loading unit…</p>

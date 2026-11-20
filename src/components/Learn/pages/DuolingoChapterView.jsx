@@ -130,7 +130,7 @@ export default function DuolingoChapterView({
       {/* Path content container */}
       <div className="relative z-10 w-full max-w-xl mx-auto pl-2 pr-2 sm:pr-3">
         {/* 1. TOP STICKY CHAPTER/UNIT BANNER (Transparent background like earlier) */}
-        <header className="sticky top-0 z-40 mb-2 w-full px-1">
+        <header className="sticky top-[var(--hy-top-offset,0px)] z-40 mb-2 w-full px-1">
         <div className="rounded-[24px] sm:rounded-3xl px-5 py-4 sm:px-6 sm:py-5 shadow-xl border border-white/20 relative overflow-hidden backdrop-blur-md bg-black/40 text-white transition-all duration-300">
           {/* Sparkling stars effect */}
           <div className="absolute inset-0 opacity-15 pointer-events-none overflow-hidden select-none">

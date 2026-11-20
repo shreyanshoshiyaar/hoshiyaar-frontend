@@ -17,7 +17,7 @@ export const offerClock = (ms) => {
 const STYLES = `
   @keyframes hyOfferShine{0%,55%{transform:translateX(-120%) skewX(-20deg)}100%{transform:translateX(320%) skewX(-20deg)}}
   @keyframes hyOfferFlame{0%,100%{transform:scale(1) rotate(-5deg)}50%{transform:scale(1.15) rotate(5deg)}}
-  @keyframes hyOfferTick{0%{transform:translateY(-55%);opacity:0}100%{transform:none;opacity:1}}
+  @keyframes hyOfferTick{0%{transform:translateY(-45%);opacity:.3}100%{transform:none;opacity:1}}
   @keyframes hyOfferBlink{0%,100%{opacity:1}50%{opacity:.25}}
   @keyframes hyOfferUrgent{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.0)}50%{box-shadow:0 0 0 3px rgba(220,38,38,.35)}}
   .hy-offer-shine{animation:hyOfferShine 2.8s ease-in-out infinite}
