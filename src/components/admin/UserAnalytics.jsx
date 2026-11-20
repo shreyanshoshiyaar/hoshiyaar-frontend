@@ -499,6 +499,11 @@ const UserAnalytics = () => {
       result = result.filter(u => u.isGuest);
     } else if (appliedFilters.type === 'registered') {
       result = result.filter(u => !u.isGuest);
+    } else if (appliedFilters.type === 'pro') {
+      // Everyone with an active 6-month pass (any source: Google Play, Razorpay, given by admin)
+      result = result.filter(u => proUsers[u._id]);
+    } else if (appliedFilters.type === 'free') {
+      result = result.filter(u => !proUsers[u._id]);
     }
 
     // Filter by role
@@ -561,7 +566,7 @@ const UserAnalytics = () => {
     });
 
     return result;
-  }, [users, appliedFilters, sortField, sortDirection]);
+  }, [users, appliedFilters, sortField, sortDirection, proUsers]);
 
   // Paginated users
   const paginatedUsers = useMemo(() => {
@@ -1181,6 +1186,8 @@ const UserAnalytics = () => {
               <option value="all">All User Types</option>
               <option value="registered">Registered Only</option>
               <option value="guest">Guest Only</option>
+              <option value="pro">👑 Pro users ({Object.keys(proUsers).length})</option>
+              <option value="free">Not Pro</option>
             </select>
 
             {/* Platform */}

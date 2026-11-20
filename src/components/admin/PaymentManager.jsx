@@ -13,6 +13,14 @@ const SOURCE_LABEL = {
 };
 const SUB_TABS = ['rules', 'access', 'transactions', 'refunds'];
 
+// For <input type="datetime-local">: the date in this device's time, as YYYY-MM-DDTHH:mm
+const toLocalInput = (v) => {
+  const d = new Date(v);
+  if (isNaN(d.getTime())) return '';
+  const p = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+};
+
 export default function PaymentManager({ subTab = '', onSubTab }) {
   const activeTab = SUB_TABS.includes(subTab) ? subTab : 'rules';
   const setActiveTab = (tab) => (onSubTab ? onSubTab(tab) : null);
@@ -96,7 +104,8 @@ export default function PaymentManager({ subTab = '', onSubTab }) {
         guestLessonLimit: Number(config.guestLessonLimit),
         passPrice: Number(config.passPrice),
         passOriginalPrice: Number(config.passOriginalPrice),
-        passDays: Number(config.passDays)
+        passDays: Number(config.passDays),
+        offerEndsAt: config.offerEndsAt ? new Date(config.offerEndsAt).toISOString() : ''
       };
       const res = await paymentService.updateAdminSettings(payload);
       
@@ -419,6 +428,37 @@ export default function PaymentManager({ subTab = '', onSubTab }) {
                   Validity granted by one pass. Default: 180 days (6 months).
                 </p>
               </div>
+            </div>
+
+            {/* Limited time offer */}
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-orange-50 to-pink-50 border border-orange-200">
+              <label className="block text-xs font-black text-orange-900 uppercase tracking-wider mb-1">
+                🔥 Limited Time Offer Ends
+              </label>
+              <div className="flex items-center gap-2 flex-wrap">
+                <input
+                  type="datetime-local"
+                  value={config.offerEndsAt ? toLocalInput(config.offerEndsAt) : ''}
+                  onChange={(e) => setConfig({ ...config, offerEndsAt: e.target.value ? new Date(e.target.value).toISOString() : '' })}
+                  className="h-11 px-3.5 rounded-xl border border-orange-200 bg-white font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                />
+                {config.offerEndsAt && (
+                  <button
+                    type="button"
+                    onClick={() => setConfig({ ...config, offerEndsAt: '' })}
+                    className="h-11 px-4 rounded-xl border border-orange-200 bg-white text-sm font-bold text-orange-700 cursor-pointer"
+                  >
+                    Turn off offer
+                  </button>
+                )}
+                <span className={`text-xs font-black ${config.offerEndsAt && new Date(config.offerEndsAt) > new Date() ? 'text-green-700' : 'text-gray-500'}`}>
+                  {config.offerEndsAt && new Date(config.offerEndsAt) > new Date() ? '● Offer running' : '○ No offer running'}
+                </span>
+              </div>
+              <p className="text-[11px] text-gray-500 mt-1.5 leading-snug">
+                Until this time, students without Pro see a "Limited time offer" pop-up once a day with the price above
+                (strikethrough vs Pro price) and a countdown to this time. Empty or past = no pop-up.
+              </p>
             </div>
 
             {/* Direct Save Button inside card */}

@@ -34,6 +34,10 @@ export const AuthProvider = ({ children }) => {
                     setUser(parsed);
                     localStorage.setItem('user', JSON.stringify(parsed));
 
+                    // Logins last 30 days: swap for a fresh one (at most once a day) so a student who keeps
+                    // using the app is never logged out, and payments and account upgrades keep working
+                    if (parsed?.token) renewLoginIfOld(parsed.token);
+
                     // Initialize Push Notifications and update activity (prompts immediately for max collection)
                     if (parsed?._id) {
                         setupPushNotifications(parsed._id, true).catch(console.error);
@@ -172,6 +176,32 @@ export const AuthProvider = ({ children }) => {
         }
         // Hydrate stars for this user from server best scores
         try { hydrateStarsFromServer(userData?._id); } catch (_) {}
+    };
+
+    const renewLoginIfOld = (token) => {
+        let issuedAt = 0;
+        try {
+            const part = String(token).split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+            issuedAt = Number(JSON.parse(atob(part))?.iat) || 0;
+        } catch (_) { return; }
+        if (!issuedAt || Date.now() / 1000 - issuedAt < 24 * 60 * 60) return;
+        authService.renewToken(token).then((res) => {
+            const fresh = res?.data?.token;
+            if (!fresh) return;
+            try { localStorage.setItem('token', fresh); } catch (_) {}
+            setUser((prev) => {
+                // Logged out (or switched account) while this was on its way
+                if (!prev || prev.token !== token) return prev;
+                const updated = { ...prev, token: fresh };
+                try { localStorage.setItem('user', JSON.stringify(updated)); } catch (_) {}
+                return updated;
+            });
+        }).catch((err) => {
+            if (err?.response?.data?.code === 'SIGNED_OUT_DEVICE') {
+                try { sessionStorage.setItem('hy_signed_out_notice', '1'); } catch (_) {}
+                logout();
+            }
+        });
     };
 
     const logout = () => {

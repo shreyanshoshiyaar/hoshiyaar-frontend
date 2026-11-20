@@ -52,7 +52,7 @@ export default function RevisionList() {
           const unitMediaItems = [];
 
           for (const m of mods) {
-            const itemsResponse = await curriculumService.listItems(m._id).catch(() => null);
+            const itemsResponse = await curriculumService.listItems(m._id, { params: { peek: '1' } }).catch(() => null);
             const items = itemsResponse?.data || [];
             
             items.forEach((item, index) => {
@@ -89,7 +89,7 @@ export default function RevisionList() {
       // Handle direct Module ID jump
       if (moduleId) {
         try {
-          const itemsResponse = await curriculumService.listItems(moduleId).catch(() => null);
+          const itemsResponse = await curriculumService.listItems(moduleId, { params: { peek: '1' } }).catch(() => null);
           const items = itemsResponse?.data || [];
           const modMediaItems = [];
           
@@ -253,7 +253,7 @@ export default function RevisionList() {
       const unitMediaItems = [];
 
       for (const m of mods) {
-        const itemsResponse = await curriculumService.listItems(m._id).catch(() => null);
+        const itemsResponse = await curriculumService.listItems(m._id, { params: { peek: '1' } }).catch(() => null);
         const items = itemsResponse?.data || [];
         
         items.forEach((item, index) => {

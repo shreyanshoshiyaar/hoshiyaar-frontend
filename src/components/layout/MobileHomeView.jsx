@@ -4,6 +4,7 @@ import HeroSection from './home/HeroSection.jsx';
 import ChaptersGrid from './home/ChaptersGrid.jsx';
 import PlayWithFriends from './home/PlayWithFriends.jsx';
 import TrialBanner from '../features/Subscription/TrialBanner.jsx';
+import OfferTag from '../features/Subscription/OfferTag.jsx';
 
 // Home screen for phones, built to the client's spec: header badges, free trial banner,
 // Solve Squad hero, chapter cards and the Play with Friends bar. The bottom nav is shared app-wide.
@@ -12,6 +13,7 @@ export default function MobileHomeView({ stars, myRank, myStreak, chapters, load
     <div className="w-full font-sans select-none bg-[#F0F6FF]" style={{ paddingBottom: 'calc(88px + env(safe-area-inset-bottom, 0px))' }}>
       <HeaderBar stars={stars} myRank={myRank} myStreak={myStreak} />
       <div className="px-3 mt-3 mb-1">
+        <OfferTag rounded className="mb-2" />
         <TrialBanner />
       </div>
       <HeroSection />

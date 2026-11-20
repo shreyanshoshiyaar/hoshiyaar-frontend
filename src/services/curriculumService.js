@@ -69,6 +69,10 @@ const curriculumService = {
     const passedOpts = passOpts(opts);
     return api.get('/api/curriculum/young-explorers', { params: { board, subject }, ...passedOpts });
   },
+  // Chapters pinned to a home screen spot for every class, with this student's progress
+  listHomePins(opts) {
+    return api.get('/api/curriculum/home-pins', passOpts(opts));
+  },
   updateChapterDisplay(id, data) {
     cache.clear();
     return api.patch(`/api/curriculum/chapters/${id}/display`, data);
@@ -91,7 +95,8 @@ const curriculumService = {
     return cachedGet(`/api/curriculum/modules`, { params: { unitId }, ...passOpts(opts) });
   },
   async listItems(moduleId, opts) {
-    const res = await cachedGet(`/api/curriculum/items`, { params: { moduleId }, ...passOpts(opts) });
+    const o = passOpts(opts);
+    const res = await cachedGet(`/api/curriculum/items`, { ...o, params: { moduleId, ...(o.params || {}) } });
     if (res?.data && Array.isArray(res.data)) {
       return {
         ...res,

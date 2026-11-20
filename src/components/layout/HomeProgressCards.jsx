@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { chapterName } from '../../utils/chapterName.js';
 import { ChapterArt, HomeTag } from './home/ChaptersGrid.jsx';
 import TrialBanner from '../features/Subscription/TrialBanner.jsx';
-import TrialPromoModal from '../features/Subscription/TrialPromoModal.jsx';
+import OfferTag from '../features/Subscription/OfferTag.jsx';
 import { useAccess } from '../../context/AccessContext.jsx';
 import MobileHomeView from './MobileHomeView.jsx';
 import { useNavigate } from 'react-router-dom';
@@ -144,28 +144,6 @@ export default function HomeProgressCards({
 
   // Active theme index for rotating or picking base theme
   const { access } = useAccess();
-  const [showPromoModal, setShowPromoModal] = useState(false);
-
-  useEffect(() => {
-    // Only pop up during active trial (never for paid Pro subscribers or open state)
-    if (!access || access.state === 'pass' || access.state === 'open') return;
-
-    try {
-      const count = parseInt(localStorage.getItem('hy_trial_promo_popup_count') || '0', 10);
-      const lastShown = parseInt(localStorage.getItem('hy_trial_promo_last_shown') || '0', 10);
-      const now = Date.now();
-
-      // Show 2-3 times max (capped at 3), with a 15-minute gap between app visits/returns
-      if (count < 3 && (!lastShown || now - lastShown > 15 * 60 * 1000)) {
-        const timer = setTimeout(() => {
-          setShowPromoModal(true);
-          localStorage.setItem('hy_trial_promo_popup_count', String(count + 1));
-          localStorage.setItem('hy_trial_promo_last_shown', String(Date.now()));
-        }, 1200);
-        return () => clearTimeout(timer);
-      }
-    } catch (_) {}
-  }, [access?.state]);
 
   const [activePaletteIndex, setActivePaletteIndex] = useState(() => {
     const saved = localStorage.getItem('hoshiyaar_home_color_theme');
@@ -248,6 +226,23 @@ export default function HomeProgressCards({
     };
   }, [chapters.length, user]);
 
+  // Chapters pinned to a spot for every class (Admin → Content → "For every class"), e.g. an AI chapter
+  const [globalPins, setGlobalPins] = useState(() => {
+    try { return JSON.parse(sessionStorage.getItem('hy_home_pins') || '[]'); } catch (_) { return []; }
+  });
+  useEffect(() => {
+    let cancelled = false;
+    curriculumService.listHomePins()
+      .then((res) => {
+        const list = Array.isArray(res?.data) ? res.data : [];
+        if (cancelled) return;
+        setGlobalPins(list);
+        try { sessionStorage.setItem('hy_home_pins', JSON.stringify(list)); } catch (_) {}
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [user?._id]);
+
   // Filter to show EXACTLY 4 CHAPTERS: 2 in-progress and 2 not-started
   const fourChapters = useMemo(() => {
     if (!chapters || chapters.length === 0) return [];
@@ -292,6 +287,20 @@ export default function HomeProgressCards({
         };
       })
       .filter((c) => !c.isComingSoon);
+
+    // Every-class pins: shown in their spot whatever the student's class (progress comes with them)
+    const globals = (globalPins || [])
+      .filter((g) => g?._id && Number.isInteger(g.homePin) && !(g.title || '').toLowerCase().includes('coming soon'))
+      .map((g) => {
+        const st = stats[g._id] || g.stats || { total: 0, completed: 0 };
+        const pct = st.total > 0 ? Math.min(100, Math.round((st.completed / st.total) * 100)) : 0;
+        const isCurrent = g._id === currentChapterId;
+        return { ...g, st, pct, isCompleted: pct === 100, isInProgress: (st.completed > 0 && pct < 100) || isCurrent, isCurrent, isComingSoon: false };
+      });
+    const globalIds = new Set(globals.map((g) => g._id));
+    if (globalIds.size > 0) {
+      for (let i = list.length - 1; i >= 0; i--) if (globalIds.has(list[i]._id)) list.splice(i, 1);
+    }
 
     // 1. In-progress chapters (prioritizing currentChapterId first)
     const inProgressList = [];
@@ -339,21 +348,25 @@ export default function HomeProgressCards({
     }
 
     // Chapters pinned from Admin → Content take their spot (1-4); the automatic picks fill the other spots in order
-    const pinned = list
-      .filter((c) => Number.isInteger(c.homePin) && c.homePin >= 1 && c.homePin <= 4)
-      .sort((a, b) => a.homePin - b.homePin);
+    // Every-class pins come first, so they win a spot a class's own pin also wants
+    const pinned = [
+      ...globals.filter((c) => c.homePin >= 1 && c.homePin <= 4).sort((a, b) => a.homePin - b.homePin),
+      ...list.filter((c) => Number.isInteger(c.homePin) && c.homePin >= 1 && c.homePin <= 4).sort((a, b) => a.homePin - b.homePin),
+    ];
     if (pinned.length === 0) return combined.slice(0, 4);
 
     const pinnedIds = new Set(pinned.map((c) => c._id));
     const autoPicks = [...combined, ...list].filter((c, i, arr) =>
       !pinnedIds.has(c._id) && arr.findIndex((x) => x._id === c._id) === i);
     const slots = [null, null, null, null];
-    pinned.forEach((c) => { if (!slots[c.homePin - 1]) slots[c.homePin - 1] = c; });
+    const bumped = [];
+    pinned.forEach((c) => { if (!slots[c.homePin - 1]) slots[c.homePin - 1] = c; else bumped.push(c); });
+    autoPicks.unshift(...bumped); // a class pin that lost its spot still shows, in the next free one
     for (let i = 0; i < 4; i++) {
       if (!slots[i] && autoPicks.length) slots[i] = autoPicks.shift();
     }
     return slots.filter(Boolean);
-  }, [chapters, stats, currentChapterId]);
+  }, [chapters, stats, currentChapterId, globalPins]);
 
   const handleContinue = (ch) => {
     if (onSelectChapter) {
@@ -431,7 +444,6 @@ export default function HomeProgressCards({
           onAllLessons={() => (onNavigateToPractice ? onNavigateToPractice() : navigate('/learn'))}
           onShare={handleShareWhatsApp}
         />
-        <TrialPromoModal isOpen={showPromoModal} onClose={() => setShowPromoModal(false)} />
       </>
     );
   }
@@ -474,6 +486,7 @@ export default function HomeProgressCards({
       </div>
 
       {/* Free trial countdown / pass status, kept at the top so the deadline is always visible */}
+      <OfferTag rounded className="shrink-0 mb-3" />
       <TrialBanner />
 
       {/* Desktop: banner on the left, stats + Study with Friends stacked on the right */}
@@ -708,7 +721,6 @@ export default function HomeProgressCards({
 
       {/* 6. STUDY WITH FRIENDS - phones keep it at the bottom; desktop shows it beside the banner */}
       {renderStudyWithFriends('lg:hidden')}
-      <TrialPromoModal isOpen={showPromoModal} onClose={() => setShowPromoModal(false)} />
     </div>
   );
 }

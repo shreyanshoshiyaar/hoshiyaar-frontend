@@ -17,6 +17,7 @@ import { getApiBase } from '../../../utils/apiBase.js';
 import { stopAllAudio } from '../../../utils/audioPreloadService.js';
 import TrialTimerBar from '../../features/Subscription/TrialTimerBar.jsx';
 import { useAccess } from '../../../context/AccessContext.jsx';
+import OfferTag from '../../features/Subscription/OfferTag.jsx';
 import paymentService from '../../../services/paymentService.js';
 import { vibrateSuccess } from '../../../utils/vibrationService.js';
 
@@ -675,6 +676,7 @@ const LessonComplete = () => {
         {/* Bottom Action Buttons */}
         <div className="w-full flex flex-col gap-3 mt-4 pt-2 lg:mt-0 lg:pt-0 lg:col-start-2 lg:row-start-2 lg:self-start">
           {/* Trial countdown and Go Pro, right above NEXT */}
+          <OfferTag rounded />
           <TrialTimerBar variant="card" />
 
           {/* NEXT Button */}

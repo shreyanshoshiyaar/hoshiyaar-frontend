@@ -31,6 +31,8 @@ import PaywallModal from '../../features/Subscription/PaywallModal.jsx';
 import AllChaptersModal from '../modals/AllChaptersModal.jsx';
 import DuolingoChapterView from "./DuolingoChapterView.jsx";
 import TrialTimerBar from "../../features/Subscription/TrialTimerBar.jsx";
+import { ProOfferHost } from "../../features/Subscription/ProOfferModal.jsx";
+import OfferTag from "../../features/Subscription/OfferTag.jsx";
 import paymentService from '../../../services/paymentService.js';
 import { isUserAdmin } from '../../../utils/adminCheck.js';
 import { vibrateLight, vibrateError } from '../../../utils/vibrationService.js';
@@ -2096,6 +2098,8 @@ const LearnDashboard = ({ onboardingData }) => {
 
   return (
     <ReviewProvider>
+      {/* The app's one pop-up: the limited time offer, on Home and Learn, every 15 minutes */}
+      <ProOfferHost active={activeTab === 'learn' || activeTab === 'home'} access={access} />
       <div className="bg-gradient-to-b from-[#E6F2FF] to-[#F7FBFF] h-screen flex flex-col md:flex-row overflow-hidden" style={{ height: '100dvh' }}>
         {/* Mobile Header */}
         {/* Mobile Header Removed Per Request */}
@@ -2404,9 +2408,11 @@ const LearnDashboard = ({ onboardingData }) => {
         ) : (
           <>
             {/* Phones: trial countdown pinned above the scrolling map (the map's own unit headers are sticky inside it) */}
+            {isMobileLayout && <OfferTag className="shrink-0 z-[121]" />}
             {isMobileLayout && <TrialTimerBar className="relative shrink-0 z-[120]" />}
             <main className={`flex-grow ${isMobileLayout ? 'p-0' : 'px-3 pb-3'} overflow-y-auto no-scrollbar bg-transparent ${isMobileLayout ? 'mt-0 overflow-x-hidden pb-10' : 'mt-16 md:mt-0 overflow-x-visible'}`}>
             {/* Mobile Score Display removed per request */}
+            {!isMobileLayout && <OfferTag rounded className="mt-3 max-w-3xl mx-auto block" />}
             {!isMobileLayout && <TrialTimerBar variant="card" className="mt-3 mb-1 max-w-3xl mx-auto" />}
 
           {/* Section Header (hide when viewing chapters list). If units exist, headers are shown per unit below, so hide this top one. */}

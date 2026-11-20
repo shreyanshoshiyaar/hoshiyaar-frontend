@@ -141,6 +141,7 @@ const ChapterDisplayCard = ({ chapter, onSaved }) => {
   const [bgUrl, setBgUrl] = useState(chapter.backgroundImage || '');
   const [youngExplorers, setYoungExplorers] = useState(Boolean(chapter.youngExplorers));
   const [homePin, setHomePin] = useState(chapter.homePin ? String(chapter.homePin) : '');
+  const [homePinAll, setHomePinAll] = useState(Boolean(chapter.homePinAll));
   const [iconEmoji, setIconEmoji] = useState(chapter.iconEmoji || '');
   const [tagText, setTagText] = useState(chapter.homeTag?.text || '');
   const [tagColor, setTagColor] = useState(chapter.homeTag?.color || 'amber');
@@ -152,17 +153,18 @@ const ChapterDisplayCard = ({ chapter, onSaved }) => {
     setBgUrl(chapter.backgroundImage || '');
     setYoungExplorers(Boolean(chapter.youngExplorers));
     setHomePin(chapter.homePin ? String(chapter.homePin) : '');
+    setHomePinAll(Boolean(chapter.homePinAll));
     setIconEmoji(chapter.iconEmoji || '');
     setTagText(chapter.homeTag?.text || '');
     setTagColor(chapter.homeTag?.color || 'amber');
     setMsg('');
-  }, [chapter._id, chapter.mapStyle, chapter.backgroundImage, chapter.youngExplorers, chapter.homePin, chapter.iconEmoji, chapter.homeTag?.text, chapter.homeTag?.color]);
+  }, [chapter._id, chapter.mapStyle, chapter.backgroundImage, chapter.youngExplorers, chapter.homePin, chapter.homePinAll, chapter.iconEmoji, chapter.homeTag?.text, chapter.homeTag?.color]);
 
   const save = async () => {
     try {
       setSaving(true);
       setMsg('');
-      const res = await curriculumService.updateChapterDisplay(chapter._id, { mapStyle, backgroundImage: bgUrl.trim(), youngExplorers, homePin: homePin ? Number(homePin) : null, iconEmoji: iconEmoji.trim(), iconUrl: '', homeTag: tagText.trim() ? { text: tagText.trim(), color: tagColor } : null });
+      const res = await curriculumService.updateChapterDisplay(chapter._id, { mapStyle, backgroundImage: bgUrl.trim(), youngExplorers, homePin: homePin ? Number(homePin) : null, homePinAll: Boolean(homePin) && homePinAll, iconEmoji: iconEmoji.trim(), iconUrl: '', homeTag: tagText.trim() ? { text: tagText.trim(), color: tagColor } : null });
       onSaved(res.data);
       setMsg('Saved. Students see it the next time they open the chapter.');
     } catch (err) {
@@ -328,8 +330,14 @@ const ChapterDisplayCard = ({ chapter, onSaved }) => {
           <option value="3">3rd card</option>
           <option value="4">4th card</option>
         </select>
+        {homePin && (
+          <label className="flex items-center gap-2 text-sm font-bold text-gray-800 cursor-pointer">
+            <input type="checkbox" checked={homePinAll} onChange={(e) => setHomePinAll(e.target.checked)} className="w-4 h-4 accent-indigo-600" />
+            For every class
+          </label>
+        )}
         <span className="text-[11px] text-gray-500 leading-snug basis-full">
-          The home screen shows 4 chapter cards. Pick a spot to always show this chapter there, for every student in this class. Spots left on Automatic show the student's in-progress and next chapters. Pinning a spot frees it from any other chapter.
+          The home screen shows 4 chapter cards. Pick a spot to always show this chapter there, for every student in this class. Tick "For every class" to show it in that spot for students of all classes (e.g. an AI chapter first for everyone); it then wins that spot over a class's own pinned chapter. Spots left on Automatic show the student's in-progress and next chapters. Pinning a spot frees it from any other chapter.
         </span>
       </div>
       <div className="flex items-center gap-3 mt-4">
@@ -788,7 +796,7 @@ const AdminPanel = () => {
             <ChapterDisplayCard
               chapter={chapters.find(c => c._id === selectedChapter)}
               onSaved={(saved) => setChapters(prev => prev.map(c => {
-                if (c._id === saved._id) return { ...c, mapStyle: saved.mapStyle, backgroundImage: saved.backgroundImage, youngExplorers: saved.youngExplorers, homePin: saved.homePin ?? null, iconUrl: saved.iconUrl || null, iconEmoji: saved.iconEmoji || null, homeTag: saved.homeTag || null };
+                if (c._id === saved._id) return { ...c, mapStyle: saved.mapStyle, backgroundImage: saved.backgroundImage, youngExplorers: saved.youngExplorers, homePin: saved.homePin ?? null, homePinAll: Boolean(saved.homePinAll), iconUrl: saved.iconUrl || null, iconEmoji: saved.iconEmoji || null, homeTag: saved.homeTag || null };
                 // The server frees the spot from any other chapter in the class
                 return saved.homePin && c.homePin === saved.homePin ? { ...c, homePin: null } : c;
               }))}

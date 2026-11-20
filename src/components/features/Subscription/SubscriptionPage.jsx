@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import { useAccess, trialMsLeft, passTimeLeft, trialTerms } from '../../../context/AccessContext.jsx';
 import paymentService from '../../../services/paymentService.js';
@@ -8,6 +8,8 @@ import PaywallModal from './PaywallModal.jsx';
 import GuestVerifyModal from '../../forms/GuestVerifyModal.jsx';
 import BottomNavigation from '../../layout/BottomNavigation.jsx';
 import LiveCountdown from './LiveCountdown.jsx';
+import OfferTag from './OfferTag.jsx';
+import { offerRunning } from './ProOfferModal.jsx';
 import TrialTestToggle from './TrialTestToggle.jsx';
 import { useServerNow } from '../../../hooks/useServerNow.js';
 
@@ -168,6 +170,17 @@ export default function SubscriptionPage() {
     }
   }, [access?.plan?.amount, access?.plan?.discountedFrom, access?.plan?.durationDays]);
 
+  // Came from the limited time offer pop-up: open checkout straight away (once)
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    if (searchParams.get('offer') !== '1' || !access || access.state === 'pass') return;
+    const next = new URLSearchParams(searchParams);
+    next.delete('offer');
+    setSearchParams(next, { replace: true });
+    handleUnlockClick();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, access?.state]);
+
   useEffect(() => {
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -291,9 +304,15 @@ export default function SubscriptionPage() {
         <section className="relative rounded-[26px] p-[2px] bg-gradient-to-br from-[#FDE68A] via-[#D97706] to-[#FDE68A] shadow-[0_14px_34px_rgba(76,29,149,0.35)]">
           <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-[#1E1B4B] via-[#3B0764] to-[#4C1D95] p-5">
             <span className="pointer-events-none absolute -top-12 -right-12 w-40 h-40 rounded-full bg-[#F59E0B]/20 blur-3xl" aria-hidden="true" />
-            <span className="absolute top-4 right-0 rounded-l-full bg-gradient-to-r from-[#FCD34D] to-[#F59E0B] pl-3 pr-3 py-1 text-[12px] font-black uppercase tracking-wider text-[#3B0764]">
-              Best value
-            </span>
+            {offerRunning(access, now) ? (
+              <span className="absolute top-4 right-0 rounded-l-full bg-gradient-to-r from-[#FDE68A] to-[#F59E0B] pl-3 pr-3 py-1 text-[12px] font-black uppercase tracking-wider text-[#3B0764] shadow-[0_0_14px_rgba(252,211,77,0.6)] animate-pulse">
+                Limited time offer
+              </span>
+            ) : (
+              <span className="absolute top-4 right-0 rounded-l-full bg-gradient-to-r from-[#FCD34D] to-[#F59E0B] pl-3 pr-3 py-1 text-[12px] font-black uppercase tracking-wider text-[#3B0764]">
+                Best value
+              </span>
+            )}
             <p className="relative text-[13px] font-black uppercase tracking-[0.18em] text-[#FCD34D]">6-Month Pass</p>
             <div className="relative mt-2 flex items-end gap-2">
               <span className="text-[44px] font-black text-white leading-none">₹{plan.amount}</span>
@@ -303,6 +322,8 @@ export default function SubscriptionPage() {
               One-time payment · just ₹{perMonth} a month
               {saving > 0 && <span className="ml-2 rounded-full bg-[#22C55E]/20 text-[#86EFAC] px-2 py-px text-[13px] font-black">Save {saving}%</span>}
             </p>
+
+            {!hasPass && <OfferTag variant="plan" access={access} className="mt-4" />}
 
             {/* One pass at a time: no buying again until the current one ends */}
             {hasPass ? (
@@ -339,6 +360,27 @@ export default function SubscriptionPage() {
               </div>
             ))}
           </div>
+        </section>
+
+        {/* Payment help on WhatsApp */}
+        <section className="rounded-[24px] bg-white border border-slate-100 shadow-sm p-4 flex items-center gap-3">
+          <span className="w-11 h-11 rounded-2xl bg-[#DCFCE7] text-[#16A34A] flex items-center justify-center shrink-0">
+            <svg viewBox="0 0 24 24" className="w-6 h-6" fill="currentColor" aria-hidden="true">
+              <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z" />
+            </svg>
+          </span>
+          <div className="flex-1 min-w-0">
+            <p className="text-[15px] font-black text-slate-900">Need help with a payment?</p>
+            <p className="text-[13px] font-semibold text-slate-500">Chat with us on WhatsApp</p>
+          </div>
+          <a
+            href={`https://wa.me/918310532323?text=${encodeURIComponent(`Hi! I need help with my HoshiYaar Pro payment.${user?.phone ? ` My number is ${user.phone}.` : ''}`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-[#22C55E] hover:bg-[#16A34A] px-4 py-2 text-[15px] font-black text-white shadow-[0_3px_0_0_#15803D] active:translate-y-px active:shadow-none"
+          >
+            Chat now
+          </a>
         </section>
 
         {/* Free vs Pro */}
@@ -406,26 +448,6 @@ export default function SubscriptionPage() {
           </div>
         </section>
 
-        {/* Payment help on WhatsApp */}
-        <section className="rounded-[24px] bg-white border border-slate-100 shadow-sm p-4 flex items-center gap-3">
-          <span className="w-11 h-11 rounded-2xl bg-[#DCFCE7] text-[#16A34A] flex items-center justify-center shrink-0">
-            <svg viewBox="0 0 24 24" className="w-6 h-6" fill="currentColor" aria-hidden="true">
-              <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z" />
-            </svg>
-          </span>
-          <div className="flex-1 min-w-0">
-            <p className="text-[15px] font-black text-slate-900">Need help with a payment?</p>
-            <p className="text-[13px] font-semibold text-slate-500">Chat with us on WhatsApp</p>
-          </div>
-          <a
-            href={`https://wa.me/918310532323?text=${encodeURIComponent(`Hi! I need help with my HoshiYaar Pro payment.${user?.phone ? ` My number is ${user.phone}.` : ''}`)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-[#22C55E] hover:bg-[#16A34A] px-4 py-2 text-[15px] font-black text-white shadow-[0_3px_0_0_#15803D] active:translate-y-px active:shadow-none"
-          >
-            Chat now
-          </a>
-        </section>
       </div>
 
       <BottomNavigation />

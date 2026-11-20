@@ -57,6 +57,8 @@ const resetPassword = (phone, otp, newPassword, opts) => {
 
 // Frees this device's place in the 3-device limit (token passed in, since logout clears it)
 const logoutDevice = (token) => api.post('/api/auth/logout', {}, { headers: { Authorization: `Bearer ${token}` } });
+// A fresh 30-day login (works even if this one has just run out)
+const renewToken = (token) => api.post('/api/auth/renew-token', {}, { headers: { Authorization: `Bearer ${token}` } });
 
 // Blocked by the 3-device limit: sign one of the other devices out and finish signing in here
 const signOutOtherDeviceAndLogin = ({ ticket, deviceSessionId, guestUserId }, opts) =>
@@ -271,6 +273,7 @@ const authService = {
   loginWithOtp,
   signOutOtherDeviceAndLogin,
   logoutDevice,
+  renewToken,
   updateOnboarding,
   updateProfile,
   updateActivity,

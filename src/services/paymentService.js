@@ -1,5 +1,10 @@
 import { api } from './apiClient.js';
 
+// The old admin "Student view" switch is gone (Trial test view replaced it), but a device where it was
+// once turned on still holds 'student', which makes the server treat that admin as a student with no
+// pass (Pro chapters show "This is a Pro chapter") and there is no switch left to turn it off
+try { localStorage.removeItem('admin_view_mode'); } catch (_) {}
+
 const previewHeaders = () => {
   const previewMode = localStorage.getItem('admin_view_mode') || 'admin';
   return previewMode === 'student' ? { 'x-admin-preview-mode': 'student' } : {};
