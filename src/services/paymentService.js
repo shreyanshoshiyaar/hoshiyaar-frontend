@@ -224,6 +224,12 @@ export const paymentService = {
     return res.data;
   },
 
+  /** Admin: free trial students by group: 'ended' (no Pro), 'running', 'pro' or 'all' */
+  async getTrialStudents(state = 'ended') {
+    const res = await api.get('/api/payments/admin/trial-students', { params: { state } });
+    return res.data;
+  },
+
   /** Admin: every chapter and who may play it */
   async getChapterAccess() {
     const res = await api.get('/api/payments/admin/chapter-access');

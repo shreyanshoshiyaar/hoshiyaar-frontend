@@ -3,6 +3,7 @@ import paymentService from '../../services/paymentService.js';
 import SimpleLoading from '../ui/SimpleLoading.jsx';
 import RefundsPanel from './RefundsPanel.jsx';
 import ChapterAccessPanel from './ChapterAccessPanel.jsx';
+import TrialStudentsPanel from './TrialStudentsPanel.jsx';
 
 // Where a payment came from (PaymentTransaction.experimentVariant)
 const SOURCE_LABEL = {
@@ -11,7 +12,7 @@ const SOURCE_LABEL = {
   google_play_test: 'Play (test)',
   mock_sandbox: 'Test checkout'
 };
-const SUB_TABS = ['rules', 'access', 'transactions', 'refunds'];
+const SUB_TABS = ['rules', 'trials', 'access', 'transactions', 'refunds'];
 
 // For <input type="datetime-local">: the date in this device's time, as YYYY-MM-DDTHH:mm
 const toLocalInput = (v) => {
@@ -268,6 +269,7 @@ export default function PaymentManager({ subTab = '', onSubTab }) {
       <div className="flex border-b border-gray-200 mb-6 gap-2 sm:gap-4 overflow-x-auto no-scrollbar">
         {[
           { id: 'rules', label: '⚙️ Trial & Price' },
+          { id: 'trials', label: '⏳ Free Trials' },
           { id: 'access', label: '🔒 Chapter Access' },
           { id: 'transactions', label: '📊 Payments Log' },
           { id: 'refunds', label: '↩️ Refunds' }
@@ -662,6 +664,7 @@ export default function PaymentManager({ subTab = '', onSubTab }) {
         </div>
       )}
 
+      {activeTab === 'trials' && <TrialStudentsPanel />}
       {activeTab === 'access' && <ChapterAccessPanel />}
       {activeTab === 'refunds' && <RefundsPanel />}
     </div>
