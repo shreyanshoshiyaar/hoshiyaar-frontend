@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { vibrateLight, vibrateSuccess } from '../../utils/vibrationService.js';
 import apiClient from '../../services/apiClient.js';
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -25,6 +26,7 @@ export default function ReportProblemModal({
   const [details, setDetails] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [sendError, setSendError] = useState('');
 
   if (!isOpen) return null;
 
@@ -38,8 +40,9 @@ export default function ReportProblemModal({
     if (!selectedCategory || isSubmitting) return;
 
     setIsSubmitting(true);
+    setSendError('');
     try {
-      await apiClient.post('/reports', {
+      await apiClient.post('/api/reports', {
         itemId: itemId || 'Unknown',
         moduleId: moduleId || '',
         chapterId: chapterId || '',
@@ -64,18 +67,14 @@ export default function ReportProblemModal({
     } catch (err) {
       console.error('[ReportProblemModal] Error sending report:', err);
       setIsSubmitting(false);
-      // Still close gracefully with friendly message
-      setSubmitted(true);
-      setTimeout(() => {
-        setSubmitted(false);
-        onClose();
-      }, 1400);
+      setSendError("Couldn't send the report. Check your internet and try again.");
     }
   };
 
   const displayScreen = screenName || itemId || 'C1.P0';
 
-  return (
+  // Drawn on the page itself, so a lesson header (which can be transformed) never clips or shifts it
+  return createPortal(
     <div 
       className="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs transition-opacity duration-300 animate-fade-in"
       onClick={onClose}
@@ -161,6 +160,8 @@ export default function ReportProblemModal({
               />
             </div>
 
+            {sendError && <p className="mb-3 text-sm font-bold text-rose-600 text-left">{sendError}</p>}
+
             {/* Action Buttons */}
             <div className="flex flex-col gap-2">
               <button
@@ -195,6 +196,7 @@ export default function ReportProblemModal({
           </>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

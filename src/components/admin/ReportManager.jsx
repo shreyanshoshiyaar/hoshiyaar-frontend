@@ -20,8 +20,8 @@ export default function ReportManager() {
       if (search.trim()) params.set('search', search.trim());
 
       const [resReports, resStats] = await Promise.all([
-        apiClient.get(`/reports?${params.toString()}`),
-        apiClient.get('/reports/stats')
+        apiClient.get(`/api/reports?${params.toString()}`),
+        apiClient.get('/api/reports/stats')
       ]);
 
       if (resReports?.data?.data) {
@@ -49,10 +49,10 @@ export default function ReportManager() {
   const handleUpdateStatus = async (id, newStatus) => {
     setUpdatingId(id);
     try {
-      await apiClient.patch(`/reports/${id}/status`, { status: newStatus });
+      await apiClient.patch(`/api/reports/${id}/status`, { status: newStatus });
       setReports(prev => prev.map(r => r._id === id ? { ...r, status: newStatus } : r));
       // Refresh stats
-      const resStats = await apiClient.get('/reports/stats');
+      const resStats = await apiClient.get('/api/reports/stats');
       if (resStats?.data?.stats) setStats(resStats.data.stats);
     } catch (err) {
       console.error('[ReportManager] Failed to update status:', err);
@@ -64,9 +64,9 @@ export default function ReportManager() {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this report?')) return;
     try {
-      await apiClient.delete(`/reports/${id}`);
+      await apiClient.delete(`/api/reports/${id}`);
       setReports(prev => prev.filter(r => r._id !== id));
-      const resStats = await apiClient.get('/reports/stats');
+      const resStats = await apiClient.get('/api/reports/stats');
       if (resStats?.data?.stats) setStats(resStats.data.stats);
     } catch (err) {
       console.error('[ReportManager] Failed to delete report:', err);
