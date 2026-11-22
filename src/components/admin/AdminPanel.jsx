@@ -11,6 +11,7 @@ const SystemSettingsManager = lazy(() => import('./SystemSettingsManager'));
 const UserAnalytics = lazy(() => import('./UserAnalytics'));
 const ExamManager = lazy(() => import('./ExamManager'));
 const NotificationAnalytics = lazy(() => import('./NotificationAnalytics'));
+const WhatsappCampaigns = lazy(() => import('./WhatsappCampaigns'));
 const PaymentManager = lazy(() => import('./PaymentManager'));
 const GlyphManager = lazy(() => import('./GlyphManager'));
 const ReportManager = lazy(() => import('./ReportManager'));
@@ -30,6 +31,7 @@ const SECTIONS = [
   { id: 'settings', slug: 'settings', icon: '⚙️', label: 'System Settings' },
   { id: 'blogs', slug: 'blogs', icon: '✍️', label: 'Blog' },
   { id: 'notification_analytics', slug: 'notifications', icon: '🔔', label: 'Notifications' },
+  { id: 'whatsapp_campaigns', slug: 'whatsapp', icon: '💬', label: 'WhatsApp Campaigns' },
 ];
 const sectionBySlug = (slug) => SECTIONS.find(sec => sec.slug === slug) || null;
 
@@ -891,6 +893,12 @@ const AdminPanel = () => {
       {activeTab === 'notification_analytics' && (
         <div className="max-w-7xl mx-auto py-8 px-4">
           <NotificationAnalytics />
+        </div>
+      )}
+
+      {activeTab === 'whatsapp_campaigns' && (
+        <div className="max-w-7xl mx-auto py-8 px-4">
+          <WhatsappCampaigns />
         </div>
       )}
 
