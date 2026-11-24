@@ -183,9 +183,7 @@ export default function WhatsappCampaigns() {
 
       <div className="space-y-4">
         {(data?.campaigns || []).map((c) => {
-          const m = c.meta && !c.meta.error ? c.meta : null;
-          const delivered = m ? m.delivered : c.totals.delivered;
-          const read = m ? m.read : c.totals.read;
+          const t = c.totals;
           return (
             <div key={c._id} className="rounded-2xl border border-gray-200 bg-gray-50/60 p-4">
               <div className="flex flex-wrap items-start justify-between gap-2 mb-3">
@@ -200,17 +198,19 @@ export default function WhatsappCampaigns() {
                 </button>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
-                <Tile label="Students" value={fmt(c.totals.total)} />
-                <Tile label="Accepted" value={fmt(c.totals.accepted)} sub={pct(c.totals.accepted, c.totals.total)} />
-                <Tile label="Delivered" value={fmt(delivered)} sub={pct(delivered, c.totals.accepted)} tone="green" />
-                <Tile label="Read" value={fmt(read)} sub={`${pct(read, delivered)} of delivered`} tone="blue" />
-                <Tile label="Play Now clicks" value={m ? fmt(m.clicked) : '–'} sub={m ? `${pct(m.clicked, delivered)} of delivered` : 'from Meta'} tone="amber" />
-                <Tile label="Failed / skipped" value={fmt(c.totals.failed + c.totals.skipped)} tone="rose" />
+                <Tile label="Students" value={fmt(t.total)} />
+                <Tile label="Accepted" value={fmt(t.accepted)} sub={pct(t.accepted, t.total)} />
+                <Tile label="Delivered" value={fmt(t.delivered)} sub={`${pct(t.delivered, t.accepted)} of accepted`} tone="green" />
+                <Tile label="Read" value={fmt(t.read)} sub={`${pct(t.read, t.delivered)} of delivered`} tone="blue" />
+                <Tile label="Play Now clicks" value={t.clicks == null ? '–' : `${t.clicksApprox ? '≈ ' : ''}${fmt(t.clicks)}`} sub={t.clicks == null ? 'from Meta' : `${pct(t.clicks, t.delivered)} of delivered`} tone="amber" />
+                <Tile label="Not delivered" value={fmt(t.notDelivered)} sub={t.failed ? `${fmt(t.failed)} refused by Meta` : 'not reached yet'} tone="rose" />
               </div>
               <p className="mt-2 text-[11px] text-gray-500 leading-snug">
-                Delivered, read and clicks come from Meta's template analytics (updated every few hours, counted per
-                template{m ? '' : `; ${c.meta?.error || 'not available'}`}). Many people turn off read receipts, so "read" is lower than the real number.
-                Each student's own status is on "See students".
+                Delivered and read: each student's status as WhatsApp reports it, plus Meta's count for this campaign's days.
+                Many people turn off read receipts, so "read" is lower than the real number.
+                {t.clicksApprox ? ' Clicks (≈): Meta counts them per template and per day only; this campaign gets the clicks from its own days, until the next send of the same message.' : ' Clicks come from Meta and update every few hours.'}
+                {' '}"Not delivered" includes messages Meta held back (its limit on marketing messages per person) and ones still on the way.
+                {c.meta?.error ? ` Meta analytics: ${c.meta.error}.` : ''}
               </p>
             </div>
           );
