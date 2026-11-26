@@ -178,12 +178,13 @@ export default function GuestVerifyModal({ onClose }) {
     try {
       const { data } = await authService.upgradeGuest({ phone, otp, password, whatsappOptIn });
       window.hyTrack?.('sign_up', {
+        meta_user_id: data?._id,
         method: 'guest_upgrade',
         user_type: 'new',
         is_new_user: true,
         class: data?.classLevel || user?.classLevel || 'unknown_class',
       });
-      try { window.NativeFB?.logSignup?.(); } catch (_) {}
+      // NativeFB.logSignup() is already called inside hyTrack('sign_up') above
       try { sessionStorage.setItem('entryType', 'signup'); } catch (_) {}
 
       login(data);
