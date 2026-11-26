@@ -146,15 +146,8 @@ const Signup = () => {
           signup_source: "signup_page",
           "class": formData.classLevel || "unknown_class"
         });
-        
-        // Log Facebook App Event via Native Bridge
-        try {
-          if (window.NativeFB && window.NativeFB.logSignup) {
-            window.NativeFB.logSignup();
-          }
-        } catch (e) {
-          console.error("Facebook logging failed", e);
-        }
+
+        // The Meta App Event for sign-up is sent by hyTrack('sign_up') above (NativeFB bridge).
 
         login(response.data);
         try { sessionStorage.setItem('entryType', 'signup'); } catch (_) {}

@@ -6,6 +6,8 @@ import com.getcapacitor.BridgeActivity;
 import com.microsoft.clarity.Clarity;
 import com.microsoft.clarity.ClarityConfig;
 import com.microsoft.clarity.models.LogLevel;
+import com.facebook.appevents.AppEventsConstants;
+import com.facebook.appevents.AppEventsLogger;
 import com.android.installreferrer.api.InstallReferrerClient;
 import com.android.installreferrer.api.InstallReferrerStateListener;
 import com.android.installreferrer.api.ReferrerDetails;
@@ -42,6 +44,31 @@ public class MainActivity extends BridgeActivity {
                 }
             }
         }, "NativeSettings");
+
+        // Javascript bridge for Meta App Events (window.NativeFB). The web code calls
+        // NativeFB.logSignup() on sign-up and NativeFB.logEvent(name) for other milestones.
+        final AppEventsLogger fbLogger = AppEventsLogger.newLogger(this);
+        this.getBridge().getWebView().addJavascriptInterface(new Object() {
+            @android.webkit.JavascriptInterface
+            public void logSignup() {
+                try {
+                    fbLogger.logEvent(AppEventsConstants.EVENT_NAME_COMPLETED_REGISTRATION);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @android.webkit.JavascriptInterface
+            public void logEvent(String name) {
+                // Only plain event names (letters, digits, underscores, up to 40 characters)
+                if (name == null || !name.matches("[A-Za-z0-9_]{1,40}")) return;
+                try {
+                    fbLogger.logEvent(name);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }, "NativeFB");
 
         // Javascript bridge for FCM direct token fetch
         this.getBridge().getWebView().addJavascriptInterface(new Object() {
