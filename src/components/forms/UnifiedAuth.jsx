@@ -574,6 +574,7 @@ const UnifiedAuth = () => {
         const classLvl = formData.classLevel || "unknown_class";
 
         window.hyTrack?.("sign_up", {
+          meta_user_id: response.data._id,
           method: "phone_otp",
           user_type: "new",
           is_new_user: true,

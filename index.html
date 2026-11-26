@@ -34,15 +34,22 @@
     <!-- HoshiYaar GA4 Helper -->
     <script>
       window.hyTrack = function(eventName, params = {}) {
+        // meta_user_id is only for Meta de-duplication; it is not sent to GA
+        const { meta_user_id, ...gaParams } = params || {};
         if (typeof gtag === "function") {
-          gtag("event", eventName, { ...params });
+          gtag("event", eventName, { ...gaParams });
         }
 
         // Facebook Event Tracking
         if (eventName === "sign_up") {
-          // 1. Web Pixel
+          // 1. Web Pixel. The backend sends the same sign-up through the Conversions API with
+          //    event ID "CompleteRegistration_<userId>"; the same ID here lets Meta count it once.
           if (typeof fbq === "function") {
-            fbq('track', 'CompleteRegistration');
+            if (meta_user_id) {
+              fbq('track', 'CompleteRegistration', {}, { eventID: 'CompleteRegistration_' + meta_user_id });
+            } else {
+              fbq('track', 'CompleteRegistration');
+            }
           }
           // 2. Native Android Bridge
           if (window.NativeFB && typeof window.NativeFB.logSignup === "function") {
