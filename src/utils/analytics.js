@@ -38,6 +38,15 @@ export const trackFirstModuleStatus = (status) => {
                 window.fbq('trackCustom', 'FirstMissionCompleted');
             }
         }
+        // Native Android app: the same milestones as Meta App Events
+        try {
+            if (typeof window !== 'undefined' && window.NativeFB && typeof window.NativeFB.logEvent === 'function') {
+                if (status === 'started') window.NativeFB.logEvent('FirstMissionStarted');
+                else if (status === 'completed') window.NativeFB.logEvent('FirstMissionCompleted');
+            }
+        } catch (err) {
+            console.warn('Meta app event failed', err);
+        }
     }
 };
 

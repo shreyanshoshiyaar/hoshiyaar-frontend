@@ -55,6 +55,8 @@ dependencies {
     implementation project(':capacitor-cordova-android-plugins')
     implementation 'com.microsoft.clarity:clarity:3.8.2'
     implementation 'com.google.firebase:firebase-messaging:24.1.0'
+    // Meta App Events only (core SDK, no Login/Share). Advertising ID collection is off in the manifest.
+    implementation 'com.facebook.android:facebook-core:18.0.0'
     implementation 'com.android.installreferrer:installreferrer:2.2'
 }
 
