@@ -13,6 +13,7 @@ const CSS = `
 .hyl{position:relative;width:100%;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px;
   background:radial-gradient(70vw 70vw at 110% -10%,rgba(255,255,255,.7),transparent 58%),radial-gradient(55vw 55vw at -15% -20%,rgba(255,255,255,.6),transparent 56%),#EAF1FB;
   font-family:var(--f-display,'Fredoka',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif);overflow:hidden;user-select:none}
+.hyl.hyl-inline{min-height:0;background:transparent;padding:72px 16px 160px}
 .hyl-stage{position:relative;width:190px;height:170px;perspective:880px;isolation:isolate}
 .hyl-track{position:absolute;inset:auto 8px 14px;height:2px;background:linear-gradient(90deg,transparent,rgba(37,99,235,.45),transparent);z-index:-2}
 .hyl-cube{position:absolute;left:50%;bottom:24px;width:64px;height:64px;margin-left:-32px;transform-style:preserve-3d;
@@ -75,13 +76,14 @@ const clearResume = () => {
   } catch (_) {}
 };
 
-export default function HyLoader({ text = 'Loading' }) {
+// inline: inside a page (e.g. the lesson map while it loads) instead of covering the whole screen
+export default function HyLoader({ text = 'Loading', lines = LINES, inline = false }) {
   const progress = useFakeProgress();
   const [line, setLine] = useState(0);
   const [showHelp, setShowHelp] = useState(false);
 
   useEffect(() => {
-    const a = setInterval(() => setLine((i) => (i + 1) % LINES.length), 2600);
+    const a = setInterval(() => setLine((i) => (i + 1) % lines.length), 2600);
     const b = setTimeout(() => setShowHelp(true), HELP_AFTER_MS);
     return () => { clearInterval(a); clearTimeout(b); };
   }, []);
@@ -97,7 +99,7 @@ export default function HyLoader({ text = 'Loading' }) {
   };
 
   return (
-    <div className="hyl" role="status" aria-live="polite" aria-label={text}>
+    <div className={`hyl${inline ? ' hyl-inline' : ''}`} role="status" aria-live="polite" aria-label={text}>
       <style>{CSS}</style>
       <div className="hyl-stage" aria-hidden="true">
         <span className="hyl-track" />
@@ -110,7 +112,7 @@ export default function HyLoader({ text = 'Loading' }) {
       </div>
 
       <div className="hyl-title">{text}</div>
-      <div className="hyl-line" key={line}>{LINES[line]}…</div>
+      <div className="hyl-line" key={line}>{lines[line % lines.length]}…</div>
 
       <div className="hyl-progress" aria-hidden="true">
         <span className="hyl-rail"><span className="hyl-fill" style={{ width: `${progress}%` }} /></span>

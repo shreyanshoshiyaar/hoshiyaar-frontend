@@ -17,6 +17,9 @@ const Lottie = React.lazy(() => import("lottie-react"));
 import NetworkError from "../../ui/NetworkError.jsx";
 // pathAnimationData will be fetched dynamically to avoid build/performance issues
 import SimpleLoading from '../../ui/SimpleLoading.jsx';
+import HyLoader from '../../ui/HyLoader.jsx';
+// The lesson map's loading lines (the cube loader, inside the page)
+const PATH_LINES = ['Laying out your lessons', 'Finding where you left off', 'Almost there'];
 import ExamDashboard from '../../features/ExamMode/ExamDashboard.jsx';
 import MobileHome from "../../layout/MobileHome.jsx";
 import BottomNavigation from "../../layout/BottomNavigation.jsx";
@@ -2561,14 +2564,7 @@ const LearnDashboard = ({ onboardingData }) => {
           {fetchError ? (
             <NetworkError />
           ) : isLoading ? (
-              <div className="pt-24 pb-48 px-6 text-center">
-                <div className="animate-pulse flex flex-col items-center">
-                  <div className="w-16 h-16 bg-blue-100 rounded-full mb-4 flex items-center justify-center">
-                    <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-400">Loading your path...</h3>
-                </div>
-              </div>
+              <HyLoader inline text="Loading your path" lines={PATH_LINES} />
             ) : (unitsList.length > 0 || modulesList.length > 0 || true) && (
               <div
                 id="tree-scroll-container"
