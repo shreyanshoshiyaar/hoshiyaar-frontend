@@ -20,7 +20,7 @@ export default function ProPlanCard({ className = '' }) {
 
   let status = 'Unlock every lesson for 6 months';
   if (access?.state === 'pass') status = `Pro active · ${passTimeLeft(access, now)?.text || `till ${formatDate(access.passExpiresAt)}`}`;
-  else if (access?.state === 'trial_ended') status = 'Free trial ended · unlock for ₹99';
+  else if (access?.state === 'trial_ended') status = `Free trial ended · unlock for ₹${Number(access?.plan?.amount) || 99}`;
   else if (access?.state === 'trial_active' || access?.state === 'guest_limit' || (access?.state === 'trial_not_started' && trialMsLeft(access, now) != null)) {
     const ms = trialMsLeft(access, now);
     status = `Free trial · ${ms != null ? hoursLeft(ms) : ''}`;
