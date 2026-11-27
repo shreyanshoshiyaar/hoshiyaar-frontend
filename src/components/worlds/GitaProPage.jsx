@@ -10,7 +10,7 @@ import GuestVerifyModal from '../forms/GuestVerifyModal.jsx';
 import BottomNavigation from '../layout/BottomNavigation.jsx';
 import { clarityEvent } from '../../utils/clarity.js';
 import { LotusArt } from './WorldArt.jsx';
-import { gitaChapterOpen, gitaFreeTotal } from './GitaOffer.jsx';
+import { gitaChapterOpen, gitaFreeTotal, gitaComingSoon } from './GitaOffer.jsx';
 
 // The Gita chapters page (route /gita-pro): Gita is sold per chapter, ₹99 each, and a bought chapter stays open for
 // good. Lists every chapter with Unlock / Unlocked, then what a chapter includes, questions and Gita payments.
@@ -30,7 +30,7 @@ const historySource = (t) => {
   if (v === 'mock_sandbox') return 'Sandbox test';
   return 'Razorpay';
 };
-const shortTitle = (t) => String(t || '').replace(/^\s*chapter\s*\d+\s*[:.\-–]\s*/i, '').replace(/\s*\(placeholder\)\s*$/i, '').trim();
+const shortTitle = (t) => String(t || '').replace(/^\s*chapter\s*\d+\s*[:.\-–]\s*/i, '').replace(/\s*\((placeholder|coming soon)\)\s*$/i, '').trim();
 const numberOf = (t, i) => (String(t || '').match(/chapter\s*(\d+)/i) || [])[1] || String(i + 1);
 
 const Icon = ({ d, className = 'w-5 h-5' }) => (
@@ -95,7 +95,7 @@ export default function GitaProPage() {
     next.delete('chapter');
     setParams(next, { replace: true });
     const ch = gitaChapters.find((c) => String(c._id) === String(id)) || gitaChapters.find((c) => !gitaChapterOpen(g, c._id));
-    if (ch && !gitaChapterOpen(g, ch._id)) unlock(ch);
+    if (ch && !gitaComingSoon(ch) && !gitaChapterOpen(g, ch._id)) unlock(ch);
   }, [params, access?.state, chaptersLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const allOpen = Boolean(g.hasPass);
@@ -103,7 +103,8 @@ export default function GitaProPage() {
   const was = Number(g.originalPrice) || 0;
   const saving = was > price ? Math.round((1 - price / was) * 100) : 0;
   const free = gitaFreeTotal(g);
-  const ownedCount = gitaChapters.filter((c) => gitaChapterOpen(g, c._id)).length;
+  const ownedCount = gitaChapters.filter((c) => !gitaComingSoon(c) && gitaChapterOpen(g, c._id)).length;
+  const readyCount = gitaChapters.filter((c) => !gitaComingSoon(c)).length;
   const titleOf = (id) => {
     const i = gitaChapters.findIndex((c) => String(c._id) === String(id));
     return i >= 0 ? `Chapter ${numberOf(gitaChapters[i].title, i)}: ${shortTitle(gitaChapters[i].title)}` : 'Gita chapter';
@@ -112,7 +113,7 @@ export default function GitaProPage() {
 
   const statusPill = allOpen
     ? 'Every chapter is open for you'
-    : ownedCount ? `${ownedCount} of ${gitaChapters.length} ${gitaChapters.length === 1 ? 'chapter' : 'chapters'} unlocked` : free ? `First ${free} lessons free` : `₹${price} per chapter`;
+    : ownedCount ? `${ownedCount} of ${readyCount} ${readyCount === 1 ? 'chapter' : 'chapters'} unlocked` : free ? `First ${free} lessons free` : `₹${price} per chapter`;
 
   const faq = [
     ['How does it work?', `${free ? `The first ${free} Gita lessons are free. After that, each` : 'Each'} chapter is unlocked on its own for ₹${price}, and stays open for good.`],
@@ -160,6 +161,18 @@ export default function GitaProPage() {
           {!chaptersLoading && gitaChapters.length === 0 && <p className="py-4 text-[15px] font-semibold text-slate-400">Gita chapters are coming soon.</p>}
           {gitaChapters.map((ch, i) => {
             const open = gitaChapterOpen(g, ch._id);
+            if (gitaComingSoon(ch)) {
+              return (
+                <div key={ch._id} className="flex items-center gap-3 py-3 border-b border-slate-100 last:border-0">
+                  <span className="w-9 h-9 rounded-xl bg-orange-200 text-white font-black flex items-center justify-center text-[15px] shrink-0">{numberOf(ch.title, i)}</span>
+                  <span className="flex-1 min-w-0">
+                    <span className="block text-[15px] font-black text-slate-400 truncate">{shortTitle(ch.title) || `Chapter ${i + 1}`}</span>
+                    {ch.tagline && <span className="block text-[13px] font-semibold text-slate-400 truncate">{ch.tagline}</span>}
+                  </span>
+                  <span className="shrink-0 rounded-full bg-orange-50 text-[#C2410C] px-3 py-1.5 text-[12px] font-black uppercase tracking-wider">Coming soon</span>
+                </div>
+              );
+            }
             return (
               <div key={ch._id} className="flex items-center gap-3 py-3 border-b border-slate-100 last:border-0">
                 <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#FB923C] to-[#EA580C] text-white font-black flex items-center justify-center text-[15px] shrink-0">{numberOf(ch.title, i)}</span>

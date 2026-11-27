@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { useAccess } from '../../context/AccessContext.jsx';
 import { useWorlds } from '../../hooks/useWorlds.js';
 import { setLastWorld, getLastLesson } from '../../utils/world.js';
-import { gitaFreeLeft, gitaFreeTotal, gitaChapterOpen, gitaChaptersToBuy } from './GitaOffer.jsx';
+import { gitaFreeLeft, gitaFreeTotal, gitaChapterOpen, gitaChaptersToBuy, gitaComingSoon } from './GitaOffer.jsx';
 import heroArt from '../../assets/images/gita_hero.webp';
 import StatusIcon from './StatusIcon.jsx';
 import OfferTag from '../features/Subscription/OfferTag.jsx';
@@ -14,7 +14,7 @@ import { GitaTrialBanner } from './GitaOffer.jsx';
 // that matters: start or continue), then the chapter cards (each bought on its own, ₹99), then the chapters page.
 const FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', sans-serif";
 const SHADOW = '0 2px 12px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.5)';
-const shortTitle = (t) => String(t || '').replace(/^\s*chapter\s*\d+\s*[:.\-–]\s*/i, '').replace(/\s*\(placeholder\)\s*$/i, '').trim();
+const shortTitle = (t) => String(t || '').replace(/^\s*chapter\s*\d+\s*[:.\-–]\s*/i, '').replace(/\s*\((placeholder|coming soon)\)\s*$/i, '').trim();
 const numberOf = (t, i) => (String(t || '').match(/chapter\s*(\d+)/i) || [])[1] || String(i + 1);
 
 export default function GitaLanding({ isMobile = true }) {
@@ -110,6 +110,19 @@ export default function GitaLanding({ isMobile = true }) {
             freeLeftToMark -= freeHere;
             const mine = !g.hasPass && gitaChapterOpen(g, ch._id);
             const forSale = !g.hasPass && !mine && freeHere < (ch.lessons || 0);
+            // Announced, not ready: shown, but it does not open and is not sold
+            if (gitaComingSoon(ch)) {
+              return (
+                <div key={ch._id} className="relative text-left rounded-2xl bg-white/70 border-2 border-dashed border-orange-200 p-3.5 min-h-[132px] flex flex-col" aria-disabled="true">
+                  <span className="w-9 h-9 rounded-xl bg-orange-200 text-white font-black flex items-center justify-center text-[15px]">{numberOf(ch.title, i)}</span>
+                  <span className="mt-2 text-[15px] font-black text-slate-400 leading-tight">{shortTitle(ch.title) || `Chapter ${i + 1}`}</span>
+                  {ch.tagline && <span className="mt-0.5 text-[12px] font-semibold text-slate-400 leading-snug">{ch.tagline}</span>}
+                  <span className="mt-auto pt-2">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-orange-50 text-[#C2410C] px-2 py-0.5 text-[10.5px] font-black uppercase tracking-wider">Coming soon</span>
+                  </span>
+                </div>
+              );
+            }
             return (
               <button
                 key={ch._id}

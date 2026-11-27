@@ -14,9 +14,12 @@ import StatusIcon from './StatusIcon.jsx';
 export const gitaChapterOpen = (gita, chapterId) =>
   Boolean(gita?.hasPass) || Boolean(chapterId && (gita?.ownedChapters || []).includes(String(chapterId)));
 
-/** The Gita chapters still to buy, in order */
+/** A Gita chapter that is announced but not ready: "(Coming Soon)" in its title, or no lessons yet */
+export const gitaComingSoon = (ch) => /\(coming soon\)/i.test(String(ch?.title || '')) || !(Number(ch?.lessons) > 0);
+
+/** The Gita chapters still to buy, in order (never a coming-soon one) */
 export const gitaChaptersToBuy = (gita, chapters = []) =>
-  (gita?.hasPass ? [] : chapters.filter((c) => !gitaChapterOpen(gita, c._id)));
+  (gita?.hasPass ? [] : chapters.filter((c) => !gitaComingSoon(c) && !gitaChapterOpen(gita, c._id)));
 
 /** Where "unlock" goes: the chapter's checkout, or the chapters page */
 export const gitaBuyPath = (chapterId) =>
