@@ -70,8 +70,8 @@ export default function PlansPage({ isMobile = true }) {
   const gitaStatus = g.hasPass ? 'All open' : gitaOwned ? `${gitaOwned} ${gitaOwned === 1 ? 'chapter' : 'chapters'} unlocked` : `${g.freeLessons ?? 5} lessons free`;
 
   return (
-    <div className="w-full font-sans bg-[#F5F3FF] min-h-full" style={isMobile ? { paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' } : undefined}>
-      <div className={isMobile ? 'px-4 pt-4' : 'max-w-3xl mx-auto pt-4'}>
+    <div className={`w-full font-sans bg-[#F5F3FF] ${isMobile ? 'min-h-full' : 'h-full overflow-y-auto px-6'}`} style={isMobile ? { paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' } : undefined}>
+      <div className={isMobile ? 'px-4 pt-4' : 'max-w-3xl mx-auto pt-4 pb-10'}>
         <h1 className="text-[24px] font-black text-[#101F33]">Plans</h1>
         <p className="text-[14px] font-semibold text-slate-500">Each world is bought on its own.</p>
 

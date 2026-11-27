@@ -42,24 +42,25 @@ export default function GitaLanding({ isMobile = true }) {
   let freeLeftToMark = g.hasPass ? 0 : Number(g.freeLessons) || 5;
 
   return (
-    <div className={`w-full select-none bg-[#F5F5F7] ${isMobile ? 'min-h-full' : 'rounded-3xl'}`} style={{ fontFamily: FONT, ...(isMobile ? { paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' } : {}) }}>
-      <div className={isMobile ? 'px-4 pt-3' : 'max-w-3xl mx-auto pt-2'}>
+    <div className={`w-full select-none bg-[#F5F5F7] ${isMobile ? 'min-h-full' : 'h-full overflow-y-auto px-6 py-4'}`} style={{ fontFamily: FONT, ...(isMobile ? { paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' } : {}) }}>
+      <div className={isMobile ? 'px-4 pt-3' : 'max-w-4xl mx-auto pb-10'}>
         <button type="button" onClick={() => navigate('/home')} className="inline-flex items-center gap-0.5 py-1 text-[15px] font-medium text-[#EA580C] cursor-pointer active:opacity-60">
           <span aria-hidden="true" className="text-[22px] leading-none -mt-0.5">‹</span> Home
         </button>
 
         {/* Hero: card-sized like Home's Gita card. The art sits on the right; the title on the dark colour at the left */}
-        <div className="relative mt-2 aspect-[1.586/1] overflow-hidden rounded-[20px] bg-[#3A0F04] shadow-[0_18px_40px_-14px_rgba(0,0,0,0.45)]">
-          <img src={heroArt} alt="Arjun and Krishna" className="absolute right-0 top-0 h-full w-[60%] object-cover object-center" decoding="async" />
+        <div className={`relative mt-2 overflow-hidden rounded-[20px] bg-[#3A0F04] shadow-[0_18px_40px_-14px_rgba(0,0,0,0.45)] ${isMobile ? 'aspect-[1.586/1]' : 'aspect-[2.6/1]'}`}>
+          <img src={heroArt} alt="Arjun and Krishna" className={`absolute right-0 top-0 h-full object-cover ${isMobile ? 'w-[60%] object-center' : 'w-[55%] object-[center_30%]'}`} decoding="async" />
           <span className="absolute inset-0" style={{ background: 'linear-gradient(to right, #3A0F04 0%, #3A0F04 40%, rgba(58,15,4,0.55) 50%, rgba(58,15,4,0) 64%), linear-gradient(to top, rgba(28,8,2,0.8) 0%, rgba(28,8,2,0.3) 35%, rgba(28,8,2,0) 55%)' }} aria-hidden="true" />
           <span className="absolute inset-0 rounded-[20px] ring-1 ring-inset ring-white/10" aria-hidden="true" />
 
-          <div className="absolute left-5 top-4 max-w-[52%] text-white">
-            <p className="text-[10.5px] font-semibold uppercase tracking-[0.22em] text-white/80" style={{ textShadow: SHADOW }}>Gita world</p>
-            <h1 className="mt-1 text-[23px] font-black uppercase leading-[0.95] tracking-[0.02em]" style={{ textShadow: SHADOW }}>Bhagavad<br />Gita</h1>
+          <div className={`absolute text-white ${isMobile ? 'left-5 top-4 max-w-[52%]' : 'left-8 top-7 max-w-[45%]'}`}>
+            <p className={`${isMobile ? 'text-[10.5px]' : 'text-[12px]'} font-semibold uppercase tracking-[0.22em] text-white/80`} style={{ textShadow: SHADOW }}>Gita world</p>
+            <h1 className={`mt-1 ${isMobile ? 'text-[23px]' : 'text-[38px]'} font-black uppercase leading-[0.95] tracking-[0.02em]`} style={{ textShadow: SHADOW }}>Bhagavad<br />Gita</h1>
+            {!isMobile && <p className="mt-3 text-[15px] font-medium text-white/85 leading-snug" style={{ textShadow: SHADOW }}>Answers to life's big questions, through the story of Arjun and Krishna.</p>}
           </div>
 
-          <div className="absolute left-4 right-4 bottom-4 text-white">
+          <div className={`absolute text-white ${isMobile ? 'left-4 right-4 bottom-4' : 'left-8 bottom-7 max-w-[45%]'}`}>
             <div className="flex items-center gap-3">
               <button
                 type="button"
