@@ -36,6 +36,12 @@ import OfferTag from "../../features/Subscription/OfferTag.jsx";
 import paymentService from '../../../services/paymentService.js';
 import { isUserAdmin } from '../../../utils/adminCheck.js';
 import { vibrateLight, vibrateError } from '../../../utils/vibrationService.js';
+import { clarityEventOnce } from '../../../utils/clarity.js';
+import { useWorlds } from '../../../hooks/useWorlds.js';
+import { GitaFreeBar } from '../../worlds/GitaOffer.jsx';
+import { setLastWorld, getLastWorld, getLastGitaChapter, setLastGitaChapter, getLastLesson, setLastLesson } from '../../../utils/world.js';
+import GitaLanding from '../../worlds/GitaLanding.jsx';
+import PlansPage from '../../worlds/PlansPage.jsx';
 const DASHBOARD_VERSION = "V5.1-FREQ-3";
 
 // --- SVG Icons for the Dashboard ---
@@ -459,6 +465,8 @@ const LearnDashboard = ({ onboardingData }) => {
   const { logout, user, loading: authLoading, updateUser } = useAuth();
   // Once the trial is over, lessons the learner has not played yet are locked behind the pass
   const { access, refresh: refreshAccess } = useAccess();
+  // The Gita world is live (for this user) once a Gita chapter is published; admins see it with drafts
+  const { gitaLive } = useWorlds();
   const showPro = useShowPro();
   const playedModuleSet = useMemo(() => new Set(access?.playedModuleIds || []), [access?.playedModuleIds]);
   const { resetModuleLedger, stars, syncFromServer, setTotal } = useStars();
@@ -477,8 +485,14 @@ const LearnDashboard = ({ onboardingData }) => {
     if (p === '/more') return 'more';
     if (p === '/exam') return 'exam';
     if (p === '/subscription' || p === '/pricing') return 'subscription';
+    if (p === '/gita') return 'gita';
+    if (p === '/science') return 'science';
+    if (p === '/plans') return 'plans';
     return 'home'; // /home or anything else
   })();
+  // Home picks a world; Learn is that world's page (Science or Gita) and its chapter maps
+  const sideHome = activeTab === 'home';
+  const sideLearn = activeTab === 'learn' || (gitaLive && (activeTab === 'science' || activeTab === 'gita'));
   const [chapterTitle, setChapterTitle] = useState("");
   const [chapterId, setChapterId] = useState("");
   const [chaptersList, setChaptersList] = useState([]);
@@ -631,12 +645,17 @@ const LearnDashboard = ({ onboardingData }) => {
   });
 
   // Whether a lesson shows the Pro lock: the free trial is over and the lesson was never played. Lessons the
-  // server marks accessFree (Admin → Payments → Chapter Access) stay open for everyone after the trial too.
+  // server marks accessFree (Admin → Payments → Chapter Access) stay open for everyone after the trial too;
+  // lessons it marks accessPro ("Pro only") are locked for anyone without Pro, also during the trial.
   const lessonPaywall = (mod, isCompleted) => {
-    if (!access?.locked || !mod?._id || isCompleted || mod.accessFree) return false;
+    if (!mod?._id || isCompleted || mod.accessFree) return false;
     if (playedModuleSet.has(String(mod._id))) return false;
-    if (user?.role === 'admin' && adminViewMode !== 'student' && !access.testView) return false;
-    return true;
+    if (user?.role === 'admin' && adminViewMode !== 'student' && !access?.testView) return false;
+    // Gita: each chapter is bought on its own
+    if (mod.accessGita) return Boolean(access) && access.state !== 'open' && !access?.gita?.hasPass &&
+      !(access?.gita?.ownedChapters || []).includes(String(mod.chapterId?._id || mod.chapterId || ''));
+    if (mod.accessPro) return Boolean(access) && access.state !== 'pass' && access.state !== 'open';
+    return Boolean(access?.locked);
   };
 
   useEffect(() => {
@@ -700,6 +719,8 @@ const LearnDashboard = ({ onboardingData }) => {
   const [showConfetti, setShowConfetti] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
+  // Clarity funnel: the home / lesson data has loaded and is showing (once per session)
+  useEffect(() => { if (!isLoading && !fetchError && chaptersList.length > 0) clarityEventOnce('content_loaded'); }, [isLoading, fetchError, chaptersList.length]);
   const [statsLoading, setStatsLoading] = useState(false);
   // Track when the first fetch completes to avoid false "No units" while fetching
   const [hasFetched, setHasFetched] = useState(false);
@@ -799,6 +820,8 @@ const LearnDashboard = ({ onboardingData }) => {
     const params = new URLSearchParams(location.search);
     const urlChapterId = params.get("chapterId");
     if (urlChapterId) return urlChapterId;
+    // The map after a lesson (a bare /learn): the Gita chapter when Gita is the world the learner is in
+    if (location.pathname === '/learn' && gitaLive && getLastWorld(user) === 'gita' && getLastGitaChapter(user)) return getLastGitaChapter(user);
 
     // Check localStorage for last selected chapter ID
     try {
@@ -810,6 +833,20 @@ const LearnDashboard = ({ onboardingData }) => {
     return onboardingData?.chapter || user?.chapter || null;
   };
   const preferredChapterId = getPreferredChapterId();
+
+  // Opens a lesson from a map and remembers it, so Home can offer "Continue" straight into it
+  const openLesson = (url, mod) => {
+    const ch = findActiveChapter();
+    setLastLesson(user, {
+      id: String(mod?._id || ''),
+      title: String(mod?.title || '').trim(),
+      url,
+      chapterId: String(ch?._id || chapterId || ''),
+      chapterTitle: chapterName(ch?.title || chapterTitle || ''),
+      world: ch?.world === 'gita' ? 'gita' : 'science',
+    });
+    navigate(url);
+  };
 
   const handleChapterSelect = useCallback(async (ch) => {
     if (!ch || (ch.title && ch.title.includes('(Coming Soon)'))) return;
@@ -1351,13 +1388,26 @@ const LearnDashboard = ({ onboardingData }) => {
         let crossClassChapter = null;
         if (preferId) {
           ch = listCh.find((c) => c && (c._id === preferId || String(c.title) === String(preferId)));
+          const wantsGita = params.get('world') === 'gita' || String(preferId) === getLastGitaChapter(user);
+          const byId = async () => {
+            if (!/^[0-9a-fA-F]{24}$/.test(String(preferId))) return null;
+            try {
+              const raw = (await cur.getChapterById(preferId))?.data;
+              const c = raw ? toChapter(raw, 0) : null;
+              return c ? { ...c, world: raw.world || 'science', classLevel: raw.world === 'gita' ? '' : undefined } : null;
+            } catch (_) { return null; }
+          };
+          // A Gita chapter belongs to no class: fetch it directly
+          if (!ch && wantsGita) crossClassChapter = await byId();
           // Not in the student's own class: it may be a chapter they opened from another class
-          if (!ch) {
+          if (!ch && !crossClassChapter) {
             try {
               crossClassChapter = await findChapterInOtherClasses(cur, finalBoard, finalSubject, user?.classLevel || user?.classTitle, preferId);
             } catch (_) { }
-            if (crossClassChapter) ch = crossClassChapter;
           }
+          // Last try (e.g. an old link to a Gita chapter without world=gita)
+          if (!ch && !crossClassChapter && !wantsGita) crossClassChapter = await byId();
+          if (crossClassChapter) ch = crossClassChapter;
         }
         setOtherClassChapter(crossClassChapter);
         if (!ch) ch = listCh[0];
@@ -1374,6 +1424,11 @@ const LearnDashboard = ({ onboardingData }) => {
         if (ch) {
           setChapterTitle(ch.title);
           setChapterId(ch._id);
+          // The map a learner opens decides their world (Home only loads the Science chapter, so it never does)
+          if (location.pathname === '/learn') {
+            if (ch.world === 'gita') setLastGitaChapter(ch._id, user);
+            if (params.get('chapterId')) setLastWorld(ch.world === 'gita' ? 'gita' : 'science', user);
+          }
           // Resolve unit title (prefer last opened unit for this chapter)
           try {
             // Hydrate units from cache immediately to render skeleton rails
@@ -1607,7 +1662,7 @@ const LearnDashboard = ({ onboardingData }) => {
   // When opening chapters grid OR when on Home tab, load per-chapter module counts and compute simple completion
   // Debounced and not tied to rapid progress changes to avoid flicker
   useEffect(() => {
-    if ((!showChapters && activeTab !== 'home') || chaptersList.length === 0) return;
+    if ((!showChapters && activeTab !== 'home' && activeTab !== 'science') || chaptersList.length === 0) return;
     let cancelled = false;
     setStatsLoading(true);
     const timer = setTimeout(async () => {
@@ -1902,6 +1957,18 @@ const LearnDashboard = ({ onboardingData }) => {
     }
   }, [activeTab]);
 
+  // Home's "Continue": the last lesson opened, until it is finished (then the doors lead on)
+  const continueLesson = useMemo(() => {
+    const last = getLastLesson(user);
+    if (!last) return null;
+    const done = new Set(Array.from(loadCompletedIds()).map(String));
+    (progress || []).forEach((p) => (p?.completedModules || []).forEach((id) => id && done.add(String(id))));
+    if (done.has(String(last.id))) return null;
+    // A Gita lesson only while the Gita world is open to this learner
+    if (last.world === 'gita' && !gitaLive) return null;
+    return last;
+  }, [user?._id, progress, gitaLive, location.key]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Re-calculate progress state when trigger changes
   const progressState = useMemo(() => {
     const serverCompletedSet = new Set(
@@ -2111,11 +2178,21 @@ const LearnDashboard = ({ onboardingData }) => {
 
   // Desktop: one slim bar flush at the top of the lesson map: the offer and the free trial side by side on wide
   // screens (one under the other on narrower ones), the same bars phones show
+  // In a Gita chapter: the Gita free lessons bar instead (the Science trial never shows in the Gita world)
+  const inGitaChapter = activeTab === 'learn' && findActiveChapter()?.world === 'gita';
+  const popupWorld = activeTab === 'gita' || inGitaChapter ? 'gita' : 'science';
   const desktopBars = !isMobileLayout ? (
+    inGitaChapter ? (
+    <div className="grid grid-cols-1 xl:grid-cols-2 xl:[&:has(>:only-child)]:grid-cols-1 empty:hidden">
+      <OfferTag world="gita" className="h-full" />
+      <GitaFreeBar className="h-full flex flex-col justify-center" />
+    </div>
+    ) : (
     <div className="grid grid-cols-1 xl:grid-cols-2 xl:[&:has(>:only-child)]:grid-cols-1 empty:hidden">
       <OfferTag className="h-full" />
       <TrialTimerBar className="h-full flex flex-col justify-center" />
     </div>
+    )
   ) : null;
   const [barsH, setBarsH] = useState(0);
   const barsObserver = useRef(null);
@@ -2129,7 +2206,9 @@ const LearnDashboard = ({ onboardingData }) => {
   return (
     <ReviewProvider>
       {/* The app's one pop-up: the limited time offer, on Home and Learn, every 15 minutes */}
-      <ProOfferHost active={activeTab === 'learn' || activeTab === 'home'} access={access} />
+      {/* The pop-up follows the world the learner is in: Science Pro offer in Science, Gita Pro in Gita.
+          Not on the two-world Home (no world picked yet); the old single-world Home keeps the Science offer. */}
+      <ProOfferHost active={['learn', 'science', 'gita'].includes(activeTab) || (activeTab === 'home' && !gitaLive)} world={popupWorld} access={access} />
       <div className="bg-gradient-to-b from-[#E6F2FF] to-[#F7FBFF] h-screen flex flex-col md:flex-row overflow-hidden" style={{ height: '100dvh' }}>
         {/* Mobile Header */}
         {/* Mobile Header Removed Per Request */}
@@ -2250,17 +2329,17 @@ const LearnDashboard = ({ onboardingData }) => {
           <a
             href="#"
             onClick={(e) => { e.preventDefault(); navigate('/home'); }}
-            className={`flex items-center gap-3 py-2 px-3.5 rounded-xl text-base font-bold transition-colors ${activeTab === 'home' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
+            className={`flex items-center gap-3 py-2 px-3.5 rounded-xl text-base font-bold transition-colors ${sideHome ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
           >
-            <NavHomeIcon active={activeTab === 'home'} />
+            <NavHomeIcon active={sideHome} />
             <span>Home</span>
           </a>
           <a
             href="#"
-            onClick={(e) => { e.preventDefault(); navigate('/learn'); }}
-            className={`flex items-center gap-3 py-2 px-3.5 rounded-xl text-base font-bold transition-colors ${activeTab === 'learn' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
+            onClick={(e) => { e.preventDefault(); navigate(gitaLive ? (getLastWorld(user) === 'gita' ? '/gita' : '/science') : '/learn'); }}
+            className={`flex items-center gap-3 py-2 px-3.5 rounded-xl text-base font-bold transition-colors ${sideLearn ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
           >
-            <NavPracticeIcon active={activeTab === 'learn'} />
+            <NavPracticeIcon active={sideLearn} />
             <span>Learn</span>
           </a>
           <a
@@ -2271,8 +2350,19 @@ const LearnDashboard = ({ onboardingData }) => {
             <NavRanksIcon active={activeTab === 'ranks'} />
             <span>Ranks</span>
           </a>
+          {gitaLive && (
+            <a
+              href="#"
+              onClick={(e) => { e.preventDefault(); navigate('/plans'); }}
+              className={`flex items-center gap-3 py-2 px-3.5 rounded-xl text-base font-bold transition-colors ${activeTab === 'plans' || activeTab === 'subscription' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}`}
+            >
+              <NavProIcon active={activeTab === 'plans' || activeTab === 'subscription'} />
+              <span>Plans</span>
+            </a>
+          )}
           <a
               href="#"
+              hidden={gitaLive}
               onClick={(e) => { e.preventDefault(); navigate('/subscription'); }}
               className={showPro ? `flex items-center gap-3 py-2 px-3.5 rounded-xl text-base font-bold transition-colors ${activeTab === 'subscription' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}` : 'hidden'}
             >
@@ -2314,9 +2404,16 @@ const LearnDashboard = ({ onboardingData }) => {
           </div>
         </nav>
 
-        {activeTab === 'home' ? (
+        {activeTab === 'gita' ? (
+          <GitaLanding isMobile={isMobileLayout} />
+        ) : activeTab === 'plans' ? (
+          <PlansPage isMobile={isMobileLayout} />
+        ) : (activeTab === 'home' || activeTab === 'science') ? (
           isMobileLayout ? (
-            <MobileHome 
+            <MobileHome
+              variant={activeTab === 'home' && gitaLive ? 'worlds' : 'home'}
+              continueLesson={continueLesson}
+              onBackHome={activeTab === 'science' && gitaLive ? () => navigate('/home') : undefined}
               user={user} 
               stars={stars} 
               weeklyStars={weeklyStars} 
@@ -2333,7 +2430,10 @@ const LearnDashboard = ({ onboardingData }) => {
               onNavigateToRanks={() => navigate('/ranks')} 
             />
           ) : (
-            <DesktopHomeDashboard 
+            <DesktopHomeDashboard
+              variant={activeTab === 'home' && gitaLive ? 'worlds' : 'home'}
+              continueLesson={continueLesson}
+              onBackHome={activeTab === 'science' && gitaLive ? () => navigate('/home') : undefined}
               user={user} 
               stars={stars} 
               weeklyStars={weeklyStars} 
@@ -2438,8 +2538,10 @@ const LearnDashboard = ({ onboardingData }) => {
         ) : (
           <>
             {/* Phones: trial countdown pinned above the scrolling map (the map's own unit headers are sticky inside it) */}
-            {isMobileLayout && <OfferTag className="shrink-0 z-[121]" />}
-            {isMobileLayout && <TrialTimerBar className="relative shrink-0 z-[120]" />}
+            {isMobileLayout && inGitaChapter && <OfferTag world="gita" className="shrink-0 z-[121]" />}
+            {isMobileLayout && inGitaChapter && <GitaFreeBar className="relative shrink-0 z-[120]" />}
+            {isMobileLayout && !inGitaChapter && <OfferTag className="shrink-0 z-[121]" />}
+            {isMobileLayout && !inGitaChapter && <TrialTimerBar className="relative shrink-0 z-[120]" />}
             <main style={{ '--hy-top-offset': `${desktopBars ? barsH : 0}px` }} className={`flex-grow p-0 overflow-y-auto no-scrollbar bg-transparent ${isMobileLayout ? 'mt-0 overflow-x-hidden pb-10' : 'mt-16 md:mt-0 overflow-x-visible'}`}>
             {/* Mobile Score Display removed per request */}
             {/* Desktop: offer and free trial in one slim bar, pinned flush at the top while the map scrolls */}
@@ -2683,7 +2785,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                           });
                                           // Older chapters maintain classic comic style via ModuleEntryRedirect
 
-                                          navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
+                                          openLesson(`/learn/module/${mod._id}${query ? '?' + query : ''}`, mod);
                                         }}
                                       >
                                         {status === "active" && isPurchased && !isCompleted && <PurchasedBadge />}
@@ -2720,7 +2822,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                           });
                                           // Older chapters maintain classic comic style via ModuleEntryRedirect
 
-                                          navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
+                                          openLesson(`/learn/module/${mod._id}${query ? '?' + query : ''}`, mod);
                                         }}
                                         className={`absolute top-1/2 -translate-y-1/2 left-full flex items-center ml-[6px] md:ml-[24px] cursor-pointer group/label ${!canClick ? 'opacity-50 grayscale' : ''}`}
                                       >
@@ -2831,7 +2933,8 @@ const LearnDashboard = ({ onboardingData }) => {
                         // Duolingo-style path layout. The admin panel can force it on or off per
                         // chapter; on 'auto' it's Chapter 9, Chapter 11, and modern multi-unit chapters
                         const mapStyle = findActiveChapter()?.mapStyle || 'auto';
-                        const isDuolingoChapter = isPathChapter(mapStyle, chapterId, chapterTitle, visibleUnits);
+                        const isGitaChapter = findActiveChapter()?.world === 'gita';
+                        const isDuolingoChapter = isGitaChapter || isPathChapter(mapStyle, chapterId, chapterTitle, visibleUnits);
 
                         if (isDuolingoChapter) {
                           const activeChapterObj = findActiveChapter();
@@ -2841,7 +2944,7 @@ const LearnDashboard = ({ onboardingData }) => {
                               chapterId={chapterId}
                               chapterTitle={chapterTitle}
                               chapterBg={activeChapterObj?.backgroundImage || activeChapterObj?.bgImage || null}
-                              subjectName={subjectName}
+                              subjectName={isGitaChapter ? 'Gita' : subjectName}
                               visibleUnits={visibleUnits}
                               unitModulesMap={unitModulesMap}
                               completedCompositeKeys={completedCompositeKeys}
@@ -2853,6 +2956,12 @@ const LearnDashboard = ({ onboardingData }) => {
                               onModuleClick={(mod, u, status) => {
                                 if (status === 'paywall' || status === 'locked') vibrateError(); else vibrateLight();
                                 if (status === 'paywall') {
+                                  // A Gita lesson needs its chapter bought: that chapter's checkout
+                                  if (mod?.accessGita) {
+                                    const cid = String(mod.chapterId?._id || mod.chapterId || '');
+                                    navigate(cid ? `/gita-pro?chapter=${encodeURIComponent(cid)}&buy=1` : '/gita-pro');
+                                    return;
+                                  }
                                   setShowPaywallModal(true);
                                   return;
                                 }
@@ -2864,15 +2973,16 @@ const LearnDashboard = ({ onboardingData }) => {
                                 const params = new URLSearchParams();
                                 if (chapterId) params.set('chapterId', chapterId);
                                 if (u?._id) params.set('unitId', u._id);
+                                if (isGitaChapter) params.set('world', 'gita');
                                 const query = params.toString();
                                 if (mod?.isStory || mod?.type === 'story' || mod?.title?.toLowerCase()?.includes('comic') || mod?.title?.toLowerCase()?.includes('story')) {
-                                  navigate(`/learn/story/${mod._id}${query ? '?' + query : ''}`);
+                                  openLesson(`/learn/story/${mod._id}${query ? '?' + query : ''}`, mod);
                                 } else {
-                                  navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
+                                  openLesson(`/learn/module/${mod._id}${query ? '?' + query : ''}`, mod);
                                 }
                               }}
                               onOpenSubjectModal={handleOpenSubjectModal}
-                              onOpenChapters={() => setShowChapters(true)}
+                              onOpenChapters={() => (isGitaChapter ? navigate('/gita') : setShowChapters(true))}
                               availableSubjects={availableSubjects}
                               isLoading={isLoading}
                               subjectChanging={subjectChanging}
@@ -3106,7 +3216,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                                 const query = params.toString();
                                                 // Older chapters maintain classic comic style via ModuleEntryRedirect
 
-                                                navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
+                                                openLesson(`/learn/module/${mod._id}${query ? '?' + query : ''}`, mod);
                                               }}
                                             >
                                                {status === "active" && isPurchased && !isCompleted && <PurchasedBadge />}
@@ -3138,7 +3248,7 @@ const LearnDashboard = ({ onboardingData }) => {
                                                  const query = params.toString();
                                                  // Older chapters maintain classic comic style via ModuleEntryRedirect
 
-                                                 navigate(`/learn/module/${mod._id}${query ? '?' + query : ''}`);
+                                                 openLesson(`/learn/module/${mod._id}${query ? '?' + query : ''}`, mod);
                                                }}
                                                className={`absolute top-1/2 -translate-y-1/2 flex items-center cursor-pointer group/label ${
                                                unitIdx % 2 === 0 ? "left-full ml-[6px] md:ml-[24px]" : "right-full mr-[6px] md:mr-[24px]"

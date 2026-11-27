@@ -293,6 +293,8 @@ function parseBoardCards(rawItems, startIndex = 0) {
             text: it.text || it.question || '',
             glyphCode: it.glyphCode || '',
             inputJson: it.inputJson,
+            // A recorded clip for this line (Gita); without one the line is spoken by TTS
+            audioUrl: it.audioUrl || '',
             isEngagement: false
           });
         }
@@ -455,7 +457,7 @@ export default function BlackboardMode() {
         stopAudio();
       } else {
         if (currentLine?.text && !activeEngagementRef.current) {
-          playLineAudio(currentLine.text, currentLine.speaker);
+          playLineAudio(currentLine.text, currentLine.speaker, currentLine.audioUrl);
         }
       }
       return next;
@@ -622,6 +624,11 @@ export default function BlackboardMode() {
     if (!lineItem) return;
     const txt = lineItem.targetWord || lineItem.question || lineItem.text;
     if (!txt) return;
+    if (lineItem.audioUrl) {
+      // Recorded clip: let the browser cache it ahead of time
+      try { const a = new Audio(); a.preload = 'auto'; a.src = lineItem.audioUrl; } catch (_) {}
+      return;
+    }
     prefetchTts(getLineTtsUrl(txt, lineItem.speaker), { priority });
   };
 
@@ -665,7 +672,7 @@ export default function BlackboardMode() {
     }, 350);
   };
 
-  const playLineAudio = (lineText, speakerName) => {
+  const playLineAudio = (lineText, speakerName, recordedUrl = '') => {
     if (!lineText || activeEngagementRef.current) return;
 
     stopAudio();
@@ -750,10 +757,13 @@ export default function BlackboardMode() {
       readingPaceFallback();
     };
 
-    // Stream immediately using getTtsSrc; background-prefetch caches it for replays
-    const audioSrc = getTtsSrc(ttsUrl);
-    prefetchTts(ttsUrl, { priority: true });
-    audio.src = audioSrc;
+    // A recorded clip plays as it is; otherwise stream the TTS (background-prefetch caches it for replays)
+    if (recordedUrl) {
+      audio.src = recordedUrl;
+    } else {
+      audio.src = getTtsSrc(ttsUrl);
+      prefetchTts(ttsUrl, { priority: true });
+    }
     audio.play().then(() => {
       if (isMountedRef.current && audioRef.current === audio && audio._hyTurn === turn) {
         setIsPlaying(true);
@@ -792,7 +802,7 @@ export default function BlackboardMode() {
     }
 
     if (currentLine.text && !activeEngagement) {
-      playLineAudio(currentLine.text, currentLine.speaker);
+      playLineAudio(currentLine.text, currentLine.speaker, currentLine.audioUrl);
     }
     return () => {
       stopAudio();
@@ -818,11 +828,11 @@ export default function BlackboardMode() {
           setIsPlaying(true);
           setIsPaused(false);
         }).catch(() => {
-          if (currentLine?.text) playLineAudio(currentLine.text, currentLine.speaker);
+          if (currentLine?.text) playLineAudio(currentLine.text, currentLine.speaker, currentLine.audioUrl);
         });
       } else {
         setIsPaused(false);
-        if (currentLine?.text) playLineAudio(currentLine.text, currentLine.speaker);
+        if (currentLine?.text) playLineAudio(currentLine.text, currentLine.speaker, currentLine.audioUrl);
       }
     }
   };
@@ -836,7 +846,7 @@ export default function BlackboardMode() {
 
     const firstLine = currentCard?.lines?.[0];
     if (firstLine && !firstLine.isEngagement && firstLine.text) {
-      playLineAudio(firstLine.text, firstLine.speaker);
+      playLineAudio(firstLine.text, firstLine.speaker, firstLine.audioUrl);
     }
   };
 

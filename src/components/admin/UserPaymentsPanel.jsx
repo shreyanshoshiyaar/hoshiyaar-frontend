@@ -25,6 +25,8 @@ export default function UserPaymentsPanel({ userId }) {
   const [busy, setBusy] = useState('');
   const [note, setNote] = useState({ ok: true, text: '' });
   const [grantDays, setGrantDays] = useState('180');
+  const [trialHours, setTrialHours] = useState('24');
+  const [extraLessons, setExtraLessons] = useState('');
 
   const load = useCallback(() => paymentService.getUserPayments(userId), [userId]);
 
@@ -102,6 +104,14 @@ export default function UserPaymentsPanel({ userId }) {
         >
           {busy === 'grant' ? 'Giving…' : 'Give Pro'}
         </button>
+        <button
+          className={`${btn} bg-orange-50 border-orange-300 text-orange-900`}
+          disabled={Boolean(busy) || !(days >= 1 && days <= 3650)}
+          onClick={() => act('grant_gita', `Give this student every Gita chapter for ${days} days?`,
+            () => paymentService.grantPro(userId, days, 'gita'), `Gave every Gita chapter for ${days} days.`)}
+        >
+          {busy === 'grant_gita' ? 'Giving…' : 'Give all Gita chapters'}
+        </button>
         {pass.active && (
           <button
             className={`${btn} bg-white border-rose-200 text-rose-700`}
@@ -113,6 +123,62 @@ export default function UserPaymentsPanel({ userId }) {
           </button>
         )}
       </div>
+      {/* Admin: extend the free trial (more hours, extra lessons, or a fresh trial) */}
+      {!pass.active && (() => {
+        const hrs = Number(trialHours);
+        const extra = extraLessons === '' ? Number(trial.extraLessons || 0) : Number(extraLessons);
+        const ended = trial.state === 'trial_ended' || trial.state === 'guest_limit';
+        return (
+          <div className="mb-3 rounded-xl bg-sky-50/60 border border-sky-100 p-2.5">
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <span className="text-[11px] font-black text-slate-600 uppercase tracking-wider">Free trial</span>
+              <span className={`rounded-full px-2 py-0.5 text-[10px] font-black uppercase ${ended ? 'bg-rose-100 text-rose-700' : 'bg-sky-100 text-sky-800'}`}>
+                {trial.state === 'trial_not_started' ? 'Not started' : ended ? 'Ended' : 'Running'}
+              </span>
+              <span className="text-[11px] font-semibold text-slate-500">
+                {trial.endsAt ? `${new Date(trial.endsAt) > new Date() ? 'ends' : 'ended'} ${fmt(trial.endsAt, true)} · ` : ''}
+                {trial.lessonsPlayed} of {trial.lessonLimit ?? '?'} lessons{trial.extraLessons ? ` (incl. ${trial.extraLessons} extra)` : ''}
+              </span>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <input type="number" min="1" max="720" value={trialHours} onChange={(e) => setTrialHours(e.target.value)}
+                className="w-16 rounded-lg border border-slate-200 px-2 py-1 text-xs font-bold" aria-label="Hours to add" />
+              <span className="text-[11px] font-semibold text-slate-500">hours</span>
+              <button
+                className={`${btn} bg-sky-50 border-sky-300 text-sky-900`}
+                disabled={Boolean(busy) || !trial.startedAt || !(hrs >= 1 && hrs <= 720)}
+                title={trial.startedAt ? '' : 'The trial has not started yet'}
+                onClick={() => act('trial_hours', `Add ${hrs} hours to this student's free trial?`,
+                  () => paymentService.adminTrial(userId, 'add_hours', { hours: hrs }), `Trial extended by ${hrs} hours.`)}
+              >
+                {busy === 'trial_hours' ? 'Adding…' : 'Add hours'}
+              </button>
+              <span className="mx-1 h-4 w-px bg-slate-200" aria-hidden="true" />
+              <input type="number" min="0" max="100" value={extraLessons === '' ? String(trial.extraLessons || 0) : extraLessons}
+                onChange={(e) => setExtraLessons(e.target.value)}
+                className="w-16 rounded-lg border border-slate-200 px-2 py-1 text-xs font-bold" aria-label="Extra trial lessons" />
+              <span className="text-[11px] font-semibold text-slate-500">extra lessons</span>
+              <button
+                className={`${btn} bg-sky-50 border-sky-300 text-sky-900`}
+                disabled={Boolean(busy) || !(Number.isInteger(extra) && extra >= 0 && extra <= 100)}
+                onClick={() => act('trial_lessons', `Set this student's extra trial lessons to ${extra}?`,
+                  () => paymentService.adminTrial(userId, 'extra_lessons', { lessons: extra }), `Extra trial lessons set to ${extra}.`)}
+              >
+                {busy === 'trial_lessons' ? 'Saving…' : 'Set'}
+              </button>
+              <span className="mx-1 h-4 w-px bg-slate-200" aria-hidden="true" />
+              <button
+                className={`${btn} bg-white border-sky-300 text-sky-900`}
+                disabled={Boolean(busy)}
+                onClick={() => act('trial_restart', `Give this student a fresh ${trial.hours || 48}-hour trial starting now? Lessons already played still count toward the lesson limit, so add extra lessons too if they have used them all.`,
+                  () => paymentService.adminTrial(userId, 'restart'), `Fresh ${trial.hours || 48}-hour trial started.`)}
+              >
+                {busy === 'trial_restart' ? 'Starting…' : `Fresh ${trial.hours || 48}h trial`}
+              </button>
+            </div>
+          </div>
+        );
+      })()}
       {note.text && <p className={`mb-3 text-xs font-bold ${note.ok ? 'text-green-700' : 'text-rose-600'}`}>{note.text}</p>}
 
       {playPurchases.length > 0 && (

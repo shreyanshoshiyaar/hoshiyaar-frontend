@@ -8,6 +8,8 @@ import MobileHomeView from './MobileHomeView.jsx';
 import { useNavigate } from 'react-router-dom';
 import curriculumService from '../../services/curriculumService';
 import { useStars } from '../../context/StarsContext.jsx';
+import WorldHome from '../worlds/WorldHome.jsx';
+import { getLastWorld, setLastWorld } from '../../utils/world.js';
 
 const HexagonRankIcon = () => (
   <div className="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center shrink-0">
@@ -135,6 +137,12 @@ export default function HomeProgressCards({
   onSelectChapter,
   onNavigateToPractice,
   isMobile = false,
+  // 'worlds': Home with the Science and Gita doors. 'home' (default): the Science home (also the Science landing)
+  variant = 'home',
+  // On the Science landing: a way back to the two doors
+  onBackHome,
+  // Home with doors: the last lesson opened and not finished yet
+  continueLesson = null,
 }) {
   const navigate = useNavigate();
   const { stars, refresh } = useStars();
@@ -430,6 +438,29 @@ export default function HomeProgressCards({
     </button>
   );
 
+  // Home with the two world doors (when the Gita world is live)
+  if (variant === 'worlds') {
+    const current = (chapters || []).find((c) => String(c._id) === String(currentChapterId));
+    const st = current ? (stats[current._id] || { total: 0, completed: 0 }) : null;
+    const pct = st && st.total > 0 ? Math.round((st.completed / st.total) * 100) : 0;
+    return (
+      <WorldHome
+        stars={stars}
+        myRank={myRank}
+        myStreak={myStreak}
+        isMobile={isMobile}
+        firstName={String(user?.name || '').trim().split(/\s+/)[0] || ''}
+        lastWorld={getLastWorld(user)}
+        science={current ? { title: chapterName(current.title), pct } : null}
+        gita={access?.gita}
+        access={access}
+        onScience={() => { setLastWorld('science', user); navigate('/science'); }}
+        onGita={() => { setLastWorld('gita', user); navigate('/gita'); }}
+        onShare={handleShareWhatsApp}
+      />
+    );
+  }
+
   // Phones get the client's home design; desktop keeps the dashboard layout below
   if (isMobile) {
     return (
@@ -443,6 +474,7 @@ export default function HomeProgressCards({
           onContinue={handleContinue}
           onAllLessons={() => (onNavigateToPractice ? onNavigateToPractice() : navigate('/learn'))}
           onShare={handleShareWhatsApp}
+          onBackHome={onBackHome}
         />
       </>
     );
@@ -452,6 +484,11 @@ export default function HomeProgressCards({
   // squash and crop the banners instead of letting the page scroll
   return (
     <div className="w-full max-w-full flex flex-col shrink-0 [&>*]:shrink-0 font-sans select-none pb-28 lg:pb-1 pt-2 lg:pt-0 px-2.5 sm:px-6 max-w-5xl lg:max-w-[1400px] lg:flex-1 lg:gap-3 lg:[container-type:inline-size] mx-auto overflow-x-hidden box-border">
+      {onBackHome && (
+        <button type="button" onClick={onBackHome} className="self-start mb-3 inline-flex items-center gap-1.5 rounded-full bg-white border border-blue-200 px-3 py-1.5 text-[13px] font-black text-[#1D4ED8] shadow-sm cursor-pointer">
+          <span aria-hidden="true">←</span> Home
+        </button>
+      )}
       {/* 1. TOP HEADER (Logo) - hidden on desktop, where the sidebar already shows it */}
       <div className="flex items-center justify-between gap-2 w-full mb-3 lg:hidden">
         <img
@@ -544,7 +581,7 @@ export default function HomeProgressCards({
           </div>
         </div>
       </div>
-      {renderStudyWithFriends('hidden lg:block')}
+      {!onBackHome && renderStudyWithFriends('hidden lg:block')}
       </div>
       </div>
 
@@ -720,7 +757,7 @@ export default function HomeProgressCards({
       )}
 
       {/* 6. STUDY WITH FRIENDS - phones keep it at the bottom; desktop shows it beside the banner */}
-      {renderStudyWithFriends('lg:hidden')}
+      {!onBackHome && renderStudyWithFriends('lg:hidden')}
     </div>
   );
 }

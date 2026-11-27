@@ -1,4 +1,5 @@
 import { getApiBase } from './apiBase.js';
+import { segmentOf } from './segmentAudio.js';
 
 // Story / comic lessons: how items become pages of spoken lines, and the voice URL for each
 // line. Shared by the story player and the lesson entry screen, which starts downloading the
@@ -70,7 +71,9 @@ export function parseStoryScenes(rawItems = [], startIndex = 0) {
           id: item._id || itemIdx,
           type: 'dialogue',
           speaker: item.speaker || 'Hoshi',
-          text: txt
+          text: txt,
+          // Recorded audio (Gita): this line's part of the lesson MP3, played instead of a generated voice
+          audio: segmentOf(item)
         });
       }
     } else {
@@ -81,7 +84,8 @@ export function parseStoryScenes(rawItems = [], startIndex = 0) {
           id: item._id || itemIdx,
           type: 'dialogue',
           speaker: item.speaker || 'Hoshi',
-          text: cleanText
+          text: cleanText,
+          audio: segmentOf(item)
         });
       }
       if (!currentPage.sceneImage) {
@@ -116,5 +120,6 @@ export const storyLineTtsUrl = (element) => {
 export const storyOpeningTtsUrls = (items, startIndex = 0, count = 3) => {
   const { pages } = parseStoryScenes(items, startIndex);
   const first = pages[0]?.elements || [];
-  return first.filter(el => el?.text && !isSkippedStoryLine(el)).slice(0, count).map(storyLineTtsUrl);
+  // Recorded lines have no generated voice to download
+  return first.filter(el => el?.text && !el.audio && !isSkippedStoryLine(el)).slice(0, count).map(storyLineTtsUrl);
 };

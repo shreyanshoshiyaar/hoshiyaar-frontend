@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useShowPro } from '../../hooks/useShowPro.js';
 import { vibrateLight } from '../../utils/vibrationService.js';
+import { useWorlds } from '../../hooks/useWorlds.js';
+import { getLastWorld } from '../../utils/world.js';
 
 
 const HomeIcon = ({ active }) => (
@@ -77,8 +79,13 @@ const BottomNavigation = () => {
     return () => clearTimeout(id);
   }, [showProTab]);
 
+  // With the Gita world live the bar is Home, Learn, Ranks, Plans, More. Home picks a world; Learn opens the picked
+  // world's page (Science or Gita) and covers its chapter maps; Plans covers Science Pro and Gita Pro
+  const { gitaLive } = useWorlds();
   const isHome = path === '/home';
-  const isLearn = path === '/learn';
+  const isLearn = path === '/learn' || (gitaLive && (path === '/science' || path === '/gita'));
+  const learnPath = gitaLive ? (getLastWorld(user) === 'gita' ? '/gita' : '/science') : '/learn';
+  const isPlans = path === '/plans' || path === '/subscription' || path === '/pricing' || path === '/gita-pro';
   const isHomework = path === '/homework' || path === '/home-work';
   const isExam = path === '/exam';
   const isRanks = path === '/ranks';
@@ -96,7 +103,7 @@ const BottomNavigation = () => {
       </button>
 
       <button 
-        onClick={() => { vibrateLight(); navigate('/learn', { replace: true }); }}
+        onClick={() => { vibrateLight(); navigate(learnPath, { replace: true }); }}
         className={`flex flex-col items-center justify-center flex-1 mx-1 py-1.5 rounded-2xl relative transition-all active:scale-95 ${isLearn ? 'bg-gradient-to-b from-[#A855F7] to-[#7C3AED] text-white shadow-[0_3px_0_0_#5B21B6]' : 'text-[#475569]'}`}
       >
         <LearnIcon active={isLearn} />
@@ -111,7 +118,15 @@ const BottomNavigation = () => {
         <span className="text-[12.5px] font-black mt-0.5 tracking-tight leading-none">Ranks</span>
       </button>
 
-      {showProTab && (
+      {gitaLive ? (
+        <button 
+          onClick={() => { vibrateLight(); navigate('/plans', { replace: true }); }}
+          className={`flex flex-col items-center justify-center flex-1 mx-1 py-1.5 rounded-2xl relative transition-all active:scale-95 ${isPlans ? 'bg-gradient-to-b from-[#A855F7] to-[#7C3AED] text-white shadow-[0_3px_0_0_#5B21B6]' : 'text-[#B45309]'}`}
+        >
+          <ProIcon active={isPlans} />
+          <span className={`text-[12.5px] font-black mt-0.5 tracking-tight leading-none ${isPlans ? 'text-white' : 'text-[#B45309]'}`}>Plans</span>
+        </button>
+      ) : showProTab && (
         <button 
           onClick={() => { vibrateLight(); navigate('/subscription'); }}
           className={`flex flex-col items-center justify-center flex-1 mx-1 py-1.5 rounded-2xl relative transition-all active:scale-95 ${isPro ? 'bg-gradient-to-b from-[#A855F7] to-[#7C3AED] text-white shadow-[0_3px_0_0_#5B21B6]' : 'text-[#B45309]'}`}

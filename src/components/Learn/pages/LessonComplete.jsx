@@ -18,6 +18,8 @@ import { stopAllAudio } from '../../../utils/audioPreloadService.js';
 import TrialTimerBar from '../../features/Subscription/TrialTimerBar.jsx';
 import { useAccess } from '../../../context/AccessContext.jsx';
 import OfferTag from '../../features/Subscription/OfferTag.jsx';
+import { GitaFreeBar } from '../../worlds/GitaOffer.jsx';
+import { getLastWorld } from '../../../utils/world.js';
 import paymentService from '../../../services/paymentService.js';
 import { vibrateSuccess } from '../../../utils/vibrationService.js';
 
@@ -70,6 +72,8 @@ const LessonComplete = () => {
   const [isChecking, setIsChecking] = useState(true);
   const { getStagedForModule, clearStagedForModule } = useReview();
   const { user, updateUser } = useAuth();
+  // A Gita lesson (the Gita world was picked last): the Gita free lessons bar, never the Science trial
+  const inGita = getLastWorld(user) === 'gita';
   const { stars, setTotal, getLessonEarned, clearLessonEarned } = useStars();
   // Real numbers for the points card: what the server awarded in this lesson, and the total after it
   const [earnedThisLesson, setEarnedThisLesson] = useState(0);
@@ -676,8 +680,7 @@ const LessonComplete = () => {
         {/* Bottom Action Buttons */}
         <div className="w-full flex flex-col gap-3 mt-4 pt-2 lg:mt-0 lg:pt-0 lg:col-start-2 lg:row-start-2 lg:self-start">
           {/* Trial countdown and Go Pro, right above NEXT */}
-          <OfferTag rounded />
-          <TrialTimerBar variant="card" />
+          {inGita ? (<><OfferTag world="gita" rounded /><GitaFreeBar variant="card" /></>) : (<><OfferTag rounded /><TrialTimerBar variant="card" /></>)}
 
           {/* NEXT Button */}
           <button

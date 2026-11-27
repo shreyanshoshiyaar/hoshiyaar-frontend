@@ -60,17 +60,20 @@ const Countdown = ({ ms, lastDay, big = false }) => {
  *  - variant "strip": a slim bar (Learn top, Home); rounded adds corners (cards, lesson end)
  *  - variant "plan": the countdown line inside the Pro page's plan card (no tap)
  */
-export default function OfferTag({ variant = 'strip', rounded = false, className = '', access: accessProp }) {
+export default function OfferTag({ variant = 'strip', rounded = false, className = '', access: accessProp, world = 'science' }) {
   const navigate = useNavigate();
   const { access: liveAccess } = useAccess();
   const access = accessProp || liveAccess;
   const now = useServerNow();
-  if (!offerRunning(access, now)) return null;
+  // Gita: the same offer end time (Admin → Payments), for a Gita chapter, to learners without every chapter open
+  const gita = world === 'gita';
+  if (gita ? (!access?.gita || access.gita.hasPass || !(offerEndsAtMs(access) > now)) : !offerRunning(access, now)) return null;
 
   const msLeft = offerEndsAtMs(access) - now;
   const lastDay = msLeft < 24 * 3600 * 1000;
-  const price = Number(access?.plan?.amount) || 99;
-  const was = Number(access?.plan?.discountedFrom) || 0;
+  const price = gita ? (Number(access.gita.price) || 99) : (Number(access?.plan?.amount) || 99);
+  const was = gita ? (Number(access.gita.originalPrice) || 0) : (Number(access?.plan?.discountedFrom) || 0);
+  const proName = gita ? 'A Gita chapter' : 'Pro';
 
   if (variant === 'plan') {
     return (
@@ -87,10 +90,10 @@ export default function OfferTag({ variant = 'strip', rounded = false, className
   return (
     <button
       type="button"
-      onClick={() => navigate('/subscription?offer=1')}
+      onClick={() => navigate(gita ? '/gita-pro' : '/subscription?offer=1')}
       className={`relative w-full overflow-hidden bg-gradient-to-r from-[#FDE68A] via-[#FCD34D] to-[#F59E0B] text-[#3B0764] cursor-pointer active:brightness-95 ${rounded ? 'rounded-2xl border border-[#F59E0B]/60 shadow-[0_6px_16px_rgba(245,158,11,0.3)]' : 'border-b border-[#D97706]/40 shadow-[0_2px_8px_rgba(180,83,9,0.2)]'} ${lastDay && rounded ? 'hy-offer-urgent' : ''} ${className}`}
       role="timer"
-      aria-label={`Limited time offer: Pro for ₹${price}, ends in ${offerClock(msLeft)}`}
+      aria-label={`Limited time offer: ${proName} for ₹${price}, ends in ${offerClock(msLeft)}`}
     >
       <style>{STYLES}</style>
       <span className="hy-offer-shine pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-transparent via-white/60 to-transparent" aria-hidden="true" />
@@ -99,7 +102,7 @@ export default function OfferTag({ variant = 'strip', rounded = false, className
           <span className="flex flex-col leading-none">
             <span className="text-[10.5px] ph:text-[11px] font-black uppercase tracking-[0.08em]">Limited time offer</span>
             <span className="mt-[3px] flex items-baseline gap-1">
-              <span className="text-[11px] font-bold text-[#3B0764]/80">Pro at</span>
+              <span className="text-[11px] font-bold text-[#3B0764]/80">{proName} at</span>
               <span className="text-[15px] font-black text-[#7C2D12]">₹{price}</span>
               {was > price && <span className="text-[11px] font-bold text-[#3B0764]/50 line-through decoration-[#DC2626]">₹{was}</span>}
             </span>

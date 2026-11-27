@@ -7,6 +7,7 @@ import LessonHeader from '../LessonHeader.jsx';
 import ReportFlagButton from '../../common/ReportFlagButton.jsx';
 import SimpleLoading from '../../ui/SimpleLoading.jsx';
 import { parseStoryScenes, isSkippedStoryLine, storyLineTtsUrl } from '../../../utils/storyScenes.js';
+import { playSegment } from '../../../utils/segmentAudio.js';
 import { getStageInfoForIndex } from '../../../utils/moduleStages.js';
 import { isNewStyleStory } from '../../../utils/comicStyleHelper.js';
 import { isMissionCompleteItem } from '../../../utils/missionCompleteHelper.js';
@@ -488,6 +489,8 @@ export default function StoryMode() {
   const retryTimeoutRef = useRef(null);
   const touchListenerRef = useRef(null);
   const isMountedRef = useRef(true);
+  // Stops listening to a recorded line (Gita) that is playing
+  const segmentStopRef = useRef(null);
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -508,10 +511,13 @@ export default function StoryMode() {
     return Math.max(3, Math.ceil(words / 2.2 + 0.8));
   };
 
+  // A recorded line's real length; otherwise the estimate from its words
+  const lineSeconds = (el) => (el?.audio ? el.audio.end - el.audio.start : getItemEstimatedDuration(el?.text));
+
   // Calculate dynamic page duration as sum of items adjusted by speed
   const calculateTotalDuration = (elems, speed = 1.0) => {
     if (!elems || elems.length === 0) return 12;
-    const rawTotal = elems.reduce((acc, el) => acc + getItemEstimatedDuration(el.text), 0);
+    const rawTotal = elems.reduce((acc, el) => acc + lineSeconds(el), 0);
     return Math.max(6, Math.round(rawTotal / speed));
   };
 
@@ -525,6 +531,10 @@ export default function StoryMode() {
 
   const stopAudio = () => {
     setIsPaused(false);
+    if (segmentStopRef.current) {
+      segmentStopRef.current();
+      segmentStopRef.current = null;
+    }
     if (retryTimeoutRef.current) {
       clearTimeout(retryTimeoutRef.current);
       retryTimeoutRef.current = null;
@@ -574,7 +584,7 @@ export default function StoryMode() {
 
     // Download the next lines into memory now so line-to-line changes have no loading gap
     elements.slice(index + 1, index + 4).forEach((nextElem, i) => {
-      if (nextElem && nextElem.text) prefetchTts(getAudioSource(nextElem), { priority: i === 0 });
+      if (nextElem && nextElem.text && !nextElem.audio) prefetchTts(getAudioSource(nextElem), { priority: i === 0 });
     });
 
     if (itemRefs.current[index]) {
@@ -587,7 +597,47 @@ export default function StoryMode() {
     const turn = audio._hyTurn;
     audioRef.current = audio;
 
-    const baseOffset = elements.slice(0, index).reduce((acc, el) => acc + getItemEstimatedDuration(el.text), 0);
+    const baseOffset = elements.slice(0, index).reduce((acc, el) => acc + lineSeconds(el), 0);
+
+    // Recorded line (Gita): play its part of the lesson MP3, then the next line
+    if (currentElem.audio) {
+      const next = () => {
+        segmentStopRef.current = null;
+        if (isMountedRef.current && activeIndexRef.current === index && audioRef.current === audio && audio._hyTurn === turn) playLineAudio(index + 1);
+      };
+      const waitForTap = () => {
+        unlockMobileAudio();
+        if (touchListenerRef.current) {
+          window.removeEventListener('click', touchListenerRef.current);
+          window.removeEventListener('touchstart', touchListenerRef.current);
+        }
+        const onFirstTouch = () => {
+          window.removeEventListener('click', onFirstTouch);
+          window.removeEventListener('touchstart', onFirstTouch);
+          touchListenerRef.current = null;
+          if (isMountedRef.current && activeIndexRef.current === index && audioRef.current === audio && audio._hyTurn === turn) {
+            audio.play().catch(() => {});
+          }
+        };
+        touchListenerRef.current = onFirstTouch;
+        window.addEventListener('click', onFirstTouch, { once: true });
+        window.addEventListener('touchstart', onFirstTouch, { once: true });
+      };
+      segmentStopRef.current = playSegment(audio, currentElem.audio, {
+        rate: playbackSpeed,
+        onTimeUpdate: (t) => setCurrentSec(Math.min(durationSec, Math.round((baseOffset + t) / playbackSpeed))),
+        onEnd: next,
+        onBlocked: waitForTap,
+        // A broken recording: move on after a moment, as with a generated line
+        onError: (e) => {
+          console.warn('Recorded audio error on line:', index, e);
+          segmentStopRef.current = null;
+          if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
+          retryTimeoutRef.current = setTimeout(next, 2000);
+        },
+      });
+      return;
+    }
 
     audio.ontimeupdate = () => {
       const currentTrackTime = audio.currentTime;
@@ -647,7 +697,7 @@ export default function StoryMode() {
     if (loading || !elements || elements.length === 0) return;
 
     // Queue every line of the scene in order; the first lines arrive first
-    elements.forEach(el => { if (el && el.text) prefetchTts(getAudioSource(el)); });
+    elements.forEach(el => { if (el && el.text && !el.audio) prefetchTts(getAudioSource(el)); });
 
     const autoplayTimer = setTimeout(() => {
       playLineAudio(0);

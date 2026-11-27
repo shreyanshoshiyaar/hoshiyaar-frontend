@@ -12,6 +12,7 @@ import OfferTag from './OfferTag.jsx';
 import { offerRunning } from './ProOfferModal.jsx';
 import TrialTestToggle from './TrialTestToggle.jsx';
 import { useServerNow } from '../../../hooks/useServerNow.js';
+import { clarityEvent } from '../../../utils/clarity.js';
 
 const formatDate = (dateStr, withTime = false, withYear = true) => {
   if (!dateStr) return '';
@@ -111,6 +112,8 @@ const FAQ = [
 
 // The HoshiYaar Pro page: status, plan, what's included, and payments
 export default function SubscriptionPage() {
+  // Clarity funnel: the ₹99 offer screen opened
+  useEffect(() => { clarityEvent('paywall_seen'); }, []);
   const navigate = useNavigate();
   const { user } = useAuth();
   const { access: liveAccess, refresh } = useAccess();

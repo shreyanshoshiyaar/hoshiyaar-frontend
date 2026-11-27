@@ -9,6 +9,9 @@ const MobileHome = ({
   currentChapterId,
   onSelectChapter,
   onNavigateToPractice,
+  variant,
+  onBackHome,
+  continueLesson,
 }) => {
   return (
     <div
@@ -23,6 +26,9 @@ const MobileHome = ({
         currentChapterId={currentChapterId}
         onSelectChapter={onSelectChapter}
         onNavigateToPractice={onNavigateToPractice}
+        variant={variant}
+        continueLesson={continueLesson}
+        onBackHome={onBackHome}
         isMobile={true}
       />
     </div>

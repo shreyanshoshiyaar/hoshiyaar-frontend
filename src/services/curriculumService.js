@@ -69,6 +69,14 @@ const curriculumService = {
     const passedOpts = passOpts(opts);
     return api.get('/api/curriculum/young-explorers', { params: { board, subject }, ...passedOpts });
   },
+  // A class-free world's chapters (Gita): published ones, plus drafts for admins
+  listWorldChapters(world, opts) {
+    return api.get(`/api/curriculum/worlds/${world}/chapters`, passOpts(opts));
+  },
+  // One chapter by id, from any class or world
+  getChapterById(id, opts) {
+    return api.get(`/api/curriculum/chapters/by-id/${id}`, passOpts(opts));
+  },
   // Chapters pinned to a home screen spot for every class, with this student's progress
   listHomePins(opts) {
     return api.get('/api/curriculum/home-pins', passOpts(opts));

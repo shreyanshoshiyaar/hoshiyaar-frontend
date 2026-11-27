@@ -14,6 +14,7 @@ import { unlockMobileAudio, prefetchTts } from '../../../utils/audioPreloadServi
 import { remindMicIfNeeded } from '../../../utils/micPermission.js';
 import { MIC_SETTINGS_EVENT } from '../../common/MicSettingsPrompt.jsx';
 import { storyOpeningTtsUrls } from '../../../utils/storyScenes.js';
+import { clarityEvent } from '../../../utils/clarity.js';
 
 // New voices take a few seconds to generate, so start the story's opening lines now, while
 // the story screen is still loading; it plays the same downloads (first line first)
@@ -40,8 +41,11 @@ export default function ModuleEntryRedirect() {
   const [showPaywall, setShowPaywall] = useState(false);
   // The lesson belongs to a "Pro only" chapter (closed without Pro, also during the trial)
   const [proOnly, setProOnly] = useState(false);
+  // A Gita lesson after the free ones: its chapter must be bought (not the Science trial or pass)
+  const [gitaPro, setGitaPro] = useState(false);
+  const [gitaChapterId, setGitaChapterId] = useState('');
   const [accessAttempt, setAccessAttempt] = useState(0);
-  const { setAccess } = useAccess();
+  const { access, setAccess } = useAccess();
   // Fetched at the same time as the access check (the server refuses the content of a closed lesson anyway),
   // so the lesson opens one round trip sooner
   const { items, loading, error, retry } = useModuleItems(moduleNumber);
@@ -75,6 +79,8 @@ export default function ModuleEntryRedirect() {
         if (!isMounted) return;
         if (res?.access) setAccess(res.access);
         setProOnly(res?.hasAccess === false && (res?.proOnly === true || res?.reason === 'pro_only'));
+        setGitaPro(res?.hasAccess === false && (res?.gitaPro === true || res?.reason === 'gita_pro'));
+        setGitaChapterId(String(res?.gitaChapterId || ''));
         setShowPaywall(res?.hasAccess === false);
       } catch (err) {
         // Network trouble: carry on; the lesson content endpoint still enforces access
@@ -88,6 +94,9 @@ export default function ModuleEntryRedirect() {
     verifyModuleAccess();
     return () => { isMounted = false; };
   }, [moduleNumber, accessAttempt, setAccess]);
+
+  // Clarity funnel: the "This is a Pro chapter" screen (the ₹99 offer) showed
+  useEffect(() => { if (showPaywall && proOnly) clarityEvent('paywall_seen'); }, [showPaywall, proOnly]);
 
   useEffect(() => {
     // GA4 Tracking: Level Start
@@ -234,6 +243,37 @@ export default function ModuleEntryRedirect() {
   };
 
   if (accessChecking) return <SimpleLoading text="Checking access..." />;
+
+  if (showPaywall && gitaPro) {
+    const sp = new URLSearchParams(window.location.search);
+    const chapterIdParam = sp.get('chapterId');
+    const backTo = chapterIdParam ? `/learn?chapterId=${encodeURIComponent(chapterIdParam)}&world=gita` : '/gita';
+    const g = access?.gita || {};
+    const buyChapter = gitaChapterId || chapterIdParam || '';
+    return (
+      <div className="min-h-screen bg-[#FFF8F1] flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#FB923C] to-[#C2410C] flex items-center justify-center text-4xl mb-5 shadow-[0_8px_24px_rgba(234,88,12,0.35)]" aria-hidden="true">
+          🪷
+        </div>
+        <h2 className="text-2xl font-black text-slate-900 mb-2">Unlock this chapter</h2>
+        <p className="text-sm font-semibold text-slate-500 max-w-xs mb-7">
+          You've played the {g.freeLessons ?? 5} free Gita lessons. Unlock this chapter once for ₹{g.price ?? 99} and every lesson in it stays open for good.
+        </p>
+        <button
+          onClick={() => navigate(buyChapter ? `/gita-pro?chapter=${encodeURIComponent(buyChapter)}&buy=1` : '/gita-pro')}
+          className="w-full max-w-xs px-6 py-3.5 rounded-2xl bg-gradient-to-b from-[#FB923C] to-[#EA580C] text-white font-black text-base shadow-[0_4px_0_0_#9A3412] active:translate-y-[2px] active:shadow-[0_2px_0_0_#9A3412] transition-all"
+        >
+          Unlock chapter ₹{g.price ?? 99}
+        </button>
+        <button
+          onClick={() => navigate(backTo, { replace: true })}
+          className="mt-3 w-full max-w-xs px-6 py-3 rounded-2xl border-2 border-slate-200 bg-white text-slate-700 font-black text-sm active:scale-95 transition-all"
+        >
+          Back to the Gita
+        </button>
+      </div>
+    );
+  }
 
   if (showPaywall && proOnly) {
     const chapterIdParam = new URLSearchParams(window.location.search).get('chapterId');

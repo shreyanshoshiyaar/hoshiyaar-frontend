@@ -590,6 +590,12 @@ const ContentEditor = ({
         if (item.images && item.images.length > 0) {
           concept.images = item.images.filter(Boolean);
         }
+        // Recorded audio (Gita): keep the line's part of the lesson MP3 when the lesson is saved again
+        if (item.audioUrl) {
+          concept.audioUrl = item.audioUrl;
+          concept.audioStart = item.audioStart;
+          concept.audioEnd = item.audioEnd;
+        }
 
         return concept;
       });

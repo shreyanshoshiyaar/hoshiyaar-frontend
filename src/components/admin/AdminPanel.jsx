@@ -4,6 +4,9 @@ import curriculumService from '../../services/curriculumService';
 import http from '../../services/apiClient.js';
 import { artFor, HomeTag, HOME_TAG_PRESETS, HOME_TAG_STYLES, CHAPTER_EMOJI_CHOICES } from '../layout/home/ChaptersGrid.jsx';
 
+// Admin → Content: the Gita world sits beside the classes (its chapters belong to no class)
+const GITA_CLASS = '__gita__';
+
 // Each section loads on its own, so one heavy or broken section can't stop the panel opening
 const ContentEditor = lazy(() => import('./ContentEditor'));
 const BlogManager = lazy(() => import('./BlogManager'));
@@ -12,11 +15,13 @@ const UserAnalytics = lazy(() => import('./UserAnalytics'));
 const ExamManager = lazy(() => import('./ExamManager'));
 const NotificationAnalytics = lazy(() => import('./NotificationAnalytics'));
 const WhatsappCampaigns = lazy(() => import('./WhatsappCampaigns'));
+const CloudinaryUsage = lazy(() => import('./CloudinaryUsage'));
 const PaymentManager = lazy(() => import('./PaymentManager'));
 const GlyphManager = lazy(() => import('./GlyphManager'));
 const ReportManager = lazy(() => import('./ReportManager'));
 const AudioVoiceManager = lazy(() => import('./AudioVoiceManager'));
 const CharacterImageManager = lazy(() => import('./CharacterImageManager'));
+const HomeArtManager = lazy(() => import('./HomeArtManager'));
 
 // Admin sections, in tab order. `slug` is the address: /admin/<slug>
 const SECTIONS = [
@@ -28,10 +33,12 @@ const SECTIONS = [
   { id: 'reports', slug: 'reports', icon: '🚩', label: 'Reported Issues' },
   { id: 'audio_voice', slug: 'audio-voice', icon: '🎙️', label: 'Audio & Voice' },
   { id: 'character_images', slug: 'character-images', icon: '🧑‍🎨', label: 'Character Images' },
+  { id: 'home_art', slug: 'home-pictures', icon: '🖼️', label: 'Home Pictures' },
   { id: 'settings', slug: 'settings', icon: '⚙️', label: 'System Settings' },
   { id: 'blogs', slug: 'blogs', icon: '✍️', label: 'Blog' },
   { id: 'notification_analytics', slug: 'notifications', icon: '🔔', label: 'Notifications' },
   { id: 'whatsapp_campaigns', slug: 'whatsapp', icon: '💬', label: 'WhatsApp Campaigns' },
+  { id: 'cloudinary_usage', slug: 'cloudinary', icon: '☁️', label: 'Cloudinary Usage' },
 ];
 const sectionBySlug = (slug) => SECTIONS.find(sec => sec.slug === slug) || null;
 
@@ -476,6 +483,12 @@ const AdminPanel = () => {
 
   const fetchSubjects = async () => {
     if (!selectedBoard || !selectedClass) return;
+    // The Gita world is one subject for every class
+    if (selectedClass === GITA_CLASS) {
+      setSubjects([{ _id: 'gita', name: 'Gita' }]);
+      setSelectedSubject('Gita');
+      return;
+    }
     try {
       setLoading(true);
       const response = await curriculumService.listSubjects(selectedBoard, {
@@ -506,11 +519,13 @@ const AdminPanel = () => {
     if (!selectedBoard || !selectedSubject) return;
     try {
       setLoading(true);
-      const response = await curriculumService.listChapters(
-        selectedBoard,
-        selectedSubject,
-        { classTitle: selectedClass, includeDrafts: true }
-      );
+      const response = selectedClass === GITA_CLASS
+        ? await curriculumService.listWorldChapters('gita')
+        : await curriculumService.listChapters(
+          selectedBoard,
+          selectedSubject,
+          { classTitle: selectedClass, includeDrafts: true }
+        );
       setChapters(response.data || []);
     } catch (err) {
       setError('Failed to fetch chapters');
@@ -724,6 +739,7 @@ const AdminPanel = () => {
                   {classes.map((cls) => (
                     <option key={cls._id} value={cls.name}>{cls.name}</option>
                   ))}
+                  <option value={GITA_CLASS}>Gita (all classes)</option>
                 </select>
               </div>
 
@@ -902,6 +918,12 @@ const AdminPanel = () => {
         </div>
       )}
 
+      {activeTab === 'cloudinary_usage' && (
+        <div className="max-w-7xl mx-auto py-8 px-4">
+          <CloudinaryUsage />
+        </div>
+      )}
+
       {/* ── Tab Panel: Reported Issues ── */}
       {activeTab === 'reports' && (
         <div className="max-w-7xl mx-auto py-8 px-4">
@@ -920,6 +942,13 @@ const AdminPanel = () => {
       {activeTab === 'character_images' && (
         <div className="max-w-7xl mx-auto py-8 px-4">
           <CharacterImageManager />
+        </div>
+      )}
+
+      {/* ── Tab Panel: Home Pictures ── */}
+      {activeTab === 'home_art' && (
+        <div className="max-w-7xl mx-auto py-8 px-4">
+          <HomeArtManager />
         </div>
       )}
 

@@ -9,6 +9,7 @@ import Footer from './components/layout/Footer';
 import LoadingPage from './components/ui/LoadingPage.jsx';
 import UpdatePrompt from './components/ui/UpdatePrompt.jsx';
 import OnboardingVideo from './components/ui/OnboardingVideo.jsx';
+import ClarityIdentity from './components/ui/ClarityIdentity.jsx';
 import MaintenancePrompt from './components/ui/MaintenancePrompt.jsx';
 import NotificationPrompt from './components/ui/NotificationPrompt.jsx';
 import ExamModePromo from './components/ui/ExamModePromo.jsx';
@@ -62,6 +63,7 @@ const InteractiveStory = lazy(() => import('./components/features/InteractiveSto
 const ExamFlow = lazy(() => import('./components/features/ExamMode/ExamFlow.jsx'));
 const MidLessonStreakModal = lazy(() => import('./components/Learn/modals/MidLessonStreakModal.jsx'));
 const SubscriptionPage = lazy(() => import('./components/features/Subscription/SubscriptionPage.jsx'));
+const GitaProPage = lazy(() => import('./components/worlds/GitaProPage.jsx'));
 const TeacherDashboard = lazy(() => import('./components/teacher/TeacherDashboard.jsx'));
 const ClassroomDetail = lazy(() => import('./components/teacher/ClassroomDetail.jsx'));
 
@@ -128,6 +130,17 @@ const NavigationController = () => {
           // Define base/dashboard routes where back should exit the app
           const dashboardRoutes = ['/', '/login', '/home', '/learn', '/ranks', '/more', '/challenges'];
           
+          const currentSearch = new URLSearchParams(locationRef.current.search || '');
+          // A Gita chapter's map: back to the Gita landing (not out of the app)
+          if (currentPath === '/learn' && currentSearch.get('world') === 'gita') {
+            navigate('/gita', { replace: true });
+            return;
+          }
+          // A world's page (the Learn tab): back to Home, where the worlds are picked
+          if (currentPath === '/science' || currentPath === '/gita') {
+            navigate('/home', { replace: true });
+            return;
+          }
           if (dashboardRoutes.includes(currentPath) || !canGoBack) {
             // Exit app from dashboard routes with a confirmation
             if (window.confirm('Do you want to exit HoshiYaar?')) {
@@ -155,7 +168,12 @@ const NavigationController = () => {
                 // Navigate to the main dashboard rather than relying on history.back
                 // which might take them back to another lesson page or intermediate step
                 // Note: navigate is available via closure because NavigationController uses useNavigate
-                navigate('/learn', { replace: true });
+                // Back to the lesson's own chapter map (a Gita lesson to the Gita map)
+                const keep = new URLSearchParams();
+                if (currentSearch.get('chapterId')) keep.set('chapterId', currentSearch.get('chapterId'));
+                if (currentSearch.get('world') === 'gita') keep.set('world', 'gita');
+                const q = keep.toString();
+                navigate(`/learn${q ? '?' + q : ''}`, { replace: true });
               }
             } else {
               // Standard behavior for other pages
@@ -350,6 +368,7 @@ function App() {
             <MaintenancePrompt />
             <UpdatePrompt />
             <OnboardingVideo />
+            <ClarityIdentity />
             <NotificationPrompt />
             <MicSettingsPrompt />
             <PaymentReturnNotice />
@@ -398,6 +417,31 @@ function App() {
                 {/* Protected Learning Routes (each tab is a separate URL) */}
                 <Route 
                   path="/home" 
+                  element={
+                    <ProtectedRoute>
+                      <Learn />
+                    </ProtectedRoute>
+                  } 
+                />
+                {/* The two worlds' landings and the plans page (Gita world) */}
+                <Route 
+                  path="/science" 
+                  element={
+                    <ProtectedRoute>
+                      <Learn />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/gita" 
+                  element={
+                    <ProtectedRoute>
+                      <Learn />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/plans" 
                   element={
                     <ProtectedRoute>
                       <Learn />
@@ -474,6 +518,17 @@ function App() {
                     <ProtectedRoute>
                       <ErrorBoundary>
                         <SubscriptionPage />
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                {/* Gita Pro: the Gita world's own pass */}
+                <Route 
+                  path="/gita-pro" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <GitaProPage />
                       </ErrorBoundary>
                     </ProtectedRoute>
                   } 

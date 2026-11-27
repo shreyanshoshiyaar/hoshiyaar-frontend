@@ -21,7 +21,8 @@ import { isNewStyleStory } from '../../../utils/comicStyleHelper.js';
 import { isMissionCompleteItem } from '../../../utils/missionCompleteHelper.js';
 import { getCharacterImage, useCharacterImages } from '../../../utils/characterImages.js';
 import { vibrateLight } from '../../../utils/vibrationService.js';
-import { playTtsAudio } from '../../../utils/audioPreloadService.js';
+import { playTtsAudio, claimNarrationAudio } from '../../../utils/audioPreloadService.js';
+import { segmentOf, playSegment } from '../../../utils/segmentAudio.js';
 
 // Concept cards read themselves aloud; the mute button turns that off and it stays off
 const CONCEPT_MUTE_KEY = 'concept_audio_muted';
@@ -819,12 +820,22 @@ export default function ConceptPage() {
     ? [item.title, plainText(item.text || item.content || item.concept || item.question || '')].filter(Boolean).join('. ')
     : '';
   const narrationSpeaker = item?.speaker || 'Hoshi';
+  // Recorded audio (Gita): the card's part of the lesson MP3 instead of a generated voice
+  const segment = segmentOf(item);
   const speakCard = useCallback(() => {
     stopNarration();
     if (!narrationText) return;
     setSpeaking(true);
+    if (segment) {
+      const a = claimNarrationAudio();
+      const done = () => setSpeaking(false);
+      const stop = playSegment(a, segment, { onEnd: done, onError: done, onBlocked: done });
+      // stopNarration() pauses whatever is here
+      narrationRef.current = { pause: () => { stop(); try { a.pause(); } catch { /* already stopped */ } } };
+      return;
+    }
     narrationRef.current = playTtsAudio(narrationText, narrationSpeaker, () => setSpeaking(false));
-  }, [narrationText, narrationSpeaker, stopNarration]);
+  }, [narrationText, narrationSpeaker, stopNarration, segment?.url, segment?.start, segment?.end]); // eslint-disable-line react-hooks/exhaustive-deps
   // Plays when a card opens (and stops when it changes or the lesson closes), unless muted
   useEffect(() => {
     if (audioMuted || !narrationText) { stopNarration(); return undefined; }

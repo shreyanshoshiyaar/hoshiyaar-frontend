@@ -208,15 +208,8 @@ const Learn = () => {
   };
 
   return (
-    <div 
-      className="min-h-screen relative bg-white md:bg-white overflow-hidden"
-      style={{
-        backgroundImage: window.innerWidth < 768 ? 'url("https://res.cloudinary.com/imq5966f/image/upload/v1791543806/img-to-link/avlrqghu3x4rh4gjyvcq.webp")' : 'none',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed'
-      }}
-    >
+    // Plain soft blue (the dashboard's own colours), no picture: it shows for a moment while a page loads
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-[#E6F2FF] to-[#F7FBFF]">
       {error && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-md bg-red-500 text-white p-4 rounded-xl shadow-lg flex justify-between items-center animate-in fade-in slide-in-from-top-4 duration-300">
           <span className="text-sm font-bold">{error}</span>

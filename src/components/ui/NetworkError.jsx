@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { clarityEvent } from '../../utils/clarity.js';
 
 const NetworkError = ({
   title = "Connection Lost",
@@ -6,6 +7,8 @@ const NetworkError = ({
   onRetry = () => window.location.reload(),
   compact = false
 }) => {
+  // Clarity funnel: each time the "Connection Lost" screen shows
+  useEffect(() => { clarityEvent('content_failed'); }, []);
   if (compact) {
     return (
       <div className="flex flex-col items-center justify-center py-6 text-center w-full">

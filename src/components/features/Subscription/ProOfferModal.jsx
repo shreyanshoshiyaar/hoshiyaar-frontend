@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useServerNow } from '../../../hooks/useServerNow.js';
+import { clarityEvent } from '../../../utils/clarity.js';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import { getIntroVideoUrl, hasSeenIntro, isIntroOpen, INTRO_CLOSED_EVENT } from '../../../utils/onboardingVideo.js';
+import { GitaOfferModal, gitaFreeLeft } from '../../worlds/GitaOffer.jsx';
 
 const pad = (n) => String(n).padStart(2, '0');
 
@@ -19,19 +21,23 @@ export const offerRunning = (access, now = Date.now()) => {
 };
 
 // How often: every 15 minutes, counted from when the student last closed it
-const LAST_KEY = 'hy_pro_offer_last';
+// (each world keeps its own clock, so the Science and Gita pop-ups never stack)
+const LAST_KEY = { science: 'hy_pro_offer_last', gita: 'hy_gita_offer_last' };
 const EVERY_MS = 15 * 60 * 1000;
-const lastShown = () => { try { return Number(localStorage.getItem(LAST_KEY)) || 0; } catch (_) { return 0; } };
-const markNow = () => { try { localStorage.setItem(LAST_KEY, String(Date.now())); } catch (_) {} };
+const lastShown = (world) => { try { return Number(localStorage.getItem(LAST_KEY[world])) || 0; } catch (_) { return 0; } };
+const markNow = (world) => { try { localStorage.setItem(LAST_KEY[world], String(Date.now())); } catch (_) {} };
 
 /**
- * The app's one pop-up: the limited time offer. While an offer runs (Admin → Payments), students without
- * Pro see it on the Home or Learn page, the first time they get there and then every 15 minutes
- * (counted from when they last closed it), including while they stay on the page.
+ * The app's one pop-up, for the world the learner is in (Home follows the world picked last):
+ *   science  the limited time offer for Science Pro, while an offer runs (Admin → Payments) and there is no Pro
+ *   gita     Gita Pro, while the learner has no Gita Pro
+ * Shown the first time they get there and then every 15 minutes (counted from when they last closed it),
+ * including while they stay on the page.
  */
-export function ProOfferHost({ active, access }) {
+export function ProOfferHost({ active, access, world = 'science' }) {
   const [open, setOpen] = useState(false);
-  const running = offerRunning(access);
+  const gita = world === 'gita';
+  const running = gita ? Boolean(access?.gita && gitaFreeLeft(access.gita)) : offerRunning(access);
   const { user } = useAuth();
   const userId = user?._id ? String(user._id) : '';
 
@@ -48,13 +54,13 @@ export function ProOfferHost({ active, access }) {
     };
     const check = async () => {
       if (timer || stopped || document.visibilityState === 'hidden') return;
-      if (Date.now() - lastShown() < EVERY_MS) return;
+      if (Date.now() - lastShown(world) < EVERY_MS) return;
       if (await videoFirst()) return;
       if (timer || stopped) return;
       timer = setTimeout(() => {
         timer = null;
         if (stopped || isIntroOpen()) return;
-        markNow();
+        markNow(world);
         setOpen(true);
       }, 900);
     };
@@ -70,9 +76,15 @@ export function ProOfferHost({ active, access }) {
       document.removeEventListener('visibilitychange', check);
       window.removeEventListener(INTRO_CLOSED_EVENT, afterVideo);
     };
-  }, [active, running, open, userId]);
+  }, [active, running, open, userId, world]);
 
-  return <ProOfferModal isOpen={open} onClose={() => { markNow(); setOpen(false); }} access={access} />;
+  // Moving to the other world closes the pop-up of the one left behind
+  useEffect(() => { setOpen(false); }, [world]);
+
+  const close = () => { markNow(world); setOpen(false); };
+  return gita
+    ? <GitaOfferModal isOpen={open && active} onClose={close} access={access} />
+    : <ProOfferModal isOpen={open && active} onClose={close} access={access} />;
 }
 
 const Box = ({ value, label }) => (
@@ -122,7 +134,7 @@ export default function ProOfferModal({ isOpen, onClose, access }) {
   const now = useServerNow();
   const [leaving, setLeaving] = useState(false);
 
-  useEffect(() => { if (isOpen) setLeaving(false); }, [isOpen]);
+  useEffect(() => { if (isOpen) { setLeaving(false); clarityEvent('paywall_seen'); } }, [isOpen]);
 
   const ends = offerEndsAtMs(access);
   const msLeft = Math.max(0, ends - now);

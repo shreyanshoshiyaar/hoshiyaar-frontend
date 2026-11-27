@@ -49,7 +49,13 @@ const testAccess = (view, real) => {
   // Use the real trial settings (Admin → Payments) so the preview matches what students see
   const hours = Number(real?.trialHours) || 48;
   const lessons = Number(real?.trialLessonLimit) || 7;
-  const base = { trialHours: hours, trialLessonLimit: lessons, lessonLimit: lessons, guestLessonLimit: real?.guestLessonLimit, plan: real?.plan, isGuest: false, hasPass: false, playedModuleIds: [], testView: true };
+  // Gita as a student sees it too: no chapters bought; 3 free lessons left while the trial runs, none once it ends
+  const gFree = Number(real?.gita?.freeLessons) || 5;
+  const gita = real?.gita ? {
+    ...real.gita, hasPass: view === 'pro', passExpiresAt: null, ownedChapters: [], chapterCredits: 0,
+    freeLessons: gFree, freeLeft: view === 'ended' ? 0 : Math.min(3, gFree)
+  } : undefined;
+  const base = { trialHours: hours, trialLessonLimit: lessons, lessonLimit: lessons, guestLessonLimit: real?.guestLessonLimit, plan: real?.plan, isGuest: false, hasPass: false, playedModuleIds: [], testView: true, ...(gita ? { gita } : {}) };
   if (view === 'pro') {
     // An admin who really bought the pass sees their real end date; otherwise a fresh 180-day sample
     const realEnd = real?.passExpiresAt ? new Date(real.passExpiresAt) : null;

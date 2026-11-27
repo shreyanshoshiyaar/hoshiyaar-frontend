@@ -3,11 +3,13 @@ import { trialTerms } from '../../../context/AccessContext.jsx';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import { useAccess } from '../../../context/AccessContext.jsx';
 import paymentService from '../../../services/paymentService.js';
-import { usesPlayBilling, playBillingAvailable, getPassOffers, pickPassOffer, buyPassWithPlay, PLAY_STORE_URL } from '../../../services/billingService.js';
+import { usesPlayBilling, playBillingAvailable, getPassOffers, pickPassOffer, buyPassWithPlay, PLAY_STORE_URL, PASS_PRODUCT_ID, GITA_PRODUCT_ID } from '../../../services/billingService.js';
 import { isUserAdmin } from '../../../utils/adminCheck.js';
 import GuestVerifyModal from '../../forms/GuestVerifyModal.jsx';
 import { vibrateSuccess } from '../../../utils/vibrationService.js';
 import { getApiBase } from '../../../utils/apiBase.js';
+import { clarityEvent } from '../../../utils/clarity.js';
+import { metaBrowser } from '../../../utils/metaBrowser.js';
 
 // Phone browsers: Razorpay's popup can get stuck on "Processing your payment" (bank pages and UPI
 // apps can't return to a popup), so there Razorpay redirects to our server and back instead
@@ -15,13 +17,38 @@ const useRedirectCheckout = () => /Android|iPhone|iPad|iPod|Mobile/i.test(naviga
   (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent || ''));
 
 const PASS_PLAN_CODE = 'pass_6m';
-const FALLBACK_PLAN = { code: PASS_PLAN_CODE, amount: 99, discountedFrom: 599 };
+const GITA_PLAN_CODE = 'gita_chapter';
 
-// One paywall for the whole app: the 6-month pass, ₹99 against ₹599.
-// Android pays through Google Play Billing, the website through Razorpay.
-export default function PaywallModal({ isOpen, onClose, onSuccess }) {
+// What differs between the two worlds' passes; the checkout itself is the same
+const WORLD = {
+  science: {
+    planCode: PASS_PLAN_CODE, productId: PASS_PRODUCT_ID, label: 'HoshiYaar Pro', passName: '6-Month Pass',
+    headline: 'Unlock every lesson', sub: 'Ask a parent to unlock every lesson for 6 months.',
+    perks: ['Every lesson in every chapter', 'Stories, boards, quizzes and revision', 'No auto-renewal, ever'],
+    cta: 'Unlock Pro for', rzp: '6-Month Pass: all lessons',
+    bg: 'from-[#1E1B4B] via-[#3B0764] to-[#4C1D95]', text: 'text-indigo-200', textDim: 'text-indigo-200/80', textSoft: 'text-indigo-100',
+  },
+  // Gita is sold per chapter: one payment opens one chapter for good
+  gita: {
+    planCode: GITA_PLAN_CODE, productId: GITA_PRODUCT_ID, label: 'Gita chapter', passName: 'One chapter · yours for good',
+    headline: 'Unlock this chapter', sub: 'Ask a parent to unlock every lesson of this chapter.',
+    perks: ['Every lesson and shloka in this chapter', 'Recorded audio for every line', 'Pay once, it stays open for good'],
+    cta: 'Unlock chapter for', rzp: 'Gita chapter',
+    bg: 'from-[#431407] via-[#7C2D12] to-[#9A3412]', text: 'text-orange-100', textDim: 'text-orange-100/80', textSoft: 'text-orange-50',
+  },
+};
+
+// One paywall for the whole app: a 6-month pass, ₹99 against ₹599. world='gita' sells one Gita chapter
+// (chapterId) instead of Science Pro. Android pays through Google Play Billing, the website through Razorpay.
+export default function PaywallModal({ isOpen, onClose, onSuccess, world = 'science', chapterId = '', chapterTitle = '' }) {
   const { user } = useAuth();
   const { access, refresh, testView, setTestView } = useAccess();
+  const gita = world === 'gita';
+  const W = WORLD[gita ? 'gita' : 'science'];
+  // Gita: whether this account has BOUGHT this chapter. Not "is it open": for admins (and with the paywall off)
+  // every chapter is open, and closing the checkout must not read as a payment
+  const chapterBoughtIn = (a) => Boolean(chapterId && (a?.gita?.ownedChapters || []).includes(String(chapterId)));
+  const FALLBACK_PLAN = { code: W.planCode, amount: 99, discountedFrom: 599 };
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -34,6 +61,9 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
   const [stage, setStage] = useState('');
   const playBilling = usesPlayBilling();
 
+  // Clarity funnel: the ₹99 offer was shown
+  useEffect(() => { if (isOpen) clarityEvent('paywall_seen'); }, [isOpen]);
+
   // The website's card checkout is fetched only when the paywall opens (it used to block every page load)
   useEffect(() => {
     if (isOpen && !playBilling) paymentService.loadRazorpayScript();
@@ -41,20 +71,19 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
 
   useEffect(() => {
     if (!isOpen) return;
-    if (access?.plan?.amount) {
-      setPlan(prev => ({
-        ...prev,
-        amount: access.plan.amount,
-        discountedFrom: access.plan.discountedFrom || prev.discountedFrom
-      }));
+    const known = gita
+      ? (access?.gita?.price ? { amount: access.gita.price, discountedFrom: access.gita.originalPrice } : null)
+      : (access?.plan?.amount ? { amount: access.plan.amount, discountedFrom: access.plan.discountedFrom } : null);
+    if (known) {
+      setPlan(prev => ({ ...prev, amount: known.amount, discountedFrom: known.discountedFrom || prev.discountedFrom }));
     }
     paymentService.getPublicConfig().then(cfg => {
-      const pass = cfg?.plans?.find(p => p.code === PASS_PLAN_CODE);
+      const pass = cfg?.plans?.find(p => p.code === W.planCode);
       if (pass) setPlan(pass);
       setMockMode(Boolean(cfg?.mockMode));
     }).catch(() => {});
-    if (playBilling) getPassOffers().then(setPlayOffers);
-  }, [isOpen, playBilling, access?.plan?.amount, access?.plan?.discountedFrom]);
+    if (playBilling) getPassOffers(W.productId).then(setPlayOffers);
+  }, [isOpen, playBilling, gita, access?.plan?.amount, access?.plan?.discountedFrom, access?.gita?.price]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!isOpen) return null;
 
@@ -73,6 +102,7 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
   // Callers close the pop-up in onSuccess; calling onClose too would send a learner back to
   // the map instead of into the lesson they just unlocked
   const finishSuccess = async () => {
+    clarityEvent('paid');
     vibrateSuccess();
     if (testView) setTestView('');
     await refresh();
@@ -86,13 +116,13 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
     for (let i = 0; i < attempts; i++) {
       if (i > 0) await new Promise(r => setTimeout(r, 4000));
       const next = await refresh({ reconcile: true });
-      if (next?.state === 'pass') {
+      if (gita ? chapterBoughtIn(next) : next?.state === 'pass') {
         setInfoMsg('');
         await finishSuccess();
         return true;
       }
     }
-    if (!quiet) setInfoMsg('If you completed the payment, your pass will unlock within a few minutes. You can close this window.');
+    if (!quiet) setInfoMsg(`If you completed the payment, ${gita ? 'the chapter' : 'your pass'} will unlock within a few minutes. You can close this window.`);
     setLoading(false);
     return false;
   };
@@ -101,6 +131,8 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
     setStage('opening');
     const result = await buyPassWithPlay(user._id, {
       offerToken: playOffer?.offerToken,
+      productId: W.productId,
+      chapterId: gita ? chapterId : '',
       onProcessing: () => setStage('processing')
     });
     setStage('');
@@ -115,10 +147,11 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
   };
 
   const payWithRazorpay = async () => {
-    const orderData = await paymentService.createOrder({ planCode: PASS_PLAN_CODE });
+    const chapter = gita ? { chapterId } : {};
+    const orderData = await paymentService.createOrder({ planCode: W.planCode, world, ...chapter, meta: metaBrowser() });
 
     if (orderData.mockMode) {
-      const mockRes = await paymentService.mockSuccessPayment({ planCode: PASS_PLAN_CODE });
+      const mockRes = await paymentService.mockSuccessPayment({ planCode: W.planCode, world, ...chapter, meta: metaBrowser() });
       if (mockRes.success) return finishSuccess();
       setErrorMsg(mockRes.message || 'Mock payment simulation failed.');
       setLoading(false);
@@ -133,10 +166,10 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
       amount: orderData.amountInPaise,
       currency: orderData.currency || 'INR',
       name: 'HoshiYaar',
-      description: '6-Month Pass: all lessons',
+      description: gita && chapterTitle ? `Gita: ${chapterTitle}`.slice(0, 250) : W.rzp,
       order_id: orderData.order_id || orderData.orderId,
       prefill: { name: user?.name || '', contact: user?.phone || '', email: user?.email || '' },
-      theme: { color: '#2563EB' },
+      theme: { color: gita ? '#EA580C' : '#2563EB' },
       ...(useRedirectCheckout() ? {
         redirect: true,
         callback_url: `${getApiBase()}/api/payments/razorpay/callback?site=${encodeURIComponent(window.location.origin)}&return=${encodeURIComponent(window.location.pathname + window.location.search)}`
@@ -147,7 +180,7 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
             orderId: response.razorpay_order_id,
             paymentId: response.razorpay_payment_id,
             signature: response.razorpay_signature,
-            planCode: PASS_PLAN_CODE
+            planCode: W.planCode
           });
           if (verifyRes.success) return finishSuccess();
           setErrorMsg(verifyRes.message || 'Payment verification failed.');
@@ -172,10 +205,20 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
   const handlePay = async () => {
     setErrorMsg('');
     setInfoMsg('');
-    // One pass at a time (the server refuses a second Razorpay order too)
-    if (access?.hasPass && !testView) {
-      setInfoMsg('Your Pro pass is already active. You can buy a new one after it ends.');
+    // One pass at a time (the server refuses a second Razorpay order too); a Gita chapter once
+    if (gita ? chapterBoughtIn(access) : (access?.hasPass && !testView)) {
+      setInfoMsg(gita ? 'This chapter is already unlocked for you.' : 'Your Pro pass is already active. You can buy a new one after it ends.');
       return;
+    }
+    if (gita && !chapterId) { setErrorMsg('Choose the chapter to unlock first.'); return; }
+    // A Gita chapter already paid for but not given to a chapter yet: use it here, no new payment
+    if (gita && Number(access?.gita?.chapterCredits) > 0) {
+      setLoading(true);
+      try {
+        const r = await paymentService.useGitaCredit(chapterId);
+        if (r?.success) return finishSuccess();
+      } catch (_) { /* fall through to paying */ }
+      setLoading(false);
     }
     if (playBilling && !playBillingAvailable()) {
       window.open(PLAY_STORE_URL, '_system');
@@ -192,11 +235,12 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
   };
 
   const terms = trialTerms(access);
-  const headline = access?.trialEndReason === 'time'
+  const gitaLine = gita && chapterTitle ? chapterTitle : '';
+  const headline = gita ? W.headline : access?.trialEndReason === 'time'
     ? `Your ${terms.hours}-hour free trial has ended`
     : access?.trialEndReason === 'lessons'
       ? `You've played all ${terms.lessons} free lessons`
-      : 'Unlock every lesson';
+      : W.headline;
   const savePct = original ? Math.round((1 - chargedAmount / plan.discountedFrom) * 100) : 0;
   const perMonth = (chargedAmount / 6).toFixed(chargedAmount % 6 === 0 ? 0 : 1);
   const needsUpdate = playBilling && !playBillingAvailable();
@@ -205,7 +249,7 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-[#0B0820]/70 backdrop-blur-sm animate-fade-in font-sans">
       {/* gold frame */}
       <div className="relative w-full max-w-md rounded-[28px] p-[2px] bg-gradient-to-br from-[#FDE68A] via-[#D97706] to-[#FDE68A] shadow-[0_24px_60px_rgba(30,27,75,0.55)]">
-        <div className="relative overflow-hidden rounded-[26px] bg-gradient-to-br from-[#1E1B4B] via-[#3B0764] to-[#4C1D95] px-5 pt-6 pb-5">
+        <div className={`relative overflow-hidden rounded-[26px] bg-gradient-to-br ${W.bg} px-5 pt-6 pb-5`}>
           <span className="pointer-events-none absolute -top-16 -right-12 w-52 h-52 rounded-full bg-[#F59E0B]/25 blur-3xl" aria-hidden="true" />
           <span className="pointer-events-none absolute -bottom-16 -left-12 w-48 h-48 rounded-full bg-[#A855F7]/30 blur-3xl" aria-hidden="true" />
 
@@ -232,11 +276,12 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
                 <rect x="4" y="18" width="16" height="2.5" rx="1.2" fill="url(#pwCrown)" />
               </svg>
             </span>
-            <p className="mt-3 text-[13px] font-black uppercase tracking-[0.18em] text-[#FCD34D]">HoshiYaar Pro</p>
+            <p className="mt-3 text-[13px] font-black uppercase tracking-[0.18em] text-[#FCD34D]">{W.label}</p>
             <h2 className="mt-1 text-[22px] font-black text-white leading-snug px-3">{headline}</h2>
-            <p className="mt-1.5 text-[15px] font-semibold text-indigo-200">Ask a parent to unlock every lesson for 6 months.</p>
-            {access?.locked && (
-              <p className="mt-1 text-[13px] font-semibold text-indigo-200/70">Lessons you've already played stay open.</p>
+            {gitaLine && <p className="mt-1 text-[15px] font-black text-[#FDE68A] px-3">{gitaLine}</p>}
+            <p className={`mt-1.5 text-[15px] font-semibold ${W.text}`}>{W.sub}</p>
+            {!gita && access?.locked && (
+              <p className={`mt-1 text-[13px] font-semibold ${W.textDim}`}>Lessons you've already played stay open.</p>
             )}
           </div>
 
@@ -259,7 +304,7 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
             </div>
           )}
           {infoMsg && (
-            <div className="relative mt-4 rounded-xl bg-white/10 border border-white/20 px-3 py-2 text-[13px] font-bold text-indigo-100">
+            <div className={`relative mt-4 rounded-xl bg-white/10 border border-white/20 px-3 py-2 text-[13px] font-bold ${W.textSoft}`}>
               {infoMsg}
             </div>
           )}
@@ -267,7 +312,7 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
           {/* price */}
           <div className="relative mt-5 rounded-[20px] bg-white/[0.07] border border-white/15 p-4">
             <div className="flex items-center justify-between">
-              <span className="text-[12px] font-black uppercase tracking-[0.16em] text-[#FCD34D]">6-Month Pass</span>
+              <span className="text-[12px] font-black uppercase tracking-[0.16em] text-[#FCD34D]">{W.passName}</span>
               {savePct > 0 && (
                 <span className="rounded-full bg-[#22C55E]/20 px-2 py-0.5 text-[12px] font-black text-[#86EFAC]">Save {savePct}%</span>
               )}
@@ -276,12 +321,12 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
               <span className="text-[40px] font-black text-white leading-none">{priceLabel}</span>
               {original && <span className="mb-1 text-lg font-bold text-white/45 line-through decoration-[#FB7185] decoration-2">{original}</span>}
             </div>
-            <p className="mt-1 text-[14px] font-semibold text-indigo-200">One-time payment · just ₹{perMonth} a month</p>
+            <p className={`mt-1 text-[14px] font-semibold ${W.text}`}>{gita ? 'One-time payment · this chapter, for good' : `One-time payment · just ₹${perMonth} a month`}</p>
             {playPriceDiffers && (
-              <p className="mt-1 text-[12px] font-semibold text-indigo-200/75">Price set by Google Play, including all taxes. Nothing else is added.</p>
+              <p className={`mt-1 text-[12px] font-semibold ${W.textDim}`}>Price set by Google Play, including all taxes. Nothing else is added.</p>
             )}
             <ul className="mt-3 space-y-2">
-              {['Every lesson in every chapter', 'Stories, boards, quizzes and revision', 'No auto-renewal, ever'].map((t) => (
+              {W.perks.map((t) => (
                 <li key={t} className="flex items-center gap-2.5 text-[14px] font-semibold text-white/90">
                   <span className="w-5 h-5 rounded-full bg-[#FCD34D]/20 text-[#FCD34D] flex items-center justify-center shrink-0">
                     <svg viewBox="0 0 24 24" className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
@@ -306,11 +351,11 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
             ) : needsUpdate ? (
               <span>Update the app to unlock</span>
             ) : (
-              <span>Unlock Pro for {priceLabel}</span>
+              <span>{W.cta} {priceLabel}</span>
             )}
           </button>
 
-          <p className="relative mt-3 flex items-center justify-center gap-1.5 text-[13px] font-semibold text-indigo-200/80">
+          <p className={`relative mt-3 flex items-center justify-center gap-1.5 text-[13px] font-semibold ${W.textDim}`}>
             <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>
             {needsUpdate
               ? 'Get the latest HoshiYaar from Google Play'
@@ -319,17 +364,17 @@ export default function PaywallModal({ isOpen, onClose, onSuccess }) {
 
           {/* Admins only: exactly what Google Play returns, to match it against Play Console */}
           {showPriceCheck && (
-            <div className="relative mt-3 rounded-xl border border-dashed border-[#FCD34D]/50 bg-black/20 px-3 py-2 text-[11px] font-semibold text-indigo-100 leading-relaxed">
+            <div className={`relative mt-3 rounded-xl border border-dashed border-[#FCD34D]/50 bg-black/20 px-3 py-2 text-[11px] font-semibold ${W.textSoft} leading-relaxed`}>
               <p className="font-black uppercase tracking-wider text-[#FCD34D]">Admin · Play price check</p>
               <p>Our price (website & server): ₹{plan.amount}</p>
               {playOffers.length === 0 ? (
-                <p>Google Play returned no price for hoshiyaar_pass_6m</p>
+                <p>Google Play returned no price for {W.productId}</p>
               ) : playOffers.map((o, i) => (
                 <p key={o.offerToken || i}>
                   {o === playOffer ? '▶ ' : '• '}Play option {o.purchaseOptionId || '(legacy)'}{o.offerId ? ` / offer ${o.offerId}` : ''}: {o.label} ({o.price} {o.currency})
                 </p>
               ))}
-              <p className="text-indigo-200/70">▶ = the option the Buy button uses</p>
+              <p className={`${W.textDim}`}>▶ = the option the Buy button uses</p>
             </div>
           )}
         </div>

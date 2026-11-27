@@ -4,6 +4,15 @@ import paymentService from './paymentService.js';
 
 // Must match the one-time product created in Play Console (Monetize > Products)
 export const PASS_PRODUCT_ID = 'hoshiyaar_pass_6m';
+// One Gita chapter: a second one-time product, bought once per chapter (Play only knows "one Gita chapter";
+// the app tells the server which chapter it was for)
+export const GITA_PRODUCT_ID = 'hoshiyaar_gita_chapter';
+// The chapter being bought, kept until the server has it, so a purchase recovered later still unlocks that chapter
+const PENDING_CHAPTER = 'hy_gita_buying_chapter';
+const pendingChapter = () => { try { return localStorage.getItem(PENDING_CHAPTER) || ''; } catch (_) { return ''; } };
+const setPendingChapter = (id) => { try { if (id) localStorage.setItem(PENDING_CHAPTER, id); else localStorage.removeItem(PENDING_CHAPTER); } catch (_) {} };
+const PRODUCT_IDS = [PASS_PRODUCT_ID, GITA_PRODUCT_ID];
+const isGita = (productId) => productId === GITA_PRODUCT_ID;
 
 const isNativeAndroid = () => Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android';
 
@@ -37,15 +46,15 @@ export const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com
  * as { label: "₹99", price: 99, currency, purchaseOptionId, offerId, offerToken }.
  * Empty if the store is unavailable.
  */
-export async function getPassOffers() {
+export async function getPassOffers(productId = PASS_PRODUCT_ID) {
   if (!isNativeAndroid()) return [];
   try {
     const { products } = await NativePurchases.getProducts({
-      productIdentifiers: [PASS_PRODUCT_ID],
+      productIdentifiers: [productId],
       productType: PURCHASE_TYPE.INAPP
     });
     return (products || [])
-      .filter((p) => p?.identifier === PASS_PRODUCT_ID || !p?.identifier)
+      .filter((p) => p?.identifier === productId || !p?.identifier)
       .map((p) => ({
         // Play sends a localised string such as "₹99.00"; whole rupees read better without the paise
         label: String(p.priceString || '').replace(/[.,]00$/, ''),
@@ -66,8 +75,10 @@ export const pickPassOffer = (offers, planAmount) =>
 
 // The server verifies with Google and consumes; if it could not consume, the app does it
 // so the pass can be bought again after 6 months
-async function verifyWithServer(purchaseToken) {
-  const result = await paymentService.verifyGooglePurchase({ purchaseToken, productId: PASS_PRODUCT_ID });
+async function verifyWithServer(purchaseToken, productId = PASS_PRODUCT_ID, chapterId = '') {
+  const gitaChapter = isGita(productId) ? (chapterId || pendingChapter()) : '';
+  const result = await paymentService.verifyGooglePurchase({ purchaseToken, productId, ...(gitaChapter ? { chapterId: gitaChapter } : {}) });
+  if (result.success && isGita(productId)) setPendingChapter('');
   if (result.success && result.consumed === false) {
     try { await NativePurchases.consumePurchase({ purchaseToken }); } catch (_) {}
   }
@@ -75,17 +86,19 @@ async function verifyWithServer(purchaseToken) {
 }
 
 /**
- * Opens the Google Play purchase sheet for the 6-month pass.
+ * Opens the Google Play purchase sheet for the 6-month pass, or one Gita chapter (productId GITA_PRODUCT_ID + chapterId).
  * Resolves { status: 'success' | 'pending' | 'cancelled' | 'error', message }
  */
-export async function buyPassWithPlay(userId, { offerToken = '', onProcessing } = {}) {
+export async function buyPassWithPlay(userId, { offerToken = '', onProcessing, productId = PASS_PRODUCT_ID, chapterId = '' } = {}) {
+  const passName = isGita(productId) ? 'chapter' : 'pass';
+  if (isGita(productId)) setPendingChapter(chapterId);
   if (!isNativeAndroid()) {
     return { status: 'pending', message: 'Preview only: in the Android app this opens the Google Play payment sheet.' };
   }
   let transaction;
   try {
     transaction = await NativePurchases.purchaseProduct({
-      productIdentifier: PASS_PRODUCT_ID,
+      productIdentifier: productId,
       productType: PURCHASE_TYPE.INAPP,
       // The exact Play option shown in the pop-up, so the learner pays the price they saw
       ...(offerToken ? { offerToken } : {}),
@@ -101,11 +114,11 @@ export async function buyPassWithPlay(userId, { offerToken = '', onProcessing } 
     // Paid earlier but never verified (e.g. the app closed): hand that purchase to the server now
     if (code === 'ITEM_ALREADY_OWNED') {
       return (await recoverPlayPurchases())
-        ? { status: 'success', message: 'Your 6-month pass is active. Enjoy every lesson!' }
+        ? { status: 'success', message: isGita(productId) ? 'Chapter unlocked. Enjoy every shloka!' : 'Your 6-month pass is active. Enjoy every lesson!' }
         : { status: 'pending', message: 'We found an earlier payment and are confirming it. Please reopen the app in a minute.' };
     }
     if (/pending/i.test(msg)) {
-      return { status: 'pending', message: 'Payment is pending. The pass unlocks as soon as it completes.' };
+      return { status: 'pending', message: `Payment is pending. ${isGita(productId) ? 'The chapter' : 'The pass'} unlocks as soon as it completes.` };
     }
     return { status: 'error', message: msg || 'Google Play could not start the purchase.' };
   }
@@ -118,13 +131,13 @@ export async function buyPassWithPlay(userId, { offerToken = '', onProcessing } 
   // Paid in the Play sheet; the server now confirms it with Google
   onProcessing?.();
   try {
-    const result = await verifyWithServer(transaction.purchaseToken);
+    const result = await verifyWithServer(transaction.purchaseToken, productId, chapterId);
     if (result.success) return { status: 'success', message: result.message };
     if (result.pending) return { status: 'pending', message: result.message };
     return { status: 'error', message: result.message || 'We could not confirm the purchase.' };
   } catch (_) {
     // Payment went through but our server was unreachable; recoverPlayPurchases retries on next launch
-    return { status: 'pending', message: 'Payment received. Your pass will unlock in a moment, keep the app open or reopen it.' };
+    return { status: 'pending', message: `Payment received. Your ${passName} will unlock in a moment, keep the app open or reopen it.` };
   }
 }
 
@@ -138,8 +151,9 @@ export async function recoverPlayPurchases() {
     const { purchases } = await NativePurchases.getPurchases({ productType: PURCHASE_TYPE.INAPP });
     let granted = false;
     for (const p of purchases || []) {
-      if (p.productIdentifier !== PASS_PRODUCT_ID || !p.purchaseToken) continue;
-      const result = await verifyWithServer(p.purchaseToken).catch(() => null);
+      // Science Pro and Gita chapters both (a Gita one goes to the chapter that was being bought)
+      if (!PRODUCT_IDS.includes(p.productIdentifier) || !p.purchaseToken) continue;
+      const result = await verifyWithServer(p.purchaseToken, p.productIdentifier).catch(() => null);
       if (result?.success) granted = true;
     }
     return granted;

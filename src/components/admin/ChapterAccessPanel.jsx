@@ -2,9 +2,9 @@ import React, { useEffect, useMemo, useState } from 'react';
 import paymentService from '../../services/paymentService.js';
 
 const MODES = [
-  { value: 'trial', label: 'Pro', hint: 'Open during the free trial (48 hours / lesson limit), then Pro only. The default' },
+  { value: 'trial', label: 'Free during trial, then Pro', hint: 'Open during the free trial (48 hours / lesson limit), then Pro only. The default' },
   { value: 'free', label: 'Free for everyone', hint: 'Always open, even for guests and after the trial. Does not use up trial lessons' },
-  { value: 'pro_free_start', label: 'Pro, first lessons free', hint: 'The first few lessons stay open for everyone, even after the trial (during the trial they count toward its lesson limit). The rest are Pro after the trial' },
+  { value: 'pro_free_start', label: 'Pro only, first lessons free', hint: 'The first few lessons are open for everyone, always (they don\'t use up trial lessons). The rest are Pro only, also during the free trial' },
   { value: 'pro', label: 'Pro only', hint: 'Only students with Pro can play it, also during the free trial. Others see "This is a Pro chapter" with an Unlock Pro button' },
 ];
 const MODE_STYLE = {

@@ -47,9 +47,9 @@ export const paymentService = {
   /**
    * Sends a Google Play purchase token for the server to verify with Google
    */
-  async verifyGooglePurchase({ purchaseToken, productId }) {
+  async verifyGooglePurchase({ purchaseToken, productId, chapterId }) {
     try {
-      const res = await api.post('/api/payments/google/verify', { purchaseToken, productId });
+      const res = await api.post('/api/payments/google/verify', { purchaseToken, productId, ...(chapterId ? { chapterId } : {}) });
       return { ...res.data, httpStatus: res.status };
     } catch (err) {
       if (err.response?.data) return { success: false, httpStatus: err.response.status, ...err.response.data };
@@ -90,6 +90,12 @@ export const paymentService = {
   /**
    * Initiates Razorpay order creation
    */
+  // Gita: unlock a chapter with one already paid for (a chapter credit)
+  async useGitaCredit(chapterId) {
+    const res = await api.post('/api/payments/gita/use-credit', { chapterId });
+    return res.data;
+  },
+
   async createOrder(params) {
     const res = await api.post('/api/payments/create-order', params);
     return res.data;
@@ -141,8 +147,8 @@ export const paymentService = {
   /**
    * 1-Click Sandbox Test payment for local testing
    */
-  async mockSuccessPayment({ planCode, moduleId, moduleIds, chapterId }) {
-    const res = await api.post('/api/payments/mock-success', { planCode, moduleId, moduleIds, chapterId });
+  async mockSuccessPayment({ planCode, moduleId, moduleIds, chapterId, world, meta }) {
+    const res = await api.post('/api/payments/mock-success', { planCode, moduleId, moduleIds, chapterId, world, meta });
     return res.data;
   },
 
@@ -207,12 +213,18 @@ export const paymentService = {
   },
 
   /** Admin: give a learner Pro for `days` days, on top of any time left */
-  async grantPro(userId, days) {
-    const res = await api.post(`/api/payments/admin/users/${userId}/grant-pro`, { days });
+  async grantPro(userId, days, world = 'science') {
+    const res = await api.post(`/api/payments/admin/users/${userId}/grant-pro`, { days, world });
     return res.data;
   },
 
   /** Admin: take Pro back. kind: 'google_play' | 'razorpay' (with the purchase/payment id) | 'end_now' */
+  // Admin: change a student's free trial. action 'add_hours' {hours} | 'extra_lessons' {lessons} | 'restart'
+  async adminTrial(userId, action, extra = {}) {
+    const res = await api.post(`/api/payments/admin/users/${userId}/trial`, { action, ...extra });
+    return res.data;
+  },
+
   async revokePro(userId, kind, id) {
     const res = await api.post(`/api/payments/admin/users/${userId}/revoke-pro`, { kind, id });
     return res.data;

@@ -2,6 +2,7 @@ import api from './apiClient';
 import axios from 'axios'; // Still needed for some external/direct calls
 import { getApiBase } from '../utils/apiBase.js';
 import { logDev } from '../utils/logger.js';
+import { metaBrowser, installReferrer } from '../utils/metaBrowser.js';
 
 const BASE = getApiBase();
 
@@ -14,17 +15,17 @@ const getPlatform = () => {
 
 // Register user (username-based)
 const register = (userData, opts) => {
-  return api.post('/api/auth/register', { ...userData, platform: getPlatform() }, opts);
+  return api.post('/api/auth/register', { ...userData, platform: getPlatform(), installReferrer: installReferrer(), meta: metaBrowser() }, opts);
 };
 
 // Register guest (Get Started: name, classLevel, phone are optional)
 const registerGuest = (details = {}, opts) => {
-  return api.post('/api/auth/register-guest', { ...details, platform: getPlatform() }, opts);
+  return api.post('/api/auth/register-guest', { ...details, platform: getPlatform(), installReferrer: installReferrer() }, opts);
 };
 
 // Guest -> full account once the phone is OTP-verified (keeps the guest's progress)
 const upgradeGuest = ({ phone, otp, password, whatsappOptIn }, opts) => {
-  return api.post('/api/auth/upgrade-guest', { phone, otp, password, whatsappOptIn }, opts);
+  return api.post('/api/auth/upgrade-guest', { phone, otp, password, whatsappOptIn, platform: getPlatform(), installReferrer: installReferrer(), meta: metaBrowser() }, opts);
 };
 
 // Check if user exists by phone
@@ -59,6 +60,8 @@ const resetPassword = (phone, otp, newPassword, opts) => {
 const logoutDevice = (token) => api.post('/api/auth/logout', {}, { headers: { Authorization: `Bearer ${token}` } });
 // A fresh 30-day login (works even if this one has just run out)
 const renewToken = (token) => api.post('/api/auth/renew-token', {}, { headers: { Authorization: `Bearer ${token}` } });
+// The world (science / gita) the learner opened last, shown first on Home
+const setLastWorld = (world) => api.put('/api/auth/last-world', { world });
 
 // Blocked by the 3-device limit: sign one of the other devices out and finish signing in here
 const signOutOtherDeviceAndLogin = ({ ticket, deviceSessionId, guestUserId }, opts) =>
@@ -274,6 +277,7 @@ const authService = {
   signOutOtherDeviceAndLogin,
   logoutDevice,
   renewToken,
+  setLastWorld,
   updateOnboarding,
   updateProfile,
   updateActivity,

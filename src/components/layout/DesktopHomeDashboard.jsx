@@ -9,6 +9,9 @@ const DesktopHomeDashboard = ({
   currentChapterId,
   onSelectChapter,
   onNavigateToPractice,
+  variant,
+  onBackHome,
+  continueLesson,
 }) => {
   return (
     <div className="w-full h-full bg-[#F0F6FF] font-sans flex flex-col overflow-y-auto relative p-4 lg:px-6 lg:py-4 pb-28 lg:pb-3">
@@ -20,6 +23,9 @@ const DesktopHomeDashboard = ({
         currentChapterId={currentChapterId}
         onSelectChapter={onSelectChapter}
         onNavigateToPractice={onNavigateToPractice}
+        variant={variant}
+        continueLesson={continueLesson}
+        onBackHome={onBackHome}
         isMobile={false}
       />
     </div>

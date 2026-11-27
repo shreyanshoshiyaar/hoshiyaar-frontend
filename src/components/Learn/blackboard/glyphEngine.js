@@ -4,6 +4,7 @@
 */
 import defaultGlyphLibrary from './glyph_library.json';
 import http from '../../../services/apiClient.js';
+import { getCharacterImage } from '../../../utils/characterImages.js';
 
 const Glyph = (() => {
   const W = 160, H = 100;
@@ -33,7 +34,9 @@ const Glyph = (() => {
   };
 
   /* Primitives the board draws itself */
-  const PRIM = new Set(['straight_line', 'circle', 'rectangle', 'polyline', 'text', 'arrow']);
+  // face: a character's picture in a circle ({ glyph: 'face', who: 'Krishna', r }), from the lesson character images
+  const PRIM = new Set(['straight_line', 'circle', 'rectangle', 'polyline', 'text', 'arrow', 'face']);
+  let faceClip = 0;
   const LIB = {};
   const bbCache = new Map();
 
@@ -130,7 +133,7 @@ const Glyph = (() => {
     }
     const [x, y] = resolve(p.pos, pieces) || [0, 0];
     const s = p.scale ?? 1;
-    if (p.glyph === 'circle') { const r = (p.r ?? 3) * s; return { center: [x, y], top: [x, y - r], bottom: [x, y + r], left: [x - r, y], right: [x + r, y] }[name] || [x, y]; }
+    if (p.glyph === 'circle' || p.glyph === 'face') { const r = (p.r ?? 3) * s; return { center: [x, y], top: [x, y - r], bottom: [x, y + r], left: [x - r, y], right: [x + r, y] }[name] || [x, y]; }
     if (p.glyph === 'rectangle') { const w = (p.width ?? 10) / 2 * s, h = (p.height ?? 10) / 2 * s; return { center: [x, y], left: [x - w, y], right: [x + w, y], top: [x, y - h], bottom: [x, y + h], topleft: [x - w, y - h], topright: [x + w, y - h], bottomleft: [x - w, y + h], bottomright: [x + w, y + h] }[name] || [x, y]; }
     if (p.glyph === 'text') return [x, y];
     const g = LIB[p.glyph];
@@ -341,6 +344,14 @@ const Glyph = (() => {
         const r = p.r ?? 3;
         const fl = p.fill ? `fill="${COLORS[p.fill] || p.fill}" fill-opacity="${p.fillOp ?? .9}"` : p.style === 'warn' ? `fill="${st.fill}" fill-opacity=".85"` : `fill="${st.solid ? st.fill : 'none'}"`;
         body = `<circle r="${f(r)}" ${fl} ${strokeAttrs(st, s, drawn)}/>`; bb = [-r, -r, r, r];
+      } else if (p.glyph === 'face') {
+        const r = p.r ?? 5;
+        const id = `hyface${++faceClip}`;
+        const url = esc(getCharacterImage(p.who || p.content || '', 'hoshi'));
+        body = `<clipPath id="${id}"><circle r="${f(r)}"/></clipPath><circle r="${f(r)}" fill="#1B2A3F"/>`
+          + `<image href="${url}" x="${f(-r)}" y="${f(-r)}" width="${f(2 * r)}" height="${f(2 * r)}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/>`
+          + `<circle r="${f(r)}" fill="none" ${strokeAttrs(st, s, drawn)}/>`;
+        bb = [-r, -r, r, r];
       } else if (p.glyph === 'rectangle') {
         const w = p.width ?? 10, h = p.height ?? 10;
         body = `<rect x="${f(-w / 2)}" y="${f(-h / 2)}" width="${f(w)}" height="${f(h)}" rx="0.8" fill="${p.fill ? p.fill : st.solid ? st.fill : 'none'}" ${strokeAttrs(st, s, drawn)}/>`; bb = [-w / 2, -h / 2, w / 2, h / 2];
@@ -362,8 +373,8 @@ const Glyph = (() => {
         body = `<circle r="4" fill="none" stroke="#FF5A5F" stroke-width=".8" stroke-dasharray="1 1"/><text y="1.6" font-size="4.5" fill="#FF5A5F" text-anchor="middle">?</text><text y="9" font-size="3" fill="#FF5A5F" text-anchor="middle">${esc(p.glyph || '')}</text>`;
         bb = [-4, -4, 4, 4];
       }
-      const sc = (p.glyph === 'text' || p.glyph === 'circle' || p.glyph === 'rectangle') ? 1 : s;
-      const extraScale = (p.glyph === 'circle' || p.glyph === 'rectangle') ? s : 1;
+      const sc = (p.glyph === 'text' || p.glyph === 'circle' || p.glyph === 'face' || p.glyph === 'rectangle') ? 1 : s;
+      const extraScale = (p.glyph === 'circle' || p.glyph === 'face' || p.glyph === 'rectangle') ? s : 1;
       const rr = (p.rotate || 0) + OS.r;
       body = `<g transform="translate(${f(cx)} ${f(cy)}) scale(${f(popPulse(p, t) * sc * extraScale * (1 + OS.s))})${OS.sx || OS.sy ? ` scale(${f(1 + OS.sx)} ${f(1 + OS.sy)})` : ''}${rr ? ` rotate(${f(rr)})` : ''}">${body}</g>`;
       const k = sc * extraScale;
