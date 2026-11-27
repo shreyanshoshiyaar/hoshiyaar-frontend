@@ -2276,14 +2276,15 @@ const LearnDashboard = ({ onboardingData }) => {
                 onClick={(e) => {
                   e.preventDefault();
                   setIsMobileMenuOpen(false);
-                  navigate("/subscription");
+                  navigate(gitaLive ? "/plans" : "/subscription");
                 }}
                 className={showPro ? "flex items-center gap-4 py-3 px-4 rounded-xl text-lg font-bold transition-colors text-gray-600 hover:bg-blue-50" : "hidden"}
               >
                 <NavProIcon active={false} />
                 <div className="flex items-center justify-between flex-1">
-                  <span>Pro</span>
-                  {hasActivePlan && (
+                  {/* With the Gita world this is Plans (Science Pro and Gita) */}
+                  <span>{gitaLive ? 'Plans' : 'Pro'}</span>
+                  {hasActivePlan && !gitaLive && (
                     <span className="text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-400 to-yellow-500 text-white px-2 py-0.5 rounded-full shadow-xs">
                       VIP
                     </span>
@@ -2362,9 +2363,9 @@ const LearnDashboard = ({ onboardingData }) => {
           )}
           <a
               href="#"
-              hidden={gitaLive}
               onClick={(e) => { e.preventDefault(); navigate('/subscription'); }}
-              className={showPro ? `flex items-center gap-3 py-2 px-3.5 rounded-xl text-base font-bold transition-colors ${activeTab === 'subscription' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}` : 'hidden'}
+              // With the Gita world, Plans (above) covers Science Pro and Gita, so no separate Pro item
+              className={showPro && !gitaLive ? `flex items-center gap-3 py-2 px-3.5 rounded-xl text-base font-bold transition-colors ${activeTab === 'subscription' ? 'bg-[#2563EB] text-white shadow-md' : 'text-gray-600 hover:bg-blue-50'}` : 'hidden'}
             >
               <NavProIcon active={activeTab === 'subscription'} />
               <div className="flex items-center justify-between flex-1">
