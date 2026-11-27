@@ -42,7 +42,7 @@ export default function GitaLanding({ isMobile = true }) {
   let freeLeftToMark = g.hasPass ? 0 : gitaFreeTotal(g);
 
   return (
-    <div className={`w-full select-none bg-[#F5F5F7] ${isMobile ? 'min-h-full' : 'h-full overflow-y-auto px-6 py-4'}`} style={{ fontFamily: FONT, ...(isMobile ? { paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' } : {}) }}>
+    <div className={`w-full select-none bg-[#F5F5F7] ${isMobile ? 'flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain no-scrollbar' : 'h-full overflow-y-auto px-6 py-4'}`} style={{ fontFamily: FONT, ...(isMobile ? { paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' } : {}) }}>
       <div className={isMobile ? 'px-4 pt-3' : 'max-w-4xl mx-auto pb-10'}>
         <button type="button" onClick={() => navigate('/home')} className="inline-flex items-center gap-0.5 py-1 text-[15px] font-medium text-[#EA580C] cursor-pointer active:opacity-60">
           <span aria-hidden="true" className="text-[22px] leading-none -mt-0.5">‹</span> Home
