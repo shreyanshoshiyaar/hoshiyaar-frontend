@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { useAccess } from '../../context/AccessContext.jsx';
 import { useWorlds } from '../../hooks/useWorlds.js';
 import { setLastWorld, getLastLesson } from '../../utils/world.js';
-import { gitaFreeLeft, gitaChapterOpen, gitaChaptersToBuy } from './GitaOffer.jsx';
+import { gitaFreeLeft, gitaFreeTotal, gitaChapterOpen, gitaChaptersToBuy } from './GitaOffer.jsx';
 import heroArt from '../../assets/images/gita_hero.webp';
 import StatusIcon from './StatusIcon.jsx';
 import OfferTag from '../features/Subscription/OfferTag.jsx';
@@ -39,7 +39,7 @@ export default function GitaLanding({ isMobile = true }) {
   };
 
   // Free lessons are the first N across the chapters, in order
-  let freeLeftToMark = g.hasPass ? 0 : Number(g.freeLessons) || 5;
+  let freeLeftToMark = g.hasPass ? 0 : gitaFreeTotal(g);
 
   return (
     <div className={`w-full select-none bg-[#F5F5F7] ${isMobile ? 'min-h-full' : 'h-full overflow-y-auto px-6 py-4'}`} style={{ fontFamily: FONT, ...(isMobile ? { paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' } : {}) }}>

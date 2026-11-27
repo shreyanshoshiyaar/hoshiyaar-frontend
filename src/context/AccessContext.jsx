@@ -50,7 +50,7 @@ const testAccess = (view, real) => {
   const hours = Number(real?.trialHours) || 48;
   const lessons = Number(real?.trialLessonLimit) || 7;
   // Gita as a student sees it too: no chapters bought; 3 free lessons left while the trial runs, none once it ends
-  const gFree = Number(real?.gita?.freeLessons) || 5;
+  const gFree = real?.gita?.freeLessons != null ? Math.max(0, Number(real.gita.freeLessons) || 0) : 5;
   const gita = real?.gita ? {
     ...real.gita, hasPass: view === 'pro', passExpiresAt: null, ownedChapters: [], chapterCredits: 0,
     freeLessons: gFree, freeLeft: view === 'ended' ? 0 : Math.min(3, gFree)

@@ -67,7 +67,7 @@ export default function PlansPage({ isMobile = true }) {
   // Everything open (admin, or the paywall switched off): nothing to buy, say so plainly
   const allOpen = st === 'open';
   const gitaOwned = (g.ownedChapters || []).length;
-  const gitaStatus = g.hasPass ? 'All open' : gitaOwned ? `${gitaOwned} ${gitaOwned === 1 ? 'chapter' : 'chapters'} unlocked` : `${g.freeLessons ?? 5} lessons free`;
+  const gitaStatus = g.hasPass ? 'All open' : gitaOwned ? `${gitaOwned} ${gitaOwned === 1 ? 'chapter' : 'chapters'} unlocked` : Number(g.freeLessons) > 0 ? `${g.freeLessons} lessons free` : `₹${gitaPrice} a chapter`;
 
   return (
     <div className={`w-full font-sans bg-[#F5F3FF] ${isMobile ? 'min-h-full' : 'h-full overflow-y-auto px-6'}`} style={isMobile ? { paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' } : undefined}>

@@ -54,15 +54,16 @@ const CSS = `
 @media (prefers-reduced-motion:reduce){.hyl-cube,.hyl-shadow,.hyl-fill::after,.hyl-line{animation:none}}
 `;
 
-// Fills to 80% over ~12 s, then 1% every 2 s, never past 99% (the screen goes away when the page is ready)
+// Most pages load in 1-2 s, so it fills fast and then slows: ~45% at 1 s, ~70% at 2 s, ~90% at 4 s, then creeps
+// toward 99% (never past it; the screen goes away when the page is ready)
 const useFakeProgress = () => {
   const [value, setValue] = useState(0);
   useEffect(() => {
     const start = Date.now();
     const id = setInterval(() => {
       const t = Date.now() - start;
-      setValue(t < 12000 ? Math.floor((t / 12000) * 80) : Math.min(99, 80 + Math.floor((t - 12000) / 2000)));
-    }, 150);
+      setValue(Math.min(99, Math.floor(96 * (1 - Math.exp(-t / 1700)) + Math.max(0, t - 6000) / 3000)));
+    }, 100);
     return () => clearInterval(id);
   }, []);
   return value;

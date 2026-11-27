@@ -4,6 +4,19 @@ import errorSfx from '../../../assets/sounds/error-010-206498.mp3';
 import { vibrateSuccess, vibrateError } from '../../../utils/vibrationService.js';
 
 /**
+ * An opinion question: no answer is set and every option has its own reply (inputJson.react), e.g. Gita's
+ * "Tumhara Kurukshetra kahan hai?". Any pick is right; its reply is shown.
+ */
+export function isOpinionQuestion(item, options) {
+  if (String(item?.answer ?? '').trim() || String(item?.targetWord ?? '').trim()) return false;
+  const ij = typeof item?.inputJson === 'string' ? (() => { try { return JSON.parse(item.inputJson); } catch (_) { return null; } })() : item?.inputJson;
+  const react = item?.react || ij?.react;
+  if (!react || typeof react !== 'object' || !Array.isArray(options) || options.length === 0) return false;
+  const keys = Object.keys(react).map((k) => k.trim().toLowerCase());
+  return options.every((o) => keys.includes(String(o).trim().toLowerCase()));
+}
+
+/**
  * Extracts the reason / reaction / explanation for a selected option
  * from the item's sheet data (inputJson.react, explanation, reason, etc.)
  */
@@ -109,28 +122,34 @@ function InlineMcq({ item, onComplete, onSkip, playSound }) {
   };
 
   const correctAnswer = resolveCorrectAnswer().trim().toLowerCase();
+  const opinion = isOpinionQuestion(item, options);
 
   const [selectedOption, setSelectedOption] = useState(null);
   const [feedback, setFeedback] = useState('idle'); // 'idle' | 'success' | 'wrong'
   const [isAnswered, setIsAnswered] = useState(false);
   const [wrongOptions, setWrongOptions] = useState(() => new Set());
   const [wrongReason, setWrongReason] = useState(null);
+  // Opinion questions: the reply to the option picked
+  const [pickReply, setPickReply] = useState(null);
 
   const handleOptionClick = (opt) => {
     if (isAnswered) return;
 
     setSelectedOption(opt);
     const cleanOpt = String(opt || '').trim().toLowerCase();
-    const isCorrect = cleanOpt === correctAnswer || (correctAnswer && cleanOpt.includes(correctAnswer));
+    const isCorrect = opinion || cleanOpt === correctAnswer || (correctAnswer && cleanOpt.includes(correctAnswer));
 
     if (isCorrect) {
       setFeedback('success');
       setIsAnswered(true);
       setWrongReason(null);
+      const reply = opinion ? getReasonForOption(item, opt) : null;
+      setPickReply(reply || null);
       playSound(true);
+      // Time to read the reply before moving on
       setTimeout(() => {
         if (onComplete) onComplete();
-      }, 750);
+      }, reply ? 3200 : 750);
     } else {
       setFeedback('wrong');
       setWrongOptions(prev => new Set(prev).add(opt));
@@ -234,6 +253,14 @@ function InlineMcq({ item, onComplete, onSkip, playSound }) {
           <span className="text-sm sm:text-base font-bold">›</span>
         </button>
       </div>
+
+      {/* Opinion question: the reply to the pick */}
+      {pickReply && (
+        <div className="w-full mt-3.5 p-3 sm:p-3.5 rounded-2xl bg-[#10241A] border border-emerald-400/40 text-sm sm:text-base flex items-start gap-2.5 animate-fade-in shadow-md">
+          <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-black flex-shrink-0 mt-0.5">✓</span>
+          <p style={{ fontFamily: "'Fredoka', Trebuchet MS, sans-serif" }} className="flex-1 min-w-0 text-slate-100 text-sm sm:text-base font-medium leading-relaxed">{pickReply}</p>
+        </div>
+      )}
 
       {/* ── REASON / EXPLANATION FROM SHEET (SHOWN WHEN WRONG) ── */}
       {wrongReason && (

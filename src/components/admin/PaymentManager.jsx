@@ -65,6 +65,9 @@ export default function PaymentManager({ subTab = '', onSubTab }) {
         passPrice: data.config?.passPrice ?? pass?.amount ?? 99,
         passOriginalPrice: data.config?.passOriginalPrice ?? pass?.discountedFrom ?? 599,
         passDays: data.config?.passDays ?? pass?.durationDays ?? 180,
+        gitaFreeLessons: data.config?.gitaFreeLessons ?? 5,
+        gitaPassPrice: data.config?.gitaPassPrice ?? 99,
+        gitaPassOriginalPrice: data.config?.gitaPassOriginalPrice ?? 599,
       });
       setAnalytics(data.analytics);
     } catch (err) {
@@ -106,7 +109,11 @@ export default function PaymentManager({ subTab = '', onSubTab }) {
         passPrice: Number(config.passPrice),
         passOriginalPrice: Number(config.passOriginalPrice),
         passDays: Number(config.passDays),
-        offerEndsAt: config.offerEndsAt ? new Date(config.offerEndsAt).toISOString() : ''
+        offerEndsAt: config.offerEndsAt ? new Date(config.offerEndsAt).toISOString() : '',
+        gitaFreeLessons: Number(config.gitaFreeLessons),
+        gitaPassPrice: Number(config.gitaPassPrice),
+        gitaPassOriginalPrice: Number(config.gitaPassOriginalPrice),
+        gitaOfferEndsAt: config.gitaOfferEndsAt ? new Date(config.gitaOfferEndsAt).toISOString() : ''
       };
       const res = await paymentService.updateAdminSettings(payload);
       
@@ -458,8 +465,58 @@ export default function PaymentManager({ subTab = '', onSubTab }) {
                 </span>
               </div>
               <p className="text-[11px] text-gray-500 mt-1.5 leading-snug">
-                Until this time, students without Pro see a "Limited time offer" pop-up once a day with the price above
+                Science only. Until this time, students without Pro see a "Limited time offer" pop-up once a day with the price above
                 (strikethrough vs Pro price) and a countdown to this time. Empty or past = no pop-up.
+              </p>
+            </div>
+
+            {/* Gita world: its own free lessons, chapter price and offer countdown */}
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200">
+              <p className="text-xs font-black text-orange-900 uppercase tracking-wider mb-3">🪷 Gita world</p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-[11px] font-black text-slate-700 uppercase tracking-wider mb-1">Free Gita lessons</label>
+                  <input type="number" min="0" max="500" value={config.gitaFreeLessons ?? 5}
+                    onChange={(e) => setConfig({ ...config, gitaFreeLessons: e.target.value })}
+                    className="w-full h-11 px-3.5 rounded-xl border border-orange-200 bg-white font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500" />
+                  <p className="text-[11px] text-gray-500 mt-1.5 leading-snug">The first lessons of the Gita world, in order, free for everyone. 0 = none. Default: 5.</p>
+                </div>
+                <div>
+                  <label className="block text-[11px] font-black text-slate-700 uppercase tracking-wider mb-1">Price per chapter (₹)</label>
+                  <input type="number" min="1" max="100000" value={config.gitaPassPrice ?? 99}
+                    onChange={(e) => setConfig({ ...config, gitaPassPrice: e.target.value })}
+                    className="w-full h-11 px-3.5 rounded-xl border border-orange-200 bg-white font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500" />
+                  <p className="text-[11px] text-gray-500 mt-1.5 leading-snug">Website price. In the app Google Play charges the price set on hoshiyaar_gita_chapter.</p>
+                </div>
+                <div>
+                  <label className="block text-[11px] font-black text-slate-700 uppercase tracking-wider mb-1">Struck-through price (₹)</label>
+                  <input type="number" min="0" max="100000" value={config.gitaPassOriginalPrice ?? 599}
+                    onChange={(e) => setConfig({ ...config, gitaPassOriginalPrice: e.target.value })}
+                    className="w-full h-11 px-3.5 rounded-xl border border-orange-200 bg-white font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500" />
+                  <p className="text-[11px] text-gray-500 mt-1.5 leading-snug">Shown crossed out next to the chapter price. 0 = none.</p>
+                </div>
+              </div>
+              <label className="block text-[11px] font-black text-orange-900 uppercase tracking-wider mt-4 mb-1">🔥 Gita limited time offer ends</label>
+              <div className="flex items-center gap-2 flex-wrap">
+                <input
+                  type="datetime-local"
+                  value={config.gitaOfferEndsAt ? toLocalInput(config.gitaOfferEndsAt) : ''}
+                  onChange={(e) => setConfig({ ...config, gitaOfferEndsAt: e.target.value ? new Date(e.target.value).toISOString() : '' })}
+                  className="h-11 px-3.5 rounded-xl border border-orange-200 bg-white font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                />
+                {config.gitaOfferEndsAt && (
+                  <button type="button" onClick={() => setConfig({ ...config, gitaOfferEndsAt: '' })}
+                    className="h-11 px-4 rounded-xl border border-orange-200 bg-white text-sm font-bold text-orange-700 cursor-pointer">
+                    Turn off Gita offer
+                  </button>
+                )}
+                <span className={`text-xs font-black ${config.gitaOfferEndsAt && new Date(config.gitaOfferEndsAt) > new Date() ? 'text-green-700' : 'text-gray-500'}`}>
+                  {config.gitaOfferEndsAt && new Date(config.gitaOfferEndsAt) > new Date() ? '● Gita offer running' : '○ No Gita offer running'}
+                </span>
+              </div>
+              <p className="text-[11px] text-gray-500 mt-1.5 leading-snug">
+                Separate from the Science offer above: the Gita "Limited time offer" strip and its countdown show in the Gita
+                world until this time. Empty or past = no Gita offer.
               </p>
             </div>
 

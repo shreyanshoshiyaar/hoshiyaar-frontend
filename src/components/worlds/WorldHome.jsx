@@ -5,6 +5,7 @@ import { useHomeArt } from '../../hooks/useHomeArt.js';
 import squadImage from '../../assets/images/solve_squad_characters.webp';
 import gitaArt from '../../assets/images/gita_hero.webp';
 import StatusIcon from './StatusIcon.jsx';
+import { gitaFreeTotal, gitaFreeLeft } from './GitaOffer.jsx';
 
 // Home with two big world cards (Science, Gita) on an illustrated page background, per the client's design.
 // The three pictures (page background, Science card, Gita card) come from the "home_art" setting, so they can be
@@ -135,12 +136,13 @@ const scienceStatus = (access, now) => {
 
 // Gita: free lessons left (no timer)
 const gitaStatus = (gita) => {
-  if (!gita) return { text: '5 free lessons' };
+  if (!gita) return { text: 'Start free' };
   if (gita.hasPass) return { icon: 'star', text: 'All chapters open' };
   const owned = (gita.ownedChapters || []).length;
   if (owned) return { icon: 'star', text: `${owned} ${owned === 1 ? 'chapter' : 'chapters'} unlocked` };
-  const total = Number(gita.freeLessons) || 5;
+  const total = gitaFreeTotal(gita);
   const left = gita.freeLeft ?? total;
+  if (total === 0) return { icon: 'lock', text: `₹${Number(gita.price) || 99} a chapter` };
   if (left <= 0) return { icon: 'lock', text: `Free lessons done · ₹${Number(gita.price) || 99} a chapter`, tone: 'warn' };
   return { text: left === total ? `${total} free lessons` : `${left} of ${total} free lessons left` };
 };
@@ -150,7 +152,7 @@ export default function WorldHome({
 }) {
   const now = useMinuteTick();
   const art = useHomeArt();
-  const gitaFreeDone = !gita?.hasPass && (gita?.freeLeft ?? 1) <= 0;
+  const gitaFreeDone = Boolean(gita && gitaFreeLeft(gita) && gitaFreeLeft(gita).left <= 0);
 
   const scienceDoor = (
     <Door

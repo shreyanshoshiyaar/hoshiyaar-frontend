@@ -67,9 +67,11 @@ export default function OfferTag({ variant = 'strip', rounded = false, className
   const now = useServerNow();
   // Gita: the same offer end time (Admin → Payments), for a Gita chapter, to learners without every chapter open
   const gita = world === 'gita';
-  if (gita ? (!access?.gita || access.gita.hasPass || !(offerEndsAtMs(access) > now)) : !offerRunning(access, now)) return null;
+  // Gita has its own offer end time (Admin → Payments → Gita world), separate from Science's
+  const endsMs = gita ? (access?.gita?.offerEndsAt ? new Date(access.gita.offerEndsAt).getTime() || 0 : 0) : offerEndsAtMs(access);
+  if (gita ? (!access?.gita || access.gita.hasPass || !(endsMs > now)) : !offerRunning(access, now)) return null;
 
-  const msLeft = offerEndsAtMs(access) - now;
+  const msLeft = endsMs - now;
   const lastDay = msLeft < 24 * 3600 * 1000;
   const price = gita ? (Number(access.gita.price) || 99) : (Number(access?.plan?.amount) || 99);
   const was = gita ? (Number(access.gita.originalPrice) || 0) : (Number(access?.plan?.discountedFrom) || 0);

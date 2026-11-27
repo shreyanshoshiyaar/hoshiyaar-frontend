@@ -22,10 +22,16 @@ export const gitaChaptersToBuy = (gita, chapters = []) =>
 export const gitaBuyPath = (chapterId) =>
   (chapterId ? `/gita-pro?chapter=${encodeURIComponent(chapterId)}&buy=1` : '/gita-pro');
 
+/** How many Gita lessons are free (Admin → Payments → Gita world; 0 allowed). 5 only if the server sent none */
+export const gitaFreeTotal = (gita) => {
+  const n = Number(gita?.freeLessons);
+  return Number.isFinite(n) && gita?.freeLessons != null ? Math.max(0, n) : 5;
+};
+
 /** Free Gita lessons left (null when every chapter is open) */
 export const gitaFreeLeft = (gita) => {
   if (!gita || gita.hasPass) return null;
-  const total = Number(gita.freeLessons) || 5;
+  const total = gitaFreeTotal(gita);
   return { left: Math.max(0, gita.freeLeft ?? total), total };
 };
 
@@ -74,7 +80,7 @@ export function GitaOfferModal({ isOpen, onClose, access }) {
             Unlock <span className="text-[#FEF3C7]">a chapter</span>
           </h3>
           <p className="mt-1 text-[13px] font-semibold text-white/90">
-            {free.left > 0 ? `${free.left} of ${free.total} free lessons left` : `You've finished the ${free.total} free lessons`}
+            {free.left > 0 ? `${free.left} of ${free.total} free lessons left` : free.total ? `You've finished the ${free.total} free lessons` : 'Every chapter, one at a time'}
           </p>
 
           <div className="mt-3 flex items-center justify-center gap-3">
@@ -174,8 +180,8 @@ export function GitaTrialBanner({ className = '' }) {
             <Medallion done={done} className="w-11 h-11 min-[380px]:w-[54px] min-[380px]:h-[54px]" />
             {done ? (
               <div className="min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-wider text-[#FDA4AF] whitespace-nowrap">Free lessons done</p>
-                <p className="font-black text-white text-sm sm:text-base leading-tight">All {free.total} free lessons played</p>
+                <p className="text-[10px] font-black uppercase tracking-wider text-[#FDA4AF] whitespace-nowrap">{free.total ? 'Free lessons done' : 'Gita chapters'}</p>
+                <p className="font-black text-white text-sm sm:text-base leading-tight">{free.total ? `All ${free.total} free lessons played` : 'Unlock a chapter to begin'}</p>
                 <p className="text-[11px] font-bold text-[#FED7AA]/85">{bought ? 'Unlock the next chapter' : 'Played lessons stay open'}</p>
               </div>
             ) : (
@@ -236,7 +242,7 @@ export function GitaFreeBar({ variant = 'bar', className = '' }) {
           <span className="shrink-0 text-[#FCD34D]" aria-hidden="true"><StatusIcon name={done ? 'lock' : 'gift'} className="w-[22px] h-[22px]" /></span>
           {done ? (
             <p className="min-w-0 text-[14px] min-[380px]:text-[15px] font-black text-white leading-tight truncate">
-              Free lessons done <span className="font-bold text-[#FED7AA]">· played lessons stay open</span>
+              {free.total ? <>Free lessons done <span className="font-bold text-[#FED7AA]">· played lessons stay open</span></> : 'Unlock a chapter to begin'}
             </p>
           ) : (
             <p className="min-w-0 flex items-baseline gap-1.5 whitespace-nowrap">

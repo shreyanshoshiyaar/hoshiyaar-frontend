@@ -257,7 +257,7 @@ export default function ModuleEntryRedirect() {
         </div>
         <h2 className="text-2xl font-black text-slate-900 mb-2">Unlock this chapter</h2>
         <p className="text-sm font-semibold text-slate-500 max-w-xs mb-7">
-          You've played the {g.freeLessons ?? 5} free Gita lessons. Unlock this chapter once for ₹{g.price ?? 99} and every lesson in it stays open for good.
+          {Number(g.freeLessons) > 0 ? `You've played the ${g.freeLessons} free Gita lessons. ` : ''}Unlock this chapter once for ₹{g.price ?? 99} and every lesson in it stays open for good.
         </p>
         <button
           onClick={() => navigate(buyChapter ? `/gita-pro?chapter=${encodeURIComponent(buyChapter)}&buy=1` : '/gita-pro')}

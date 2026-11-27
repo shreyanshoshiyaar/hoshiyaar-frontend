@@ -10,7 +10,7 @@ import GuestVerifyModal from '../forms/GuestVerifyModal.jsx';
 import BottomNavigation from '../layout/BottomNavigation.jsx';
 import { clarityEvent } from '../../utils/clarity.js';
 import { LotusArt } from './WorldArt.jsx';
-import { gitaChapterOpen } from './GitaOffer.jsx';
+import { gitaChapterOpen, gitaFreeTotal } from './GitaOffer.jsx';
 
 // The Gita chapters page (route /gita-pro): Gita is sold per chapter, ₹99 each, and a bought chapter stays open for
 // good. Lists every chapter with Unlock / Unlocked, then what a chapter includes, questions and Gita payments.
@@ -102,7 +102,7 @@ export default function GitaProPage() {
   const price = Number(g.price) || 99;
   const was = Number(g.originalPrice) || 0;
   const saving = was > price ? Math.round((1 - price / was) * 100) : 0;
-  const free = g.freeLessons ?? 5;
+  const free = gitaFreeTotal(g);
   const ownedCount = gitaChapters.filter((c) => gitaChapterOpen(g, c._id)).length;
   const titleOf = (id) => {
     const i = gitaChapters.findIndex((c) => String(c._id) === String(id));
@@ -112,10 +112,10 @@ export default function GitaProPage() {
 
   const statusPill = allOpen
     ? 'Every chapter is open for you'
-    : ownedCount ? `${ownedCount} of ${gitaChapters.length} ${gitaChapters.length === 1 ? 'chapter' : 'chapters'} unlocked` : `First ${free} lessons free`;
+    : ownedCount ? `${ownedCount} of ${gitaChapters.length} ${gitaChapters.length === 1 ? 'chapter' : 'chapters'} unlocked` : free ? `First ${free} lessons free` : `₹${price} per chapter`;
 
   const faq = [
-    ['How does it work?', `The first ${free} Gita lessons are free. After that, each chapter is unlocked on its own for ₹${price}, and stays open for good.`],
+    ['How does it work?', `${free ? `The first ${free} Gita lessons are free. After that, each` : 'Each'} chapter is unlocked on its own for ₹${price}, and stays open for good.`],
     ['Does it renew or expire?', 'No. It is a one-time payment per chapter. There is no time limit and nothing is charged again.'],
     ['Is it separate from Science Pro?', 'Yes. Gita chapters are bought here, and Science Pro opens the Science world. Each is bought on its own.'],
     ['Who is it for?', 'Every student, whatever their class. The Gita world is the same for everyone.'],

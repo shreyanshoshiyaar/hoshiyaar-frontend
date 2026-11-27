@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import boardTeacherImg from '../../../assets/images/board_teacher.png';
 import correctSfx from '../../../assets/sounds/correct-choice-43861.mp3';
 import errorSfx from '../../../assets/sounds/error-010-206498.mp3';
-import { getReasonForOption } from './InlineEngagementCard';
+import { getReasonForOption, isOpinionQuestion } from './InlineEngagementCard';
 import { playTtsAudio } from '../../../utils/audioPreloadService.js';
 import { getCharacterImage, useCharacterImages } from '../../../utils/characterImages.js';
 import { Capacitor } from '@capacitor/core';
@@ -932,16 +932,19 @@ function EngagementMcqContent({ item, onSuccess, onSkip, playSound }) {
       isCorrect = cleanOpt === correctAnswer || (correctAnswer && (cleanOpt.includes(correctAnswer) || correctAnswer.includes(cleanOpt)));
     } else {
       const react = item.react || (typeof item.inputJson === 'object' ? item.inputJson?.react : null);
-      const isPurePoll = !react || Object.keys(react).length === 0;
+      // A poll (no replies), or an opinion question (a reply for every option): any pick is right
+      const isPurePoll = !react || Object.keys(react).length === 0 || isOpinionQuestion(item, options);
       isCorrect = isPurePoll;
     }
 
     if (isCorrect) {
       setFeedback('success');
       if (playSound) playSound(true);
+      // With a reply to read (opinion questions), give it time before moving on
+      const hasReply = !hasSpecificAnswer && Boolean(getReasonForOption(item, opt));
       setTimeout(() => {
         if (onSuccess) onSuccess();
-      }, 500);
+      }, hasReply ? 3200 : 500);
     } else {
       setFeedback('wrong');
       if (playSound) playSound(false);
