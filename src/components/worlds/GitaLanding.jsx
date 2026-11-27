@@ -104,7 +104,7 @@ export default function GitaLanding({ isMobile = true }) {
           <div className="rounded-[20px] bg-white p-6 text-center text-[14px] font-medium text-[#6E6E73]">Gita chapters are coming soon.</div>
         )}
         {/* The earlier chapter cards: number, name, lessons and free tags */}
-        <div className={`grid gap-3 ${isMobile ? 'grid-cols-2' : 'grid-cols-3'}`}>
+        <div className={`grid gap-3 ${isMobile ? 'grid-cols-2' : 'grid-cols-4'}`}>
           {gitaChapters.map((ch, i) => {
             const freeHere = Math.max(0, Math.min(freeLeftToMark, ch.lessons || 0));
             freeLeftToMark -= freeHere;
